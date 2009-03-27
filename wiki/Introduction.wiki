@@ -1,3 +1,5 @@
+#summary HOWTO: Use code from the HAWG Repository
+
 =HOWTO: Use code from the HAWG Repository= 
 == Directory Structure ==
 One directory corresponds to a single stock, which in turn has the following directory structure
