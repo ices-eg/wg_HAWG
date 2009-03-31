@@ -4,7 +4,9 @@
 
 A nice introduction on how to download code from the repository using TortoiseSVN has been written by the [http://code.google.com/p/mseflr/ mseflr] people and is available from http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN. 
 
-The "checkout" URL for this project is http://hawg.googlecode.com/svn/trunk/. If you would like to download snap-shot versions of the assessment (e.g. from HAWG 2009), checkout from http://hawg.googlecode.com/svn/tags/ instead. If you would like to get everything, including both the most version (the "trunk") and all snap-shots, checkout from http://hawg.googlecode.com/svn/.
+The "trunk" URL for this project is http://hawg.googlecode.com/svn/trunk/ - this contains the most recent version. If you intend to work on the files, you should "checkout" from this directory - otherwise, if you're just curious, you should "export" from this directory(right-click on a folder, and select TortoiseSVN/Export). The difference is relatively minor however, and you can't do too much damage by choosing the wrong option.
+
+If you would like to download snap-shot versions of the assessment to run yourself (e.g. from HAWG 2009), use http://hawg.googlecode.com/svn/tags/ as the URL instead. If you would like to get everything, including both the most recent version (the "trunk") and all snap-shots,  use http://hawg.googlecode.com/svn/.
 
 Finally, there is a wee trap for beginners when logging in for the first time - make sure that you use the password for the project that googlecode supplies you - not your login password to google itself! This is detailed on in the [http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN mseflr] page under "Project member checkout".
 
