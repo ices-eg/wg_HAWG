@@ -1,6 +1,5 @@
 #summary HOWTO: Use code from the HAWG Repository
-
-=HOWTO: Use code from the HAWG Repository= 
+<wiki:toc max_depth="2" />
 
 == Getting the Code ==
 
