@@ -1,3 +1,4 @@
+#summary HOWTO: Use the HAWG Repository
 =HOWTO: Use the HAWG Repository=
 
 == Getting the Code ==
