@@ -2,7 +2,7 @@
 
 == Getting the Code ==
 
-A nice introduction on how to download code from the repository using TortoiseSVN has been written by the [http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN mseflr] people and is available from http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN. 
+A nice introduction on how to download code from the repository using TortoiseSVN has been written by the [http://code.google.com/p/mseflr/ mseflr] people and is available from http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN. 
 
 The "checkout" URL for this project is http://hawg.googlecode.com/svn/trunk/. If you would like to download snap-shot versions of the assessment (e.g. from HAWG 2009), checkout from http://hawg.googlecode.com/svn/tags/ instead. If you would like to get everything, including both the most version (the "trunk") and all snap-shots, checkout from http://hawg.googlecode.com/svn/.
 
