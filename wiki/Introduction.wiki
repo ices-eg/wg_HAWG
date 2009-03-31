@@ -1,11 +1,13 @@
-#summary HOWTO: Use code from the HAWG Repository
-<wiki:toc max_depth="2" />
+=HOWTO: Use the HAWG GoogleCode Repository=
 
 == Getting the Code ==
 
 A nice introduction on how to download code from the repository using TortoiseSVN has been written by the [http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN mseflr] people and is available from http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN. 
 
 The "checkout" URL for this project is http://hawg.googlecode.com/svn/trunk/. If you would like to download snap-shot versions of the assessment (e.g. from HAWG 2009), checkout from http://hawg.googlecode.com/svn/tags/ instead. If you would like to get everything, including both the most version (the "trunk") and all snap-shots, checkout from http://hawg.googlecode.com/svn/.
+
+Finally, there is a wee trap for beginners when logging in for the first time - make sure that you use the password for the project that GoogleCode supplies you - not your login password! This is detailed on in the [http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN mseflr] page under "Project member checkout".
+
 
 == Directory Structure ==
 The repository consists of a set of seven folders, where each directory corresponds to a single stock. The stock folders, in turn, each have the following directory structure
