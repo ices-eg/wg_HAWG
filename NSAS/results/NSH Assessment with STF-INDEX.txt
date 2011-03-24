@@ -1,0 +1,18 @@
+North Sea Herring 
+1
+./results/NSH Assessment with STF-LATON.txt
+./results/NSH Assessment with STF-LANUM.txt
+./results/NSH Assessment with STF-WELAND.txt
+./results/NSH Assessment with STF-WEST.txt
+./results/NSH Assessment with STF-NATMOR.txt
+./results/NSH Assessment with STF-MATPROP.txt
+./results/NSH Assessment with STF-FPROP.txt
+./results/NSH Assessment with STF-MPROP.txt
+./results/NSH Assessment with STF-F.txt
+./results/NSH Assessment with STF-N.txt
+./results/NSH Assessment with STF-DISTON.txt
+./results/NSH Assessment with STF-DISNUM.txt
+./results/NSH Assessment with STF-WEDIS.txt
+./results/NSH Assessment with STF-CATON.txt
+./results/NSH Assessment with STF-CANUM.txt
+./results/NSH Assessment with STF-WECA.txt
