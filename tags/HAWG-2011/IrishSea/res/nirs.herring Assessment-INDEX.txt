@@ -1,0 +1,18 @@
+Herring Irish Sea 
+1
+res/nirs.herring Assessment-LATON.txt
+res/nirs.herring Assessment-LANUM.txt
+res/nirs.herring Assessment-WELAND.txt
+res/nirs.herring Assessment-WEST.txt
+res/nirs.herring Assessment-NATMOR.txt
+res/nirs.herring Assessment-MATPROP.txt
+res/nirs.herring Assessment-FPROP.txt
+res/nirs.herring Assessment-MPROP.txt
+res/nirs.herring Assessment-F.txt
+res/nirs.herring Assessment-N.txt
+res/nirs.herring Assessment-DISTON.txt
+res/nirs.herring Assessment-DISNUM.txt
+res/nirs.herring Assessment-WEDIS.txt
+res/nirs.herring Assessment-CATON.txt
+res/nirs.herring Assessment-CANUM.txt
+res/nirs.herring Assessment-WECA.txt

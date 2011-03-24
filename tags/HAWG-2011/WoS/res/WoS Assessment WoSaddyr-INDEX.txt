@@ -1,0 +1,18 @@
+West of Scotland Herring 
+1
+./res/WoS Assessment WoSaddyr-LATON.txt
+./res/WoS Assessment WoSaddyr-LANUM.txt
+./res/WoS Assessment WoSaddyr-WELAND.txt
+./res/WoS Assessment WoSaddyr-WEST.txt
+./res/WoS Assessment WoSaddyr-NATMOR.txt
+./res/WoS Assessment WoSaddyr-MATPROP.txt
+./res/WoS Assessment WoSaddyr-FPROP.txt
+./res/WoS Assessment WoSaddyr-MPROP.txt
+./res/WoS Assessment WoSaddyr-F.txt
+./res/WoS Assessment WoSaddyr-N.txt
+./res/WoS Assessment WoSaddyr-DISTON.txt
+./res/WoS Assessment WoSaddyr-DISNUM.txt
+./res/WoS Assessment WoSaddyr-WEDIS.txt
+./res/WoS Assessment WoSaddyr-CATON.txt
+./res/WoS Assessment WoSaddyr-CANUM.txt
+./res/WoS Assessment WoSaddyr-WECA.txt

@@ -1,0 +1,18 @@
+Celtic Sea Herring 
+1
+results/cs.herring Assessment-LATON.txt
+results/cs.herring Assessment-LANUM.txt
+results/cs.herring Assessment-WELAND.txt
+results/cs.herring Assessment-WEST.txt
+results/cs.herring Assessment-NATMOR.txt
+results/cs.herring Assessment-MATPROP.txt
+results/cs.herring Assessment-FPROP.txt
+results/cs.herring Assessment-MPROP.txt
+results/cs.herring Assessment-F.txt
+results/cs.herring Assessment-N.txt
+results/cs.herring Assessment-DISTON.txt
+results/cs.herring Assessment-DISNUM.txt
+results/cs.herring Assessment-WEDIS.txt
+results/cs.herring Assessment-CATON.txt
+results/cs.herring Assessment-CANUM.txt
+results/cs.herring Assessment-WECA.txt
