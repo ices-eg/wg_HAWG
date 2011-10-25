@@ -1,4 +1,4 @@
-#summary FLSAM
+#summary Getting Started with the FLSAM Package
 = Introduction =
 
 How to get FLSAM rolling
