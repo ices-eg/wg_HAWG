@@ -16,10 +16,6 @@ We'll assume you can handle #1 yourself, but number 2 is a bit trickier, and is 
   * On the [http://code.google.com/p/mseflr/ mseflr] project wiki
 
 There are some key points to note here. 
-  * Firstly there are two different ways to checkout the code, depending on whether you want to commit the changes back to the repository or not. If you checkout the repository from 
-  {{{http://hawg.googlecode.com/svn/trunk/ }}}
-it will not be possible to commit your changes back - however, the benefit is that *anyone* can get access to the repository, without the need for a google account.
-  * Alternatively, you can check out the code from
-{{{https://hawg.googlecode.com/svn/trunk/ }}}
-(note the *https*, rather than http), in which case you will be able to commit your changes back. The disadvantage is that this requires a google account (e.g. gmail.com).
+  * Firstly there are two different ways to checkout the code, depending on whether you want to commit the changes back to the repository or not. If you checkout the repository from {{{http://hawg.googlecode.com/svn/trunk/ }}} it will not be possible to commit your changes back - however, the benefit is that *anyone* can get access to the repository, without the need for a google account.
+  * Alternatively, you can check out the code from {{{https://hawg.googlecode.com/svn/trunk/ }}} (note the *https*, rather than http), in which case you will be able to commit your changes back. The disadvantage is that this requires a google account (e.g. gmail.com).
   * Finally, there is a wee trap for beginners when logging in for the first time - make sure that you use the password for the project that googlecode supplies you - *not* your login password to google itself (slightly counter-intuitive, I know)! This is detailed on in the [http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN mseflr] page under "Project member checkout".
