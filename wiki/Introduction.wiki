@@ -6,32 +6,20 @@ The following page describes how to setup and get started with using the HAWG st
 You will need the following software to use the HAWG repository. 
   * R (at least version 2.13.0 or greater) for your system. [http://cran.r-project.org/ Available here].
   * An SVN (subversion) client. For Windows users, we recommend [http://tortoisesvn.tigris.org/ TortoiseSVN]. Linux users will typically have access to such a client through their package distribution system.
-  * Some way to write and edit R code. For Windows, try [http://rstudio.org/ RStudio] or [http://sourceforge.net/projects/tinn-r/ Tinn-R]. For Linux, you have [http://en.wikipedia.org/wiki/Vi Vi]
+  * Some way to write and edit R code. For Windows, try [http://rstudio.org/ RStudio] or [http://sourceforge.net/projects/tinn-r/ Tinn-R]. For Linux, you almost certaintly already have [http://en.wikipedia.org/wiki/Vi Vi]
 
 == Getting the Code ==
 
-A nice introduction on how to download code from the repository using TortoiseSVN has been written by the [http://code.google.com/p/mseflr/ mseflr] people and is available from http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN. 
+Once you've got all the necessary bits and pieces, the next step is to fetch a "working copy" of the HAWG repository from the server. The SVN client that you have installed takes care of this. The general process is client specific, but generally involves two steps 1. Create a directory for your working copy (e.g. Desktop/HAWG_assessments and 2. "Checking out" the repository. 
 
-The "trunk" URL for this project is http://hawg.googlecode.com/svn/trunk/ - this contains the most recent version. If you intend to work on the files, you should "checkout" from this directory - otherwise, if you're just curious, you should "export" from this directory(right-click on a folder, and select TortoiseSVN/Export). The difference is relatively minor however, and you can't do too much damage by choosing the wrong option.
+We'll assume you can handle #1 yourself, but number 2 is a bit trickier, and is of course dependent on your SVN client. There are a number of good resources available e.g. for windows
+  * On the [http://code.google.com/p/mseflr/ mseflr] project wiki
 
-If you would like to download snap-shot versions of the assessment to run yourself (e.g. from HAWG 2009), use http://hawg.googlecode.com/svn/tags/ as the URL instead. If you would like to get everything, including both the most recent version (the "trunk") and all snap-shots,  use http://hawg.googlecode.com/svn/.
-
-Finally, there is a wee trap for beginners when logging in for the first time - make sure that you use the password for the project that googlecode supplies you - not your login password to google itself! This is detailed on in the [http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN mseflr] page under "Project member checkout".
-
-
-
-== Working Directory ==
-All code is designed to be run with the ./Stock/ directory as the working directory. Changes from this will cause code to break - I wish there was a nice way around this, but there isn't really, unfortunately. All paths should be setup relative to this directory.
-
-	
-==Output Figures==
-
-The common assessment module does not specify the type of output format - this is left 
-up to the user to decide. If no device is configured, all of the graphs will be displayed
-in the graphics window. If the user wishes to save the graphs, eg to windows metafiles, png or PDF, they should configure the output device before sourcing the common module, and close it afterwards. eg
-
-{{{
-png("figures - %02d.png",units = "px", pointsize = 10, bg = "white")
-#<Plotting scripts>
-dev.off()
-}}}
+There are some key points to note here. 
+  * Firstly there are two different ways to checkout the code, depending on whether you want to commit the changes back to the repository or not. If you checkout the repository from 
+  {{{http://hawg.googlecode.com/svn/trunk/ }}}
+it will not be possible to commit your changes back - however, the benefit is that *anyone* can get access to the repository, without the need for a google account.
+  * Alternatively, you can check out the code from
+{{{https://hawg.googlecode.com/svn/trunk/ }}}
+(note the *https*, rather than http), in which case you will be able to commit your changes back. The disadvantage is that this requires a google account (e.g. gmail.com).
+  * Finally, there is a wee trap for beginners when logging in for the first time - make sure that you use the password for the project that googlecode supplies you - *not* your login password to google itself (slightly counter-intuitive, I know)! This is detailed on in the [http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN mseflr] page under "Project member checkout".
