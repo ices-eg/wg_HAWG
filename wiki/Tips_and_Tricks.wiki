@@ -1,7 +1,4 @@
-#summary Tips and Tricks
-
-=Tips and Tricks=
-Some general ideas, tips, tricks and advice
+#summary Tips and Tricks for working with the HAWG repository
 
 == Working Directory ==
 Most code is designed to be run from R with the stock directory (e.g. ./NSAS) set as the working directory. Changes from this will generally cause code to break - I wish there was a nice way around this, but there isn't really, unfortunately. All paths in the code should be setup relative to this directory.
