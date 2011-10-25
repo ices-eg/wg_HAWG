@@ -19,3 +19,10 @@ There are some key points to note here.
   * Firstly there are two different ways to checkout the code, depending on whether you want to commit the changes back to the repository or not. If you checkout the repository from {{{http://hawg.googlecode.com/svn/trunk/ }}} it will not be possible to commit your changes back - however, the benefit is that *anyone* can get access to the repository, without the need for a google account.
   * Alternatively, you can check out the code from {{{https://hawg.googlecode.com/svn/trunk/ }}} (note the *https*, rather than http), in which case you will be able to commit your changes back. The disadvantage is that this requires a google account (e.g. gmail.com).
   * Finally, there is a wee trap for beginners when logging in for the first time - make sure that you use the password for the project that googlecode supplies you - *not* your login password to google itself (slightly counter-intuitive, I know)! This is detailed on in the [http://code.google.com/p/mseflr/wiki/UsingTortoiseSVN mseflr] page under "Project member checkout".
+
+== Installing the FLR packages ==
+Once you've checked our the source code from the repository, you're nearly ready to start running assessments. FLR is very modular in nature, and is designed as a series of lego-blocks that can be snapped in as needed. You most probably do not need everything that FLR offers. However, in any case you will need the FLCore package, which is the heart of the system. You can install the latest release for your machine by issuing the following command in R.
+{{{
+  install.packages("FLCore", repos="http://flr-project.org/R")
+}}}
+Other packages that you may wish to add can also be added in a similar manner, by replacing "FLCore" with the name of the package.
