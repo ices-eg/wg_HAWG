@@ -1,4 +1,5 @@
 #summary Side
   * [Introduction Introduction]
   * [FLSAM FLSAM]
+  * [FLICA FLICA]
   * [Tips_and_Tricks Tips and Tricks]
