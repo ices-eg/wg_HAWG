@@ -60,8 +60,50 @@ Alternatively, you can load a preprepared FLSAM.control object for the NSH asses
   ctrl <- NSH.ctrl
 }}}
 
-Configuration options can be set by the user by directly accessing and modifying the contents of FLSAM.control object e.g {{{
+Configuration options can be set by the user by directly accessing and modifying the contents of FLSAM.control object e.g 
+{{{
   ctrl@catchabilities["HERAS","9"] <- 12
 }}}
 
 The details of this configuration are not convered here but can be found in <TODO: Document configuration settings>. 
+
+== Running the assessment ==
+Now you have an FLStock object "stck", an FLIndices object "tun" and an FLSAM.control object "ctrl", so you're ready to go! Run the assessment as follows:
+{{{
+  sam <- FLSAM(stck,tun,ctrl)
+}}}
+You will immediately start to see a series of outputs from the model, as it runs through the optimisation process. The model fitting procedure can take some time, depending on how powerful your machine is - the NSH assessment takes 5 minutes on a powerful workstation, about 10 minutes on a relatively new laptop, and 20 minutes on a 2007-vintage laptop. Patience, young jedi.
+
+Once the assessment is complete, you will have an object called "sam", which is of the type "FLSAM". You can copy the results of this assessment into an FLStock object as follows
+{{{
+  new.stck <- stck + sam
+}}}
+"new.stck" can then be used by other assessment methods.
+
+== Plotting and diagnostics ==
+The final step is to look at your results! Firstly, lets have a look at the results.
+{{{
+  plot(sam)
+}}}
+This returns a "stock-summary" plot, showing the ssb, fbar and recruitment estimated by FLSAM, including the 95% confidence intervals.
+
+But the key question is, how well does the model fit. Lets have a look at the fit diagnostics:
+{{{
+  par(ask=TRUE)
+  residual.diagnostics(sam)
+}}}
+This returns a series of "ICA-style" diagnostic plots - press enter to move between them. 
+
+There are many more, more advanced methods to visualise the quality and nature of the fit. Here is a more complex example that displays the observation error associated with each data source as a barplot:
+{{{
+barchart(exp(value) ~ age | fleet,obs.var(sam),
+       col="grey",ylim=c(0,1),
+       main="Observation Variances",
+       ylab="Observation Variances",xlab="Age")
+}}}
+
+For further plotting examples, see the NSAS assessment scripts.
+
+A number of functions also exist to extract useful and key values from an FLSAM object e.g {{{catchabilities()}}}, {{{obs.var()}}}, {{{fbar()}}}, {{{ssb()}}}, {{{rec()}}}, {{{residuals()}}}, and {{{params()}}}. These accessor functions can be used to develop your own plots.
+
+Comparison of models is supported via the function {{{AIC()}}}, which returns the Aikaike Information Criteria, or in the case of nested models {{{lr.test()}}}, which performs a likelihood ratio test. 
