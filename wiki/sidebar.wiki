@@ -1,5 +1,6 @@
 #summary Side
   * [Introduction HOWTO]
   * [FLSAM FLSAM]
+     * [Refining_FLSAM Refining your model]
   * [FLICA FLICA]
   * [Tips_and_Tricks Tips and Tricks]
