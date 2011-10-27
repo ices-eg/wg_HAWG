@@ -1,16 +1,3 @@
 #summary The FLSAM wish list
 
-Is there something you'd like to see added to FLSAM? Please send an email to the mailing list telling us about it, and we'll see what we can do. We'll keep a list of such requests here, and what their current status is
-
-== Current Wishes ==
-  * Documentation, including help files
-  * Plot method for multiple assessments
-  * Handling of "year-ahead" indices
-  * Otolith plot
-  * Documentation method eg table. The original SAM R scripts can be 
-reused in this context
-  * Formal checking of input to FLSAM.control, FLSAM.tun and FLSAM objects 
-
-== Implemented ==
-
-== Wishes not possible ==
+Is there something you'd like to see added to FLSAM? Please send an email to the mailing list telling us about it, and we'll see what we can do. A list of such requests is held in the issue tracker - click on the Issues tab above, or [http://code.google.com/p/hawg/issues/list click here].
