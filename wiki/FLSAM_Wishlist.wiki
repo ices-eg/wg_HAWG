@@ -4,7 +4,7 @@ Is there something you'd like to see added to FLSAM? Please send an email to the
 
 == Current Wishes ==
   * Documentation, including help files
-  * Plot method for multiple surveys
+  * Plot method for multiple assessments
   * Handling of "year-ahead" indices
   * Otolith plot
   * Documentation method eg table. The original SAM R scripts can be reused in this context
