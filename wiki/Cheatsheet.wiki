@@ -1,0 +1,13 @@
+#summary The FLSAM Cheatsheet
+
+== Load your data ==
+
+== Configure your assessment ==
+
+== Run it! ==
+
+== Look at the results ==
+
+== Compare model fits ==
+
+== Document it! ==
