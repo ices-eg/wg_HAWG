@@ -2,9 +2,10 @@
 
 Is there something you'd like to see added to FLSAM? Please send an email to the mailing list telling us about it, and we'll see what we can do. We'll keep a list of such requests here, and what their current status is
 
-= Current Wishes =
+== Current Wishes ==
   * Otolith plot
+  * Documentation method eg table. The original SAM R scripts can be reused in this context
 
-= Implemented =
+== Implemented ==
 
-= Wishes not possible =
+== Wishes not possible ==
