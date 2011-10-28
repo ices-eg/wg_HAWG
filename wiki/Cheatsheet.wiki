@@ -1,13 +1,22 @@
 #summary The FLSAM Cheatsheet
 
+A quick reference guide for people using FLSAM. For more information about the individual functions, please see the help files e.g. type {{{help("FLSAM")}}} or {{{?FLSAM}}} in the command line
+
 == Load your data ==
 
 == Configure your assessment ==
 
 == Run it! ==
+  * {{{sam <- FLSAM(stck,tun,ctrl)}}}
 
 == Look at the results ==
 
 == Compare model fits ==
 
 == Document it! ==
+
+== Glossary ==
+  * {{{stck}}} An FLStock object containing the stock information
+  * {{{tun}}} An FLIndices object containing tuning series information
+  * {{{ctrl}}} An FLSAM.control object containing the configuration
+  * {{{sam}}} An FLSAM object containing the results of the assessment
