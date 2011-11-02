@@ -3,15 +3,39 @@
 A quick reference guide for people using FLSAM. For more information about the individual functions, please see the help files e.g. type {{{help("FLSAM")}}} or {{{?FLSAM}}} in the command line
 
 == Load your data ==
+==== Stock data VPA-suite style====
+{{{stck <- readFLStock(file.path(datapath,"index.txt"),no.discards=T/F)}}}
+
+==== Tuning fleet data ====
+{{{tun <- readFLIndices(file.path(datapath,"fleet.txt"),type)}}}
+
+==== Control object =====
+{{{ctrl <- FLSAM.control(stck,tun) }}}
 
 == Configure your assessment ==
 
-== Run it! ==
   * {{{sam <- FLSAM(stck,tun,ctrl)}}}
+  * {{{stck <- stck + sam}}}
+  * {{{stck@stock <- computeStock(stck)}}}
 
 == Look at the results ==
+==== Plotting =====
+  * {{{plot(stck)}}}
+  * {{{plot(sam)}}}
+  * {{{residual.diagnostics(sam)}}}
+
+==== Numerical output =====
+  * {{{ssb(sam)}}} _also possible with stck_
+  * {{{fbar(sam)}}} _also possible with stck_
+  * {{{tsb(sam)}}} _also possible with stck_
+  * {{{rec(sam)}}} _also possible with stck_
+  * {{{AIC(sam)}}}
+  * {{{catchabilities(sam)}}}
+  * {{{obs.var(sam)}}}
+  * {{{lr.test(sam1,sam2,...)}}} _log ratio test_
 
 == Compare model fits ==
+  * {{{plot(FLStocks(FLSAM1 = sam,FLSAM2 = sam))}}} _identical_
 
 == Document it! ==
 
