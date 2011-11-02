@@ -6,11 +6,12 @@ The FLSAM package is an FLR-based wrapper to SAM, the state-space assessment mod
 
 FLSAM should be considered as a method under-development - whilst it is relatively stable and approaching the point where it is suitable for routine use, bugs, rough edges and lacking documentation are to be expected. If you find a bug, or think that something could be done better, please contact us and let us know!
 
-The easiest way to install FLSAM is directly from the R command-line:
+The most reliable way to install FLSAM is to download the release from this site and install it manually - click on the "Downloads" tab above and select the version for your operating system. This is where you will find the latest official release. 
+
+Once you have downloaded the file, you can install it in Windows by selecting  Packages/"Install from Local Zip file" from the menus in R and selecting the appropriate zip file. In linux (and also from the Windows command line) use the command:
 {{{
-install.packages("FLSAM",repos="http://flr-project.org/Rdevel")
+R CMD INSTALL <FLSAM package filename>
 }}}
-Alternatively, if this doesn't work for you, a copy of the latest major release, precompiled for windows, can be found in the repository in the directory {{{_Common/FLSAM_releases}}}. To install it, select Packages/Install from Local Zip file from the menus in R and select the appropriate zip file
 
 == Setting up the assessment data objects ==
 The following assumes some degree of familarity with the concepts and basics of both R and FLR. If you're not familar with FLR, have a look at the [http://tyflr.flr-project.org/ Teach Yourself FLR] tutorials on the [http://flr-project.org/ FLR homepage]. Browsing the assessment code found on this repository is also a good place to start - in particular, see the North Sea herring assessment (NSAS directory).
@@ -110,4 +111,4 @@ Comparison of models is supported via the function {{{AIC()}}}, which returns th
 
 == Getting the FLSAM Source code==
 
-If you would like access to view the FLSAM source code, it is available here [https://r-forge.r-project.org/scm/?group_id=318 https://r-forge.r-project.org/scm/?group_id=318]. Instructions for checking out the code are available on that page. In addition, there is a web-based interface - FLSAM can be found in the /pkg/FLSAM folder.
+If you would like access to view the FLSAM source code, it is available here [https://r-forge.r-project.org/scm/?group_id=318 https://r-forge.r-project.org/scm/?group_id=318]. Instructions for checking out the code are available on that page. In addition, there is a web-based interface to the code - click on "Browse Subversion Repository" - FLSAM can be found in the /pkg/FLSAM folder.
