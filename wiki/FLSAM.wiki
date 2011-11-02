@@ -8,7 +8,11 @@ FLSAM should be considered as a method under-development - whilst it is relative
 
 The most reliable way to install FLSAM is to download the release from this site and install it manually - click on the "Downloads" tab above and select the version for your operating system. This is where you will find the latest official release. 
 
-Once you have downloaded the file, you can install it in Windows by selecting  Packages/"Install from Local Zip file" from the menus in R and selecting the appropriate zip file. In linux (and also from the Windows command line) use the command:
+Once you have downloaded the file, you can install it in Windows by selecting  Packages/"Install from Local Zip file" from the menus in R and selecting the appropriate zip file, or run it from the command line as:
+{{{
+install.packages("pathToFLSAM/FLSAM.zip")
+}}}
+In linux (and also from the Windows command line) you can use the command above or the following:
 {{{
 R CMD INSTALL <FLSAM package filename>
 }}}
