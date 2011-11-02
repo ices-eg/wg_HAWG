@@ -16,6 +16,7 @@ In linux (and also from the Windows command line) you can use the command above 
 {{{
 R CMD INSTALL <FLSAM package filename>
 }}}
+Please note that FLSAM will only run when FLCore is installed too!
 
 == Setting up the assessment data objects ==
 The following assumes some degree of familarity with the concepts and basics of both R and FLR. If you're not familar with FLR, have a look at the [http://tyflr.flr-project.org/ Teach Yourself FLR] tutorials on the [http://flr-project.org/ FLR homepage]. Browsing the assessment code found on this repository is also a good place to start - in particular, see the North Sea herring assessment (NSAS directory).
