@@ -8,15 +8,20 @@ FLSAM should be considered as a method under-development - whilst it is relative
 
 The most reliable way to install FLSAM is to download the release from this site and install it manually - click on the "Downloads" tab above and select the version for your operating system. This is where you will find the latest official release. 
 
-Once you have downloaded the file, you can install it in Windows by selecting  Packages/"Install from Local Zip file" from the menus in R and selecting the appropriate zip file, or run it from the command line as:
+Once you have downloaded the file, you can install it in Windows by selecting  Packages/"Install from Local Zip file" from the menus in R and selecting the appropriate zip file. 
+
+Alternatively, for both Windows and Linux, you can also install from the R command prompt using:
 {{{
-install.packages("pathToFLSAM/FLSAM.zip")
+install.packages("<pathToFLSAM>/<FLSAM file>")
 }}}
-In linux (and also from the Windows command line) you can use the command above or the following:
+or the following from the command line:
 {{{
 R CMD INSTALL <FLSAM package filename>
 }}}
-Please note that FLSAM will only run when FLCore is installed too!
+Please note that FLSAM will only run when FLCore is installed too! The current release requires FLCore 2.4 or greater. You can install the latest release by issuing the following command in R.
+{{{
+  install.packages("FLCore", repos="http://flr-project.org/R")
+}}}
 
 == Setting up the assessment data objects ==
 The following assumes some degree of familarity with the concepts and basics of both R and FLR. If you're not familar with FLR, have a look at the [http://tyflr.flr-project.org/ Teach Yourself FLR] tutorials on the [http://flr-project.org/ FLR homepage]. Browsing the assessment code found on this repository is also a good place to start - in particular, see the North Sea herring assessment (NSAS directory).
