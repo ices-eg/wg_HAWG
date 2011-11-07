@@ -20,7 +20,7 @@ R CMD INSTALL <FLSAM package filename>
 }}}
 Please note that FLSAM will only run when FLCore is installed too! The current release requires FLCore 2.4 or greater. You can install the latest release by issuing the following command in R.
 {{{
-  install.packages("FLCore", repos="http://flr-project.org/R")
+install.packages("FLCore", repos="http://flr-project.org/R")
 }}}
 
 == Setting up the assessment data objects ==
