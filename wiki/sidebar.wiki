@@ -1,6 +1,7 @@
 #summary Side
   * [Introduction HOWTO]
   * [FLSAM FLSAM]
+     * [Getting_started Getting started]
      * [Cheatsheet Cheatsheet]
      * [Refining_FLSAM Refining your model]
      * [FLSAM_Wishlist Wishlist]
