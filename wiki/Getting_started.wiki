@@ -1,0 +1,124 @@
+#summary Getting Started with the FLSAM Package
+
+The FLSAM package is an FLR-based wrapper to SAM, the state-space assessment model.
+
+== Installation ==
+
+FLSAM should be considered as a method under-development - whilst it is relatively stable and approaching the point where it is suitable for routine use, bugs, rough edges and lacking documentation are to be expected. If you find a bug, or think that something could be done better, please contact us and let us know!
+
+The most reliable way to install FLSAM is to download the release from this site and install it manually - click on the "Downloads" tab above and select the version for your operating system. This is where you will find the latest official release. 
+
+Once you have downloaded the file, you can install it in Windows by selecting  Packages/"Install from Local Zip file" from the menus in R and selecting the appropriate zip file. 
+
+Alternatively, for both Windows and Linux, you can also install from the R command prompt using:
+{{{
+install.packages("<pathToFLSAM>/<FLSAM file>")
+}}}
+or the following from the command line:
+{{{
+R CMD INSTALL <FLSAM package filename>
+}}}
+Please note that FLSAM will only run when FLCore is installed too! The current release requires FLCore 2.4 or greater. You can install the latest release by issuing the following command in R.
+{{{
+install.packages("FLCore", repos="http://flr-project.org/R")
+}}}
+
+== Setting up the assessment data objects ==
+The following assumes some degree of familarity with the concepts and basics of both R and FLR. If you're not familar with FLR, have a look at the [http://tyflr.flr-project.org/ Teach Yourself FLR] tutorials on the [http://flr-project.org/ FLR homepage]. Browsing the assessment code found on this repository is also a good place to start - in particular, see the North Sea herring assessment (NSAS directory).
+
+Firstly, load the FLCore package
+{{{
+  library(FLCore)
+}}}
+
+The first step in performing an assessment to obviously to get some data to work on! There are two types of objects that you need to create.
+  * an FLStock object, which stores all of the data relating to the stock (e.g. natural mortality, catches, weights etc).
+  * an FLIndices object, which contains all of the information relating to the tuning indices.
+
+The easiest way to create these objects is to read the input data directly from a set of Lowestoft VPA files using the build in FLR functionality. As an example,
+{{{
+ stck <- readFLStock(file.path(".","data","index.txt"),no.discards=TRUE)
+}}}
+will create an FLStock object called "stck" from the Lowestoft VPA files stored in ./data/ (with discards set to zero). Similarly,
+{{{
+ tun <- readFLIndices(file.path(".","data","fleet.txt"))
+}}}
+will create an FLIndices object from the same location. For more information, see the appropriate help files by issuing the commands {{{?readFLstock}}} and {{{?readFLIndices}}}. You can view a summary of the objects that you have created using the {{{summary()}}} command:
+{{{
+  summary(stck)
+  summary(tun)
+}}}
+
+Alternatively, you can also use the sample objects stored in the FLSAM package.
+{{{
+  library(FLSAM)
+  data(NSH)
+  stck <- NSH
+  tun  <- NSH.tun
+}}}
+This loads two objects called NSH and NSH.tun containing the stock and tuning indices respectively for the North Sea herring stock, and then copies them into new objects called "stck" and "tun" (just for consistency with everything else).
+
+== Configuring the FLSAM assessment ==
+The next step is to set the various options for the FLSAM configuration. These are controlled through an object of type "FLSAM.control". Generally the structure of this object is complex, and highly specific to the assessment at hand. We can, however, use the automatic configuration built into FLSAM to get us started - this builds up an FLSAM.control template based on the FLStock and FLIndices objects suppplied. It works as follows:
+{{{
+  ctrl <- FLSAM.control(stck,tun)
+}}}
+The resulting FLSAM.control object, "ctrl", contains a structure that can be used to configure the assessment - in the default mode, however, all parameters are "unset". 
+
+Alternatively, you can load a preprepared FLSAM.control object for the NSH assessment directly from the FLSAM package:
+{{{
+  data(NSH.sam)
+  ctrl <- NSH.ctrl
+}}}
+
+Configuration options can be set by the user by directly accessing and modifying the contents of FLSAM.control object e.g 
+{{{
+  ctrl@catchabilities["HERAS","9"] <- 12
+}}}
+
+The details of this configuration are not convered here but can be found in <TODO: Document configuration settings>. 
+
+== Running the assessment ==
+Now you have an FLStock object "stck", an FLIndices object "tun" and an FLSAM.control object "ctrl", so you're ready to go! Run the assessment as follows:
+{{{
+  sam <- FLSAM(stck,tun,ctrl)
+}}}
+You will immediately start to see a series of outputs from the model, as it runs through the optimisation process. The model fitting procedure can take some time, depending on how powerful your machine is - the NSH assessment takes 5 minutes on a powerful workstation, about 10 minutes on a relatively new laptop, and 20 minutes on a 2007-vintage laptop. Patience, young jedi.
+
+Once the assessment is complete, you will have an object called "sam", which is of the type "FLSAM". You can copy the results of this assessment into an FLStock object as follows
+{{{
+  new.stck <- stck + sam
+}}}
+"new.stck" can then be used by other assessment methods.
+
+== Plotting and diagnostics ==
+The final step is to look at your results! Firstly, lets have a look at the results.
+{{{
+  plot(sam)
+}}}
+This returns a "stock-summary" plot, showing the ssb, fbar and recruitment estimated by FLSAM, including the 95% confidence intervals.
+
+But the key question is, how well does the model fit. Lets have a look at the fit diagnostics:
+{{{
+  par(ask=TRUE)
+  residual.diagnostics(sam)
+}}}
+This returns a series of "ICA-style" diagnostic plots - press enter to move between them. 
+
+There are many more, more advanced methods to visualise the quality and nature of the fit. Here is a more complex example that displays the observation error associated with each data source as a barplot:
+{{{
+barchart(exp(value) ~ age | fleet,obs.var(sam),
+       col="grey",ylim=c(0,1),
+       main="Observation Variances",
+       ylab="Observation Variances",xlab="Age")
+}}}
+
+For further plotting examples, see the NSAS assessment scripts.
+
+A number of functions also exist to extract useful and key values from an FLSAM object e.g {{{catchabilities()}}}, {{{obs.var()}}}, {{{fbar()}}}, {{{ssb()}}}, {{{rec()}}}, {{{residuals()}}}, and {{{params()}}}. These accessor functions can be used to develop your own plots.
+
+Comparison of models is supported via the function {{{AIC()}}}, which returns the Aikaike Information Criteria, or in the case of nested models {{{lr.test()}}}, which performs a likelihood ratio test. 
+
+== Getting the FLSAM Source code==
+
+If you would like access to view the FLSAM source code, it is available here [https://r-forge.r-project.org/scm/?group_id=318 https://r-forge.r-project.org/scm/?group_id=318]. Instructions for checking out the code are available on that page. In addition, there is a web-based interface to the code - click on "Browse Subversion Repository" - FLSAM can be found in the /pkg/FLSAM folder.
