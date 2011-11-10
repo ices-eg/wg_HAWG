@@ -11,3 +11,6 @@
   * If a 'bug' occurs, that is suspected to be caused by the assessment model itself (and not the FLR-interface), then please verify that the current official version of SAM available at <http://www.stockassessment.org> contains the bug before contacting the author with a bug report.
 
   * The State-space Assessment Model (SAM) is constantly developing, so not all features that are available in SAM are available through FLSAM. Please consult <http://www.stockassessment.org> or the authors if your fish stock requires features not covered.
+
+
+Please click on one of the options at left to learn more
