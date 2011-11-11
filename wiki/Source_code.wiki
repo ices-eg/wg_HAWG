@@ -1,0 +1,5 @@
+#summary One-sentence summary of this page.
+
+== Getting the FLSAM Source code==
+
+If you would like access to view the FLSAM source code, it is available here [https://r-forge.r-project.org/scm/?group_id=318 https://r-forge.r-project.org/scm/?group_id=318]. Instructions for checking out the code are available on that page. In addition, there is a web-based interface to the code - click on "Browse Subversion Repository" - FLSAM can be found in the /pkg/FLSAM folder.
