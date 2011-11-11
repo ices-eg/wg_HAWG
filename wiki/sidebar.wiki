@@ -3,6 +3,7 @@
   * [FLSAM FLSAM]
      * [Getting_started Getting started]
      * [Cheatsheet Cheatsheet]
+     * [Documentation Documentation]
      * [Refining_FLSAM Refining your model]
      * [FLSAM_Wishlist Wishlist]
   * [FLICA FLICA]
