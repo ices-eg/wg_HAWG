@@ -18,7 +18,8 @@ or the following from the command line:
 {{{
 R CMD INSTALL <FLSAM package filename>
 }}}
-Please note that FLSAM will only run when FLCore is installed too! The current release requires FLCore 2.4 or greater. You can install the latest release by issuing the following command in R.
+===FLCore dependency===
+Please note that FLSAM will only run when FLCore is installed too! The current FLSAM release requires FLCore 2.4 or greater. If you don't already have it, you can install the latest FLCore release by issuing the following command in R.
 {{{
 install.packages("FLCore", repos="http://flr-project.org/R")
 }}}
