@@ -77,7 +77,7 @@ Configuration options can be set by the user by directly accessing and modifying
   ctrl@catchabilities["HERAS","9"] <- 12
 }}}
 
-The details of this configuration are not convered here but can be found in <TODO: Document configuration settings>. 
+The details of this configuration are not convered here but more information can be found in the helpfiles for FLSAM.control(), accessible by {{{?FLSAM.control}}}
 
 == Running the assessment ==
 Now you have an FLStock object "stck", an FLIndices object "tun" and an FLSAM.control object "ctrl", so you're ready to go! Run the assessment as follows:
