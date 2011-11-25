@@ -1,0 +1,14 @@
+#summary NSAS Benchmark To Do List
+= Refine Model (Issue 31)=
+Parameter settings for the SAM assessment model need to be settled on. 
+
+Propose to base the approach on a series of scans where we bind parameters together and then test via AIC or LR tests whether the reduced model is significantly different from the parent model.
+
+Parameters to test in this manner:
+  * Catchability-at-age and observation variances of HERAS survey
+  * Catchability-at-age and observation varainces of IBTS-Q1 survey
+  * Catchability-at-age and observation variances of IBTS-Q3 survey
+  * Fishing selectivity-at-age and observation variances.
+
+Other models to test
+  * MLAI/SCAI power-law vs linear model
