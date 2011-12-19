@@ -32,6 +32,11 @@ Effect of #1 can be evaluated by
 #1 may require
   * Possible modification to SAM tpl to allow for different observation variances by period.
 
+===Benchmark goals===
+  * Catch-at-age data back to 1948 to be incorporated but possibly without separate variance estimates
+  * Collate, tabulate and plot historic (pre-1948) total landings for potential future use
+  
+
 = Comparison of SAM and ICA Models (Issue 29) = 
 Need to understand what the new model means for perception of the stock. Suggest basing the comparison on three different models
 
