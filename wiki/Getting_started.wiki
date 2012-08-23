@@ -19,11 +19,9 @@ Please note that FLSAM will only run when FLCore (the main "core" package of the
 More information on getting started with FLSAM is available from the internal documentation in FLSAM. In particular consult the "Getting Started with FLSAM" vignette
 <code language="R">
 library(FLSAM)
-vignette("FLSAM")
-</code>
+vignette("FLSAM")</code>
 or the FLSAM manual
 <code language="R">
 library(FLSAM)
-vignette("FLSAM-manual")
-</code>
+vignette("FLSAM-manual")</code>
 for more details
