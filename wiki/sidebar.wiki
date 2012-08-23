@@ -1,7 +1,7 @@
 #summary Side
   * [Introduction HOWTO]
   * [FLSAM FLSAM]
-     * [Getting_started Getting started]
+     * [Getting_started Installation]
      * [Cheatsheet Cheatsheet]
      * [Documentation Documentation]
      * [Refining_FLSAM Refining your model]
