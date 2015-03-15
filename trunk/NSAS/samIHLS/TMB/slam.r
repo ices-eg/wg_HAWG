@@ -79,7 +79,7 @@ save(opt,rep,file="slamOutput.RData")
 #-------------------------------------------------------------------------------
 # Figures and diagnostics (very quick and dirty)
 #-------------------------------------------------------------------------------
-
+png(file.path("figures - %02d.png"),bg = "white")
 #- Retreive Ns, Fs and Props
 NFs             <- matrix(rep$par.random[c(1:(17*25),c(mapply(seq,seq(426,1285,20),seq(426+16,1285,20))))],nrow=17,ncol=68)
 Ps              <- matrix(rep$par.random[c(mapply(seq,seq(426+17,1285,20),seq(426+19,1285,20)))],nrow=3,ncol=43)
@@ -129,7 +129,7 @@ NSH.LAI                   <- NSH
 NSH.LAI@stock.n[]         <- exp(NFs[1:9,-68])
 NSH.LAI@harvest[ac(0:7),] <- exp(NFs[10:17,-68])
 NSH.LAI@harvest[ac(8),]   <- exp(NFs[17,-68])
-plot(FLStocks("SCAI" = NSH,"LAI"=NSH.LAI))
+plot(FLStocks("SCAI" = NSH,"LAI"=NSH.LAI),col=1:2)
 
 #- Predicted ~ Observed
 predObs           <- sweep(sweep(Props[c(1,1,2,2,3,3,3,3,4,4,4),-43],1,Alpha,"*"),2,
@@ -166,4 +166,5 @@ xyplot(pred+obs ~ year | age,data=tot,
     panel.xyplot(x=res$x[idxo],y=res$y[idxo],pch=19,type="p",col=2)
     panel.lines(x=res$x[idxp],y=res$y[idxp],col=1,lwd=2)
    })
+dev.off()
 
