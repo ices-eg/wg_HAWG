@@ -91,6 +91,68 @@ disp.table <- function(...){
 }
 
 
+### ========================================================================
+### ICESrectangleFromLonLat
+### Mon Dec 30 17:54:47 2013
+### lon              :  Vector of longitudinal positions
+### lat              :  Vector of latitudinal positions
+# Does conversion from lon / lat to ICES statistical rectangles
+# Takes into account the full trickiness of the grid, including
+# the edges. Formal definition of the ICES grid is found here:
+# http://ices.dk/marine-data/maps/Pages/ICES-statistical-rectangles.aspx
+#
+# This code is derivied from the corresponding function in vmstools
+# http://code.google.com/p/vmstools/
+# r1327 by Niels.Hintzen on Sep 23, 2013
+### ========================================================================
+ICESrectangleFromLonLat <-function (lon,lat)
+{
+  #Check inputs
+  if(length(lon)!=length(lat)) {
+    stop("Input lat/lon vectors are not the same length")
+  }
+  
+  #Round lon/lat appropriately
+  latrnd <- round(lat*2+0.5,0)/2-0.25
+  lonrnd <- round(lon+0.5,0)-0.5
+  
+  #Handle the latitude first, as its easier
+  #The grid increments continuously from
+  #south to north in 0.5 degree intervals
+  latlabels <- sprintf("%02i",1:99)
+  lat.mids <- seq(36, 85, 0.5) + 0.25
+  lat.idx <- match(latrnd, lat.mids)
+  numpart <- latlabels[lat.idx]
+  
+  #The longtitudinal structure is not so easy
+  #There are three main traps:
+  #  - A4-A9 do not exist
+  #  - There are no I squares
+  #  - Grid ends at M8
+  lonlabels <- paste(rep(LETTERS[c(2:8,10:13)], each=10), rep(0:9, 
+                                                              7), sep = "")
+  lonlabels <- c("A0","A1","A2","A3",lonlabels[-length(lonlabels)])
+  lon.mids <- -44:68 + 0.5
+  lon.idx <- match(lonrnd, lon.mids)
+  alphanum <- lonlabels[lon.idx]
+  
+  #Concatenate!
+  ICES.rect <- sprintf("%s%s",numpart,alphanum)
+  
+  #Check whether it worked
+  #If any part of the code is not recognised, both
+  #lon and lat should be NA
+  failed.codes <- is.na(numpart) | is.na(alphanum)
+  if (any(failed.codes)) {
+    warning("Some lat/lons are could not be converted")
+    ICES.rect[failed.codes] <- NA
+  }
+  
+  #Done
+  return(ICES.rect)
+}
+
+
 #/* ========================================================================*/
 #'# Introduction
 #'  This work documents the results of quality assurance checks on the the
@@ -226,7 +288,7 @@ if(length(dup.ids)>0) {
 #/* ========================================================================*/
 #'# Spatial integrity of the data
 #' The following tests check for errors in the spatial coordinates (`LatDec`, 
-#' `LongDec`). 
+#' `LongDec`) and agreement between the lon-lat and ICES statistical rectangle
 #/* ========================================================================*/
 #' #### Missing spatial coordinates
 sp.missing <-  is.na(dat$LatDec) | is.na(dat$LongDec)
@@ -266,6 +328,16 @@ plot(dat.sp,pch=16,cex=0.5,col="blue")
 map("worldHires",add=TRUE,col="grey",fill=TRUE)
 box()
 plot(dat.sp,add=TRUE,pch=16,col=ifelse(onland,"red",NA))
+
+#'#### ICES Stat-Square check
+#'Check that the longitude and latitude are in agreement with the ICES statistical
+#'rectangle listed. The ICES rectangle derived from the long and lat is called `rect.from.ll`
+#'below, while `Rectangle` is the value listted in the database.
+d.rect <- transform(dat,
+                    rect.from.ll=ICESrectangleFromLonLat(LongDec,LatDec))
+disp.err(d.rect$rect.from.ll!=d.rect$Rectangle,
+         c("Rectangle","rect.from.ll","LongDec","LatDec"),
+         from=d.rect)
 
 #/* ========================================================================*/
 #'# Temporal Data
