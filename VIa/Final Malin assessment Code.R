@@ -332,6 +332,8 @@ colnames(stockSummaryTable) <-
 
 #write(stockSummaryTable,file.path(output.dir,"stocksummarytable",sep=".")) #or could create output.base
 
+write(MSH.sam@stock.n,file.path(output.dir,"n.sam",sep="."))
+write(MSH.sam@harvest,file.path(output.dir,"F.sam",sep="."))
 
 
 ### ============================================================================
