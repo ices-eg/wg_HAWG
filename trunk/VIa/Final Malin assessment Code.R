@@ -184,21 +184,21 @@ res.dat$data <- res.dat$std.res
 p <- xyplot(age  ~ year |fleet,res.dat,
        cex=4*abs(res.dat$std.res)/max(abs(res.dat$std.res))+0.1,
        col=ifelse(res.dat$std.res<0,"red","black"),
-       pch=16)
+       pch=16,ylab="age (ring)")
 print(p)
 res3.dat <- subset(residuals(MSH.sam),fleet=="WoS HERAS")
 res3.dat$data <- res3.dat$std.res
 p <- xyplot(age  ~ year |fleet,res3.dat,
             cex=4*abs(res3.dat$std.res)/max(abs(res3.dat$std.res))+0.1,
             col=ifelse(res3.dat$std.res<0,"red","black"),
-            pch=16)
+            pch=16,ylab="age (ring)")
 print(p)
 res2.dat <- subset(residuals(MSH.sam),fleet=="IBTS_Q1")
 res2.dat$data <- res2.dat$std.res
 p <- xyplot(age  ~ year |fleet,res2.dat,
             cex=4*abs(res2.dat$std.res)/max(abs(res2.dat$std.res))+0.1,
             col=ifelse(res2.dat$std.res<0,"red","black"),
-            pch=16)
+            pch=16,ylab="age (ring)")
 print(p)
 
 res3.dat <- subset(residuals(MSH.sam),fleet=="IBTS_Q4")
@@ -206,7 +206,7 @@ res3.dat$data <- res3.dat$std.res
 p <- xyplot(age  ~ year |fleet,res3.dat,
             cex=4*abs(res3.dat$std.res)/max(abs(res3.dat$std.res))+0.1,
             col=ifelse(res3.dat$std.res<0,"red","black"),
-            pch=16)
+            pch=16,ylab="age (ring)")
 print(p)
 
 
@@ -216,7 +216,7 @@ res.dat$data <- res.dat$std.res
 p <- xyplot(age  ~ year |fleet,res.dat,
        cex=4*abs(res.dat$std.res)/max(abs(res.dat$std.res))+0.1,
        col=ifelse(res.dat$std.res<0,"red","black"),
-       pch=16)
+       pch=16,ylab="age (ring)")
 print(p)
 
 
@@ -234,14 +234,14 @@ print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
           scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
           type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
           subset=fleet %in% c("MS HERAS"),
-          main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
+          main="Survey catchability parameters",ylab="Catchability",xlab="Age (ring)"))
 
 catch <- catchabilities(MSH.sam)
 print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
           scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
           type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
           subset=fleet %in% c("WoS HERAS"),
-          main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
+          main="Survey catchability parameters",ylab="Catchability",xlab="Age (ring)"))
 
 
 #Plot obs_variance (weightings)
@@ -267,7 +267,7 @@ sel.pat$age <- as.numeric(as.character(sel.pat$age))
 print(xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
          groups=year,type="l",as.table=TRUE,
          scale=list(alternating=FALSE),
-         main="Selectivity of the Fishery by Period",xlab="Age",ylab="F/Fbar"))
+         main="Selectivity of the Fishery by Period",xlab="Age (ring)",ylab="F/Fbar"))
 
 
 
@@ -287,7 +287,7 @@ plot(MSH.tun[["IBTS_Q4"]],type="internal", main="IBTS_Q4")
 
 ## Otolith Plot
 #stock<-MSH
-plot.otolith(MSH.sam,n=1000)
+plot.otolith(MSH.sam,n=10000)
 
 
 #Diagnostic plots
@@ -366,4 +366,3 @@ dev.off()
 ### ============================================================================
 
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
-
