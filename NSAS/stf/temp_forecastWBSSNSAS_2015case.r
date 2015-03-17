@@ -33,8 +33,8 @@ for(i in dms$unit){
 }
 
 stf@catch[,FcY,"A"] #forecasted A-fleet TAC in FcY
-TACS.orig[,ImY,"A"]*0.85 #ImY TAC minus 15%
-stf@catch[,FcY,"A"] < TACS.orig[,ImY,"A"]*0.85 #forecasted TAC is not smaller than ImY TAC-15%
+#TACS.orig[,ImY,"A"]*0.85 #ImY TAC minus 15%
+#stf@catch[,FcY,"A"] < TACS.orig[,ImY,"A"]*0.85 #forecasted TAC is not smaller than ImY TAC-15%
 
 #for(i in 1:10){
 #
