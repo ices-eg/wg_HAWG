@@ -261,7 +261,7 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 #And finally, write the results out in the lowestoft VPA format for further analysis
 writeFLStock(NSH,output.file=file.path(output.dir,"NSAS_47d3_"))
 writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
-writeFLStock(wbss,file.path(output.dir,"hawg_her-IIIa.ypr"),type="YPR")
+#writeFLStock(wbss,file.path(output.dir,"hawg_her-IIIa.ypr"),type="YPR")
 #Prepare standard graph table
 NSH.brp <- brp(FLBRP(NSH,sr=NSH.SRR,fbar=seq(0,1,length.out=100),refpts=refpts()))
 # Calculate the spawners in number
@@ -294,10 +294,11 @@ stockSummaryTable <- cbind(rec(NSH.sam)$year,
                            catch(NSH.sam)$value / ssb(NSH.sam)$value, catch(NSH.sam)$lbnd / ssb(NSH.sam)$lbnd, catch(NSH.sam)$ubnd / ssb(NSH.sam)$ubnd,
                            fbar(NSH.sam)$value,     fbar(NSH.sam)$lbnd,   fbar(NSH.sam)$ubnd,
                            c(quantMeans(harvest(NSH.sam)[ac(0:1),])),
-                           c(sop(NSH),NA))
+                           c(sop(NSH),NA),
+                           c(catch(NSH),NA))
 colnames(stockSummaryTable) <-
                      c("Year",paste(rep(c("Recruits Age 0 (Thousands)","Total biomass (tonnes)","Spawing biomass (tonnes)",
-                       "Landings (tonnes)","Yield / SSB (ratio)","Mean F ages 2-6"),each=3),c("Mean","Low","High")),"Mean F ages 0-1","SoP (%)")
+                       "Landings (tonnes)","Yield / SSB (ratio)","Mean F ages 2-6"),each=3),c("Mean","Low","High")),"Mean F ages 0-1","SoP (%)","WG Catch")
 stockSummaryTable[nrow(stockSummaryTable),] <- NA
 stockSummaryTable[nrow(stockSummaryTable),"Spawing biomass (tonnes) Mean"] <- 2271364
 stockSummaryTable[nrow(stockSummaryTable),2:4] <- c(rec(NSH.sam)$value[nrow(rec(NSH.sam))],rec(NSH.sam)$lbnd[nrow(rec(NSH.sam))],rec(NSH.sam)$ubnd[nrow(rec(NSH.sam))])
