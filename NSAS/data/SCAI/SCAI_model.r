@@ -74,7 +74,8 @@ wkdir <- file.path(".","ADMBwkdir")
 output.dir <- file.path(".","SCAIoutputs")
 
 #output device
-pdf(file.path(output.dir,"SCAI_outputs.pdf"),width=200/25.4,height=200/25.4,pointsize=16,onefile=TRUE)
+#pdf(file.path(output.dir,"SCAI_outputs.pdf"),width=200/25.4,height=200/25.4,pointsize=16,onefile=TRUE)
+png(file.path(output.dir,"SCAI_outputs - %02d.png"),units = "px", height=800,width=672, bg = "white")
 
 ### ==========================================================================
 ### Prepare input data
