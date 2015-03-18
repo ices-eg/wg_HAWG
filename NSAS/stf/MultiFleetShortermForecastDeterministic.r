@@ -176,41 +176,41 @@ for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.
 
 ###--- Management options ---###
 
-### Following the management plan ###
-if("mp" %in% stf.options){
-
-  res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
-  for(iTer in 1:dims(stf)$iter)
-    res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.FAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,c(ImY,FcY)],iTer),jac=NULL)$par
-    res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),find.FABC,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,c(ImY,FcY)],iTer),jac=NULL)$par
-  stf@harvest[,FcY]         <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
-  for(i in dms$unit){
-    stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
-    stf@catch[,FcY,i]       <- computeCatch(stf[,FcY,i])
-    stf@landings.n[,FcY,i]  <- stf@catch.n[,FcY,i]
-    stf@landings[,FcY,i]    <- computeLandings(stf[,FcY,i])
-  }
-  #Update to continuation year
-  for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
-  for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
-  for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
-  ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,CtY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
-
-  stf.table["mp","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
-  stf.table["mp",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
-  stf.table["mp","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
-  stf.table["mp","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
-  stf.table["mp",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
-  stf.table["mp",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
-                                                                 exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
-                                                                 stf@mat[,FcY,1]))
-  stf.table["mp",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
-
-
-  #As this is most likely the agreed TAC for the B fleet, use this in all other scenario's too
-  TACS[,FcY,"B"]    <- computeCatch(stf[,FcY,"B"])
-  #TACSmp            <- harvestCatch(stf,FcY)
-}
+### Following the management plan ### in 2015, use new code for the new management plan...
+# if("mp" %in% stf.options){
+# 
+#   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
+#   for(iTer in 1:dims(stf)$iter)
+#     res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.FAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,c(ImY,FcY)],iTer),jac=NULL)$par
+#     res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),find.FABC,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,c(ImY,FcY)],iTer),jac=NULL)$par
+#   stf@harvest[,FcY]         <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
+#   for(i in dms$unit){
+#     stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
+#     stf@catch[,FcY,i]       <- computeCatch(stf[,FcY,i])
+#     stf@landings.n[,FcY,i]  <- stf@catch.n[,FcY,i]
+#     stf@landings[,FcY,i]    <- computeLandings(stf[,FcY,i])
+#   }
+#   #Update to continuation year
+#   for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
+#   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
+#   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
+#   ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,CtY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
+# 
+#   stf.table["mp","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
+#   stf.table["mp",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
+#   stf.table["mp","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
+#   stf.table["mp","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
+#   stf.table["mp",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
+#   stf.table["mp",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
+#                                                                  exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
+#                                                                  stf@mat[,FcY,1]))
+#   stf.table["mp",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
+# 
+# 
+#   #As this is most likely the agreed TAC for the B fleet, use this in all other scenario's too
+#   TACS[,FcY,"B"]    <- computeCatch(stf[,FcY,"B"])
+#   #TACSmp            <- harvestCatch(stf,FcY)
+# }
 ### No fishing ###
 if("nf" %in% stf.options){
   stf@harvest[,FcY] <- 0
@@ -341,12 +341,12 @@ if("fmsy" %in% stf.options){
    #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
-  TACS[,FcY,"C"]            <- #MSY-based WBSS C-fleet catch (~43'604) * mixprop
+  TACS[,FcY,"C"]            <- 52547 * mixprop #MSY-based (FMSY=0.32) WBSS C-fleet catch = (52547) * mixprop
   stf@harvest[,FcY] <- fleet.harvest(stf,FcY,TACS)
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.F,stk=iter(stf[,FcY],iTer),f.=0.31,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.F,stk=iter(stf[,FcY],iTer),f.=0.27,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
@@ -372,38 +372,38 @@ if("fmsy" %in% stf.options){
   stf.table["fmsy",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
 }
 
-if("newmp" %in% stf.options){
-
-  stf@harvest[,FcY] <- stf@harvest[,ImY]
-  stf@harvest[,FcY] <- fleet.harvest(stf,FcY,TACS)
-
-  res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
-  for(iTer in 1:dims(stf)$iter)
-    res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.newFAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
-  stf@harvest[,FcY]         <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
-  for(i in dms$unit){
-    stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
-    stf@catch[,FcY,i]       <- computeCatch(stf[,FcY,i])
-    stf@landings.n[,FcY,i]  <- stf@catch.n[,FcY,i]
-    stf@landings[,FcY,i]    <- computeLandings(stf[,FcY,i])
-  }
-  
-  #Update to continuation year
-  for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
-  for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
-  for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
-  ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
-
-  stf.table["newmp","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
-  stf.table["newmp",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
-  stf.table["newmp","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
-  stf.table["newmp","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
-  stf.table["newmp",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
-  stf.table["newmp",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
-                                                                 exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
-                                                                 stf@mat[,FcY,1]))
-  stf.table["newmp",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
-}
+# if("newmp" %in% stf.options){
+# 
+#   stf@harvest[,FcY] <- stf@harvest[,ImY]
+#   stf@harvest[,FcY] <- fleet.harvest(stf,FcY,TACS)
+# 
+#   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
+#   for(iTer in 1:dims(stf)$iter)
+#     res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.newFAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+#   stf@harvest[,FcY]         <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
+#   for(i in dms$unit){
+#     stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
+#     stf@catch[,FcY,i]       <- computeCatch(stf[,FcY,i])
+#     stf@landings.n[,FcY,i]  <- stf@catch.n[,FcY,i]
+#     stf@landings[,FcY,i]    <- computeLandings(stf[,FcY,i])
+#   }
+#   
+#   #Update to continuation year
+#   for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
+#   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
+#   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
+#   ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
+# 
+#   stf.table["newmp","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
+#   stf.table["newmp",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
+#   stf.table["newmp","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
+#   stf.table["newmp","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
+#   stf.table["newmp",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
+#   stf.table["newmp",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
+#                                                                  exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
+#                                                                  stf@mat[,FcY,1]))
+#   stf.table["newmp",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
+# }
 
 #- Writing the STF to file
 for(i in c("catch","catch.n","stock.n","harvest")){
