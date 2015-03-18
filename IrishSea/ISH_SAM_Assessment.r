@@ -38,6 +38,7 @@ packageDescription("FLSAM") #check version of FLSAM used
 ### Misc
 ### ============================================================================
 my.path<-file.path("C:","Users","PJSchon","Documents","AESD","Irish Sea herring","HAWG2013","SAM")
+my.path <- "D:/Repository/HAWG/HAWGrepository/IrishSea/"
 output.dir              <- file.path(my.path,"results")
 data.source         <- file.path(my.path,"data")    #Data source, not code or package source!!!
 
@@ -68,6 +69,7 @@ ISH@stock.wt[8,49] <- (ISH@stock.wt[8,48]+ISH@stock.wt[8,50])/2
 #which(ISH@stock.wt==0,arr.ind=T) #generate array of values=0
 ISH@stock.wt[7,4] <- (ISH@stock.wt[7,3]+ISH@stock.wt[7,5])/2 #manual replacement avg if 0 
 ISH@stock.wt[8,6:9] <- c(0.264,0.275,0.264,0.27) #otherwise replace with values in input files
+ISH@stock.wt[,ac(2014)] <- yearMeans(ISH@stock.wt[,ac(2011:2013)])
 
 #which(is.na(ISH@catch.wt)==T,arr.ind=T) #check for NA data
 ISH@catch.wt[7,4] <- (ISH@catch.wt[7,3]+ISH@catch.wt[7,5])/2
@@ -76,12 +78,19 @@ ISH@catch.wt[7,7:8] <- c(0.227,0.234)
 ISH@catch.wt[1:8,49] <- c((ISH@catch.wt[1:8,48]+ISH@catch.wt[1:8,50])/2)
 #which(ISH@catch.wt==0,arr.ind=T) #generate array of values=0
 ISH@catch.wt[8,6:9] <- c(0.264,0.275,0.264,0.270)
+ISH@catch.wt[,ac(2014)] <- yearMeans(ISH@catch.wt[,ac(2011:2013)])
+
+ISH@catch.n[,ac(2009)] <- NA
+ISH@catch.n[,ac(2014)] <- NA
+ISH@landings.n[,ac(2009)] <- NA
+ISH@landings.n[,ac(2014)] <- NA
 
 #which(is.na(ISH@landings.wt)==T,arr.ind=T) #check for NA data
 ISH@landings.wt[8,49] <- (ISH@landings.wt[8,48]+ISH@landings.wt[8,50])/2
 #which(ISH@landings.wt==0,arr.ind=T) 
 ISH@landings.wt[7,4] <- (ISH@landings.wt[7,3]+ISH@landings.wt[7,5])/2 
 ISH@landings.wt[8,6:9] <- c(0.264,0.275,0.264,0.27) 
+ISH@landings.wt[,ac(2014)] <- yearMeans(ISH@landings.wt[,ac(2011:2013)])
 
 ### ============================================================================
 ### Prepare index object for assessment
