@@ -60,7 +60,7 @@ range(MSH)[c("minfbar","maxfbar")] <- c(3,6)
 MSH <- setPlusGroup(MSH,MSH@range["max"])
 
 #Set stock object name - this is propagated through into the figure titles
-MSH@name    <- "Malin Shelf Herring"
+MSH@name    <- "Herring in VIa (combined) and VIIbc"
 
 ### ======================================================================================================
 ### Prepare index object for assessment
@@ -156,7 +156,7 @@ save(MSH.sam,file="./saved_pin/MSHwkwest.sam")
 
 #Update stock object
 MSH <- MSH + MSH.sam
-
+save(MSH,MSH.sam,MSH.tun,MSH.ctrl,file=file.path(output.dir,"VIaHerringNewM.Rdata"))
 
 #save AIC
 write.csv(AIC(MSH.sam),file=file.path(output.dir,"AIC.csv"))
@@ -309,7 +309,7 @@ log.msg("GENERATING DOCUMENTATION...\n")
 old.opt           <- options("width","scipen")
 options("width"=80,"scipen"=1000)
 
-sam.out.file<- FLSAM.out(MSH,MSH.tun,MSH.sam,format="TABLE X.X.X.%i Malin Shelf Herring.")
+sam.out.file<- FLSAM.out(MSH,MSH.tun,MSH.sam,format="TABLE 5.6.%i Herring in VIa (combined) and VIIbc.")
 
 write(sam.out.file,file.path(output.dir,"MSH_sam.out",sep=".")) #or could create output.base
 
@@ -324,16 +324,18 @@ stockSummaryTable <- cbind(rec(MSH.sam)$year,
                            catch(MSH.sam)$value,    catch(MSH.sam)$lbnd,  catch(MSH.sam)$ubnd,
                            catch(MSH.sam)$value / ssb(MSH.sam)$value, catch(MSH.sam)$lbnd / ssb(MSH.sam)$lbnd, catch(MSH.sam)$ubnd / ssb(MSH.sam)$ubnd,
                            fbar(MSH.sam)$value,     fbar(MSH.sam)$lbnd,   fbar(MSH.sam)$ubnd,
-                           c(sop(MSH)))
-colnames(stockSummaryTable) <-
+                           c(sop(MSH)), c(catch(MSH)))
+
+  colnames(stockSummaryTable) <-
   c("Year",paste(rep(c("Recruits Age 0 (Thousands)","Total biomass (tonnes)","Spawing biomass (tonnes)",
-                       "Landings (tonnes)","Yield / SSB (ratio)","Mean F ages 3-6"),each=3),c("Mean","Low","High")),"SoP (%)")
+                       "Landings (tonnes)","Yield / SSB (ratio)","Mean F ages 3-6"),each=3),c("Mean","Low","High")),"SoP (%)","WG Catch")
 
 
 #write(stockSummaryTable,file.path(output.dir,"stocksummarytable",sep=".")) #or could create output.base
+write.csv(stockSummaryTable,file=file.path(output.dir,"stockSummaryTable.csv"),row.names = FALSE)
 
-write(MSH.sam@stock.n,file.path(output.dir,"n.sam",sep="."))
-write(MSH.sam@harvest,file.path(output.dir,"F.sam",sep="."))
+#write(MSH.sam@stock.n,file.path(output.dir,"n.sam",sep=".")) # for manual input to MFDP
+#write(MSH.sam@harvest,file.path(output.dir,"F.sam",sep=".")) # for manual input to MFDP
 
 
 ### ============================================================================
@@ -366,3 +368,4 @@ dev.off()
 ### ============================================================================
 
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
+
