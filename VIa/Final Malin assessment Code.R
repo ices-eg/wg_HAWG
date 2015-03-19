@@ -28,7 +28,7 @@ log.msg     <-  function(fmt,...) {
 	flush.console()
 }
 
-log.msg("\nMalin shelf Herring FLSAM Assessment\n===================================\n")
+log.msg("\nHerring in VIa and VIIbc FLSAM Assessment\n===================================\n")
 
 ### ======================================================================================================
 ### Define parameters for use in the assessment code here
