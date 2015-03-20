@@ -31,7 +31,7 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 output.dir          <-  file.path(".","results")                #Output directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  10                                       #Number of years for which to run the retrospective
+n.retro.years       <-  5                                       #Number of years for which to run the retrospective
 
 ### ============================================================================
 ### Setup assessment
@@ -59,7 +59,7 @@ plot(NSH.retro,futureYrs=F)
 
 print(retroResiduals(   NSH.retro,"HERAS",1990:(range(NSH)["maxyear"])))
 print(retroResiduals(   NSH.retro,"catch",1990:(range(NSH)["maxyear"])))
-print(retroSelectivity( NSH.retro,2003:(range(NSH)["maxyear"])))
+print(retroSelectivity( NSH.retro,2008:(range(NSH)["maxyear"])))
 
 dev.off()
 
