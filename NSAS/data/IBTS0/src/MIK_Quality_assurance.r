@@ -16,23 +16,9 @@
 #  To do:
 #
 #  Notes:
-#   - This script contains RMarkdown. Generate HTML with the following commands.
-#           #Configuration----------
-#           this.script <- "src//MIK_Quality_assurance.r"
-#           opts_knit$set(output.suffix="QA.html",
-#                         subset.campaigns=2015)  
-#           #Code follows----------
-#           library(knitr);library(markdown)
-#           opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="unnamed")
-#           opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
-#                          message=FALSE,error=FALSE,fig.path="plots/")
-#           this.script.HTML <- spin(this.script)
-#           options("markdown.HTML.options"=c(markdownHTMLOptions(TRUE),"toc"))
-#           markdownToHTML(gsub("html$","md",this.script.HTML),this.script.HTML)
-#           file.rename(this.script.HTML,sprintf("outputs/%s_%s",
-#                                  basename(rownames(f.details)),
-#                                  opts_knit$get("output.suffix")))
-#           file.remove(gsub("html$","md",this.script.HTML))
+#   - This script contains RMarkdown. Generate HTML by running the script
+#     "./src/Automatic_QA_report.r"
+#
 # /*##########################################################################*/
 
 # ========================================================================
@@ -51,6 +37,7 @@ log.msg <- function(fmt,...) {cat(sprintf(fmt,...));
 library(sp)
 library(lattice)
 library(tools)
+library(geosphere)
 library(reshape)
 library(maps);library(mapdata);library(maptools)
 
@@ -151,6 +138,61 @@ ICESrectangleFromLonLat <-function (lon,lat)
   #Done
   return(ICES.rect)
 }
+
+### ========================================================================
+### ICESrectangle2LonLat
+### Fri Dec  6 10:37:25 2013
+### statsq           :  Vector of 4 charcter ICES stat-square codes
+### return.midpoints :  Should the function return lon/lat corresponding to 
+###                     the centre of the square (TRUE) or the SW corner (FALSE)
+### ========================================================================
+ICESrectangle2LonLat <-
+  function (statsq,return.midpoints=TRUE)
+  {
+    #Split the code into its respective parts
+    latpart <- substr(statsq, 1, 2)
+    lonpart <- substr(statsq, 3, 4)
+    
+    #Handle the latitude first, as its easier
+    #The grid increments continuously from
+    #south to north in 0.5 degree intervals
+    latlabels <- sprintf("%02i",1:99)
+    lat.mids <- seq(36, 85, 0.5) + 0.25
+    lat.idx <- match(latpart, latlabels)
+    lat <- lat.mids[lat.idx]
+    
+    #The longtitudinal structure is not so easy
+    #There are three main traps:
+    #  - A4-A9 do not exist
+    #  - There are no I squares
+    #  - Grid ends at M8
+    lonlabels <- paste(rep(LETTERS[c(2:8,10:13)], each=10), rep(0:9, 
+                                                                7), sep = "")
+    lonlabels <- c("A0","A1","A2","A3",lonlabels[-length(lonlabels)])
+    lon.mids <- -44:68 + 0.5
+    lon.idx <- match(lonpart, lonlabels)
+    lon <- lon.mids[lon.idx]
+    
+    #Check whether it worked
+    #If any part of the code is not recognised, both
+    #lon and lat should be NA
+    failed.codes <- is.na(lat) | is.na(lon)
+    if (any(failed.codes)) {
+      warning("Some stat squares are not valid.")
+      lat[failed.codes] <- NA
+      lon[failed.codes] <- NA
+    }
+    
+    #Correct for midpoints
+    if(!return.midpoints){
+      
+      lat <- lat - 0.25
+      lon <- lon - 0.5
+      
+    }
+    #Done
+    return(data.frame(lat=lat,lon=lon))
+  }
 
 
 #/* ========================================================================*/
@@ -332,11 +374,18 @@ plot(dat.sp,add=TRUE,pch=16,col=ifelse(onland,"red",NA))
 #'#### ICES Stat-Square check
 #'Check that the longitude and latitude are in agreement with the ICES statistical
 #'rectangle listed. The ICES rectangle derived from the long and lat is called `rect.from.ll`
-#'below, while `Rectangle` is the value listted in the database.
+#'below, while `Rectangle` is the value listted in the database. 'dist' is the disttance
+#'in km between the centre of listed rectangle, and the long-latitude
 d.rect <- transform(dat,
-                    rect.from.ll=ICESrectangleFromLonLat(LongDec,LatDec))
+                    rect.from.ll=ICESrectangleFromLonLat(LongDec,LatDec),
+                    ll.from.ss=ICESrectangle2LonLat(Rectangle))
+d.rect$dist <- with(d.rect,
+                    distHaversine(cbind(ll.from.ss.lon,ll.from.ss.lat),
+                                  cbind(LongDec,LatDec)))
+d.rect$dist <- round(d.rect$dist/1000)
+d.rect <- d.rect[rev(order(d.rect$dist)),]
 disp.err(d.rect$rect.from.ll!=d.rect$Rectangle,
-         c("Rectangle","rect.from.ll","LongDec","LatDec"),
+         c("Rectangle","rect.from.ll","dist"),
          from=d.rect)
 
 #/* ========================================================================*/
@@ -656,11 +705,14 @@ disp.err(dat$sum_len_dist!=0 & dat$Numberlarvae==0,
 #'The discrepancy between these is reported in the `diff` field. An error 
 #'is reported if this value is non-zero, after rounding.
 #'
-d <- dat
-d$diff <- round(d$Numberlarvae - d$sum_len_dist-d$not.measured-d$damaged,1)
-disp.err(d$diff!=0 & d$sum_len_dist!=0 & d$Numberlarvae!=0,
-         c("Numberlarvae","sum_len_dist","not.measured","damaged","diff"),
-         from=d)
+#'Note that this option has been disabled, due to missing "not.measured" and
+#'"damaged" fields
+#'
+# d <- dat
+# d$diff <- round(d$Numberlarvae - d$sum_len_dist-d$not.measured-d$damaged,1)
+# disp.err(d$diff!=0 & d$sum_len_dist!=0 & d$Numberlarvae!=0,
+#          c("Numberlarvae","sum_len_dist","not.measured","damaged","diff"),
+#          from=d)
 
 #/* ========================================================================*/
 #   Complete

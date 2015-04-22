@@ -19,6 +19,19 @@
 #
 # /*##########################################################################*/
 
+# ========================================================================
+# Initialise system
+# ========================================================================
+cat(sprintf("\n%s\n","Automatic QA Reporting"))
+
+#Configure markdown style, do house cleaning
+rm(list = ls(all.names=TRUE));  graphics.off()
+start.time <- proc.time()[3]; options(stringsAsFactors=FALSE)
+require(knitr)
+
+#Helper functions, externals and libraries
+log.msg <- function(fmt,...) {cat(sprintf(fmt,...));
+                              flush.console();return(invisible(NULL))}
 
 # ========================================================================
 # Import data
@@ -31,7 +44,7 @@ source("src/Data_import.r")
 #Configuration----------
 QA.script <- "src//MIK_Quality_assurance.r"
 opts_knit$set(output.suffix="QA.html",
-              subset.campaigns=2015)  
+              subset.campaigns=NULL)  
 
 #Code follows----------
 library(knitr);library(markdown)
@@ -46,7 +59,7 @@ file.rename(QA.script.HTML,sprintf("outputs/%s_%s",
                                      opts_knit$get("output.suffix")))
 file.remove(gsub("html$","md",QA.script.HTML))
 
-# ========================================================================
-# Calculate index
-# ========================================================================
-source("src//Index_calculation.r")
+# ========================================================================*/
+# Complete
+# ========================================================================*/
+log.msg("\nAnalysis complete in %.1fs at %s.\n",proc.time()[3]-start.time,date())
