@@ -20,7 +20,7 @@ find.FABC <- function(mult,Fs,Ns,Wts,CWts,fspwns,mspwns,mats,Ms,f01,f26,Tcs,mixp
   catchABCD         <- numeric(length(mult))#; catchABCD[] <- NA
   for(i in 1:length(mult))
     catchABCD[i]    <- sum(Ns*(1-exp(-rowSums(Fs)-Ms))*(Fs[,i]/(rowSums(Fs)+Ms))*CWts[,i])
-  CtargetC          <- (0.057*sum(catchABCD[1:2]) + 0.41*advCatchWB) * mixprop
+  CtargetC          <- (0.057*sum(catchABCD[1]) + 0.41*advCatchWB) * mixprop
   bigF              <- rowSums(Fs)
   ssb               <- sum(Ns*Wts*exp(-bigF*fspwns-Ms*mspwns)*mats)
   if(ssb < 0.8e6){
@@ -52,7 +52,7 @@ find.FABC_F <- function(mult,Fs,Ns,Wts,CWts,fspwns,mspwns,mats,Ms,f01,f26,Tcs,mi
   catchABCD         <- numeric(length(mult)) #; catchABCD[] <- NA
   for(i in 1:length(mult))
     catchABCD[i]    <- sum(Ns*(1-exp(-rowSums(Fs)-Ms))*(Fs[,i]/(rowSums(Fs)+Ms))*CWts[,i])
-  CtargetC          <- (0.057*sum(catchABCD[1:2]) + 0.41*advCatchWB) * mixprop
+  CtargetC          <- (0.057*sum(catchABCD[1]) + 0.41*advCatchWB) * mixprop
   bigF              <- rowSums(Fs)
   fbarA             <- mean(bigF[f26])
   fbarB             <- mean(bigF[f01])
