@@ -38,108 +38,108 @@ abs((stf@catch[,FcY,"A"] - TACS.orig[,ImY,"A"])/TACS.orig[,ImY,"A"]) > 0.15 #for
 
 for(i in 1:20){
 
-#- Check if catches are more than 15% from the year before. And if so, adjust
-idxup                     <- which(stf@catch[,FcY,"A"] > TACS.orig[,ImY,"A"]*1.15)
-idxdown                   <- which(stf@catch[,FcY,"A"] < TACS.orig[,ImY,"A"]*0.85)
-stf@catch[,FcY,"A",,,idxup]   <- TACS.orig[,ImY,"A",,,idxup]   *1.15
-stf@catch[,FcY,"A",,,idxdown] <- TACS.orig[,ImY,"A",,,idxdown] *0.85
-#- If adjusted, recalculate harvest pattern
-stf@catch[,FcY,"C"]       <- (0.057 * sum(stf@catch[,FcY,c("A","B")]) + 0.41 * advCatchWB) *mixprop #combined C-fleet TAC
+  #- Check if catches are more than 15% from the year before. And if so, adjust
+  idxup                     <- which(stf@catch[,FcY,"A"] > TACS.orig[,ImY,"A"]*1.15)
+  idxdown                   <- which(stf@catch[,FcY,"A"] < TACS.orig[,ImY,"A"]*0.85)
+  stf@catch[,FcY,"A",,,idxup]   <- TACS.orig[,ImY,"A",,,idxup]   *1.15
+  stf@catch[,FcY,"A",,,idxdown] <- TACS.orig[,ImY,"A",,,idxdown] *0.85
+  #- If adjusted, recalculate harvest pattern
+  stf@catch[,FcY,"C"]       <- (0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB) *mixprop #combined C-fleet TAC
 
-stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
+  stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
 
-#- Check the F target according to adjusted TAC
-ssb                       <- quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1]*stf@mat[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]))
-resA <- resB              <- numeric(dims(stf)$iter)
-idx                       <- which(ssb < 0.8e6,arr.ind=T)
-if(length(idx)>0){
-  resA[idx[,6]]           <- 0.1
-  resB[idx[,6]]           <- 0.04
+  #- Check the F target according to adjusted TAC
+  ssb                       <- quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1]*stf@mat[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]))
+  resA <- resB              <- numeric(dims(stf)$iter)
+  idx                       <- which(ssb < 0.8e6,arr.ind=T)
+  if(length(idx)>0){
+    resA[idx[,6]]           <- 0.1
+    resB[idx[,6]]           <- 0.04
+  }
+  idx                       <- which(ssb >= 0.8e6 & ssb <= 1.5e6,arr.ind=T)
+  if(length(idx)>0){
+    resA[idx[,6]]           <- 0.16/0.7*((ssb[,,,,,idx]-0.8e6)/1e6)+0.1
+    resB[idx[,6]]           <- 0.05
+  }
+  idx                       <- which(ssb > 1.5e6,arr.ind=T)
+  if(length(idx)>0){
+    resA[idx[,6]]           <- 0.26
+    resB[idx[,6]]           <- 0.05
+  }
+
+
+  #-if Ftarget is off by more than 10%, make an adjustment
+  outidx                    <- which(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) <  0.9 * resA |
+                                     apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) >  1.1 * resA)
+  inidx                     <- which(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) >= 0.9 * resA &
+                                     apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) <= 1.1 * resA)
+  #- If outside this range, do not apply TAC constraint and use 15% cap on F
+  if(length(outidx)>0){
+    sidx                    <- which((apply(unitSums(stf@harvest[f26,FcY,,,,outidx]),2:6,mean,na.rm=T)) <  0.9 * resA[outidx])
+    bidx                    <- which((apply(unitSums(stf@harvest[f26,FcY,,,,outidx]),2:6,mean,na.rm=T)) >  1.1 * resA[outidx])
+
+    if(length(sidx)>0) stf@harvest[,FcY,"A",,,outidx[sidx]]       <- sweep(stf@harvest[,FcY,"A",,,outidx[sidx]],2:6,
+                                                                      ((resA[outidx[sidx]] * 0.9) - apply(unitSums(stf@harvest[f26,FcY,c("B","C","D"),,,outidx[sidx]]),2:6,mean,na.rm=T)) /
+                                                                        apply(unitSums(stf@harvest[f26,FcY,"A",,,outidx[sidx]]),2:6,mean,na.rm=T),"*")
+    if(length(bidx)>0) stf@harvest[,FcY,"A",,,outidx[bidx]]       <- sweep(stf@harvest[,FcY,"A",,,outidx[bidx]],2:6,
+                                                                      ((resA[outidx[bidx]] * 1.1) - apply(unitSums(stf@harvest[f26,FcY,c("B","C","D"),,,outidx[bidx]]),2:6,mean,na.rm=T)) /
+                                                                        apply(unitSums(stf@harvest[f26,FcY,"A",,,outidx[bidx]]),2:6,mean,na.rm=T),"*")
+  }
+  #-if Ftarget is off by more than 10%, make an adjustment
+  outidx                    <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <  resB |
+                                     apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >  resB)
+  inidx                     <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >= resB &
+                                     apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <= resB)
+  #- If outside this range, do not apply TAC constraint and use 15% cap on F
+  if(length(outidx)>0){
+    sidx                    <- which((apply(unitSums(stf@harvest[f01,FcY,,,,outidx]),2:6,mean,na.rm=T)) <  resB[outidx])
+    bidx                    <- which((apply(unitSums(stf@harvest[f01,FcY,,,,outidx]),2:6,mean,na.rm=T)) >  resB[outidx])
+
+    if(length(sidx)>0) stf@harvest[,FcY,"B",,,outidx[sidx]]       <- sweep(stf@harvest[,FcY,"B",,,outidx[sidx]],2:6,
+                                                                      ((resB[outidx[sidx]]) - apply(unitSums(stf@harvest[f01,FcY,c("A","C","D"),,,outidx[sidx]]),2:6,mean,na.rm=T)) /
+                                                                        apply(unitSums(stf@harvest[f01,FcY,"B",,,outidx[sidx]]),2:6,mean,na.rm=T),"*")
+    if(length(bidx)>0) stf@harvest[,FcY,"B",,,outidx[bidx]]       <- sweep(stf@harvest[,FcY,"B",,,outidx[bidx]],2:6,
+                                                                      ((resB[outidx[bidx]]) - apply(unitSums(stf@harvest[f01,FcY,c("A","C","D"),,,outidx[bidx]]),2:6,mean,na.rm=T)) /
+                                                                        apply(unitSums(stf@harvest[f01,FcY,"B",,,outidx[bidx]]),2:6,mean,na.rm=T),"*")
+  }
+  #- Now find the Fs and catches that
+  stf@catch[,FcY,"B"]       <- quantSums(stf@catch.wt[,FcY,"B",,,outidx] * stf@stock.n[,FcY,"B",,,outidx] *
+                                        (1-exp(-unitSums(stf@harvest[,FcY,,,,outidx])-stf@m[,FcY,"B",,,outidx])) *
+                                        (stf@harvest[,FcY,"B",,,outidx]/(unitSums(stf@harvest[,FcY,,,,outidx])+stf@m[,FcY,"B",,,outidx])))
+
+  stf@catch[,FcY,"C"]       <- 0.057*unitSums(stf@catch[,FcY,c("A")])*mixprop + TACS[,FcY,"C"]
+
+   res <- optim(par=rep(1,dims(stf)$unit),find.FABC_F,
+                    Fs=stf@harvest[,FcY,,,,iTer,drop=T],
+                    Ns=stf@stock.n[,FcY,1,,,iTer,drop=T],
+                    Wts=stf@stock.wt[,FcY,1,,,iTer,drop=T],
+                    CWts=stf@catch.wt[,FcY,,,,iTer,drop=T],
+                    fspwns=stf@harvest.spwn[,FcY,1,,,iTer,drop=T],
+                    mspwns=stf@m.spwn[,FcY,1,,,iTer,drop=T],
+                    mats=stf@mat[,FcY,1,,,iTer,drop=T],
+                    Ms=stf@m[,FcY,1,,,iTer,drop=T],f01=f01,f26=f26,
+                    Tcs=iter(TACS[,c(ImY,FcY)],iTer),
+                    mixprop=mixprop,
+                    FA=resA*0.9,
+                    FB=resB,
+                    lower=rep(0.01,4),method="L-BFGS-B",control=list(maxit=100))$par
+
+   stf@harvest[,FcY]         <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
+   stf@catch[,FcY,"A"]       <- quantSums(stf@catch.wt[,FcY,"A",,,outidx] * stf@stock.n[,FcY,"A",,,outidx] *
+                                         (1-exp(-unitSums(stf@harvest[,FcY,,,,outidx])-stf@m[,FcY,"A",,,outidx])) *
+                                         (stf@harvest[,FcY,"A",,,outidx]/(unitSums(stf@harvest[,FcY,,,,outidx])+stf@m[,FcY,"A",,,outidx])))
+   stf@catch[,FcY,"B"]       <- quantSums(stf@catch.wt[,FcY,"B",,,outidx] * stf@stock.n[,FcY,"B",,,outidx] *
+                                         (1-exp(-unitSums(stf@harvest[,FcY,,,,outidx])-stf@m[,FcY,"B",,,outidx])) *
+                                         (stf@harvest[,FcY,"B",,,outidx]/(unitSums(stf@harvest[,FcY,,,,outidx])+stf@m[,FcY,"B",,,outidx])))
+   stf@catch[,FcY,"C"]       <- (0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB) * mixprop
+
+
+
+   print(c(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T),apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T),stf@catch[,FcY,],(0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB )* mixprop - stf@catch[,FcY,"C"]))
+   stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
 }
-idx                       <- which(ssb >= 0.8e6 & ssb <= 1.5e6,arr.ind=T)
-if(length(idx)>0){
-  resA[idx[,6]]           <- 0.16/0.7*((ssb[,,,,,idx]-0.8e6)/1e6)+0.1
-  resB[idx[,6]]           <- 0.05
-}
-idx                       <- which(ssb > 1.5e6,arr.ind=T)
-if(length(idx)>0){
-  resA[idx[,6]]           <- 0.26
-  resB[idx[,6]]           <- 0.05
-}
 
-
-#-if Ftarget is off by more than 10%, make an adjustment
-outidx                    <- which(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) <  0.9 * resA |
-                                   apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) >  1.1 * resA)
-inidx                     <- which(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) >= 0.9 * resA &
-                                   apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) <= 1.1 * resA)
-#- If outside this range, do not apply TAC constraint and use 15% cap on F
-if(length(outidx)>0){
-  sidx                    <- which((apply(unitSums(stf@harvest[f26,FcY,,,,outidx]),2:6,mean,na.rm=T)) <  0.9 * resA[outidx])
-  bidx                    <- which((apply(unitSums(stf@harvest[f26,FcY,,,,outidx]),2:6,mean,na.rm=T)) >  1.1 * resA[outidx])
-
-  if(length(sidx)>0) stf@harvest[,FcY,"A",,,outidx[sidx]]       <- sweep(stf@harvest[,FcY,"A",,,outidx[sidx]],2:6,
-                                                                    ((resA[outidx[sidx]] * 0.9) - apply(unitSums(stf@harvest[f26,FcY,c("B","C","D"),,,outidx[sidx]]),2:6,mean,na.rm=T)) /
-                                                                      apply(unitSums(stf@harvest[f26,FcY,"A",,,outidx[sidx]]),2:6,mean,na.rm=T),"*")
-  if(length(bidx)>0) stf@harvest[,FcY,"A",,,outidx[bidx]]       <- sweep(stf@harvest[,FcY,"A",,,outidx[bidx]],2:6,
-                                                                    ((resA[outidx[bidx]] * 1.1) - apply(unitSums(stf@harvest[f26,FcY,c("B","C","D"),,,outidx[bidx]]),2:6,mean,na.rm=T)) /
-                                                                      apply(unitSums(stf@harvest[f26,FcY,"A",,,outidx[bidx]]),2:6,mean,na.rm=T),"*")
-}
-#-if Ftarget is off by more than 10%, make an adjustment
-outidx                    <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <  resB |
-                                   apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >  resB)
-inidx                     <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >= resB &
-                                   apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <= resB)
-#- If outside this range, do not apply TAC constraint and use 15% cap on F
-if(length(outidx)>0){
-  sidx                    <- which((apply(unitSums(stf@harvest[f01,FcY,,,,outidx]),2:6,mean,na.rm=T)) <  resB[outidx])
-  bidx                    <- which((apply(unitSums(stf@harvest[f01,FcY,,,,outidx]),2:6,mean,na.rm=T)) >  resB[outidx])
-
-  if(length(sidx)>0) stf@harvest[,FcY,"B",,,outidx[sidx]]       <- sweep(stf@harvest[,FcY,"B",,,outidx[sidx]],2:6,
-                                                                    ((resB[outidx[sidx]]) - apply(unitSums(stf@harvest[f01,FcY,c("A","C","D"),,,outidx[sidx]]),2:6,mean,na.rm=T)) /
-                                                                      apply(unitSums(stf@harvest[f01,FcY,"B",,,outidx[sidx]]),2:6,mean,na.rm=T),"*")
-  if(length(bidx)>0) stf@harvest[,FcY,"B",,,outidx[bidx]]       <- sweep(stf@harvest[,FcY,"B",,,outidx[bidx]],2:6,
-                                                                    ((resB[outidx[bidx]]) - apply(unitSums(stf@harvest[f01,FcY,c("A","C","D"),,,outidx[bidx]]),2:6,mean,na.rm=T)) /
-                                                                      apply(unitSums(stf@harvest[f01,FcY,"B",,,outidx[bidx]]),2:6,mean,na.rm=T),"*")
-}
-#- Now find the Fs and catches that
-stf@catch[,FcY,"B"]       <- quantSums(stf@catch.wt[,FcY,"B",,,outidx] * stf@stock.n[,FcY,"B",,,outidx] *
-                                      (1-exp(-unitSums(stf@harvest[,FcY,,,,outidx])-stf@m[,FcY,"B",,,outidx])) *
-                                      (stf@harvest[,FcY,"B",,,outidx]/(unitSums(stf@harvest[,FcY,,,,outidx])+stf@m[,FcY,"B",,,outidx])))
-
-stf@catch[,FcY,"C"]       <- 0.057*unitSums(stf@catch[,FcY,c("A","B")])*mixprop + TACS[,FcY,"C"]
-
- res <- optim(par=rep(1,dims(stf)$unit),find.FABC_F,
-                  Fs=stf@harvest[,FcY,,,,iTer,drop=T],
-                  Ns=stf@stock.n[,FcY,1,,,iTer,drop=T],
-                  Wts=stf@stock.wt[,FcY,1,,,iTer,drop=T],
-                  CWts=stf@catch.wt[,FcY,,,,iTer,drop=T],
-                  fspwns=stf@harvest.spwn[,FcY,1,,,iTer,drop=T],
-                  mspwns=stf@m.spwn[,FcY,1,,,iTer,drop=T],
-                  mats=stf@mat[,FcY,1,,,iTer,drop=T],
-                  Ms=stf@m[,FcY,1,,,iTer,drop=T],f01=f01,f26=f26,
-                  Tcs=iter(TACS[,c(ImY,FcY)],iTer),
-                  mixprop=mixprop,
-                  FA=resA*0.9,
-                  FB=resB,
-                  lower=rep(0.01,4),method="L-BFGS-B",control=list(maxit=100))$par
- 
- stf@harvest[,FcY]         <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
- stf@catch[,FcY,"A"]       <- quantSums(stf@catch.wt[,FcY,"A",,,outidx] * stf@stock.n[,FcY,"A",,,outidx] *
-                                       (1-exp(-unitSums(stf@harvest[,FcY,,,,outidx])-stf@m[,FcY,"A",,,outidx])) *
-                                       (stf@harvest[,FcY,"A",,,outidx]/(unitSums(stf@harvest[,FcY,,,,outidx])+stf@m[,FcY,"A",,,outidx])))
- stf@catch[,FcY,"B"]       <- quantSums(stf@catch.wt[,FcY,"B",,,outidx] * stf@stock.n[,FcY,"B",,,outidx] *
-                                       (1-exp(-unitSums(stf@harvest[,FcY,,,,outidx])-stf@m[,FcY,"B",,,outidx])) *
-                                       (stf@harvest[,FcY,"B",,,outidx]/(unitSums(stf@harvest[,FcY,,,,outidx])+stf@m[,FcY,"B",,,outidx])))
- stf@catch[,FcY,"C"]       <- (0.057*unitSums(stf@catch[,FcY,c("A","B")]) + 0.41*advCatchWB) * mixprop
- 
- 
- 
- print(c(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T),apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T),stf@catch[,FcY,],(0.057*unitSums(stf@catch[,FcY,c("A","B")]) + 0.41*advCatchWB )* mixprop - stf@catch[,FcY,"C"]))
- stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
- }
-
-TAC.C <- 0.057 * sum(stf@catch[,FcY,c("A","B")]) + 0.41 * advCatchWB  #combined C-fleet TAC
+TAC.C <- 0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB  #combined C-fleet TAC
 TAC.C10 <- TAC.C *0.1 #10% thereof, add to A-fleet as the minimum transfer amount
 
 stf@harvest[ac(2:6),,"A"] #fleet A f2-6 before 10% transfer

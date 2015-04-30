@@ -66,18 +66,18 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 #2011:
 TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),season="all",area=1,iter=1:dims(stk)$iter))
 TACS.orig   <- TACS
-TACS[,,"A"] <- c(405000+ 0.419 * 45000 - 308,NA,NA);     TACS.orig[,,"A"]  <- c(405000,NA,NA)
-TACS[,,"B"] <- c(17900*0.539755,NA,NA); TACS.orig[,,"B"]  <- c(17900,NA,NA)
-TACS[,,"C"] <- c(7570,9634,9634);       TACS.orig[,,"C"]  <- c(7570,9634,9634)
-TACS[,,"D"] <- c(1618,2059,2059);       TACS.orig[,,"D"]  <- c(1618,2059,2059)
+TACS[,,"A"] <- c(478000+ 0.42 * 55000,NA,NA);     TACS.orig[,,"A"]  <- c(478000,NA,NA)
+TACS[,,"B"] <- c(14.4*0.594301676    ,NA,NA);     TACS.orig[,,"B"]  <- c(14400, NA,NA)
+TACS[,,"C"] <- c(8000,8000,8000);       TACS.orig[,,"C"]  <- c(8000,8000,8000)
+TACS[,,"D"] <- c(2000,2000,2000);       TACS.orig[,,"D"]  <- c(2000,2000,2000)
 
   recWeights<- subset(NSH.sam@params,name=="U"); recWeights <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
-RECS        <- FLQuants("ImY" =FLQuant(rtlnorm(dims(stk)$iter,mean=log(subset(rec(NSH.sam),year==ImY)$value),sd=c(apply(log(rec(stk)[,ac((an(DtY)-8):DtY)]),1,sd,na.rm=T)),
-                                                upper=c(yearMeans(apply(rec(stk)[,ac((an(DtY)-9):DtY)],2,max,na.rm=T))),
-                                                lower=c(yearMeans(apply(rec(stk)[,ac((an(DtY)-9):DtY)],2,min,na.rm=T)))),
+RECS        <- FLQuants("ImY" =FLQuant(rtlnorm(dims(stk)$iter,mean=log(subset(rec(NSH.sam),year==ImY)$value),sd=c(apply(log(rec(stk)[,ac((an(DtY)-10):DtY)]),1,sd,na.rm=T)),
+                                                upper=c(yearMeans(apply(rec(stk)[,ac((an(DtY)-10):DtY)],2,max,na.rm=T))),
+                                                lower=c(yearMeans(apply(rec(stk)[,ac((an(DtY)-10):DtY)],2,min,na.rm=T)))),
                                        dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
-                        "FcY" =exp(apply(log(rec(stk)[,ac((an(DtY)-9):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:11]),na.rm=T)),
-                        "CtY" =exp(apply(log(rec(stk)[,ac((an(DtY)-9):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:11]),na.rm=T)))
+                        "FcY" =exp(apply(log(rec(stk)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:11]),na.rm=T)),
+                        "CtY" =exp(apply(log(rec(stk)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:11]),na.rm=T)))
 
 FS          <- list("A"=FA,"B"=FB,"C"=FC,"D"=FD)
 WS          <- list("A"=WA,"B"=WB,"C"=WC,"D"=WD)
@@ -330,7 +330,7 @@ if("fmsy" %in% stf.options){
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),find.F,stk=iter(stf[,FcY],iTer),f.=0.3,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),find.F,stk=iter(stf[,FcY],iTer),f.=0.27,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
