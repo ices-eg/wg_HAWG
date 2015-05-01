@@ -23,6 +23,7 @@ log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
 path <- "~/HAWG/trunk/NSAS/"
 path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
+#path <- "C:/Users/Lusseaus/Documents/ICES Working Groups/HAWG/2015/Repository 2015/NSAS/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -204,7 +205,7 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
 
 
   #Plot otholith
-  #otolith(NSH.sam,n=1e6) #Warning, this takes very long!
+  #otolith(NSH.sam,n=1000000) #Warning, this takes very long!
 
   ### ============================================================================
   ### Management
