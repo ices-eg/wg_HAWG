@@ -1,341 +1,348 @@
-Year  LAIUnit Area  Fortnight        L<=9   
- 72   B1      Or/Sh  01-15Sep        1133   
- 72   B2      Or/Sh  16-30Sep        4583   
- 72   C1      Buchan 01-15Sep          30   
- 72   C2      Buchan 16-30Sep           0   
- 72   D1      CNS    01-15Sep         165   
- 72   D2      CNS    16-30Sep          88   
- 72   D3      CNS    01-15Oct         134   
- 72   D4      CNS    16-31Oct          22   
- 72   E6      SNS    16-31Dec           2   
- 72   E7      SNS    01-15Jan          46   
- 72   E8      SNS    16-31Jan           0   
- 73   B1      Or/Sh  01-15Sep        2029   
- 73   B2      Or/Sh  16-30Sep         822   
- 73   C1      Buchan 01-15Sep           3   
- 73   C2      Buchan 16-30Sep           4   
- 73   D1      CNS    01-15Sep         492   
- 73   D2      CNS    16-30Sep         830   
- 73   D3      CNS    01-15Oct        1213   
- 73   D4      CNS    16-31Oct         152   
- 73   E8      SNS    16-31Jan           1   
- 74   B1      Or/Sh  01-15Sep         758   
- 74   B2      Or/Sh  16-30Sep         421   
- 74   C1      Buchan 01-15Sep         101   
- 74   C2      Buchan 16-30Sep         284   
- 74   D1      CNS    01-15Sep          81   
- 74   D3      CNS    01-15Oct        1184   
- 74   E7      SNS    01-15Jan          10   
- 75   B1      Or/Sh  01-15Sep         371   
- 75   B2      Or/Sh  16-30Sep          50   
- 75   C1      Buchan 01-15Sep         312   
- 75   D2      CNS    16-30Sep          90   
- 75   D3      CNS    01-15Oct          77   
- 75   D4      CNS    16-31Oct           6   
- 75   E6      SNS    16-31Dec           1   
- 75   E7      SNS    01-15Jan           2   
- 75   E8      SNS    16-31Jan           0   
- 76   B1      Or/Sh  01-15Sep         545   
- 76   B2      Or/Sh  16-30Sep          81   
- 76   C1      Buchan 01-15Sep           0   
- 76   C2      Buchan 16-30Sep           1   
- 76   D1      CNS    01-15Sep          64   
- 76   D2      CNS    16-30Sep         108   
- 76   D3      CNS    01-15Oct           0   
- 76   D4      CNS    16-31Oct          10   
- 76   E7      SNS    01-15Jan           3   
- 77   B1      Or/Sh  01-15Sep        1133   
- 77   B2      Or/Sh  16-30Sep         221   
- 77   C1      Buchan 01-15Sep         124   
- 77   C2      Buchan 16-30Sep          32   
- 77   D1      CNS    01-15Sep         520   
- 77   D2      CNS    16-30Sep         262   
- 77   D3      CNS    01-15Oct          89   
- 77   D4      CNS    16-31Oct           3   
- 77   E6      SNS    16-31Dec           1   
- 77   E7      SNS    01-15Jan           0   
- 78   B1      Or/Sh  01-15Sep        3047   
- 78   B2      Or/Sh  16-30Sep          50   
- 78   C2      Buchan 16-30Sep         162   
- 78   D1      CNS    01-15Sep        1406   
- 78   D2      CNS    16-30Sep          81   
- 78   D3      CNS    01-15Oct         269   
- 78   D4      CNS    16-31Oct           2   
- 78   E6      SNS    16-31Dec          33   
- 78   E7      SNS    01-15Jan           3   
- 79   B1      Or/Sh  01-15Sep        2882   
- 79   B2      Or/Sh  16-30Sep        2362   
- 79   C1      Buchan 01-15Sep         197   
- 79   C2      Buchan 16-30Sep          10   
- 79   D1      CNS    01-15Sep         662   
- 79   D2      CNS    16-30Sep         131   
- 79   D3      CNS    01-15Oct         507   
- 79   D4      CNS    16-31Oct           7   
- 79   E7      SNS    01-15Jan         111   
- 79   E8      SNS    16-31Jan          89   
- 80   B1      Or/Sh  01-15Sep        3534   
- 80   B2      Or/Sh  16-30Sep         720   
- 80   C1      Buchan 01-15Sep          21   
- 80   C2      Buchan 16-30Sep           1   
- 80   D1      CNS    01-15Sep         317   
- 80   D2      CNS    16-30Sep         188   
- 80   D3      CNS    01-15Oct           9   
- 80   D4      CNS    16-31Oct          13   
- 80   E6      SNS    16-31Dec         247   
- 80   E7      SNS    01-15Jan         129   
- 80   E8      SNS    16-31Jan          40   
- 81   B1      Or/Sh  01-15Sep        3667   
- 81   B2      Or/Sh  16-30Sep         277   
- 81   C1      Buchan 01-15Sep           3   
- 81   C2      Buchan 16-30Sep          12   
- 81   D1      CNS    01-15Sep         903   
- 81   D2      CNS    16-30Sep         235   
- 81   D3      CNS    01-15Oct         119   
- 81   D4      CNS    16-31Oct           0   
- 81   E6      SNS    16-31Dec        1456   
- 81   E8      SNS    16-31Jan          70   
- 82   B1      Or/Sh  01-15Sep        2353   
- 82   B2      Or/Sh  16-30Sep        1116   
- 82   C1      Buchan 01-15Sep         340   
- 82   C2      Buchan 16-30Sep         257   
- 82   D1      CNS    01-15Sep          86   
- 82   D2      CNS    16-30Sep          64   
- 82   D3      CNS    01-15Oct        1077   
- 82   D4      CNS    16-31Oct          23   
- 82   E6      SNS    16-31Dec         710   
- 82   E7      SNS    01-15Jan         275   
- 82   E8      SNS    16-31Jan          54   
- 83   B1      Or/Sh  01-15Sep        2579   
- 83   B2      Or/Sh  16-30Sep         812   
- 83   C1      Buchan 01-15Sep        3647   
- 83   C2      Buchan 16-30Sep         768   
- 83   D1      CNS    01-15Sep        1459   
- 83   D2      CNS    16-30Sep         281   
- 83   D3      CNS    01-15Oct          63   
- 83   E6      SNS    16-31Dec          71   
- 83   E7      SNS    01-15Jan         243   
- 83   E8      SNS    16-31Jan          58   
- 84   B1      Or/Sh  01-15Sep        1795   
- 84   B2      Or/Sh  16-30Sep        1912   
- 84   C1      Buchan 01-15Sep        2327   
- 84   C2      Buchan 16-30Sep        1853   
- 84   D1      CNS    01-15Sep         688   
- 84   D2      CNS    16-30Sep        2404   
- 84   D3      CNS    01-15Oct         824   
- 84   D4      CNS    16-31Oct         433   
- 84   E6      SNS    16-31Dec         523   
- 84   E7      SNS    01-15Jan         185   
- 84   E8      SNS    16-31Jan          39   
- 85   B1      Or/Sh  01-15Sep        5632   
- 85   B2      Or/Sh  16-30Sep        3432   
- 85   C1      Buchan 01-15Sep        2521   
- 85   C2      Buchan 16-30Sep        1812   
- 85   D1      CNS    01-15Sep         130   
- 85   D2      CNS    16-30Sep       13039   
- 85   D3      CNS    01-15Oct        1794   
- 85   D4      CNS    16-31Oct         215   
- 85   E6      SNS    16-31Dec        1851   
- 85   E7      SNS    01-15Jan         407   
- 85   E8      SNS    16-31Jan          38   
- 86   B1      Or/Sh  01-15Sep        3529   
- 86   B2      Or/Sh  16-30Sep        1842   
- 86   C1      Buchan 01-15Sep        3278   
- 86   C2      Buchan 16-30Sep         341   
- 86   D1      CNS    01-15Sep        1611   
- 86   D2      CNS    16-30Sep        6112   
- 86   D3      CNS    01-15Oct         188   
- 86   D4      CNS    16-31Oct          36   
- 86   E6      SNS    16-31Dec         780   
- 86   E7      SNS    01-15Jan         123   
- 86   E8      SNS    16-31Jan          18   
- 87   B1      Or/Sh  01-15Sep        7409   
- 87   B2      Or/Sh  16-30Sep        1848   
- 87   C1      Buchan 01-15Sep        2551   
- 87   C2      Buchan 16-30Sep         670   
- 87   D1      CNS    01-15Sep         799   
- 87   D2      CNS    16-30Sep        4927   
- 87   D3      CNS    01-15Oct        1992   
- 87   D4      CNS    16-31Oct         113   
- 87   E6      SNS    16-31Dec         934   
- 87   E7      SNS    01-15Jan         297   
- 87   E8      SNS    16-31Jan         146   
- 88   B1      Or/Sh  01-15Sep        7538   
- 88   B2      Or/Sh  16-30Sep        8832   
- 88   C1      Buchan 01-15Sep        6812   
- 88   C2      Buchan 16-30Sep        5248   
- 88   D1      CNS    01-15Sep        5533   
- 88   D2      CNS    16-30Sep        3808   
- 88   D3      CNS    01-15Oct        1960   
- 88   D4      CNS    16-31Oct         206   
- 88   E6      SNS    16-31Dec        1679   
- 88   E7      SNS    01-15Jan         162   
- 88   E8      SNS    16-31Jan         112   
- 89   B1      Or/Sh  01-15Sep       11477   
- 89   B2      Or/Sh  16-30Sep        5725   
- 89   C1      Buchan 01-15Sep        5879   
- 89   C2      Buchan 16-30Sep         692   
- 89   D1      CNS    01-15Sep        1442   
- 89   D2      CNS    16-30Sep        5010   
- 89   D3      CNS    01-15Oct        2364   
- 89   D4      CNS    16-31Oct           2   
- 89   E6      SNS    16-31Dec        1514   
- 89   E7      SNS    01-15Jan        2120   
- 89   E8      SNS    16-31Jan         512   
- 90   B2      Or/Sh  16-30Sep       10144   
- 90   C1      Buchan 01-15Sep        4590   
- 90   C2      Buchan 16-30Sep        2045   
- 90   D1      CNS    01-15Sep       19965   
- 90   D2      CNS    16-30Sep        1239   
- 90   D3      CNS    01-15Oct         975   
- 90   E6      SNS    16-31Dec        2552   
- 90   E7      SNS    01-15Jan        1204   
- 91   B1      Or/Sh  01-15Sep        1021   
- 91   B2      Or/Sh  16-30Sep        2397   
- 91   C2      Buchan 16-30Sep        2032   
- 91   D1      CNS    01-15Sep        4823   
- 91   D2      CNS    16-30Sep        2110   
- 91   D3      CNS    01-15Oct        1249   
- 91   E6      SNS    16-31Dec        4400   
- 91   E7      SNS    01-15Jan         873   
- 92   B1      Or/Sh  01-15Sep         189   
- 92   B2      Or/Sh  16-30Sep        4917   
- 92   C2      Buchan 16-30Sep         822   
- 92   D1      CNS    01-15Sep          10   
- 92   D2      CNS    16-30Sep         165   
- 92   D3      CNS    01-15Oct         163   
- 92   E6      SNS    16-31Dec         176   
- 92   E7      SNS    01-15Jan        1616   
- 93   B2      Or/Sh  16-30Sep          66   
- 93   C2      Buchan 16-30Sep         174   
- 93   D2      CNS    16-30Sep         685   
- 93   D3      CNS    01-15Oct          85   
- 93   E6      SNS    16-31Dec        1358   
- 93   E7      SNS    01-15Jan        1103   
- 94   B1      Or/Sh  01-15Sep          26   
- 94   B2      Or/Sh  16-30Sep        1179   
- 94   D2      CNS    16-30Sep        1464   
- 94   D3      CNS    01-15Oct          44   
- 94   E6      SNS    16-31Dec         537   
- 94   E7      SNS    01-15Jan         595   
- 95   B2      Or/Sh  16-30Sep        8688   
- 95   D3      CNS    01-15Oct          43   
- 95   E6      SNS    16-31Dec          74   
- 95   E7      SNS    01-15Jan         230   
- 95   E8      SNS    16-31Jan         164   
- 96   B2      Or/Sh  16-30Sep         809   
- 96   C2      Buchan 16-30Sep         184   
- 96   D2      CNS    16-30Sep         564   
- 96   E6      SNS    16-31Dec         337   
- 96   E7      SNS    01-15Jan         675   
- 96   E8      SNS    16-31Jan         691   
- 97   B2      Or/Sh  16-30Sep        3611   
- 97   C2      Buchan 16-30Sep          23   
- 97   E6      SNS    16-31Dec        9374   
- 97   E7      SNS    01-15Jan         918   
- 97   E8      SNS    16-31Jan         355   
- 98   B2      Or/Sh  16-30Sep        8528   
- 98   C2      Buchan 16-30Sep        1490   
- 98   D1      CNS    01-15Sep         205   
- 98   D2      CNS    16-30Sep          66   
- 98   E6      SNS    16-31Dec        1522   
- 98   E7      SNS    01-15Jan         953   
- 98   E8      SNS    16-31Jan         170   
- 99   B2      Or/Sh  16-30Sep        4064   
- 99   C2      Buchan 16-30Sep         185   
- 99   D2      CNS    16-30Sep         134   
- 99   D3      CNS    01-15Oct         181   
- 99   E6      SNS    16-31Dec         804   
- 99   E7      SNS    01-15Jan        1260   
- 99   E8      SNS    16-31Jan         344   
-100   B2      Or/Sh  16-30Sep        3972   
-100   C1      Buchan 01-15Sep          28   
-100   C2      Buchan 16-30Sep         155   
-100   D2      CNS    16-30Sep         376   
-100   E6      SNS    16-31Dec        7346   
-100   E7      SNS    01-15Jan         338   
-100   E8      SNS    16-31Jan         106   
-101   B2      Or/Sh  16-30Sep       11918   
-101   C2      Buchan 16-30Sep         164   
-101   D2      CNS    16-30Sep        1604   
-101   E6      SNS    16-31Dec         971   
-101   E7      SNS    01-15Jan        5531   
-101   E8      SNS    16-31Jan         909   
-102   B2      Or/Sh  16-30Sep        6669   
-102   C2      Buchan 16-30Sep        1038   
-102   D3      CNS    01-15Oct        3291   
-102   E6      SNS    16-31Dec        2008   
-102   E7      SNS    01-15Jan         260   
-102   E8      SNS    16-31Jan         925   
-103   B2      Or/Sh  16-30Sep        3199   
-103   C2      Buchan 16-30Sep        2263   
-103   D2      CNS    16-30Sep       12018   
-103   D3      CNS    01-15Oct        3277   
-103   E6      SNS    16-31Dec       12048   
-103   E7      SNS    01-15Jan        3109   
-103   E8      SNS    16-31Jan        1116   
-104   B2      Or/Sh  16-30Sep        7055   
-104   C2      Buchan 16-30Sep        3884   
-104   D2      CNS    16-30Sep        5545   
-104   E6      SNS    16-31Dec        6528   
-104   E7      SNS    01-15Jan        2052   
-104   E8      SNS    16-31Jan        4175   
-105   B2      Or/Sh  16-30Sep        3380   
-105   C2      Buchan 16-30Sep        1364   
-105   D2      CNS    16-30Sep        5614   
-105   E6      SNS    16-31Dec         498   
-105   E7      SNS    01-15Jan        3999   
-105   E8      SNS    16-31Jan        4822   
-106   B1      Or/Sh  01-15Sep        6311   
-106   B2      Or/Sh  16-30Sep        2312   
-106   C2      Buchan 16-30Sep         280   
-106   D2      CNS    16-30Sep        2259   
-106   E6      SNS    16-31Dec       10858   
-106   E7      SNS    01-15Jan        2700   
-106   E8      SNS    16-31Jan        2106   
-107   B2      Or/Sh  16-30Sep        1753   
-107   C2      Buchan 16-30Sep        1304   
-107   D2      CNS    16-30Sep         291   
-107   E6      SNS    16-31Dec        4443   
-107   E7      SNS    01-15Jan        2439   
-107   E8      SNS    16-31Jan        3854   
-108   B1      Or/Sh  01-15Sep        4978   
-108   B2      Or/Sh  16-30Sep        6875   
-108   C2      Buchan 16-30Sep         533   
-108   D2      CNS    16-30Sep       11201   
-108   E6      SNS    16-31Dec        8426   
-108   E7      SNS    01-15Jan        2317   
-108   E8      SNS    16-31Jan        4008   
-109   B2      Or/Sh  16-30Sep        7543   
-109   C2      Buchan 16-30Sep        4629   
-109   D2      CNS    16-30Sep        4219   
-109   E6      SNS    16-31Dec       15295   
-109   E7      SNS    01-15Jan       14712   
-109   E8      SNS    16-31Jan        1689   
-110   B2      Or/Sh  16-30Sep        2362   
-110   C2      Buchan 16-30Sep        1493   
-110   D2      CNS    16-30Sep        2317   
-110   E6      SNS    16-31Dec        7493   
-110   E7      SNS    01-15Jan       13230   
-110   E8      SNS    16-31Jan        8073   
-111   B2      Or/Sh  16-30Sep        3831
-111   C2      Buchan 16-30Sep        2839
-111   D2      CNS    16-30Sep       17766
-111   E6      SNS    16-31Dec        5461
-111   E7      SNS    01-15Jan        6160
-111   E8      SNS    16-31Jan        1215
-112   B2      Or/Sh  16-30Sep       19552 
-112   C2      Buchan 16-30Sep        5856 
-112   D2      CNS    16-30Sep         517 
-112   E6      SNS    16-31Dec       22768 
-112   E7      SNS    01-15Jan       11103 
-112   E8      SNS    16-31Jan        3285 
-113   B2      Or/Sh  16-30Sep       21282
-113   C2      Buchan 16-30Sep        8618
-113   D2      CNS    16-30Sep        7354
-113   E6      SNS    16-31Dec           5
-113   E7      SNS    01-15Jan        9314
-113   E8      SNS    16-31Jan        2957
-114   B2      Or/Sh  16-30Sep        6604
-114   C2      Buchan 16-30Sep        5033
-114   D2      CNS    16-30Sep        1149
-114   E8      SNS    16-31Jan        1851
+Year    LAIUnit Area    L<=9
+      72B1      Or/Sh       1133
+      72B2      Or/Sh       4583
+      72C1      Buchan        30
+      72C2      Buchan         0
+      72D1      CNS          165
+      72D2      CNS           88
+      72D3      CNS          134
+      72D4      CNS           22
+      72E6      SNS            2
+      72E7      SNS           46
+      72E8      SNS            0
+      73B1      Or/Sh       2029
+      73B2      Or/Sh        822
+      73C1      Buchan         3
+      73C2      Buchan         4
+      73D1      CNS          492
+      73D2      CNS          830
+      73D3      CNS         1213
+      73D4      CNS          152
+      73E8      SNS            1
+      74B1      Or/Sh        758
+      74B2      Or/Sh        421
+      74C1      Buchan       101
+      74C2      Buchan       284
+      74D1      CNS           81
+      74D3      CNS         1184
+      74E7      SNS           10
+      75B1      Or/Sh        371
+      75B2      Or/Sh         50
+      75C1      Buchan       312
+      75D2      CNS           90
+      75D3      CNS           77
+      75D4      CNS            6
+      75E6      SNS            1
+      75E7      SNS            2
+      75E8      SNS            0
+      76B1      Or/Sh        545
+      76B2      Or/Sh         81
+      76C1      Buchan         0
+      76C2      Buchan         1
+      76D1      CNS           64
+      76D2      CNS          108
+      76D3      CNS            0
+      76D4      CNS           10
+      76E7      SNS            3
+      77B1      Or/Sh       1133
+      77B2      Or/Sh        221
+      77C1      Buchan       124
+      77C2      Buchan        32
+      77D1      CNS          520
+      77D2      CNS          262
+      77D3      CNS           89
+      77D4      CNS            3
+      77E6      SNS            1
+      77E7      SNS            0
+      78B1      Or/Sh       3047
+      78B2      Or/Sh         50
+      78C2      Buchan       162
+      78D1      CNS         1406
+      78D2      CNS           81
+      78D3      CNS          269
+      78D4      CNS            2
+      78E6      SNS           33
+      78E7      SNS            3
+      79B1      Or/Sh       2882
+      79B2      Or/Sh       2362
+      79C1      Buchan       197
+      79C2      Buchan        10
+      79D1      CNS          662
+      79D2      CNS          131
+      79D3      CNS          507
+      79D4      CNS            7
+      79E7      SNS          111
+      79E8      SNS           89
+      80B1      Or/Sh       3534
+      80B2      Or/Sh        720
+      80C1      Buchan        21
+      80C2      Buchan         1
+      80D1      CNS          317
+      80D2      CNS          188
+      80D3      CNS            9
+      80D4      CNS           13
+      80E6      SNS          247
+      80E7      SNS          129
+      80E8      SNS           40
+      81B1      Or/Sh       3667
+      81B2      Or/Sh        277
+      81C1      Buchan         3
+      81C2      Buchan        12
+      81D1      CNS          903
+      81D2      CNS          235
+      81D3      CNS          119
+      81D4      CNS            0
+      81E6      SNS         1456
+      81E8      SNS           70
+      82B1      Or/Sh       2353
+      82B2      Or/Sh       1116
+      82C1      Buchan       340
+      82C2      Buchan       257
+      82D1      CNS           86
+      82D2      CNS           64
+      82D3      CNS         1077
+      82D4      CNS           23
+      82E6      SNS          710
+      82E7      SNS          275
+      82E8      SNS           54
+      83B1      Or/Sh       2579
+      83B2      Or/Sh        812
+      83C1      Buchan      3647
+      83C2      Buchan       768
+      83D1      CNS         1459
+      83D2      CNS          281
+      83D3      CNS           63
+      83E6      SNS           71
+      83E7      SNS          243
+      83E8      SNS           58
+      84B1      Or/Sh       1795
+      84B2      Or/Sh       1912
+      84C1      Buchan      2327
+      84C2      Buchan      1853
+      84D1      CNS          688
+      84D2      CNS         2404
+      84D3      CNS          824
+      84D4      CNS          433
+      84E6      SNS          523
+      84E7      SNS          185
+      84E8      SNS           39
+      85B1      Or/Sh       5632
+      85B2      Or/Sh       3432
+      85C1      Buchan      2521
+      85C2      Buchan      1812
+      85D1      CNS          130
+      85D2      CNS        13039
+      85D3      CNS         1794
+      85D4      CNS          215
+      85E6      SNS         1851
+      85E7      SNS          407
+      85E8      SNS           38
+      86B1      Or/Sh       3529
+      86B2      Or/Sh       1842
+      86C1      Buchan      3278
+      86C2      Buchan       341
+      86D1      CNS         1611
+      86D2      CNS         6112
+      86D3      CNS          188
+      86D4      CNS           36
+      86E6      SNS          780
+      86E7      SNS          123
+      86E8      SNS           18
+      87B1      Or/Sh       7409
+      87B2      Or/Sh       1848
+      87C1      Buchan      2551
+      87C2      Buchan       670
+      87D1      CNS          799
+      87D2      CNS         4927
+      87D3      CNS         1992
+      87D4      CNS          113
+      87E6      SNS          934
+      87E7      SNS          297
+      87E8      SNS          146
+      88B1      Or/Sh       7538
+      88B2      Or/Sh       8832
+      88C1      Buchan      6812
+      88C2      Buchan      5248
+      88D1      CNS         5533
+      88D2      CNS         3808
+      88D3      CNS         1960
+      88D4      CNS          206
+      88E6      SNS         1679
+      88E7      SNS          162
+      88E8      SNS          112
+      89B1      Or/Sh      11477
+      89B2      Or/Sh       5725
+      89C1      Buchan      5879
+      89C2      Buchan       692
+      89D1      CNS         1442
+      89D2      CNS         5010
+      89D3      CNS         2364
+      89D4      CNS            2
+      89E6      SNS         1514
+      89E7      SNS         2120
+      89E8      SNS          512
+      90B2      Or/Sh      10144
+      90C1      Buchan      4590
+      90C2      Buchan      2045
+      90D1      CNS        19965
+      90D2      CNS         1239
+      90D3      CNS          975
+      90E6      SNS         2552
+      90E7      SNS         1204
+      91B1      Or/Sh       1021
+      91B2      Or/Sh       2397
+      91C2      Buchan      2032
+      91D1      CNS         4823
+      91D2      CNS         2110
+      91D3      CNS         1249
+      91E6      SNS         4400
+      91E7      SNS          873
+      92B1      Or/Sh        189
+      92B2      Or/Sh       4917
+      92C2      Buchan       822
+      92D1      CNS           10
+      92D2      CNS          165
+      92D3      CNS          163
+      92E6      SNS          176
+      92E7      SNS         1616
+      93B2      Or/Sh         66
+      93C2      Buchan       174
+      93D2      CNS          685
+      93D3      CNS           85
+      93E6      SNS         1358
+      93E7      SNS         1103
+      94B1      Or/Sh         26
+      94B2      Or/Sh       1179
+      94D2      CNS         1464
+      94D3      CNS           44
+      94E6      SNS          537
+      94E7      SNS          595
+      95B2      Or/Sh       8688
+      95D3      CNS           43
+      95E6      SNS           74
+      95E7      SNS          230
+      95E8      SNS          164
+      96B2      Or/Sh        809
+      96C2      Buchan       184
+      96D2      CNS          564
+      96E6      SNS          337
+      96E7      SNS          675
+      96E8      SNS          691
+      97B2      Or/Sh       3611
+      97C2      Buchan        23
+      97E6      SNS         9374
+      97E7      SNS          918
+      97E8      SNS          355
+      98B2      Or/Sh       8528
+      98C2      Buchan      1490
+      98D1      CNS          205
+      98D2      CNS           66
+      98E6      SNS         1522
+      98E7      SNS          953
+      98E8      SNS          170
+      99B2      Or/Sh       4064
+      99C2      Buchan       185
+      99D2      CNS          134
+      99D3      CNS          181
+      99E6      SNS          804
+      99E7      SNS         1260
+      99E8      SNS          344
+     100B2      Or/Sh       3972
+     100C1      Buchan        28
+     100C2      Buchan       155
+     100D2      CNS          376
+     100E6      SNS         7346
+     100E7      SNS          338
+     100E8      SNS          106
+     101B2      Or/Sh      11918
+     101C2      Buchan       164
+     101D2      CNS         1604
+     101E6      SNS          971
+     101E7      SNS         5531
+     101E8      SNS          909
+     102B2      Or/Sh       6669
+     102C2      Buchan      1038
+     102D3      CNS         3291
+     102E6      SNS         2008
+     102E7      SNS          260
+     102E8      SNS          925
+     103B2      Or/Sh       3199
+     103C2      Buchan      2263
+     103D2      CNS        12018
+     103D3      CNS         3277
+     103E6      SNS        12048
+     103E7      SNS         3109
+     103E8      SNS         1116
+     104B2      Or/Sh       7055
+     104C2      Buchan      3884
+     104D2      CNS         5545
+     104E6      SNS         6528
+     104E7      SNS         2052
+     104E8      SNS         4175
+     105B2      Or/Sh       3380
+     105C2      Buchan      1364
+     105D2      CNS         5614
+     105E6      SNS          498
+     105E7      SNS         3999
+     105E8      SNS         4822
+     106B1      Or/Sh       6311
+     106B2      Or/Sh       2312
+     106C2      Buchan       280
+     106D2      CNS         2259
+     106E6      SNS        10858
+     106E7      SNS         2700
+     106E8      SNS         2106
+     107B2      Or/Sh       1753
+     107C2      Buchan      1304
+     107D2      CNS          291
+     107E6      SNS         4443
+     107E7      SNS         2439
+     107E8      SNS         3854
+     108B1      Or/Sh       4978
+     108B2      Or/Sh       6875
+     108C2      Buchan       533
+     108D2      CNS        11201
+     108E6      SNS         8426
+     108E7      SNS         2317
+     108E8      SNS         4008
+     109B2      Or/Sh       7543
+     109C2      Buchan      4629
+     109D2      CNS         4219
+     109E6      SNS        15295
+     109E7      SNS        14712
+     109E8      SNS         1689
+     110B2      Or/Sh       2362
+     110C2      Buchan      1493
+     110D2      CNS         2317
+     110E6      SNS         7493
+     110E7      SNS        13230
+     110E8      SNS         8073
+     111B2      Or/Sh       3831
+     111C2      Buchan      2839
+     111D2      CNS        17766
+     111E6      SNS         5461
+     111E7      SNS         6160
+     111E8      SNS         1215
+     112B2      Or/Sh      19552
+     112C2      Buchan      5856
+     112D2      CNS          517
+     112E6      SNS        22768
+     112E7      SNS        11103
+     112E8      SNS         3285
+     113B2      Or/Sh      21282
+     113C2      Buchan      8618
+     113D2      CNS         7354
+     113E6      SNS            5
+     113E7      SNS         9314
+     113E8      SNS         2957
+     114B2      Or/Sh       6604
+     114C2      Buchan      5033
+     114D2      CNS         1149
+     114E8      SNS         1851
+     115B2      Or/Sh       9631
+     115C1      Buchan        17
+     115C2      Buchan      3614
+     115D2      CNS         3424
+     115E6      SNS         2011
+     115E7      SNS         1200
+     115E8      SNS          645

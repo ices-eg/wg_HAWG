@@ -1,9 +1,9 @@
-Autumn spawning herring in IV, V 3/11/2015 08:39
+Autumn spawning herring in IV, VIId 3/23/2016 14:39
        1
 caton.txt
 canum.txt
 weca.txt
-west_raw.txt
+west.txt
 natmor.txt
 matprop.txt
 fprop.txt
