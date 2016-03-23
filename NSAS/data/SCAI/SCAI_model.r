@@ -60,7 +60,7 @@ library(RColorBrewer)
 ### Parameters
 ### ==========================================================================
 #Load data
-LAI.in <- read.table(file.path("..","lai.txt"),header=TRUE)
+LAI.in <- read.table(file.path("D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/data","lai.txt"),header=TRUE)
 
 #Abbreviations
 areas <- c("OrkShe"="B",Buchan="C",Banks="D",Downs="E")
@@ -70,8 +70,8 @@ samp.unit.names <- unique(LAI.in$LAIUnit)
 retro.yrs <- 1:2  #Set to null to switch off retro
 
 #Working dirs
-wkdir <- file.path(".","ADMBwkdir")
-output.dir <- file.path(".","SCAIoutputs")
+wkdir <- file.path("D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/data/SCAI","ADMBwkdir")
+output.dir <- file.path("D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/data/SCAI","SCAIoutputs")
 
 #output device
 #pdf(file.path(output.dir,"SCAI_outputs.pdf"),width=200/25.4,height=200/25.4,pointsize=16,onefile=TRUE)
