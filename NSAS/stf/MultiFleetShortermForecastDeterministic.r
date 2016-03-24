@@ -73,10 +73,10 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),season="all",area=1,iter=1:dims(stk)$iter))
 TACS.orig   <- TACS
 #46% from IIIa TAC in IV, as suggested by PRAC in February 2014
-TACS[,,"A"] <- c(445329 + 0.46 * 43604 - 2953, NA,NA);                   TACS.orig[,,"A"]  <- c(445329,NA,NA)
-TACS[,,"B"] <- c(15744 * 1           , 12538.99, 12538.99);                           TACS.orig[,,"B"]  <- c(15744, 12538.99, 12538.99) #adding estimated B-fleet catch from mp in FcY/CtY
-TACS[,,"C"] <- c(43604 * (1-0.46) * 0.3805867, 46733 * (1-0.46) * 0.3805867, NA);                   TACS.orig[,,"C"]  <- c(43604 * (1-0.46) * 0.3805867,NA,NA)
-TACS[,,"D"] <- c(6659 * 0.7409533, 6659 * 0.7409533, 6659 * 0.7409533); TACS.orig[,,"D"]  <- c(6659 * 0.7409533,6659 * 0.7409533,6659 * 0.7409533) #adding estimated D-fleet catch from mp in FcY/CtY 
+TACS[,,"A"] <- c(445329 + 0.46 * 43604 - 2953, NA,NA);                    TACS.orig[,,"A"]  <- c(445329,NA,NA)
+TACS[,,"B"] <- c(15744 * 1           , NA, NA);                           TACS.orig[,,"B"]  <- c(15744, NA, NA) #adding estimated B-fleet catch from mp in FcY/CtY
+TACS[,,"C"] <- c(43604 * (1-0.46) * 0.38, 46733 * (1-0.46) * 0.38, NA);   TACS.orig[,,"C"]  <- c(43604 * (1-0.46) * 0.3805867,46733 * (1-0.46) * 0.38,NA)
+TACS[,,"D"] <- c(6659 * 0.74, 6659 * 0.74, 6659 * 0.74); TACS.orig[,,"D"]  <- c(6659 * 0.74,6659 * 0.74,6659 * 0.74) #adding estimated D-fleet catch from mp in FcY/CtY 
 
   recWeights<- subset(NSH.sam@params,name=="U"); recWeights <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
 RECS        <- FLQuants("ImY" =FLQuant(subset(rec(NSH.sam),year==ImY)$value,dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
