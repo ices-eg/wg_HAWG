@@ -5,7 +5,7 @@ source(file=file.path("./data/temp_forecast_readStfData.r"))
 
 iTer <- 1
 mixprop <- 0.38 #NSAS proportion in C-fleet: 3-year average
-advCatchWB <- 46733 #advised WBSS catch in the forecast year
+advCatchWB <- 52547 #advised WBSS catch in the forecast year
 
 #stf@stock.n[,FcY] <- stf@stock.n[,FcY]*3
 res <- optim(par=rep(1,dims(stf)$unit),find.FABC,
@@ -35,6 +35,10 @@ for(i in dms$unit){
 stf@catch[,FcY,"A"] #forecasted A-fleet TAC in FcY
 #test if IAV cap on TAC needs to be applied
 abs((stf@catch[,FcY,"A"] - TACS.orig[,ImY,"A"])/TACS.orig[,ImY,"A"]) > 0.15 #forecasted TAC is not smaller than ImY TAC-15%
+
+#########
+### ONLY if forecasted A-fleet TAC falls outside MP bounds, run the following loop!!! otherwise, continue at the end ###
+#########
 
 for(i in 1:20){
 
@@ -144,6 +148,17 @@ TAC.C10 <- TAC.C *0.1 #10% thereof, add to A-fleet as the minimum transfer amoun
 
 stf@harvest[ac(2:6),,"A"] #fleet A f2-6 before 10% transfer
 sum(stf@catch[,FcY,]) #total forecasted NSAS outtake before transfer business
+
+### fill in NSAS management option in table
+stf.table["mp","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
+stf.table["mp",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
+stf.table["mp","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
+stf.table["mp","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
+stf.table["mp",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
+stf.table["mp",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
+                                                                                           exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
+                                                                                           stf@mat[,FcY,1]))
+### different transfer options (e.g. 10%)
 # 10% C-fleet transfer to the North Sea (C ---> A)
 stf@catch[,FcY,"A"] <- stf@catch[,FcY,"A"] + TAC.C10 #- 2953 #add 10% C-fleet TAC to A-fleet (and don't transfer WBSS proportion in A-fleet back to C-fleet!!)
 stf@catch[,FcY,"C"] <- stf@catch[,FcY,"C"] - (TAC.C10 * mixprop) #remove 10% from the C-fleet (this time, only NSAS using mixing proportion)
