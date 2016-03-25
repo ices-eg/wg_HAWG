@@ -18,11 +18,11 @@ library(lattice)
 library(latticeExtra)
 library(nlme)
 #library(visstatExtraction)
-source("D:/Sascha/Projects/HAWG/HAWG 2015/data/changes in M/code/vectorise.r")
+source("D:/Sascha/Projects/HAWG/HAWG 2016/data/M/code/vectorise.r")
 ac                      <- function(x){return(as.character(x))}
-codePath                <- "D:/Sascha/Projects/HAWG/HAWG 2015/data/changes in M/code/"
-dataPath                <- "D:/Sascha/Projects/HAWG/HAWG 2015/data/changes in M/data/"
-outPath                 <- "D:/Sascha/Projects/HAWG/HAWG 2015/data/changes in M/output/"
+codePath                <- "D:/Sascha/Projects/HAWG/HAWG 2016/data/M/code/"
+dataPath                <- "D:/Sascha/Projects/HAWG/HAWG 2016/data/M/data/"
+outPath                 <- "D:/Sascha/Projects/HAWG/HAWG 2016/data/M/output/"
 
   #-----------------------------------------------------------------------------
   # 1) Read in the 2007 and 2010 SMS
@@ -32,7 +32,7 @@ load(file=paste(dataPath,"SMS2007_her2007.RData",sep=""))
 load(file=paste(dataPath,"SMS2010_her2010.RData",sep=""))
 load(file=paste(dataPath,"SMS2007_her2007PM2.RData",sep=""))
 load(file=paste(dataPath,"SMS2010_her2010PM2.RData",sep=""))
-her2013 <- read.csv(file=paste(dataPath,"NS-keyRun-SMS-details-input-output-summary.csv",sep="")) #read raw data file from SMS run
+her2013 <- read.csv(file=paste(dataPath,"NS-keyRun-SMS-details-input-output-summary2.csv",sep="")) #read raw data file from SMS run
 her2013 <- her2013[which(her2013$Species=="Herring"),] #only pick out "Herring" values
 her2013 <- her2013[,c("Year","Quarter","Age","M1","M2","F","Z","N","Yield")] #select columns needed
 her2013 <- ddply(her2013,c("Year","Age"),summarise,M1=sum(M1),M2=sum(M2),F=sum(F),Z=sum(Z),N=sum(N),Yield=sum(Yield)) #summarise over quarters by year and age
