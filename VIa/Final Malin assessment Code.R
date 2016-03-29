@@ -8,7 +8,7 @@
 # January 2015
 # Afra Egan
 # modified at HAWG March 2015 by Susan Lusseau 
-#
+# modified at HAWG March 2016 by susan Lusseau 
 ####################################################################################################
 
 ### ======================================================================================================
@@ -33,7 +33,7 @@ log.msg("\nHerring in VIa and VIIbc FLSAM Assessment\n==========================
 ### ======================================================================================================
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
-path<-"C:/Users/Lusseaus/Documents/ICES Working Groups/HAWG/2015/Repository 2015/VIa/"
+path<-"C:/Users/Lusseaus/Documents/ICES Working Groups/HAWG/2016/Repository/wg_HAWG/VIa/"
 try(setwd(path),silent=TRUE)
 
 data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
@@ -137,7 +137,7 @@ log.msg("PERFORMING ASSESSMENT...\n")
 ## If you have difficulty running SAM with the configuration below you may need to save a pin file fom a previous run
 
 #Now perform the asssessment
-#MSH.sam   <-  FLSAM(MSH,MSH.tun,MSH.ctrl)
+MSH.sam   <-  FLSAM(MSH,MSH.tun,MSH.ctrl)
 
 ## If you are running the assessment using the saved pin file use the code below.
 
@@ -146,17 +146,17 @@ log.msg("PERFORMING ASSESSMENT...\n")
 ## Run the assessment
 
 ###
-FLR2SAM(MSH,MSH.tun,MSH.ctrl,run.dir="./saved_pin/")
+#FLR2SAM(MSH,MSH.tun,MSH.ctrl,run.dir="./saved_pin/")
 
-runSAM(MSH.ctrl,run.dir="./saved_pin/",use.pin=TRUE)
+#runSAM(MSH.ctrl,run.dir="./saved_pin/",use.pin=TRUE)
 
-MSH.sam <- SAM2FLR(MSH.ctrl,run.dir="./saved_pin/")
+#MSH.sam <- SAM2FLR(MSH.ctrl,run.dir="./saved_pin/")
 
-save(MSH.sam,file="./saved_pin/MSHwkwest.sam")
+#save(MSH.sam,file="./saved_pin/MSH.sam")
 
 #Update stock object
 MSH <- MSH + MSH.sam
-save(MSH,MSH.sam,MSH.tun,MSH.ctrl,file=file.path(output.dir,"VIaHerringNewM.Rdata"))
+save(MSH,MSH.sam,MSH.tun,MSH.ctrl,file=file.path(output.dir,"VIaHerring.Rdata"))
 
 #save AIC
 write.csv(AIC(MSH.sam),file=file.path(output.dir,"AIC.csv"))
@@ -169,7 +169,7 @@ write.csv(AIC(MSH.sam),file=file.path(output.dir,"AIC.csv"))
 ### ============================================================================
 #Setup plots
 
-pdf(paste(output.base,"_MSH_plots.pdf",sep=""))
+pdf(paste(output.base,"2016_MSH_prelim_plots.pdf",sep=""))
 #png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=672, bg = "white")
 
 ### ======================================================================================================
