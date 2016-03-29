@@ -67,7 +67,7 @@ areas <- c("OrkShe"="B",Buchan="C",Banks="D",Downs="E")
 samp.unit.names <- unique(LAI.in$LAIUnit)
 
 #Retrospective analysis
-retro.yrs <- 1:2  #Set to null to switch off retro
+retro.yrs <- 1:5  #Set to null to switch off retro
 
 #Working dirs
 wkdir <- file.path("D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/data/SCAI","ADMBwkdir")
