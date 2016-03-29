@@ -1,5 +1,5 @@
 Spawning component abundance index
-1	176	2
+1	 43	2
 "Year" "VPA" "SCAI"
 1972 1 3298.99708447752
 1973 1 3235.1301612799
