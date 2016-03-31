@@ -4,7 +4,7 @@
 source(file=file.path("./data/temp_forecast_readStfData.r"))
 
 iTer <- 1
-mixprop <- 0.42 #updated value (HAWG 2016) #NSAS proportion in C-fleet: 3-year average
+mixprop <- Csplit #updated value (HAWG 2016) #NSAS proportion in C-fleet: 3-year average
 advCatchWB <- 56793 #updated value for FcY(2017) #advised WBSS catch in the forecast year
 
 #stf@stock.n[,FcY] <- stf@stock.n[,FcY]*3
