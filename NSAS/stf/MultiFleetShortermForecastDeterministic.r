@@ -9,22 +9,19 @@
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
-
 library(FLCore)
 library(FLSAM)
-library(minpack.lm)   # install.packages("minpack.lm") 
-require(msm)          # install.packages("msm")
-library(FLAssess)     # install.packages("C:/DATA/GIT/HAWG/_Common/Pkgs/FLAssess_1.99-102.zip")
-
-#path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
-path <- "C:/DATA/GIT/HAWG/NSAS/"
+library(minpack.lm)
+require(msm)
 
 #Read in data
+path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
 try(setwd(path),silent=TRUE)
 output.dir <- file.path(".","results")
 load(file=file.path(output.dir,"North Sea Herring.RData"))
 try(setwd(path))
 try(setwd("./stf/"))
+#path <- "C:/DATA/GIT/HAWG/NSAS/"
 
 
 #-------------------------------------------------------------------------------
@@ -276,7 +273,7 @@ if("+15%" %in% stf.options){
   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
   TACS[,CtY,"A"]                                              <- c(TACS.orig[,ImY,"A"]*1.15*1.15)
-  TACS[,CtY,"C"]                                              <- c(43604*1.15*1.15*Csplit)
+  TACS[,CtY,"C"]                                              <- c(TAC3aC*1.15*1.15*Csplit)
   stf@harvest[,CtY]                                           <- fleet.harvest(stk=stf,iYr=CtY,TACS=TACS[,CtY])
   ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
 
