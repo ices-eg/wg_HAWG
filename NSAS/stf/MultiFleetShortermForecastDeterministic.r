@@ -74,7 +74,7 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 # TAC information for 2016
 TACNSA      <- 470037
 TACNSB      <- 13085
-TACNorTrans <- 3407    # NEED TO LOOK UP THE NUMBER 
+TACNorTrans <- 3407    # number updated (50% of NO IIIa TAC) 
 TAC3aC      <- 46750
 TAC3aD      <- 6659
 
