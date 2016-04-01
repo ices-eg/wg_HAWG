@@ -158,7 +158,7 @@ MSH.sam   <-  FLSAM(MSH,MSH.tun,MSH.ctrl)
 
 #Update stock object
 MSH <- MSH + MSH.sam
-save(MSH,MSH.sam,MSH.tun,MSH.ctrl,file=file.path(output.dir,"VIaHerring.Rdata"))
+save(MSH,MSH.sam,MSH.tun,MSH.ctrl,file=file.path(output.dir,"Final_VIaHerring.Rdata"))
 
 #save AIC
 write.csv(AIC(MSH.sam),file=file.path(output.dir,"AIC.csv"))
