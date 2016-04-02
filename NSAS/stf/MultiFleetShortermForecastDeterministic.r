@@ -74,14 +74,14 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 # TAC information for 2016
 TACNSA      <- 470037
 TACNSB      <- 13085
-TACNorTrans <- 3000    # NEED TO LOOK UP THE NUMBER 
+TACNorTrans <- 3407    # number updated (50% of NO IIIa TAC) 
 TAC3aC      <- 46750
 TAC3aD      <- 6659
 
 # Splits and transfers
-Csplit      <- 0.42    # Proportion NSAS in C fleet catch; 3 year average
-Dsplit      <- 0.70    # Proportion NSAS in D fleet catch; 3 year average
-Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016 
+Csplit      <- 0.42    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
+Dsplit      <- 0.70    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
+Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016  
 WBSScatch   <- 56802   # Recommended MSY catch for WBSS herring; from Valerio
 
 #2016:

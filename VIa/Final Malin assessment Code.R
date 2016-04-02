@@ -51,6 +51,8 @@ MSH@catch.n                <- MSH@landings.n
 MSH@catch                  <- MSH@landings
 MSH@catch.wt               <- MSH@landings.wt
 MSH@stock.wt[1,ac(2013)]   <- yearMeans(MSH@stock.wt[1,ac(2010:2012)])
+MSH@stock.wt[1,ac(2015)]   <- yearMeans(MSH@stock.wt[1,ac(2010:2014)])
+
 units(MSH)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
 
 #Set fbar
@@ -156,7 +158,7 @@ MSH.sam   <-  FLSAM(MSH,MSH.tun,MSH.ctrl)
 
 #Update stock object
 MSH <- MSH + MSH.sam
-save(MSH,MSH.sam,MSH.tun,MSH.ctrl,file=file.path(output.dir,"VIaHerring.Rdata"))
+save(MSH,MSH.sam,MSH.tun,MSH.ctrl,file=file.path(output.dir,"Final_VIaHerring.Rdata"))
 
 #save AIC
 write.csv(AIC(MSH.sam),file=file.path(output.dir,"AIC.csv"))
@@ -170,7 +172,7 @@ write.csv(AIC(MSH.sam),file=file.path(output.dir,"AIC.csv"))
 #Setup plots
 
 pdf(paste(output.base,"2016_MSH_prelim_plots.pdf",sep=""))
-#png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=672, bg = "white")
+png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=672, bg = "white")
 
 ### ======================================================================================================
 ### Diagnostics and plots
