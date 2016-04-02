@@ -13,12 +13,12 @@ library(FLCore)
 library(FLSAM)
 library(minpack.lm)  # install.packages("minpack.lm")
 require(msm)         # install.packages("msm")
-#install.packages("C:/DATA/R/FLAssess-master.zip")
+install.packages("C:/DATA/R/FLAssess-master.zip")
 
 #Read in data
 
-path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
-#path <- "C:/DATA/GIT/HAWG/NSAS/"
+#path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
+path <- "C:/DATA/GIT/HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 output.dir <- file.path(".","results")
 load(file=file.path(output.dir,"North Sea Herring.RData"))
@@ -87,8 +87,6 @@ Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016
 WBSScatch   <- 56802   # Recommended MSY catch for WBSS herring; from Valerio
 
 Buptake     <- 0.60    # Uptake of Bfleet TAC in the previous year
-BcatchMP    <- 8227    # Bfleet catch estimated in TAC year during MP option; 
-                       # only available after MP run
 WBSSsplit   <- 0.004   # 3 year average proportion WBSS caught in North Sea
 
 # Create TAC objects for current year, forecast year and last year
@@ -244,6 +242,12 @@ for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.
 # but this is not finished yet.
 
 # source("C:/DATA/GIT/HAWG/NSAS/stf/MultiFleetShorttermForecast 2015MP.r")
+
+BcatchMP    <- 8227    # Bfleet catch estimated in TAC year during MP option; 
+
+TACS[,,"B"] <- c(TACNSB * Buptake, 
+                 BcatchMP ,
+                 BcatchMP); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
 
 
   #Update to continuation year
@@ -482,8 +486,14 @@ stf.out.file <- stf.out(stf,RECS,format="TABLE 2.7.%i NORTH SEA HERRING.")
 write(stf.out.file,file=paste("./","stf.out",sep="."))
 
 #- Write the stf.table to file
-write.table(stf.table[,,2],file=paste("stf.table","deterministic"),append=F,col.names=T,row.names=T)
-for(i in dimnames(stf.table)$stats) write.table(stf.table[,,i],file=paste("stf.table",i),append=F,col.names=T,row.names=T)
+write.table(stf.table[,,2],
+            file=paste("stf.table","deterministic"),
+            append=F,col.names=T,row.names=T)
+
+for(i in dimnames(stf.table)$stats) 
+  write.table(stf.table[,,i],
+              file=paste("stf.table",i),
+              append=F,col.names=T,row.names=T)
 
 #- Save the output to an RData file
 save.image(file="ShortTermForecast Workspace.RData")
