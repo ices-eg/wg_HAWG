@@ -1,11 +1,11 @@
 #- Find F multipliers for fleet A,B,C and D, based on Ftarget for A,B and
 #   moving Ctarget for C and fixed Ctarget for D
 
-source(file=file.path("./data/temp_forecast_readStfData.r"))
+source(file=file.path("./temp_forecast_readStfData.r"))
 
-iTer <- 1
-mixprop <- 0.38 #NSAS proportion in C-fleet: 3-year average
-advCatchWB <- 52547 #advised WBSS catch in the forecast year
+iTer        <- 1
+mixprop     <- Csplit #NSAS proportion in C-fleet: 3-year average
+advCatchWB  <- WBSScatch #advised WBSS catch in the forecast year
 
 #stf@stock.n[,FcY] <- stf@stock.n[,FcY]*3
 res <- optim(par=rep(1,dims(stf)$unit),find.FABC,
@@ -120,7 +120,7 @@ for(i in 1:20){
                     Ms=stf@m[,FcY,1,,,iTer,drop=T],f01=f01,f26=f26,
                     Tcs=iter(TACS[,c(ImY,FcY)],iTer),
                     mixprop=mixprop,
-                    FA=resA*0.9,
+                    FA=resA*1.1,
                     FB=resB,
                     lower=rep(0.01,4),method="L-BFGS-B",control=list(maxit=100))$par
 
@@ -138,12 +138,14 @@ for(i in 1:20){
    print(c(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T),apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T),stf@catch[,FcY,],(0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB )* mixprop - stf@catch[,FcY,"C"]))
    stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
 }
-
+save.image("STFbeforeTransfers.RData")
+load("STFbeforeTransfers.RData")
 TAC.C <- 0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB  #combined C-fleet TAC
-TAC.C10 <- TAC.C *0.1 #10% thereof, add to A-fleet as the minimum transfer amount
+TAC.C10 <- TAC.C *0 #10% thereof, add to A-fleet as the minimum transfer amount
 
 stf@harvest[ac(2:6),,"A"] #fleet A f2-6 before 10% transfer
-sum(stf@catch[,FcY,]) #total forecasted NSAS outtake before transfer business
+sum(stf@catch[,FcY,])#total forecasted NSAS outtake before transfer business
+stf@catch[,FcY,"A"] * WBSSsplit #WBSS in IV
 # 10% C-fleet transfer to the North Sea (C ---> A)
 stf@catch[,FcY,"A"] <- stf@catch[,FcY,"A"] + TAC.C10 #- 2953 #add 10% C-fleet TAC to A-fleet (and don't transfer WBSS proportion in A-fleet back to C-fleet!!)
 stf@catch[,FcY,"C"] <- stf@catch[,FcY,"C"] - (TAC.C10 * mixprop) #remove 10% from the C-fleet (this time, only NSAS using mixing proportion)
