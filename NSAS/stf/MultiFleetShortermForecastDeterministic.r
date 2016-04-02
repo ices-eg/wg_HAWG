@@ -90,12 +90,12 @@ TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D
 TACS.orig   <- TACS
 
 TACS[,,"A"] <- c(TACNSA + Ctransfer*TAC3aC - TACNorTrans, NA,NA)
-TACS[,,"B"] <- c(TACNSB * 1, NA ,NA);
+TACS[,,"B"] <- c(TACNSB * 1, 8027 ,8027); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
 TACS[,,"C"] <- c(TAC3aC*(1-Ctransfer)*Csplit,TAC3aC*(1-Ctransfer)*Csplit,NA);   
 TACS[,,"D"] <- c(TAC3aD*Dsplit, TAC3aD*Dsplit, TAC3aD * Dsplit); 
 
 TACS.orig[,,"A"] <- c(TACNSA + Ctransfer*TAC3aC - TACNorTrans, NA,NA)
-TACS.orig[,,"B"] <- c(TACNSB * 1, NA ,NA);
+TACS.orig[,,"B"] <- c(TACNSB * 1, 8027 ,8027);
 TACS.orig[,,"C"] <- c(TAC3aC*(1-Ctransfer)*Csplit,TAC3aC*(1-Ctransfer)*Csplit,NA);   
 TACS.orig[,,"D"] <- c(TAC3aD*Dsplit, TAC3aD*Dsplit, TAC3aD * Dsplit); 
 
@@ -362,6 +362,7 @@ if("tacro" %in% stf.options){
 
 if("fmsy" %in% stf.options){
    #reset harvest for all fleets
+  FmsyNSAS <- 0.27
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
   TACS[,FcY,"C"]    <- WBSScatch * Csplit #MSY-based (FMSY=0.32) in WBSS forecast * mixprop
@@ -369,7 +370,7 @@ if("fmsy" %in% stf.options){
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.F,stk=iter(stf[,FcY],iTer),f.=0.248,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.F,stk=iter(stf[,FcY],iTer),f.=FmsyNSAS,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
