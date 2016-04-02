@@ -1,7 +1,6 @@
 #- Find F multipliers for fleet A,B,C and D, based on Ftarget for A,B and
 #   moving Ctarget for C and fixed Ctarget for D
 
-source(file=file.path("temp_forecast_readStfData.r"))
 
 iTer <- 1
 mixprop    <- Csplit #updated value (HAWG 2016) #NSAS proportion in C-fleet: 3-year average
@@ -32,12 +31,16 @@ for(i in dms$unit){
   stf@landings[,FcY,i]    <- computeLandings(stf[,FcY,i])
 }
 
-stf@catch[,FcY,"A"] #forecasted A-fleet TAC in FcY
-#test if IAV cap on TAC needs to be applied
-abs((stf@catch[,FcY,"A"] - TACS.orig[,ImY,"A"])/TACS.orig[,ImY,"A"]) > 0.15 #forecasted TAC is not smaller than ImY TAC-15%
+#forecasted A-fleet TAC in FcY
+as.numeric(stf@catch[,FcY,"A"] )
+
+# test if IAV cap on TAC needs to be applied
+# if forecasted TAC is not smaller than ImY TAC-15%
+abs((stf@catch[,FcY,"A"] - TACS.orig[,ImY,"A"])/TACS.orig[,ImY,"A"]) > 0.15 
 
 #########
 ### ONLY if forecasted A-fleet TAC falls outside MP bounds, run the following loop!!! otherwise, continue at the end ###
+### This needs to be built into a loop
 #########
 
 for(i in 1:20){
@@ -141,7 +144,9 @@ for(i in 1:20){
 
    print(c(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T),apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T),stf@catch[,FcY,],(0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB )* mixprop - stf@catch[,FcY,"C"]))
    stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
-}
+   
+} # End of the search function for when IAV > 0.15
+
 
 TAC.C <- 0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB  #combined C-fleet TAC
 TAC.C10 <- TAC.C *0.1 #10% thereof, add to A-fleet as the minimum transfer amount
@@ -155,8 +160,13 @@ stf.table["mp",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuan
 stf.table["mp","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
 stf.table["mp","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
 stf.table["mp",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
-stf.table["mp",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *                                                                                      exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
+stf.table["mp",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * 
+                                                                                           stf@stock.wt[,FcY,1] * 
+                                                                                           exp(-unitSums(stf@harvest[,FcY])*
+                                                                                                 stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]
+                                                                                               *stf@m.spwn[,FcY,1]) *
                                                                                            stf@mat[,FcY,1]))
+
 ### different transfer options (e.g. 10%)
 # 10% C-fleet transfer to the North Sea (C ---> A)
 # stf@catch[,FcY,"A"] <- stf@catch[,FcY,"A"] + TAC.C10 #- 2953 #add 10% C-fleet TAC to A-fleet (and don't transfer WBSS proportion in A-fleet back to C-fleet!!)

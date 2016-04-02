@@ -13,6 +13,7 @@ library(FLCore)
 library(FLSAM)
 library(minpack.lm)  # install.packages("minpack.lm")
 require(msm)         # install.packages("msm")
+install.packages("C:/DATA/R/FLAssess-master.zip")
 
 #Read in data
 
@@ -22,6 +23,9 @@ try(setwd(path),silent=TRUE)
 output.dir <- file.path(".","results")
 load(file=file.path(output.dir,"North Sea Herring.RData"))
 try(setwd("./stf/"))
+
+# include the STF forecast
+source(file=file.path("temp_forecast_readStfData.r"))
 
 #-------------------------------------------------------------------------------
 # Setup control file
@@ -236,7 +240,10 @@ for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.
 #     stf@landings[,FcY,i]    <- computeLandings(stf[,FcY,i])
 #   }
 
-#source vvv
+# Preferably sourcing the extra management plan optimization part; 
+# but this is not finished yet.
+
+# source("C:/DATA/GIT/HAWG/NSAS/stf/MultiFleetShorttermForecast 2015MP.r")
 
 
   #Update to continuation year
@@ -260,7 +267,9 @@ for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.
 #   TACS[,FcY,"B"]    <- computeCatch(stf[,FcY,"B"])
 #   #TACSmp            <- harvestCatch(stf,FcY)
 # }
-### No fishing ###
+
+### No fishing ### ----------------------------------------------------------
+  
 if("nf" %in% stf.options){
   stf@harvest[,FcY] <- 0
   #Update to continuation year
@@ -280,7 +289,8 @@ if("nf" %in% stf.options){
   stf.table["nf",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
 }
 
-### 15% increase in TAC for the A-fleet ###
+### 15% increase in TAC for the A-fleet ### ----------------------------------------------------------
+  
 if("+15%" %in% stf.options){
   #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
@@ -315,7 +325,8 @@ if("+15%" %in% stf.options){
   #TACSmp                                                           <- harvestCatch(stf,FcY)
 }
 
-### 15% reduction in TAC for the A-fleet ###
+### 15% reduction in TAC for the A-fleet ### ----------------------------------------------------------
+
 if("-15%" %in% stf.options){
 
   #reset harvest for all fleets
@@ -352,7 +363,10 @@ if("-15%" %in% stf.options){
 }
 
 
-### Same TAC for A-fleet as last year ### #for 2015: use estimated B-fleet TAC from mp for the FcY and the NSAS proportion of the advised C-fleet catch in the FcY
+### Same TAC for A-fleet as last year ### ----------------------------------------------------------
+  
+#for 2015: use estimated B-fleet TAC from mp for the FcY and the NSAS proportion of the advised C-fleet catch in the FcY
+  
 if("tacro" %in% stf.options){
   #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
@@ -386,6 +400,8 @@ if("tacro" %in% stf.options){
   stf.table["tacro",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
 }
 
+# Fmsy option  ----------------------------------------------------------
+    
 if("fmsy" %in% stf.options){
    #reset harvest for all fleets
   FmsyNSAS <- 0.27
@@ -472,6 +488,4 @@ for(i in dimnames(stf.table)$stats) write.table(stf.table[,,i],file=paste("stf.t
 #- Save the output to an RData file
 save.image(file="ShortTermForecast Workspace.RData")
 
-# Now run the special case: the 2015 management plan option; 
-# This requires the STF workspace objects
 
