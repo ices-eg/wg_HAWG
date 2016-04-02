@@ -11,18 +11,17 @@
 rm(list=ls());
 library(FLCore)
 library(FLSAM)
-library(minpack.lm)
-require(msm)
+library(minpack.lm)  # install.packages("minpack.lm")
+require(msm)         # install.packages("msm")
 
 #Read in data
-path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
+
+#path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
+path <- "C:/DATA/GIT/HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 output.dir <- file.path(".","results")
 load(file=file.path(output.dir,"North Sea Herring.RData"))
-try(setwd(path))
 try(setwd("./stf/"))
-#path <- "C:/DATA/GIT/HAWG/NSAS/"
-
 
 #-------------------------------------------------------------------------------
 # Setup control file
@@ -72,11 +71,11 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 #-------------------------------------------------------------------------------
 
 # TAC information for 2016
-TACNSA      <- 470037
-TACNSB      <- 13085
-TACNorTrans <- 3407    # number updated (50% of NO IIIa TAC) 
-TAC3aC      <- 46750
-TAC3aD      <- 6659
+TACNSA      <- 518242  # taken from TAC regulation document HER/4AB. + HER/4CXB7D
+TACNSB      <- 13382   # taken from TAC regulation document HER/2A47DX
+TACNorTrans <- 3407    # 50% of NO IIIa TAC HER/03A.; will be taken in North Sea
+TAC3aC      <- 51084   # HER/03A.
+TAC3aD      <- 6659    # HER/03A-BC
 
 # Splits and transfers
 Csplit      <- 0.42    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
@@ -84,20 +83,32 @@ Dsplit      <- 0.70    # Proportion NSAS in D fleet catch; 3 year average (from 
 Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016  
 WBSScatch   <- 56802   # Recommended MSY catch for WBSS herring; from Valerio
 
+Buptake     <- 0.60    # Uptake of Bfleet TAC in previous year
+BcatchMP    <- 8027    # Bfleet catch estimated in TAC year during MP option; only available after MP run
+WBSSsplit   <- 0.004   # 3 year average proportion WBSS caught in North Sea
+
 #2016:
 TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),
                                         season="all",area=1,iter=1:dims(stk)$iter))
 TACS.orig   <- TACS
 
-TACS[,,"A"] <- c(TACNSA + Ctransfer*TAC3aC - TACNorTrans, NA,NA)
-TACS[,,"B"] <- c(TACNSB * 1, 8027 ,8027); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
-TACS[,,"C"] <- c(TAC3aC*(1-Ctransfer)*Csplit,TAC3aC*(1-Ctransfer)*Csplit,NA);   
-TACS[,,"D"] <- c(TAC3aD*Dsplit, TAC3aD*Dsplit, TAC3aD * Dsplit); 
+TACS[,,"A"] <- c(TACNSA + Ctransfer*TAC3aC + TACNorTrans - TACNSA*WBSSsplit, 
+                 NA,
+                 NA)
+TACS[,,"B"] <- c(TACNSB * Buptake, 
+                 BcatchMP ,
+                 BcatchMP); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
+TACS[,,"C"] <- c(TAC3aC*(1-Ctransfer)*Csplit,
+                 TAC3aC*(1-Ctransfer)*Csplit,
+                 NA);   
+TACS[,,"D"] <- c(TAC3aD*Dsplit, 
+                 TAC3aD*Dsplit, 
+                 TAC3aD*Dsplit); 
 
-TACS.orig[,,"A"] <- c(TACNSA + Ctransfer*TAC3aC - TACNorTrans, NA,NA)
-TACS.orig[,,"B"] <- c(TACNSB * 1, 8027 ,8027);
-TACS.orig[,,"C"] <- c(TAC3aC*(1-Ctransfer)*Csplit,TAC3aC*(1-Ctransfer)*Csplit,NA);   
-TACS.orig[,,"D"] <- c(TAC3aD*Dsplit, TAC3aD*Dsplit, TAC3aD * Dsplit); 
+TACS.orig[,,"A"] <- TACS[,,"A"]
+TACS.orig[,,"B"] <- TACS[,,"B"]
+TACS.orig[,,"C"] <- TACS[,,"C"]
+TACS.orig[,,"D"] <- TACS[,,"D"]
 
 recWeights<- subset(NSH.sam@params,name=="U"); 
 recWeights <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
