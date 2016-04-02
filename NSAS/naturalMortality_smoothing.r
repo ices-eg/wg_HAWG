@@ -18,11 +18,11 @@ library(lattice)
 library(latticeExtra)
 library(nlme)
 #library(visstatExtraction)
-source("D:/Sascha/Projects/HAWG/HAWG 2015/data/changes in M/code/vectorise.r")
+source("D:/Sascha/Projects/HAWG/HAWG 2016/data/M/code/vectorise.r")
 ac                      <- function(x){return(as.character(x))}
-codePath                <- "D:/Sascha/Projects/HAWG/HAWG 2015/data/changes in M/code/"
-dataPath                <- "D:/Sascha/Projects/HAWG/HAWG 2015/data/changes in M/data/"
-outPath                 <- "D:/Sascha/Projects/HAWG/HAWG 2015/data/changes in M/output/"
+codePath                <- "D:/Sascha/Projects/HAWG/HAWG 2016/data/M/code/"
+dataPath                <- "D:/Sascha/Projects/HAWG/HAWG 2016/data/M/data/"
+outPath                 <- "D:/Sascha/Projects/HAWG/HAWG 2016/data/M/output/"
 
   #-----------------------------------------------------------------------------
   # 1) Read in the 2007 and 2010 SMS
@@ -32,18 +32,18 @@ load(file=paste(dataPath,"SMS2007_her2007.RData",sep=""))
 load(file=paste(dataPath,"SMS2010_her2010.RData",sep=""))
 load(file=paste(dataPath,"SMS2007_her2007PM2.RData",sep=""))
 load(file=paste(dataPath,"SMS2010_her2010PM2.RData",sep=""))
-her2013 <- read.csv(file=paste(dataPath,"NS-keyRun-SMS-details-input-output-summary.csv",sep="")) #read raw data file from SMS run
-her2013 <- her2013[which(her2013$Species=="Herring"),] #only pick out "Herring" values
-her2013 <- her2013[,c("Year","Quarter","Age","M1","M2","F","Z","N","Yield")] #select columns needed
-her2013 <- ddply(her2013,c("Year","Age"),summarise,M1=sum(M1),M2=sum(M2),F=sum(F),Z=sum(Z),N=sum(N),Yield=sum(Yield)) #summarise over quarters by year and age
-her2013 <- her2013[order(her2013$Age,her2013$Year),] #order by age and year
-her2013 <- her2013[which(her2013$Year<2014),] #only take years until 2013
+her2015 <- read.csv(file=paste(dataPath,"NS-keyRun-SMS-details-input-output-summary2.csv",sep="")) #read raw data file from SMS run
+her2015 <- her2015[which(her2015$Species=="Herring"),] #only pick out "Herring" values
+her2015 <- her2015[,c("Year","Quarter","Age","M1","M2","F","Z","N","Yield")] #select columns needed
+her2015 <- ddply(her2015,c("Year","Age"),summarise,M1=sum(M1),M2=sum(M2),F=sum(F),Z=sum(Z),N=sum(N),Yield=sum(Yield)) #summarise over quarters by year and age
+her2015 <- her2015[order(her2015$Age,her2015$Year),] #order by age and year
+her2015 <- her2015[which(her2015$Year<2014),] #only take years until 2013
 
 her2007$SMSyear     <- 2007
 her2010$SMSyear     <- 2010
 #her2007PM2$SMSyear  <- 2007
 #her2010PM2$SMSyear  <- 2010
-her2013$SMSyear     <- 2013
+her2015$SMSyear     <- 2015
 
   #-----------------------------------------------------------------------------
   # 1b) create M matrix raw from 2010 data
@@ -63,12 +63,12 @@ finalM[ac(0:7),ac(1963:2010)] <- rawM
 write.csv(finalM,file=paste(outPath,"Raw_NotExtrapolated_NSAS.csv",sep=""))
 
   #-----------------------------------------------------------------------------
-  # 1c) create M matrix raw from 2013 data
+  # 1c) create M matrix raw from 2015 data
   #-----------------------------------------------------------------------------
 
-SMSher              <- rbind(her2007[which(her2007$Year>1973),],her2010[which(her2010$Year>1973),],her2013)
+SMSher              <- rbind(her2007[which(her2007$Year>1973),],her2010[which(her2010$Year>1973),],her2015)
 SMSher$M            <- SMSher$M1+SMSher$M2
-rawM                <- t(matrix(subset(SMSher,SMSyear==2013)$M,ncol=length(sort(unique(SMSher$Age))),nrow=length(sort(unique(SMSher$Year))),
+rawM                <- t(matrix(subset(SMSher,SMSyear==2015)$M,ncol=length(sort(unique(SMSher$Age))),nrow=length(sort(unique(SMSher$Year))),
                                 dimnames=list(sort(unique(SMSher$Year)),sort(unique(SMSher$Age)))))
 years   <- 1960:2013
 #extryrs <- 1960:1962
@@ -109,8 +109,8 @@ xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2010),type="l",xl
 savePlot(paste(outPath,"SMS2010_TotalNaturalMortalityNSAS.png",sep=""),type="png")
 
 windows()
-xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2013),type="l",xlab="Years",ylab="Total Natural Mortality",
-       prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},main="North Sea herring M SMS2013",
+xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2015),type="l",xlab="Years",ylab="Total Natural Mortality",
+       prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},main="North Sea herring M SMS2015",
        panel=function(...){
          dat <- list(...)
          panel.grid(h=-1, v= -1)
@@ -118,14 +118,14 @@ xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2013),type="l",xl
          panel.loess(...,col="red",lwd=2)
        },
        scales=list(alternating=1,y=list(relation="free",rot=0)))
-savePlot(paste(outPath,"SMS2013_TotalNaturalMortalityNSAS.png",sep=""),type="png")
+savePlot(paste(outPath,"SMS2015_TotalNaturalMortalityNSAS.png",sep=""),type="png")
 
   #-----------------------------------------------------------------------------
   # 3) Fit loess smoothers to each age and SMS year and predict new smoothed values
   #-----------------------------------------------------------------------------
 
 storeSmooth   <- array(NA,dim=c(length(sort(unique(SMSher$Age))),3,length(sort(unique(SMSher$Year))),3),
-                          dimnames=list(Age=sort(unique(SMSher$Age)),SMS=c(2007,2010,2013),Year=sort(unique(SMSher$Year)),Fit=c("5%","50%","95")))
+                          dimnames=list(Age=sort(unique(SMSher$Age)),SMS=c(2007,2010,2015),Year=sort(unique(SMSher$Year)),Fit=c("5%","50%","95")))
 for(iAge in sort(unique(SMSher$Age))){
   for(iSMS in sort(unique(SMSher$SMSyear))){
     res         <- predict(loess((M1+M2)~Year,data=subset(SMSher,SMSyear==iSMS & Age == iAge),span=0.5),
@@ -151,9 +151,9 @@ dtfSmooth$Year      <- as.numeric(dtfSmooth$Year)
 dtftotal            <- rbind(cbind(dtfSmooth,type="Smooth"),cbind(dtfRaw,type="Raw"))
 #save(file="dtftotal2010.RData",dtftotal)
 
-#- 2013
-dtfSmooth           <- vectorise(storeSmooth[,"2013",,"50%"])
-dtfRaw              <- subset(SMSher,SMSyear==2013)[,c("M1","M2","Age","Year")]
+#- 2015
+dtfSmooth           <- vectorise(storeSmooth[,"2015",,"50%"])
+dtfRaw              <- subset(SMSher,SMSyear==2015)[,c("M1","M2","Age","Year")]
 dtfRaw$M          <- dtfRaw$M1+dtfRaw$M2
 dtfRaw            <- dtfRaw[,c("M","Age","Year")]; colnames(dtfRaw) <- c("Value","Age","Year")
 colnames(dtfSmooth) <- c("Value","Age","Year")
@@ -217,7 +217,7 @@ ages    <- 0:9
 finalM  <- matrix(NA,nrow=length(ages),ncol=length(1974:max(years)),dimnames=list(ages=ages,years=years))
 
   #- Fill in values already known for finalM
-finalM[ac(0:7),ac(1974:2013)] <- storeSmooth[,"2013",,"50%"]
+finalM[ac(0:7),ac(1974:2013)] <- storeSmooth[,"2015",,"50%"]
 write.csv(finalM,file=paste(outPath,"Smoothed_span50_M_NotExtrapolated_NSAS.csv",sep=""))
 
 #  #- Extrapolate for early years back based on age-smoother correlation factor
@@ -259,44 +259,46 @@ write.csv(finalM,file=paste(outPath,"Smoothed_span50_M_NotExtrapolated_NSAS.csv"
 #  #- Save the final matrix
 #write.csv(finalM,file=paste(outPath,"../SmoothedMNSAS.csv",sep=""))
 # 
-# #-----------------------------------------------------------------------------
-# # 7) plot comparison between assessment runs
-# #-----------------------------------------------------------------------------
-# 
-# load("finalM2010.RData")
-# finalM[ac(8),]    <- finalM[ac(7),]
-# finalM[ac(9),]    <- finalM[ac(7),]
-# finalM2010 <- finalM
-# load("finalM2013.RData")
-# finalM[ac(8),]    <- finalM[ac(7),]
-# finalM[ac(9),]    <- finalM[ac(7),]
-# finalM2013 <- finalM
-# 
-# MSmooth           <- vectorise(finalM2010)
-# colnames(MSmooth) <- c("Value","Age","Year")
-# MSmooth$Age       <- as.factor(MSmooth$Age)
-# MSmooth$Year      <- as.numeric(MSmooth$Year)
-# a <- xyplot(Value~Year|Age,data=MSmooth,type="l",xlab="Years",ylab="Total Natural Mortality",
-#        prepanel=function(...) {list(ylim=range(c(0,1.5)))},main="North Sea herring smoothed M",
-#        panel=function(...){
-#         dat <- list(...)
-#         panel.grid(h=-1, v= -1)
-#         panel.xyplot(...,col='red')
-#        },
-#        scales=list(alternating=1,y=list(relation="free",rot=0)))
-# MSmooth           <- vectorise(finalM2013)
-# colnames(MSmooth) <- c("Value","Age","Year")
-# MSmooth$Age       <- as.factor(MSmooth$Age)
-# MSmooth$Year      <- as.numeric(MSmooth$Year)
-# b <- xyplot(Value~Year|Age,data=MSmooth,type="l",xlab="Years",ylab="Total Natural Mortality",
-#        prepanel=function(...) {list(ylim=range(c(0,1.5)))},main="North Sea herring smoothed M",
-#        panel=function(...){
-#          dat <- list(...)
-#          panel.grid(h=-1, v= -1)
-#          panel.xyplot(...,col='blue')
-#        },
-#        scales=list(alternating=1,y=list(relation="free",rot=0)))
-# 
-# windows()
-# a + as.layer(b)
-# savePlot(paste(outPath,"SmoothedNaturalMortalityNSAS_combined.png",sep=""),type="png")
+#-----------------------------------------------------------------------------
+# 7) plot comparison between assessment runs
+#-----------------------------------------------------------------------------
+
+finalM2015 <- finalM
+
+load("finalM2010.RData")
+finalM[ac(8),]    <- finalM[ac(7),]
+finalM[ac(9),]    <- finalM[ac(7),]
+finalM2010 <- finalM
+load("finalM2013.RData")
+finalM[ac(8),]    <- finalM[ac(7),]
+finalM[ac(9),]    <- finalM[ac(7),]
+finalM2013 <- finalM
+
+MSmooth           <- vectorise(finalM2010)
+colnames(MSmooth) <- c("Value","Age","Year")
+MSmooth$Age       <- as.factor(MSmooth$Age)
+MSmooth$Year      <- as.numeric(MSmooth$Year)
+a <- xyplot(Value~Year|Age,data=MSmooth,type="l",xlab="Years",ylab="Total Natural Mortality",
+       prepanel=function(...) {list(ylim=range(c(0,1.5)))},main="North Sea herring smoothed M",
+       panel=function(...){
+        dat <- list(...)
+        panel.grid(h=-1, v= -1)
+        panel.xyplot(...,col='red')
+       },
+       scales=list(alternating=1,y=list(relation="free",rot=0)))
+MSmooth           <- vectorise(finalM2015)
+colnames(MSmooth) <- c("Value","Age","Year")
+MSmooth$Age       <- as.factor(MSmooth$Age)
+MSmooth$Year      <- as.numeric(MSmooth$Year)
+b <- xyplot(Value~Year|Age,data=MSmooth,type="l",xlab="Years",ylab="Total Natural Mortality",
+       prepanel=function(...) {list(ylim=range(c(0,1.5)))},main="North Sea herring smoothed M",
+       panel=function(...){
+         dat <- list(...)
+         panel.grid(h=-1, v= -1)
+         panel.xyplot(...,col='blue')
+       },
+       scales=list(alternating=1,y=list(relation="free",rot=0)))
+
+windows()
+a + as.layer(b)
+savePlot(paste(outPath,"SmoothedNaturalMortalityNSAS_combined.png",sep=""),type="png")
