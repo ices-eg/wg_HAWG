@@ -9,6 +9,13 @@
 # Afra Egan
 # modified at HAWG March 2015 by Susan Lusseau 
 # modified at HAWG March 2016 by susan Lusseau 
+
+#To do:
+# Change Otolith source code to automatic use presetn year SSB.
+# Develop more plots
+# 
+#
+#
 ####################################################################################################
 
 ### ======================================================================================================
@@ -171,7 +178,7 @@ write.csv(AIC(MSH.sam),file=file.path(output.dir,"AIC.csv"))
 ### ============================================================================
 #Setup plots
 
-pdf(paste(output.base,"2016_MSH_prelim_plots.pdf",sep=""))
+pdf(paste(output.base,"results2016_MSH_final.pdf",sep=""))
 png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=672, bg = "white")
 
 ### ======================================================================================================
@@ -288,7 +295,7 @@ plot(MSH.tun[["IBTS_Q1"]],type="internal", main="IBTS_Q1")
 plot(MSH.tun[["IBTS_Q4"]],type="internal", main="IBTS_Q4")
 
 ## Otolith Plot
-#stock<-MSH
+#stock<-MSH ##!!!!!! remember to change year to present year in sourced script!!!
 plot.otolith(MSH.sam,n=10000)
 
 
