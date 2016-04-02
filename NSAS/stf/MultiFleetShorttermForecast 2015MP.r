@@ -6,6 +6,7 @@ iTer <- 1
 mixprop    <- Csplit #updated value (HAWG 2016) #NSAS proportion in C-fleet: 3-year average
 advCatchWB <- WBSScatch #updated value for FcY(2017) #advised WBSS catch in the forecast year
 
+# optimization of harvesting patterns to achieve ..... new management plan
 #stf@stock.n[,FcY] <- stf@stock.n[,FcY]*3
 res <- optim(par=rep(1,dims(stf)$unit),find.FABC,
                  Fs=stf@harvest[,FcY,,,,iTer,drop=T],
@@ -50,6 +51,7 @@ for(i in 1:20){
   idxdown                   <- which(stf@catch[,FcY,"A"] < TACS.orig[,ImY,"A"]*0.85)
   stf@catch[,FcY,"A",,,idxup]   <- TACS.orig[,ImY,"A",,,idxup]   *1.15
   stf@catch[,FcY,"A",,,idxdown] <- TACS.orig[,ImY,"A",,,idxdown] *0.85
+
   #- If adjusted, recalculate harvest pattern
   stf@catch[,FcY,"C"]       <- (0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB) *mixprop #combined C-fleet TAC
 
