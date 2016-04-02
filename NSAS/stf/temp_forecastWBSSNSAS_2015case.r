@@ -5,7 +5,7 @@ source(file=file.path("./data/temp_forecast_readStfData.r"))
 
 iTer <- 1
 mixprop <- Csplit #updated value (HAWG 2016) #NSAS proportion in C-fleet: 3-year average
-advCatchWB <- 56793 #updated value for FcY(2017) #advised WBSS catch in the forecast year
+advCatchWB <- 56802 #updated value for FcY(2017) #advised WBSS catch in the forecast year
 
 #stf@stock.n[,FcY] <- stf@stock.n[,FcY]*3
 res <- optim(par=rep(1,dims(stf)$unit),find.FABC,
@@ -113,7 +113,7 @@ for(i in 1:20){
 
   stf@catch[,FcY,"C"]       <- 0.057*unitSums(stf@catch[,FcY,c("A")])*mixprop + TACS[,FcY,"C"]
 
-   res <- optim(par=rep(1,dims(stf)$unit),find.FABC_F,
+  res <- optim(par=rep(1,dims(stf)$unit),find.FABC_F,
                     Fs=stf@harvest[,FcY,,,,iTer,drop=T],
                     Ns=stf@stock.n[,FcY,1,,,iTer,drop=T],
                     Wts=stf@stock.wt[,FcY,1,,,iTer,drop=T],
