@@ -9,7 +9,7 @@
 #
 ### ======================================================================================================
 
-plot.otolith <- function(sam.out, year=2014, plot=TRUE, show.points=FALSE, do.contours=TRUE, 
+plot.otolith <- function(sam.out, year=2015, plot=TRUE, show.points=FALSE, do.contours=TRUE, 
                       margin.plots=TRUE, show.estimate=TRUE,
                       n=100, pch=".", alpha=0.05, show.grid=TRUE,
                       n.grid=50, contour.args=list(),...){
