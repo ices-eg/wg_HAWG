@@ -11,7 +11,7 @@
 # modified at HAWG March 2016 by susan Lusseau 
 
 #To do:
-# Change Otolith source code to automatic use presetn year SSB.
+# 
 # Develop more plots
 # 
 #
@@ -295,8 +295,8 @@ plot(MSH.tun[["IBTS_Q1"]],type="internal", main="IBTS_Q1")
 plot(MSH.tun[["IBTS_Q4"]],type="internal", main="IBTS_Q4")
 
 ## Otolith Plot
-#stock<-MSH ##!!!!!! remember to change year to present year in sourced script!!!
-plot.otolith(MSH.sam,n=10000)
+#stock<-MSH ##!!!!!! remember to change year to present year !!!
+plot.otolith(MSH.sam,n=10000, year=2015)
 
 
 #Diagnostic plots
