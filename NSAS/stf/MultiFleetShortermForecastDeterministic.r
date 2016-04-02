@@ -13,12 +13,12 @@ library(FLCore)
 library(FLSAM)
 library(minpack.lm)  # install.packages("minpack.lm")
 require(msm)         # install.packages("msm")
-install.packages("C:/DATA/R/FLAssess-master.zip")
+#install.packages("C:/DATA/R/FLAssess-master.zip")
 
 #Read in data
 
-#path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
-path <- "C:/DATA/GIT/HAWG/NSAS/"
+path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
+#path <- "C:/DATA/GIT/HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 output.dir <- file.path(".","results")
 load(file=file.path(output.dir,"North Sea Herring.RData"))
@@ -87,7 +87,7 @@ Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016
 WBSScatch   <- 56802   # Recommended MSY catch for WBSS herring; from Valerio
 
 Buptake     <- 0.60    # Uptake of Bfleet TAC in the previous year
-BcatchMP    <- 8027    # Bfleet catch estimated in TAC year during MP option; 
+BcatchMP    <- 8227    # Bfleet catch estimated in TAC year during MP option; 
                        # only available after MP run
 WBSSsplit   <- 0.004   # 3 year average proportion WBSS caught in North Sea
 
