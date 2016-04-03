@@ -23,7 +23,7 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
 path <- "~/HAWG/trunk/NSAS/"
-path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
+path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
