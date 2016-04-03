@@ -139,9 +139,18 @@ for(i in 1:20){
    stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
 }
 save.image("STFbeforeTransfers.RData")
-load("STFbeforeTransfers.RData")
+
+#load("STFbeforeTransfers.RData")
+load("C:/DATA/GIT/HAWG/NSAS/stf/results/STFbeforeTransfers.RData")
+
+# calculate the C fleet TAC
 TAC.C <- 0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB  #combined C-fleet TAC
-TAC.C10 <- TAC.C *0 #10% thereof, add to A-fleet as the minimum transfer amount
+
+# 0% option
+TAC.C10 <- TAC.C * 0   #  0% thereof, add to A-fleet as the minimum transfer amount
+
+# 50% option
+# TAC.C10 <- TAC.C * 0.5 # 50% thereof, add to A-fleet as the minimum transfer amount
 
 stf@harvest[ac(2:6),,"A"] #fleet A f2-6 before 10% transfer
 sum(stf@catch[,FcY,])#total forecasted NSAS outtake before transfer business
@@ -161,9 +170,12 @@ stf.table["mp",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuan
 stf.table["mp","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
 stf.table["mp","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
 stf.table["mp",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
-stf.table["mp",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
-                                                                                           exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
-                                                                                           stf@mat[,FcY,1]))
+stf.table["mp",grep("SSB",dimnames(stf.table)$values)[1],]     <- 
+  iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] * 
+                           exp(-unitSums(stf@harvest[,FcY])*
+                                 stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) * 
+                           stf@mat[,FcY,1]))
+
 #plot SSB @ age in FcY
 #plot(c(0:8),as.numeric(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] * exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1])* stf@mat[,FcY,1]),ylab="biomass [tonnes]",xlab="age",main="NSAS SSB at age in 2016",type="l",lwd=2,col="red")
 
