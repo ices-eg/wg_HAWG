@@ -15,9 +15,12 @@ rm(list=ls())
 # ***follow the order of loading (1) FLCore and (2) msy
 # as SR fuctions have same name but different formulation
 
-library(devtools)  ## install.packages("devtools")
+#library(devtools)  ## install.packages("devtools")
 library(FLCore)
+library(FLSAM)
 library(msy)       ## install_github("msy", "einarhjorleifsson", ref = "master")
+library(ggplot2)
+library(dplyr)
 
 source("C:/DATA/GIT/HAWG/NSAS/Refpoints functions.R")
 source("C:/DATA/GIT/HAWG/_Common/eqsr_fit_shift.R")
@@ -455,17 +458,145 @@ load("C:/DATA/HAWG/NSAS 2016.RData")
 run   <- "15"
 title <- "Bev_Rick newM -AR 2002-2015"
 
-FIT <- eqsr_fit_shift(NSH, nsamp = 500, models = c("Bevholt","Ricker"),
-                      rshift=1, remove.years=c(1947:2001, 2016))
+FIT <- eqsr_fit_shift(NSH, nsamp = 1000, models = c("Bevholt","Ricker"),
+                      rshift=1, remove.years=c(1947:2001))
 
 SIM <- eqsim_run(FIT,  
-                 bio.years = c(2002, 2014), 
+                 bio.years = c(2002, 2015), 
                  bio.const = FALSE, 
-                 sel.years = c(2002, 2014), 
+                 sel.years = c(2002, 2015), 
                  sel.const = FALSE, 
                  recruitment.trim = c(3, -3), 
-                 Fcv       = 0.26, 
-                 Fphi      = 0.49, 
+                 Fcv       = 0.27, 
+                 Fphi      = 0.50, 
+                 Blim      =  800000,
+                 Bpa       = 1000000,
+                 Fscan     = seq(0,0.80,len=40),
+                 verbose   = TRUE)
+
+sink(paste(run," SRR ",title,".txt",sep="")); FIT$sr.det; sink()
+sink(paste(run," MSY ",title,".txt",sep="")); MSY_Intervals(SIM); sink()
+sink(paste(run," SIM ",title,".txt",sep="")); SIM; sink()
+
+png(paste(run," SRR ",title,".png",sep=""), width=1500, height=1500, res=200, bg="white")
+eqsr_plot(FIT,n=2e4); dev.off()
+
+png(paste(run," MSY ",title,".png",sep=""), width=1500, height=1500, res=200, bg="white")
+eqsim_plot(SIM,catch=TRUE); dev.off()
+
+
+# Scenario 16 newM 2002-2015, with harvest rule, settings from plenary
+
+load("C:/DATA/HAWG/NSAS 2016.RData")
+
+run   <- "16"
+title <- "Bev_Rick newM +AR 2002-2015"
+
+FIT <- eqsr_fit_shift(NSH, nsamp = 1000, models = c("Bevholt","Ricker"),
+                      rshift=1, remove.years=c(1947:2001))
+
+FIT$rby <- FIT$rby %>% filter(year %in% c(2002:2015))
+
+SIM <- eqsim_run(FIT,  
+                 bio.years = c(2002, 2015), 
+                 bio.const = FALSE, 
+                 sel.years = c(2002, 2015), 
+                 sel.const = FALSE, 
+                 recruitment.trim = c(3, -3), 
+                 Fcv       = 0.27, 
+                 Fphi      = 0.50, 
+                 Btrigger  = 1500000,
+                 Blim      =  800000,
+                 Bpa       = 1000000,
+                 Fscan     = seq(0,0.80,len=40),
+                 verbose   = TRUE)
+
+sink(paste(run," SRR ",title,".txt",sep="")); FIT$sr.det; sink()
+sink(paste(run," MSY ",title,".txt",sep="")); MSY_Intervals(SIM); sink()
+sink(paste(run," SIM ",title,".txt",sep="")); SIM; sink()
+
+png(paste(run," SRR ",title,".png",sep=""), width=1500, height=1500, res=200, bg="white")
+eqsr_plot(FIT,n=2e4); dev.off()
+
+png(paste(run," MSY ",title,".png",sep=""), width=1500, height=1500, res=200, bg="white")
+eqsim_plot(SIM,catch=TRUE); dev.off()
+
+
+# Scenario 17 oldM 2002-2015, without harvest rule, settings from plenary
+
+load("C:/DATA/HAWG/NSAS 2016 oldM.RData")
+
+run   <- "17"
+title <- "Bev_Rick oldM -AR 2002-2015"
+
+FIT <- eqsr_fit_shift(NSH, nsamp = 1000, models = c("Bevholt","Ricker"),
+                      rshift=1, remove.years=c(1947:2001))
+
+FIT$rby <- FIT$rby %>% filter(year %in% c(2002:2015))
+
+SIM <- eqsim_run(FIT,  
+                 bio.years = c(2002, 2015), 
+                 bio.const = FALSE, 
+                 sel.years = c(2002, 2015), 
+                 sel.const = FALSE, 
+                 recruitment.trim = c(3, -3), 
+                 Fcv       = 0.27, 
+                 Fphi      = 0.50, 
+                 Blim      =  800000,
+                 Bpa       = 1000000,
+                 Fscan     = seq(0,0.80,len=40),
+                 verbose   = TRUE)
+
+sink(paste(run," SRR ",title,".txt",sep="")); FIT$sr.det; sink()
+sink(paste(run," MSY ",title,".txt",sep="")); MSY_Intervals(SIM); sink()
+sink(paste(run," SIM ",title,".txt",sep="")); SIM; sink()
+
+png(paste(run," SRR ",title,".png",sep=""), width=1500, height=1500, res=200, bg="white")
+eqsr_plot(FIT,n=2e4); dev.off()
+
+png(paste(run," MSY ",title,".png",sep=""), width=1500, height=1500, res=200, bg="white")
+eqsim_plot(SIM,catch=TRUE); dev.off()
+
+
+# scenario 18 segmented regression, 1985-2015, new M
+
+load("C:/DATA/HAWG/NSAS 2016.RData")
+
+run   <- "18"
+title <- "Segreg newM 1985-2015"
+
+FIT <- eqsr_fit_shift(NSH, nsamp = 1000, models = c("Segreg"),
+                      rshift=1, remove.years=c(1947:1984))
+
+FIT$rby <- FIT$rby %>% filter(year %in% c(1985:2015))
+
+sink(paste(run," SRR ",title,".txt",sep="")); FIT$sr.det; sink()
+sink(paste(run," FIT ",title,".txt",sep="")); FIT; sink()
+
+png(paste(run," SRR ",title,".png",sep=""), width=1500, height=1500, res=200, bg="white")
+eqsr_plot(FIT,n=2e4); dev.off()
+
+
+# Scenario 19 newM 2002-2015, for Flim estimation
+
+load("C:/DATA/HAWG/NSAS 2016.RData")
+
+run   <- "19"
+title <- "Bev_Rick newM -AR 0-phi 0-cv 2002-2015"
+
+FIT <- eqsr_fit_shift(NSH, nsamp = 1000, models = c("Bevholt","Ricker"),
+                      rshift=1, remove.years=c(1947:2001))
+
+FIT$rby <- FIT$rby %>% filter(year %in% c(2002:2015))
+
+SIM <- eqsim_run(FIT,  
+                 bio.years = c(2002, 2015), 
+                 bio.const = FALSE, 
+                 sel.years = c(2002, 2015), 
+                 sel.const = FALSE, 
+                 recruitment.trim = c(3, -3), 
+                 Fcv       = 0.0, 
+                 Fphi      = 0.0, 
                  Blim      =  800000,
                  Bpa       = 1000000,
                  Fscan     = seq(0,0.80,len=40),
