@@ -61,6 +61,8 @@ source(file.path("..","_Common","HAWG_Common_module.r"))
   # Save results
   save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,paste(name(NSH),".RData",sep="")))
 
+  #load("C:/DATA/HAWG/NSAS 2016.RData")
+  
 ### ============================================================================
 ### Plots
 ### ============================================================================
@@ -75,6 +77,7 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   TACs          <- read.csv(file.path(".","data","historic data","TAC-historic.csv"))
   TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("Agreed_A","Bycatch_B")],na.rm=T),each=2))
   catch         <- as.data.frame(NSH@catch[,ac(TACs$year)]/1e3)
+
   plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=1.2,cex.axis=1.1,font=2)
   rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
   lines(TAC.plot.dat,lwd=3)
@@ -271,6 +274,8 @@ NSH.brp <- brp(FLBRP(NSH,sr=NSH.SRR,fbar=seq(0,1,length.out=100),refpts=refpts()
 # Calculate the spawners in number
 spawners                          <- colSums(NSH.brp@stock.n * sweep(exp(sweep(-sweep(NSH.brp@harvest,c(1,3:6),NSH.brp@harvest.spwn,"*"),
                                              c(1,3:6),NSH.brp@m*NSH.brp@m.spwn,"-")),c(1,3:6),NSH.brp@mat,"*"))
+
+
 # Put all the standard input in a dataframe in columns
 standardGraphTable                <- cbind(NSH.brp@fbar,yield(NSH.brp),ssb(NSH.brp),rec(NSH.brp),yield(NSH.brp)/rec(NSH.brp),
                                            ssb(NSH.brp)/rec(NSH.brp),spawners,landings(NSH.brp))
