@@ -1,10 +1,10 @@
-Herring IIIa & SD 22-24(WBSS) (run: ICATOM)
+Herring IIIa & SD 22-24(WBSS)
 1
-caton.low
-canum.low
-weca.low
-west.low
-natmor.low
-matprop.low
-fprop.low
-mprop.low
+CATON.LOW
+cn.dat
+cw.dat
+sw.dat
+nm.dat
+mo.dat
+pf.dat
+pm.dat

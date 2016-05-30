@@ -4,36 +4,43 @@
 # By: Niels Hintzen
 # IMARES
 # 2 January 2012
-#
+# 
+# Updated: 2/4/2016 Martin Pastoors
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
 library(FLCore)
 library(FLSAM)
-library(minpack.lm)
-require(msm)
+library(minpack.lm)  # install.packages("minpack.lm")
+require(msm)         # install.packages("msm")
+#install.packages("C:/DATA/R/FLAssess-master.zip")
+
 #Read in data
-path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
+
+#path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
+#path <- "C:/DATA/GIT/HAWG/NSAS/"
+path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 output.dir <- file.path(".","results")
 load(file=file.path(output.dir,"North Sea Herring.RData"))
-try(setwd(path))
 try(setwd("./stf/"))
 
+# include the STF forecast
+source(file=file.path("temp_forecast_readStfData.r"))
 
 #-------------------------------------------------------------------------------
 # Setup control file
 #-------------------------------------------------------------------------------
 
 DtY   <- ac(range(NSH)["maxyear"]) #Data year
-ImY   <- ac(an(DtY)+1) #Intermediate year
-FcY   <- ac(an(DtY)+2) #Forecast year
-CtY   <- ac(an(DtY)+3) #Continuation year
-FuY   <- c(ImY,FcY,CtY)#Future years
+ImY   <- ac(an(DtY)+1)             #Intermediate year
+FcY   <- ac(an(DtY)+2)             #Forecast year
+CtY   <- ac(an(DtY)+3)             #Continuation year
+FuY   <- c(ImY,FcY,CtY)            #Future years
 
 #- Source the code to read in the weights at age and numbers at age by fleet, to compute partial F's and partial weights
-source("./data/readStfData.r")
-source("./data/writeSTF.out.r")
+source("readStfData.r")
+source("writeSTF.out.r")
 
 #- Generate multi-iters opbject
   #Deterministic
@@ -68,17 +75,49 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 #   However, this might be changed by the Danish
 #-------------------------------------------------------------------------------
 
+# TAC information for 2016
+TACNSA      <- 518242  # taken from TAC regulation document HER/4AB. + HER/4CXB7D
+TACNSB      <- 13382   # taken from TAC regulation document HER/2A47DX
+TAC3aC      <- 51084   # HER/03A. Split
+TAC3aD      <- 6659    # HER/03A-BC
 
-#2015:
-TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),season="all",area=1,iter=1:dims(stk)$iter))
+# Splits and transfers
+Csplit      <- 0.42    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
+Dsplit      <- 0.70    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
+Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016  
+WBSScatch   <- 56802   # Recommended MSY catch for WBSS herring; from Valerio
+
+Buptake     <- 0.60    # Uptake of Bfleet TAC in the previous year
+WBSSsplit   <- 0.004   # 3 year average proportion WBSS caught in North Sea
+
+# Create TAC objects for current year, forecast year and last year
+TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),
+                                        season="all",area=1,iter=1:dims(stk)$iter))
 TACS.orig   <- TACS
-#46% from IIIa TAC in IV, as suggested by PRAC in February 2014
-TACS[,,"A"] <- c(445329 + 0.46 * 43604 - 2953, NA,NA);                   TACS.orig[,,"A"]  <- c(445329,NA,NA)
-TACS[,,"B"] <- c(15744 * 1           , 12538.99, 12538.99);                           TACS.orig[,,"B"]  <- c(15744, 12538.99, 12538.99) #adding estimated B-fleet catch from mp in FcY/CtY
-TACS[,,"C"] <- c(43604 * (1-0.46) * 0.3805867, 46733 * (1-0.46) * 0.3805867, NA);                   TACS.orig[,,"C"]  <- c(43604 * (1-0.46) * 0.3805867,NA,NA)
-TACS[,,"D"] <- c(6659 * 0.7409533, 6659 * 0.7409533, 6659 * 0.7409533); TACS.orig[,,"D"]  <- c(6659 * 0.7409533,6659 * 0.7409533,6659 * 0.7409533) #adding estimated D-fleet catch from mp in FcY/CtY 
+TACS.orig[,,"A"] <- c(TACNSA,NA,NA)
+TACS.orig[,,"B"] <- c(TACNSB,NA,NA)
+TACS.orig[,,"C"] <- c(TAC3aC,NA,NA)
+TACS.orig[,,"D"] <- rep(TAC3aD,3)
 
-  recWeights<- subset(NSH.sam@params,name=="U"); recWeights <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
+# Fill TAC objects with data on expected catches
+TACS[,,"A"] <- c(TACNSA + Ctransfer*TAC3aC - (TACNSA + Ctransfer*TAC3aC)*WBSSsplit, 
+                 NA,
+                 NA)
+TACS[,,"B"] <- c(TACNSB * Buptake, 
+                 NA ,
+                 NA); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
+TACS[,,"C"] <- c(TAC3aC*(1-Ctransfer)*Csplit,
+                 TAC3aC*(1-Ctransfer)*Csplit,
+                 NA);   
+TACS[,,"D"] <- c(TAC3aD*Dsplit, 
+                 TAC3aD*Dsplit, 
+                 TAC3aD*Dsplit); 
+
+
+
+# Retrieve uncertainty estimate on recruitment estimates by the model
+recWeights  <- subset(NSH.sam@params,name=="U");
+recWeights  <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
 RECS        <- FLQuants("ImY" =FLQuant(subset(rec(NSH.sam),year==ImY)$value,dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
                         "FcY" =exp(apply(log(rec(stk)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:12]),na.rm=T)),
                         "CtY" =exp(apply(log(rec(stk)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:12]),na.rm=T)))
@@ -86,7 +125,7 @@ RECS        <- FLQuants("ImY" =FLQuant(subset(rec(NSH.sam),year==ImY)$value,dimn
 #                        "FcY" =exp(apply(log(rec(stk)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:12]),na.rm=T)),
 #                        "CtY" =exp(apply(log(rec(stk)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:12]),na.rm=T)))
 
-
+# Combining the F and weight vectors for the previous year
 FS          <- list("A"=FA,"B"=FB,"C"=FC,"D"=FD)
 WS          <- list("A"=WA,"B"=WB,"C"=WC,"D"=WD)
 
@@ -103,9 +142,18 @@ dms$unit    <- c("A","B","C","D")
 f01         <- ac(0:1)
 f26         <- ac(2:6)
 
-stf.options <- c("mp","-15%","+15%","nf","tacro","fmsy","newmp") #mp=according to management plan, +/-% = TAC change, nf=no fishing, bpa=reach BPA in CtY or if ssb > bpa fish at fpa,
-                                                        # tacro=same catch as last year
-mp.options  <- c("i") #i=increase in B fleet is allowed, fro=B fleet takes fbar as year before
+stf.options <- c("mp","-15%","+15%","nf","tacro","fmsy","newmp") 
+  # mp    =according to management plan, 
+  # +/-%  =TAC change, 
+  # nf    =no fishing, 
+  # bpa   =reach BPA in CtY or if ssb > bpa fish at fpa,
+  # tacro =same catch as last year
+  # fmsy  = fmsy implemented
+  # newmp = application of the 2015? management plan
+mp.options  <- c("i") 
+  # i   = increase in B fleet is allowed, 
+  # fro = B fleet takes fbar as year before
+
 #===============================================================================
 # Setup stock file
 #===============================================================================
@@ -127,6 +175,7 @@ for(i in dms$unit){
   stf@catch.wt[,FuY,i]    <- WS[[i]]
   stf@landings.wt[,FuY,i] <- WS[[i]]
 }
+
 # Fill slots that have no meaning for NSAS
 stf@discards.n[]          <- 0
 stf@discards[]            <- 0
@@ -190,7 +239,21 @@ for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.
 #     stf@landings.n[,FcY,i]  <- stf@catch.n[,FcY,i]
 #     stf@landings[,FcY,i]    <- computeLandings(stf[,FcY,i])
 #   }
+
+# Preferably sourcing the extra management plan optimization part; 
+# but this is not finished yet.
+
+# source("C:/DATA/GIT/HAWG/NSAS/stf/MultiFleetShorttermForecast 2015MP.r")
+
+BcatchMP    <- 8020    # Bfleet catch estimated in TAC year during MP option;
+
+TACS[,,"B"] <- c(TACNSB * Buptake, 
+                 BcatchMP ,
+                 BcatchMP); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
+
+
   #Update to continuation year
+  stf@harvest[,CtY]                                           <- stf@harvest[,FcY]
   for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
@@ -205,13 +268,15 @@ for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.
                                                                  exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
                                                                  stf@mat[,FcY,1]))
   stf.table["mp",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
-# 
-# 
+#
+#
 #   #As this is most likely the agreed TAC for the B fleet, use this in all other scenario's too
 #   TACS[,FcY,"B"]    <- computeCatch(stf[,FcY,"B"])
 #   #TACSmp            <- harvestCatch(stf,FcY)
 # }
-### No fishing ###
+
+### No fishing ### ----------------------------------------------------------
+  
 if("nf" %in% stf.options){
   stf@harvest[,FcY] <- 0
   #Update to continuation year
@@ -231,13 +296,14 @@ if("nf" %in% stf.options){
   stf.table["nf",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
 }
 
-### 15% increase in TAC for the A-fleet ###
+### 15% increase in TAC for the A-fleet ### ----------------------------------------------------------
+  
 if("+15%" %in% stf.options){
   #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
 
   TACS[,FcY,"A"]            <- TACS.orig[,ImY,"A"]*1.15
-  TACS[,FcY,"C"]            <- 43604*1.15 * mixprop
+  TACS[,FcY,"C"]            <- TAC3aC * 1.15 * Csplit
   stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=TACS[,FcY])
   for(i in dms$unit){
     stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
@@ -250,7 +316,7 @@ if("+15%" %in% stf.options){
   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
   TACS[,CtY,"A"]                                              <- c(TACS.orig[,ImY,"A"]*1.15*1.15)
-  TACS[,CtY,"C"]                                              <- c(43604*1.15*1.15*mixprop)
+  TACS[,CtY,"C"]                                              <- c(TAC3aC*1.15*1.15*Csplit)
   stf@harvest[,CtY]                                           <- fleet.harvest(stk=stf,iYr=CtY,TACS=TACS[,CtY])
   ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
 
@@ -266,14 +332,15 @@ if("+15%" %in% stf.options){
   #TACSmp                                                           <- harvestCatch(stf,FcY)
 }
 
-### 15% reduction in TAC for the A-fleet ###
+### 15% reduction in TAC for the A-fleet ### ----------------------------------------------------------
+
 if("-15%" %in% stf.options){
 
   #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
 
   TACS[,FcY,"A"]            <- TACS.orig[,ImY,"A"]*0.85
-  TACS[,FcY,"C"]            <- 43604*0.85 * mixprop
+  TACS[,FcY,"C"]            <- TAC3aC * 0.85 * Csplit
   stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=TACS[,FcY])
   for(i in dms$unit){
     stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
@@ -286,7 +353,7 @@ if("-15%" %in% stf.options){
   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
   TACS[,CtY,"A"]                                              <- c(TACS.orig[,ImY,"A"]*0.85*0.85)
-  TACS[,CtY,"C"]                                              <- c(43604*0.85*0.85*mixprop)
+  TACS[,CtY,"C"]                                              <- c(TAC3aC * 0.85*0.85*Csplit)
   stf@harvest[,CtY]                                           <- fleet.harvest(stk=stf,iYr=CtY,TACS=TACS[,CtY])
   ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
 
@@ -303,13 +370,16 @@ if("-15%" %in% stf.options){
 }
 
 
-### Same TAC for A-fleet as last year ### #for 2015: use estimated B-fleet TAC from mp for the FcY and the NSAS proportion of the advised C-fleet catch in the FcY
+### Same TAC for A-fleet as last year ### ----------------------------------------------------------
+  
+#for 2015: use estimated B-fleet TAC from mp for the FcY and the NSAS proportion of the advised C-fleet catch in the FcY
+  
 if("tacro" %in% stf.options){
   #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
 
   TACS[,FcY,"A"]            <- TACS.orig[,ImY,"A"]
-  TACS[,FcY,"C"]            <- 43604 * mixprop
+  TACS[,FcY,"C"]            <- TAC3aC * Csplit
   stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=TACS[,FcY])
   for(i in dms$unit){
     stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
@@ -322,7 +392,7 @@ if("tacro" %in% stf.options){
   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
   TACS[,CtY,"A"]                                              <- c(TACS.orig[,ImY,"A"])
-  TACS[,CtY,"C"]                                              <- c(43604*mixprop)
+  TACS[,CtY,"C"]                                              <- c(TAC3aC*Csplit)
   stf@harvest[,CtY]                                           <- fleet.harvest(stk=stf,iYr=CtY,TACS=TACS[,CtY])
   ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
 
@@ -337,16 +407,21 @@ if("tacro" %in% stf.options){
   stf.table["tacro",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
 }
 
+# Fmsy option  ----------------------------------------------------------
+    
 if("fmsy" %in% stf.options){
    #reset harvest for all fleets
+  FmsyNSAS <- 0.27
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
-  TACS[,FcY,"C"]            <- 52547 * mixprop #MSY-based (FMSY=0.32) WBSS C-fleet catch = (52547) * mixprop
+  
+for(j in 1:20){
+  TACS[,FcY,"C"]    <- (0.41 * WBSScatch + TACS[,FcY,"A"] * 0.057) * Csplit  #MSY-based (FMSY=0.32) in WBSS forecast * mixprop
   stf@harvest[,FcY] <- fleet.harvest(stf,FcY,TACS)
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.F,stk=iter(stf[,FcY],iTer),f.=0.248,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.F,stk=iter(stf[,FcY],iTer),f.=FmsyNSAS,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
@@ -355,6 +430,9 @@ if("fmsy" %in% stf.options){
     stf@landings.n[,FcY,i]      <- stf@catch.n[,FcY,i]
     stf@landings[,FcY,i]        <- computeLandings(stf[,FcY,i])
   }
+  
+  TACS[,FcY,"A"]                <- stf@catch[,FcY,"A"]
+}
   #Update to continuation year
   for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
@@ -416,8 +494,16 @@ stf.out.file <- stf.out(stf,RECS,format="TABLE 2.7.%i NORTH SEA HERRING.")
 write(stf.out.file,file=paste("./","stf.out",sep="."))
 
 #- Write the stf.table to file
-write.table(stf.table[,,2],file=paste("stf.table","deterministic"),append=F,col.names=T,row.names=T)
-for(i in dimnames(stf.table)$stats) write.table(stf.table[,,i],file=paste("stf.table",i),append=F,col.names=T,row.names=T)
+write.table(stf.table[,,2],
+            file=paste("stf.table","deterministic"),
+            append=F,col.names=T,row.names=T)
+
+for(i in dimnames(stf.table)$stats) 
+  write.table(stf.table[,,i],
+              file=paste("stf.table",i),
+              append=F,col.names=T,row.names=T)
 
 #- Save the output to an RData file
 save.image(file="ShortTermForecast Workspace.RData")
+
+

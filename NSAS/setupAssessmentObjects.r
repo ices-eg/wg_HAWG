@@ -12,7 +12,7 @@
 # from other external sources.
 #
 # Developed with:
-#   - R version 2.13.1
+#   - R version 2.14.2
 #   - FLCore 2.4
 #
 # To be done:
@@ -30,7 +30,16 @@ data.source         <- file.path(".","data")    #Data source, not code or packag
 ### Prepare stock object for assessment
 ### ============================================================================
 #Load object
-NSH                 <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
+NSH                 <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE,quiet=FALSE)
+# readVPAFile(file.path(data.source, "canum.txt"), quiet = FALSE, sep = "")
+# readVPAFile(file.path(data.source, "caton.txt"), quiet = FALSE, sep = "")
+# readVPAFile(file.path(data.source, "weca.txt"), quiet = FALSE, sep = "")
+# readVPAFile(file.path(data.source, "west.txt"), quiet = FALSE, sep = "")
+# readVPAFile(file.path(data.source, "fprop.txt"), quiet = FALSE, sep = "")
+# readVPAFile(file.path(data.source, "mprop.txt"), quiet = FALSE, sep = "")
+# readVPAFile(file.path(data.source, "natmor.txt"), quiet = FALSE, sep = "")
+# readVPAFile(file.path(data.source, "matprop.txt"), quiet = FALSE, sep = "")
+# readFLIndices(file.path(data.source, "fleet.txt"))
 
 #Catch is calculated from: catch.wt * catch.n, however, the reported landings are
 #normally different (due to SoP corrections). Hence we overwrite the calculate landings
@@ -79,33 +88,37 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 ### Prepare Natural Mortality estimates 
 ### ============================================================================
 #Read in estimates from external file
-M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS.csv"),
-                   header=TRUE)
-                   
+# M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS.csv"),
+#                    header=TRUE)
+M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS_2010.csv"),
+                          header=TRUE)
+
 colnames(M2)  <- sub("X","",colnames(M2))
 rownames(M2)  <- M2[,1]
 M2            <- M2[,-1]# Trim off first column as it contains 'ages'
-M2            <- M2[,apply(M2,2,function(x){all(is.na(x))==F})]
+M2            <- M2[,apply(M2,2,function(x){all(is.na(x))==F})] # keep only years with data
 
 
 #Extract key data from default assessment
-NSHM2       <- NSH
-NSHM2@m[]   <- NA
-yrs         <- dimnames(NSHM2@m)$year
-yrs         <- yrs[which(yrs %in% colnames(M2))]
+NSHM2           <- NSH
+NSHM2@m[]       <- NA
+yrs             <- dimnames(NSHM2@m)$year
+yrs             <- yrs[which(yrs %in% colnames(M2))]
 NSHM2@m[,yrs][] <- as.matrix(M2)
 
 #- Apply 5 year running average
-extryrs <- dimnames(NSHM2@m)$year[which(!dimnames(NSHM2@m)$year %in% yrs)]
-extryrsfw <- extryrs[which(extryrs > max(an(yrs)))]
-extryrsbw <- extryrs[which(extryrs <= max(an(yrs)))]
-ages    <- dimnames(NSHM2@m)$age
-extrags <- names(which(apply(M2,1,function(x){all(is.na(x))==T})==T))
-yrAver  <- 5
+extryrs         <- dimnames(NSHM2@m)$year[which(!dimnames(NSHM2@m)$year %in% yrs)]
+extryrsfw       <- extryrs[which(extryrs > max(an(yrs)))]
+extryrsbw       <- extryrs[which(extryrs <= max(an(yrs)))]
+ages            <- dimnames(NSHM2@m)$age
+extrags         <- names(which(apply(M2,1,function(x){all(is.na(x))==T})==T))
+yrAver          <- 5
 for(iYr in as.numeric(rev(extryrs))){
   for(iAge in ages[!ages%in%extrags]){
-    if(iYr %in% extryrsbw) NSHM2@m[ac(iAge),ac(iYr)] <- yearMeans(NSHM2@m[ac(iAge),ac((iYr+1):(iYr+yrAver)),],na.rm=T)
-    if(iYr %in% extryrsfw) NSHM2@m[ac(iAge),ac(iYr)] <- yearMeans(NSHM2@m[ac(iAge),ac((iYr-1):(iYr-yrAver)),],na.rm=T)
+    if(iYr %in% extryrsbw) NSHM2@m[ac(iAge),ac(iYr)] <- 
+        yearMeans(NSHM2@m[ac(iAge),ac((iYr+1):(iYr+yrAver)),],na.rm=T)
+    if(iYr %in% extryrsfw) NSHM2@m[ac(iAge),ac(iYr)] <- 
+        yearMeans(NSHM2@m[ac(iAge),ac((iYr-1):(iYr-yrAver)),],na.rm=T)
   }
 }
 for(iAge in extrags)

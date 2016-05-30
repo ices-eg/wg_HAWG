@@ -21,9 +21,12 @@ rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
-path <- "D:/Repository/HAWG/hawg/trunk/NSAS/"
+
+#path <- "C:/DATA/GIT/HAWG/NSAS/"
+path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
 #path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
-#path <- "C:/Users/Lusseaus/Documents/ICES Working Groups/HAWG/2015/Repository 2015/NSAS/"
+#path <- "C:/Users/Lusseaus/Documents/ICES Working Groups/HAWG/2016/Repository/wg_HAWG/NSAS/"
+
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -211,7 +214,7 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   ### Management
   ### ============================================================================
 
-  #A plot on the agreed management plan with the estimated Fbar in 2014
+  #A plot on the agreed management plan with the estimated Fbar in 2015
   plot(x=c(0,0.8,1.5,2.6),y=c(0.1,0.1,0.26,0.26),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tonnes",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
   abline(v=0.8,col="red",lwd=2,lty=2)
   abline(v=1.0,col="blue",lwd=2,lty=2)
@@ -220,9 +223,9 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   text(1.0,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
   text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
 
-  points(y=fbar(NSH[,ac(2004:2014)]), x=(ssb(NSH[,ac(2004:2014)])/1e6),pch=19)
-  lines(y=fbar(NSH[,ac(2004:2014)]),  x=(ssb(NSH[,ac(2004:2014)])/1e6))
-  text(y=fbar(NSH[,ac(2004:2014)]),   x=(ssb(NSH[,ac(2004:2014)])/1e6),labels=ac(2004:2014),pos=3,cex=0.7)
+  points(y=fbar(NSH[,ac(2005:2015)]), x=(ssb(NSH[,ac(2005:2015)])/1e6),pch=19)
+  lines(y=fbar(NSH[,ac(2005:2015)]),  x=(ssb(NSH[,ac(2005:2015)])/1e6))
+  text(y=fbar(NSH[,ac(2005:2015)]),   x=(ssb(NSH[,ac(2005:2015)])/1e6),labels=ac(2005:2015),pos=3,cex=0.7)
 
 ### ======================================================================================================
 ### Reference points
