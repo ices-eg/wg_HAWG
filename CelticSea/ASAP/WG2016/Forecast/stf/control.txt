@@ -1,0 +1,6 @@
+Celtic Sea Total population, catch constraint
+3
+2 5
+537900  537900  537900
+1 
+18590
