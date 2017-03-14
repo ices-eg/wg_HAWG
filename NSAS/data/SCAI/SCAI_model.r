@@ -60,7 +60,7 @@ library(RColorBrewer)
 ### Parameters
 ### ==========================================================================
 #Load data
-LAI.in <- read.table(file.path("D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/data","lai.txt"),header=TRUE)
+LAI.in <- read.table(file.path("D:/Repository/ICES_HAWG/wg_HAWG/NSAS/data","lai.txt"),header=TRUE)
 
 #Abbreviations
 areas <- c("OrkShe"="B",Buchan="C",Banks="D",Downs="E")
@@ -70,8 +70,8 @@ samp.unit.names <- unique(LAI.in$LAIUnit)
 retro.yrs <- 1:5  #Set to null to switch off retro
 
 #Working dirs
-wkdir <- file.path("D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/data/SCAI","ADMBwkdir")
-output.dir <- file.path("D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/data/SCAI","SCAIoutputs")
+wkdir <- file.path("D:/Repository/ICES_HAWG/wg_HAWG/NSAS/data/SCAI","ADMBwkdir")
+output.dir <- file.path("D:/Repository/ICES_HAWG/wg_HAWG/NSAS/data/SCAI","SCAIoutputs")
 
 #output device
 #pdf(file.path(output.dir,"SCAI_outputs.pdf"),width=200/25.4,height=200/25.4,pointsize=16,onefile=TRUE)
@@ -460,10 +460,10 @@ write.csv(write.out,file=file.path(output.dir,"SCAI_indices.csv"),
 
 #Write to VPA suite file
 sumscai <- rowSums(sapply(fit,function(d) d$fit$SCAI) )
-VPA.out <- data.frame(Year=write.out$Year,VPA=1,SCAI=sumscai)
+VPA.out <- data.frame(Year=sort(unique(write.out$Year)),VPA=1,SCAI=sumscai)
 VPA.out.file <- file.path(output.dir,"scai.txt")
 cat("Spawning component abundance index\n",file=VPA.out.file)
-cat(sprintf("1\t%i\t2\n",nrow(VPA.out)),file=VPA.out.file,append=TRUE) 
+cat(sprintf("1\t%i\t2\n",nrow(VPA.out)),file=VPA.out.file,append=FALSE)
 write.table(VPA.out,file=VPA.out.file,append=TRUE,col.names=TRUE,row.names=FALSE)
 
 
