@@ -76,10 +76,10 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 #   However, this might be changed by the Danish
 #-------------------------------------------------------------------------------
 
-# TAC information for 2016
-TACNSA      <- 518242  # taken from TAC regulation document HER/4AB. + HER/4CXB7D
-TACNSB      <- 13382   # taken from TAC regulation document HER/2A47DX
-TAC3aC      <- 51084   # HER/03A. Split
+# TAC information for 2017
+TACNSA      <- 481608  # taken from TAC regulation document HER/4AB. + HER/4CXB7D
+TACNSB      <- 11375   # taken from TAC regulation document HER/2A47DX
+TAC3aC      <- 50740   # HER/03A. Split
 TAC3aD      <- 6659    # HER/03A-BC
 
 # Splits and transfers
@@ -282,7 +282,7 @@ if("mp" %in% stf.options){
 
 if("mp transfer" %in% stf.options){
 
-  #- Calculate F multipliers for each of the fleets (make take some time)
+  #- Calculate F multipliers for each of the fleets (may take some time)
   res <- optim(par=rep(1,dims(stf)$unit),find.FABCD,
                    Fs=stf@harvest[,FcY,,,,,drop=T],
                    Ns=stf@stock.n[,FcY,1,,,,drop=T],
@@ -581,7 +581,7 @@ if("flim" %in% stf.options){
   stf.table["flim",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
 }
 ### Fsqoption  ----------------------------------------------------------
-if("flim" %in% stf.options){
+if("fsq" %in% stf.options){
    #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
