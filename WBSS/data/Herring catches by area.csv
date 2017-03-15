@@ -24,6 +24,7 @@ year,area,quantity,stock,data
 2013,Div. IIIa,Catch,NSAS,13367
 2014,Div. IIIa,Catch,NSAS,12823
 2015,Div. IIIa,Catch,NSAS,14692
+2016,Div. IIIa,Catch,NSAS,5506
 1991,Div. IIIa,TAC,NA,155000
 1992,Div. IIIa,TAC,NA,174000
 1993,Div. IIIa,TAC,NA,210000
@@ -49,6 +50,7 @@ year,area,quantity,stock,data
 2013,Div. IIIa,TAC,NA,61659
 2014,Div. IIIa,TAC,NA,53409
 2015,Div. IIIa,TAC,NA,43604
+2016,Div. IIIa,TAC,NA,50740
 2006,Sub-div. 22-24,TAC,NA,47500
 2007,Sub-div. 22-24,TAC,NA,49500
 2008,Sub-div. 22-24,TAC,NA,45000
@@ -59,6 +61,7 @@ year,area,quantity,stock,data
 2013,Sub-div. 22-24,TAC,NA,25800
 2014,Sub-div. 22-24,TAC,NA,19754
 2015,Sub-div. 22-24,TAC,NA,22220
+2016,Sub-div. 22-24,TAC,NA,28401
 1991,Div. IIIa,Catch,WBSS,121686.634
 1992,Div. IIIa,Catch,WBSS,109523.0157
 1993,Div. IIIa,Catch,WBSS,104497.979
@@ -84,6 +87,7 @@ year,area,quantity,stock,data
 2013,Div. IIIa,Catch,WBSS,17873
 2014,Div. IIIa,Catch,WBSS,16067
 2015,Div. IIIa,Catch,WBSS,13143
+2016,Div. IIIa,Catch,WBSS,24385
 1991,Sub-div. 22-24,Catch,WBSS,69886.47487
 1992,Sub-div. 22-24,Catch,WBSS,84888.246
 1993,Sub-div. 22-24,Catch,WBSS,80511.93
@@ -109,3 +113,4 @@ year,area,quantity,stock,data
 2013,Sub-div. 22-24,Catch,WBSS,25504
 2014,Sub-div. 22-24,Catch,WBSS,18338
 2015,Sub-div. 22-24,Catch,WBSS,22144
+2016,Sub-div. 22-24,Catch,WBSS,25073
