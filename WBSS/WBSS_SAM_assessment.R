@@ -1,7 +1,7 @@
 ################################################################################
 # WBSS SAM assessment in FLR
 #
-# 31 March 2016
+# 15 March 2017
 # HAWG working group
 #
 ################################################################################
@@ -26,6 +26,7 @@ output.base         <-  file.path(output.dir,"WBSS Assessment") #Output base fil
 library(FLSAM); library(FLEDA)
 source(file.path("setupAssessmentObjects.R"))
 ## source(file.path("setupControlObject.R"))
+## source(file.path("setupControlObject04.R"))
 source(file.path("setupControlObject_warmUp.R"))
 source(file.path("..","_Common","HAWG_Common_module.r"))
 source(file.path("..","_Common","plot_stock_age_distribution.R"))
@@ -238,7 +239,7 @@ title(xlab="Year",xpd=NA)
   cor.plot(wbss.sam)
 
   #Plot otholith  ***can be time consuming!!!
-  otolith(wbss.sam, 2015, n=10000)
+  otolith(wbss.sam, 2016, n=10000)
 
   # Taylor diagram
   #taylor.diagram(wbss,common.basis=FALSE)
