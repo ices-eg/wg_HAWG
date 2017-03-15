@@ -37,3 +37,19 @@ retroSelectivity <- function(x,yrs){
       scales=list(alternating=1,y=list(relation="free",rot=0)))
 }
 
+retroParams <- function(x){
+  retroPars     <- lapply(x,params)
+  subretroPars  <- lapply(retroPars,function(y){return(subset(y,name %in% c("logFpar","lowQpow","logSdLogFsta","logSdLogN","logSdLogObs","rec_loga",
+                                                                            "rec_logb","rho","logScale","logScaleSSB","logPowSSB","logSdSSB")))})
+  subretroPars  <- lapply(as.list(1:length(subretroPars)),function(y){return(cbind(year=names(subretroPars)[y],subretroPars[[y]]))})
+  subretroPars  <- lapply(subretroPars,function(y){
+                          lapply(as.list(names(table(ac(y$name)))),
+                                 function(z){tmpy <- subset(y,name==z)
+                                             tmpy$nameOrig <- tmpy$name
+                                             if(nrow(tmpy)>1)
+                                              tmpy$name <- paste(tmpy$name,1:nrow(tmpy))
+                                             return(tmpy)})})
+  subretroPars  <- do.call(rbind,lapply(subretroPars,function(y){do.call(rbind,y)}))
+
+  print(xyplot(exp(value) ~ year | as.factor(nameOrig),data=subretroPars,groups=name,scale=list(y="free"),type="b",pch=19,xlab="Assessment year",ylab="Parameter value"))
+  }
