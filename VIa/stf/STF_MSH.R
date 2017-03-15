@@ -84,7 +84,7 @@ MSH.proj@stock.n
 #Define some constants
 #intermediate year catch (be 2017 in hawg 2017 forecast)
   
-ImY.catch <- 5800 #using 5800t as this has pre-liminarily been agreed at EC December council
+ImY.catch <- 5800 #using 5800t in 2017 as this has pre-liminarily been agreed at EC December council
 
 #advice year catch (year after assessmnet)
 AdY.catch <- 5800   #another rollover
@@ -95,24 +95,24 @@ numFmgt <- 0.05
 
 #Setup options
 options.l <- list(#Zero catch
-  "Catch(2017) = Zero"=
+  "Catch(2018) = Zero"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                           quantity="catch",
                           val=c(ImY.catch,0,0))),
   #Intermediate year catch equal TAC, followed by -15% Catch reduction
-  "Catch(2017) = 2016 TAC -15%"=
+  "Catch(2018) = 2017 Monitoring TAC -15%"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                           quantity=c("catch","catch","f"),
                           rel=c(NA,NA,AdY),
                           val=c(ImY.catch,AdY.catch*0.85,NA))),
   #Intermediate year catch equal TAC, followed by +0% Catch increase
-  "Catch(2017) = 2016 TAC"=
+  "Catch(2018) = 2017 TAC"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                           quantity=c("catch","catch","f"),
                           rel=c(NA,NA,AdY),
                           val=c(ImY.catch,AdY.catch*1,NA))),
   #Intermediate year catch equal TAC, followed by +15% Catch increase
-  "Catch(2017) = 2016 TAC +15%"=
+  "Catch(2018) = 2017 TAC +15%"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                           quantity=c("catch","catch","f"),
                           rel=c(NA,NA,AdY),
