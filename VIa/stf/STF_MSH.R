@@ -3,7 +3,8 @@
 #using R 3.1.3
 #Adapted by M.O'Malley from CSH code (Andy Campbell) 
 # 2016
-
+# Adapted at HAWG 2017 by Susan Lusseau
+#
 #install.packages("FLCore", repos="http://flr-project.org/R")
 
 ### ======================================================================================================
@@ -20,114 +21,26 @@ library(FLash)
 library(MASS)#7.2-47
 library(minpack.lm)
 
-
-
 ### ======================================================================================================
 
 
-#- Perhaps, set a path here
-
-#path<-"C:/ICES/HAWG2016/Forecast/2016"
-path<-"G:/HAWG_2016/VIaVIIbc_2016"
-
+#- Set a path here
+path<-"C:/Users/Lusseaus/Documents/ICES Working Groups/HAWG/Assesments/hawg/wg_HAWG/VIa/"
 try(setwd(path))
 
-#try(setwd("./stf/"))
-
-#path  <- getwd()
 
 ### ======================================================================================================
-data.source  <-  file.path("stf")      #Data source
-output.dir   <-  file.path("stf")       #Output directory
+data.source  <-  file.path(".","stf")      #Data source
+output.dir   <-  file.path(".","stf")       #Output directory
 output.base  <-  file.path(output.dir)
 ### ======================================================================================================
-
 ### Read in the data
 ### ======================================================================================================
 
-MSH<- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
 
-#Set no discards
-MSH@catch.n                <- MSH@landings.n
-MSH@catch                  <- MSH@landings
-MSH@catch.wt               <- MSH@landings.wt
-units(MSH)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
+####------Here load in assessmnet .Rdata instead of running through all the rest
 
-
-
-#Set fbar
-range(MSH)[c("minfbar","maxfbar")] <- c(3,6)
-
-#Set plus group
-MSH<- setPlusGroup(MSH,MSH@range["max"])
-
-#Set stock object name - this is propagated through into the figure titles
-MSH@name    <- "VIa (combined) and VIIbc Herring"
-
-### ======================================================================================================
-### Read in the index
-### ======================================================================================================
-
-#Load and modify all index data
-MSH.tun   <- readFLIndices(file.path(data.source, "fleet.txt"))
-
-#Set names, and parameters etc
-names(MSH.tun) <-  gsub(":.*$","",names(MSH.tun))
-MSH.tun   <- lapply(MSH.tun,function(idx) {
-                idx@type 	     <- 	"number"
-          		idx@index.var[]  <-	1
-                idx@range["plusgroup"] <- NA
-          		return(idx)})
-
-
-names(MSH.tun)[1] <- c("Malin Shelf Herring Acoustic")
-
-MSH.tun   <- lapply(MSH.tun,function(idx) {
-                idx@type 	     <- 	"number"
-          		idx@index.var[]  <-	1
-                idx@range["plusgroup"] <- NA
-          		return(idx)})
-
-
-names(MSH.tun)[2] <- c("WoS Herring Acoustic")
-
-MSH.tun   <- lapply(MSH.tun,function(idx) {
-                idx@type 	     <- 	"number"
-          		idx@index.var[]  <-	1
-                idx@range["plusgroup"] <- NA
-          		return(idx)})
-
-
-names(MSH.tun)[3] <- c("IBTS Q1")
-
-MSH.tun   <- lapply(MSH.tun,function(idx) {
-                idx@type 	     <- 	"number"
-          		idx@index.var[]  <-	1
-                idx@range["plusgroup"] <- NA
-          		return(idx)})
-
-
-names(MSH.tun)[4] <- c("IBTS Q4")
-
- 
-#===============================================================================
-
-###- Load the assessment output objects from the ASAP assessment
-### Add to the MSH FLStock object
-
-
-MSH@stock.n<-readVPAFile(file.path(data.source, "N.txt"))
-
-MSH@harvest<-readVPAFile(file.path(data.source, "F.txt"))
-units(MSH@harvest)<-'f'
-
-
-#MSH
-
-#stk <- MSH
-summary(MSH)
- 
-
+load("C:/Users/Lusseaus/Documents/ICES Working Groups/HAWG/Assesments/hawg/wg_HAWG/VIa/results/2017_VIaHerring.Rdata")
 
 stk<-MSH
 
@@ -136,27 +49,26 @@ stk<-MSH
 ### ======================================================================================================
 
 ## three year forecast
-#Define years
+## Define years
 
 library(FLAssess)
 #Define years
-TaY <- dims(MSH)$maxyear   #Terminal assessment year
-ImY <- TaY+1                #Intermediate Year
-AdY <- TaY+2                #Advice year
+TaY <- dims(MSH)$maxyear   #Terminal assessment year (2016 in 2017 HAWG)
+ImY <- TaY+1                #Intermediate Year (TAC year - 2017 in 2017 HAWG)
+AdY <- TaY+2                #Advice year (Advice year - 2018 in 2017 HAWG)
 CtY <- TaY+3                #Continuation year - not of major concern but used in calculations in places
 tbl.yrs     <- as.character(c(ImY,AdY,CtY))   #Years to report in the output table
 
-# In CSH - use breakpoint from julios stock recruitment
 
-#In MSH - use geometric mean of last 4 years (2012 - 2015) from final SAM.out file from assessment
-#2016 update
-rec <- 908682
+#In MSH - use geometric mean of last 5 years (2012 - 2016) from final SAM.out file from assessment
+
+rec <- 733366 #update each year or code to take rec 2012 onwards.
 
 ## use geomean stock recruit
 MSH.srr <- list(model="geomean",params=FLPar(rec))
 
 
-#Expand stock object
+#Expand stock object (adds three years for the forecast to the stock object)
 
 MSH.proj <- stf(MSH,nyears=3,wts.nyears=3,arith.mean=TRUE,na.rm=TRUE)
 
@@ -170,13 +82,12 @@ MSH.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- rec
 MSH.proj@stock.n
 
 #Define some constants
-#intermediate year catch
-#ImY.catch <-   
-ImY.catch <- 8509
+#intermediate year catch (be 2017 in hawg 2017 forecast)
+  
+ImY.catch <- 5800 #using 5800t as this has pre-liminarily been agreed at EC December council
 
-#advice year catch
-#AdY.catch <-  #2015 TAC
-AdY.catch <- 8509
+#advice year catch (year after assessmnet)
+AdY.catch <- 5800   #another rollover
 
 numFmsy <- 0.16
 numFmgt <- 0.05
@@ -230,13 +141,13 @@ options.l <- list(#Zero catch
                           quantity=c("catch","f","f"),
                           rel=c(NA,NA,AdY),
                           val=c(ImY.catch,numFmgt,NA))),
-  #need to run forecast first to get predicted ssb(2016)
-  #Then, Fbar(2017)estimated F from predicted ssb(2016)/410000(Blim) x Flim(0.16) of MSH stock reference points  
-  "Fbar(2017) = 0.082"=
+  #need to run forecast first to get predicted ssb(2017)
+  #Then, Fbar(2017)estimated F from predicted ssb(2017)/410000(Blim) x Flim(0.16) of MSH stock reference points  
+  "Fbar(2017) = 0.052"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                          quantity=c("catch","f","f"),
                           rel=c(NA,NA,AdY),
-                          val=c(ImY.catch,0.082,NA)))
+                          val=c(ImY.catch,0.05164488,NA)))
 ) #End options list
 
 
@@ -251,8 +162,8 @@ mult.opts.l <- lapply(as.list(fmult.targs),function(fmult) {
 names(mult.opts.l) <- sprintf("Fmult(2017) = %4.3f",fmult.targs)
 
 #Calculate options
-MSH.options   <- lapply(options.l,function(ctrl) {fwd(MSH.proj,ctrl=ctrl,sr=MSH.srr)})
-MSH.mult.opts <- lapply(mult.opts.l,function(ctrl) {fwd(MSH.proj,ctrl=ctrl,sr=MSH.srr)})
+MSH.options   <- lapply(options.l,function(ctrl) {fwd(MSH.proj,ctrl=ctrl,sr=MSH.srr)}) # runs the forecast
+MSH.mult.opts <- lapply(mult.opts.l,function(ctrl) {fwd(MSH.proj,ctrl=ctrl,sr=MSH.srr)}) # run 
 
 input.tbl.file <-file.path(output.dir,"options - input.csv",sep=".")
 write.table(NULL,file=input.tbl.file,col.names=FALSE,row.names=FALSE)
@@ -317,5 +228,7 @@ opt.sum.tbl(stcks=MSH.options,fname=file.path(output.base,"options - summary.csv
 opt.sum.tbl(stcks=MSH.mult.opts,fname=file.path(output.base,"multi-options - summary.csv",sep="."))
 
 
+#How to call ssb for one of the options
+ssb(MSH.options[[1]])
 
 
