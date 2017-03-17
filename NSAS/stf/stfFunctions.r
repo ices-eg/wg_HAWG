@@ -274,6 +274,7 @@ find.FABC_F <- function(mult,Fs,Ns,Wts,CWts,fspwns,mspwns,mats,Ms,f01,f26,Tcs,mi
 #-------------------------------------------------------------------------------
 
 find.FABCD <- function(mult,Fs,Ns,Wts,CWts,fspwns,mspwns,mats,Ms,f01,f26,Tcs,Tcsorig,mixprop,WBSScatch){
+  print(mult)
   invokeFIAV <- FALSE
   invokeCatchIAV <- FALSE
   Fs                <- sweep(Fs,2,mult,"*")
@@ -297,7 +298,7 @@ find.FABCD <- function(mult,Fs,Ns,Wts,CWts,fspwns,mspwns,mats,Ms,f01,f26,Tcs,Tcs
     resB <- 0.05
   }
 
-
+  cat("Set initial targets\n")
   if((catchABCD[1] - Tcsorig[[1]])/Tcsorig[[1]] < -0.15){
     targetA <- Tcsorig[[1]] * 0.85
     invokeCatchIAV <- TRUE
@@ -306,9 +307,9 @@ find.FABCD <- function(mult,Fs,Ns,Wts,CWts,fspwns,mspwns,mats,Ms,f01,f26,Tcs,Tcs
     targetA <- Tcsorig[[1]] * 1.15
     invokeCatchIAV <- TRUE
   }
-
+  cat("Set TAC IAV targets\n")
   if(invokeCatchIAV){
-    res       <- optim(par=rep(1,length(mult)),fn=rescaleFF,Fs=Fs,Ns=Ns,Wts=Wts,CWts=CWts,Ms=Ms,catches=c(targetA,catchABCD[2:4]))
+    res       <- optim(par=mult,fn=rescaleFF,Fs=Fs,Ns=Ns,Wts=Wts,CWts=CWts,Ms=Ms,catches=c(targetA,catchABCD[2:4]),lower=rep(1e-4,length(mult)),method="L-BFGS-B")
     Fsnew     <- sweep(Fs,2,res$par,"*")
     bigFnew   <- rowSums(Fsnew)
     ssbnew    <- sum(Ns*Wts*exp(-bigFnew*fspwns-Ms*mspwns)*mats)
@@ -326,6 +327,8 @@ find.FABCD <- function(mult,Fs,Ns,Wts,CWts,fspwns,mspwns,mats,Ms,f01,f26,Tcs,Tcs
       }
     }
   }
+  cat("Set F IAV targets\n")
+
   fbarA             <- mean(bigF[f26])
   fbarB             <- mean(bigF[f01])
   meanFsA           <- mean(fbarA,resA)
@@ -333,12 +336,13 @@ find.FABCD <- function(mult,Fs,Ns,Wts,CWts,fspwns,mspwns,mats,Ms,f01,f26,Tcs,Tcs
   meanCC            <- mean(catchABCD[3],CtargetC)
   meanCD            <- mean(catchABCD[4],c(Tcs[,2,4]))
   if(invokeFIAV == FALSE & invokeCatchIAV == FALSE)
-    ret               <- sqrt(c((fbarA - resA)/meanFsA,(fbarB-resB)/meanFsB,(catchABCD[3] - CtargetC)/meanCC,(catchABCD[4] - c(Tcs[,2,4]))/meanCD)^2)
+    ret               <- sqrt(c((fbarA - resA)/resA,(fbarB-resB)/resB,(catchABCD[3] - CtargetC)/CtargetC,(catchABCD[4] - c(Tcs[,2,4]))/c(Tcs[,2,4]))^2)
   if(invokeFIAV == FALSE & invokeCatchIAV == TRUE)
-    ret               <- sqrt(c((catchABCD[1] - targetA)/mean(catchABCD[1],targetA),(fbarB-resB)/meanFsB,(catchABCD[3] - CtargetC)/meanCC,(catchABCD[4] - c(Tcs[,2,4]))/meanCD)^2)
+    ret               <- sqrt(c((catchABCD[1] - targetA)/targetA,(fbarB-resB)/resB,(catchABCD[3] - CtargetC)/CtargetC,(catchABCD[4] - c(Tcs[,2,4]))/Tcs[,2,4])^2)
   if(invokeFIAV == TRUE)
-    ret               <- sqrt(c((fbarA - targetA)/meanFsA,(fbarB-resB)/meanFsB,(catchABCD[3] - CtargetC)/meanCC,(catchABCD[4] - c(Tcs[,2,4]))/meanCD)^2)
-
+    ret               <- sqrt(c((fbarA - targetA)/targetA,(fbarB-resB)/resB,(catchABCD[3] - CtargetC)/CtargetC,(catchABCD[4] - c(Tcs[,2,4]))/Tcs[,2,4])^2)
+  cat(c(fbarA,fbarB,catchABCD,ssb,resA,resB,CtargetC))
+  cat("\n")
   return(sum(ret))}
 
 
