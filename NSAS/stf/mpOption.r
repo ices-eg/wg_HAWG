@@ -8,10 +8,10 @@
 #-------------------------------------------------------------------------------
 
 #- Load the output of the STF of NSAS
-load(file="ShortTermForecast Workspace.RData")
+#load(file="ShortTermForecast Workspace.RData")
 
 #- Source additional functions
-source(file=file.path("./stfFunctions.r"))
+#source(file=file.path("./stfFunctions.r"))
 
 #- Possibility to extend to stochastic not implemented
 iTer                        <- 1
@@ -119,9 +119,9 @@ for(i in 1:20){
                                                                         apply(unitSums(stf@harvest[f01,FcY,"B",,,outidx[bidx]]),2:6,mean,na.rm=T),"*")
   }
   #- Now find the Fs and catches that correspond to the new Fs
-  stf@catch[,FcY,"B"]       <- quantSums(stf@catch.wt[,FcY,"B",,,outidx] * stf@stock.n[,FcY,"B",,,outidx] *
-                                        (1-exp(-unitSums(stf@harvest[,FcY,,,,outidx])-stf@m[,FcY,"B",,,outidx])) *
-                                        (stf@harvest[,FcY,"B",,,outidx]/(unitSums(stf@harvest[,FcY,,,,outidx])+stf@m[,FcY,"B",,,outidx])))
+  stf@catch[,FcY,"B"]       <- quantSums(stf@catch.wt[,FcY,"B"] * stf@stock.n[,FcY,"B"] *
+                                        (1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,"B"])) *
+                                        (stf@harvest[,FcY,"B"]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,"B"])))
 
   stf@catch[,FcY,"C"]       <- 0.057*unitSums(stf@catch[,FcY,c("A")])*mixprop + TACS[,FcY,"C"]
 
@@ -142,25 +142,25 @@ for(i in 1:20){
                                      lower=rep(0.01,4),method="L-BFGS-B",control=list(maxit=100))$par
 
    stf@harvest[,FcY]        <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
-   stf@catch[,FcY,"A"]      <- quantSums(stf@catch.wt[,FcY,"A",,,outidx] * stf@stock.n[,FcY,"A",,,outidx] *
-                                        (1-exp(-unitSums(stf@harvest[,FcY,,,,outidx])-stf@m[,FcY,"A",,,outidx])) *
-                                        (stf@harvest[,FcY,"A",,,outidx]/(unitSums(stf@harvest[,FcY,,,,outidx])+stf@m[,FcY,"A",,,outidx])))
-   stf@catch[,FcY,"B"]      <- quantSums(stf@catch.wt[,FcY,"B",,,outidx] * stf@stock.n[,FcY,"B",,,outidx] *
-                                        (1-exp(-unitSums(stf@harvest[,FcY,,,,outidx])-stf@m[,FcY,"B",,,outidx])) *
-                                        (stf@harvest[,FcY,"B",,,outidx]/(unitSums(stf@harvest[,FcY,,,,outidx])+stf@m[,FcY,"B",,,outidx])))
+   stf@catch[,FcY,"A"]      <- quantSums(stf@catch.wt[,FcY,"A"] * stf@stock.n[,FcY,"A"] *
+                                        (1-exp(-unitSums(stf@harvest[,FcY,])-stf@m[,FcY,"A"])) *
+                                        (stf@harvest[,FcY,"A"]/(unitSums(stf@harvest[,FcY,])+stf@m[,FcY,"A"])))
+   stf@catch[,FcY,"B"]      <- quantSums(stf@catch.wt[,FcY,"B"] * stf@stock.n[,FcY,"B"] *
+                                        (1-exp(-unitSums(stf@harvest[,FcY,])-stf@m[,FcY,"B"])) *
+                                        (stf@harvest[,FcY,"B"]/(unitSums(stf@harvest[,FcY,])+stf@m[,FcY,"B"])))
    stf@catch[,FcY,"C"]      <- (0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB) * mixprop
 
    print(c(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T),apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T),stf@catch[,FcY,],(0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB )* mixprop - stf@catch[,FcY,"C"]))
    stf@harvest[,FcY]        <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
 }
-save.image("STFbeforeTransfers.RData")
-load("STFbeforeTransfers.RData")
+save.image(paste0(scen,"_STFbeforeTransfers.RData"))
+load(paste0(scen,"_STFbeforeTransfers.RData"))
 
 # calculate the C fleet TAC
 TAC.C                       <- 0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB  #combined C-fleet TAC
 
 # 0% option
-TAC.C10                     <- TAC.C * 0   #  0% thereof, add to A-fleet as the minimum transfer amount
+TAC.C10                     <- TAC.C * transfer   #  0% thereof, add to A-fleet as the minimum transfer amount
 
 # 50% option
 # TAC.C10 <- TAC.C * 0.5 # 50% thereof, add to A-fleet as the minimum transfer amount
@@ -178,13 +178,14 @@ stf@harvest[ac(2:6),,"A"] #new partial F for the A-fleet
 
 apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) # new F-bar (F2-6) of all fleets for NSAS
 
+
 ##fill stf.table
-stf.table["mp","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
-stf.table["mp",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
-stf.table["mp","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
-stf.table["mp","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
-stf.table["mp",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
-stf.table["mp",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
+stf.table[scen,"Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
+stf.table[scen,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
+stf.table[scen,"Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
+stf.table[scen,"Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
+stf.table[scen,grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
+stf.table[scen,grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
                                                                                exp(-unitSums(stf@harvest[,FcY])*
                                                                                      stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
                                                                                stf@mat[,FcY,1]))
