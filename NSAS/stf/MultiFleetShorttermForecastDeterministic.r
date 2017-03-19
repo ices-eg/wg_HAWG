@@ -86,7 +86,7 @@ TAC3aD      <- 6659    # HER/03A-BC
 Csplit      <- 0.33    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
 Dsplit      <- 0.70    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
 Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016
-WBSScatch   <- 37161   # Recommended MSY catch for WBSS herring; from Valerio
+WBSScatch   <- 33351   # Recommended MSY catch for WBSS herring; from Valerio
 transfer    <- 0.5     # Assumed transfer of C-fleet TAC into A-fleet
 
 Buptake     <- 1       # Uptake of Bfleet TAC in the previous year
@@ -258,15 +258,15 @@ if("mp" %in% stf.options){
 #    stf@landings[,FcY,i]    <- computeLandings(stf[,FcY,i])
 #  }
 #
-#  #  Update to continuation year
-#  stf@harvest[,CtY]                                           <- stf@harvest[,FcY]
-#  for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
-#  for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
-#  for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
+  #  Update to continuation year
+  stf@harvest[,CtY]                                           <- stf@harvest[,FcY]
+  for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
+  for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
+  for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
   ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,CtY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
 
   ##fill stf.table
-  stf.table["mp","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
+#  stf.table["mp","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
 #  stf.table["mp",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
 #  stf.table["mp","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
 #  stf.table["mp","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
@@ -733,14 +733,15 @@ if("MSYBtrigger" %in% stf.options){
 
 
 #- Writing the STF to file
-#for(i in c("catch","catch.n","stock.n","harvest")){
-#  slot(stf,i)[,FcY] <- ""
-#  slot(stf,i)[,CtY] <- ""
-#}
-#
-#options("width"=80,"scipen"=1000)
-#stf.out.file <- stf.out(stf,RECS,format="TABLE 2.7.%i NORTH SEA HERRING.")
-#write(stf.out.file,file=paste("./","stf.out",sep="."))
+for(i in c("catch","catch.n","stock.n","harvest")){
+  slot(stf,i)[,FcY] <- ""
+  slot(stf,i)[,CtY] <- ""
+}
+
+source("./writeSTF.out.r")
+options("width"=80,"scipen"=1000)
+stf.out.file <- stf.out(stf,RECS,format="TABLE 2.7.%i NORTH SEA HERRING.")
+write(stf.out.file,file=paste("./","stf.out",sep="."))
 
 #- Write the stf.table to file
 write.csv(stf.table[,,2],
