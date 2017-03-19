@@ -1,12 +1,13 @@
 ################################################################################
 # Code to do the short term forecast for VIa Herring
-#using R 3.1.3
-#Adapted by M.O'Malley from CSH code (Andy Campbell) 
-# 2016
-# Adapted at HAWG 2017 by Susan Lusseau
+# using R 3.1.3
+# 
+# Last updated 18/Mar/2017 8:02
 #
-#install.packages("FLCore", repos="http://flr-project.org/R")
-
+# To DO:
+#
+#
+#
 ### ======================================================================================================
 ### Initialise system, including convenience functions and title display
 ### ======================================================================================================
