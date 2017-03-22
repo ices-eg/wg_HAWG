@@ -86,7 +86,7 @@ TAC3aD      <- 6659    # HER/03A-BC
 Csplit      <- 0.33    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
 Dsplit      <- 0.70    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
 Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016
-WBSScatch   <- 33351   # Recommended MSY catch for WBSS herring; from Valerio
+WBSScatch   <- 34618   # Recommended MSY catch for WBSS herring; from Valerio
 transfer    <- 0.5     # Assumed transfer of C-fleet TAC into A-fleet
 
 Buptake     <- 1       # Uptake of Bfleet TAC in the previous year
@@ -285,6 +285,13 @@ if("mp" %in% stf.options){
                    BcatchMP ,
                    BcatchMP); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
 
+  cat("WBSS in A-fleet",stf.table["mp","Catch A","50%"] * WBSSsplit,"\n")
+  cat("WBSS in C-fleet",(TAC.C - TAC.C10) * (1-Csplit),"\n")
+  cat("WBSS in D-fleet",TAC3aD * (1-Dsplit),"\n")
+  cat("NSAS in A-fleet",stf.table["mp","Catch A","50%"] * (1-WBSSsplit),"\n")
+  cat("NSAS in C-fleet",(TAC.C - TAC.C10) * (Csplit),"\n")
+  cat("NSAS in D-fleet",TAC3aD * (Dsplit),"\n")
+
 }
 
 if("mp transfer" %in% stf.options){
@@ -356,7 +363,12 @@ if("mp transfer" %in% stf.options){
   cat("WBSS in A-fleet",stf.table["mp transfer","Catch A","50%"] * WBSSsplit,"\n")
   cat("WBSS in C-fleet",(TAC.C - TAC.C10) * (1-Csplit),"\n")
   cat("WBSS in D-fleet",TAC3aD * (1-Dsplit),"\n")
+  cat("NSAS in A-fleet",stf.table["mp transfer","Catch A","50%"] * (1-WBSSsplit),"\n")
+  cat("NSAS in C-fleet",(TAC.C - TAC.C10) * (Csplit),"\n")
+  cat("NSAS in D-fleet",TAC3aD * (Dsplit),"\n")
+
 }
+
 
 
 ### No fishing ### ----------------------------------------------------------
