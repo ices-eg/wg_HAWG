@@ -1,12 +1,13 @@
 ################################################################################
 # Code to do the short term forecast for VIa Herring
-#using R 3.1.3
-#Adapted by M.O'Malley from CSH code (Andy Campbell) 
-# 2016
-# Adapted at HAWG 2017 by Susan Lusseau
+# using R 3.1.3
+# 
+# Last updated 18/Mar/2017 8:02
 #
-#install.packages("FLCore", repos="http://flr-project.org/R")
-
+# To DO:
+#
+#
+#
 ### ======================================================================================================
 ### Initialise system, including convenience functions and title display
 ### ======================================================================================================
@@ -91,7 +92,9 @@ AdY.catch <- 5800   #another rollover
 
 numFmsy <- 0.16
 numFmgt <- 0.05
-
+numFpa <- 0.18
+numFlim<- 0.30
+numFImY<-0.041209155
 
 #Setup options
 options.l <- list(#Zero catch
@@ -118,32 +121,50 @@ options.l <- list(#Zero catch
                           rel=c(NA,NA,AdY),
                           val=c(ImY.catch,AdY.catch*1.15,NA))),
   #Intermediate year catch equal TAC, followed by +30% Catch increase
-  "Catch(2017) = 2016 TAC +30%"=
+  "Catch(2018) = 2017 TAC +30%"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                           quantity=c("catch","catch","f"),
                           rel=c(NA,NA,AdY),
                           val=c(ImY.catch,AdY.catch*1.30,NA))),
   #Intermediate year catch equal TAC, followed by -30% Catch reduction
-  "Catch(2017) = 2016 TAC -30%"=
+  "Catch(2018) = 2017 TAC -30%"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                           quantity=c("catch","catch","f"),
                           rel=c(NA,NA,AdY),
                           val=c(ImY.catch,AdY.catch*0.70,NA))),
+  #Intermediate year catch equal TAC, followed by Fbar=Fpa(0.18)
+  "Fbar(2018) = Fpa"=
+    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                          quantity=c("catch","f","f"),
+                          rel=c(NA,NA,AdY),
+                          val=c(ImY.catch,numFpa,NA))),
   #Intermediate year catch equal TAC, followed Fbar = Fmsy (0.26)
-  "Fbar(2017) = Fmsy"=
+  "Fbar(2018) = Fmsy"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                           quantity=c("catch","f","f"),
                           rel=c(NA,NA,AdY),
                           val=c(ImY.catch,numFmsy,NA))),
   #Intermediate year catch equal TAC, followed Fbar = Fmgt (0.23)
-  "Fbar(2017) = Fmgt"=
+  "Fbar(2018) = Fmgt"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                           quantity=c("catch","f","f"),
                           rel=c(NA,NA,AdY),
                           val=c(ImY.catch,numFmgt,NA))),
+  #Intermediate year catch equal TAC, followed Fbar = Flim (0.30)
+  "Fbar(2018) = Flim"=
+    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                          quantity=c("catch","f","f"),
+                          rel=c(NA,NA,AdY),
+                          val=c(ImY.catch,numFlim,NA))),
+  #Intermediate year catch equal TAC, followed Fbar = F
+  "Fbar(2018) = F (2017)"=
+    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                          quantity=c("catch","f","f"),
+                          rel=c(NA,NA,AdY),
+                          val=c(ImY.catch,numFImY,NA))),
   #need to run forecast first to get predicted ssb(2017)
-  #Then, Fbar(2017)estimated F from predicted ssb(2017)/410000(Blim) x Flim(0.16) of MSH stock reference points  
-  "Fbar(2017) = 0.052"=
+  #Then, Fbar(2018)estimated F from predicted ssb(2017)/410000(Blim) x Flim(0.16) of MSH stock reference points  
+  "Fbar(2018) = 0.052"=
     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                          quantity=c("catch","f","f"),
                           rel=c(NA,NA,AdY),
