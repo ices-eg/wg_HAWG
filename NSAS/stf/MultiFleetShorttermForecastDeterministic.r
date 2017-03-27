@@ -215,6 +215,9 @@ stf.table[1,grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quan
                                                                  stf@mat[,ImY,1]))
 
 referencePoints$Fsq <- stf.table["intermediate year","Fbar 2-6","50%"]
+
+#-
+
 #===============================================================================
 # Forecast year
 #===============================================================================
