@@ -1,6 +1,0 @@
-Celtic Sea Total population, catch constraint
-3
-2 5
-541287  541287  541287
-1 
-17753
