@@ -1,0 +1,60 @@
+---
+title: "WKHERRING - read in data and rename"
+author: "Kirsten Birch Håkansson"
+date: "28 September 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+dir_data<-"X:/Assessement_discard_and_the_like/WG/WKHERRING/2017/rdb_data/"
+```
+
+#Read in data and apply international r-names
+```{r}
+cl<-read.csv(paste(dir_data, "CL Landing Herring SD2025 DK SE PL DE.csv", sep = ""), header=T, stringsAsFactors=FALSE, col.names=c("clId","landCtry","vslFlgCtry","year","quarter","month","area","rect","sppName","sppNameEng","sppCode","landCat","commCatScl","commCat",
+           "foCatNat","foCatEu5","foCatEu6","harbour","vslLenCat","unallocCatchWt","misRepCatchWt","landWt","landMult","landValue","stock"))
+head(cl)
+str(cl)
+write.table(cl,paste(dir_data,"cl_her.csv", sep=""), row.names=F, sep=",")
+
+
+tr<-read.csv(paste(dir_data, "TR herring SD2025 DK SE PL DE.csv", sep = ""), header=T, stringsAsFactors=FALSE, col.names=c("trId","sampType","landCtry","vslFlgCtry","year","proj","trpCode","vslLen","vslPwr","vslSize","vslType",
+            "harbour","foNum","daysAtSea","sampCtry","sampMeth"))
+head(tr)
+str(tr)
+write.table(tr,paste(dir_data,"tr_her.csv", sep=""), row.names=F, sep=",")
+
+hh<-read.csv(paste(dir_data, "HH herring SD2025 DK SE PL DE.csv", sep = ""), header=T, stringsAsFactors=FALSE,
+             col.names=c("hhId","trId","sampType","vslFlgCtry","landCtry","year","proj","trpCode","staNum","foVal","aggLev","catReg","sppReg","date",
+            "time","foDur","latIni","lonIni","latFin","lonFin","area","rect","subRect","foDep","waterDep","foCatNat",
+            "foCatEu5","foCatEu6","gear","meshSize","selDev","meshSizeSelDev"))
+head(hh)
+str(hh)
+write.table(hh,paste(dir_data,"hh_her.csv", sep=""), row.names=F, sep=",")
+
+
+sl<-read.csv(paste(dir_data, "SL herring SD2025 DK SE PL DE.csv", sep = ""), header=T, stringsAsFactors=FALSE,
+             col.names=c("slId","hhId","sampType","vslFlgCtry","landCtry","year","proj","trpCode","staNum","sppName","stock","catchCat","landCat",
+            "commCatScl","commCat","subSampCat","sex","wt","subSampWt","lenCode","sampNo","subSampNo"))
+head(sl)
+str(sl)
+write.table(sl,paste(dir_data,"sl_her.csv", sep=""), row.names=F, sep=",")
+
+
+hl<-read.csv(paste(dir_data, "HL herring SD2025 DK SE PL DE.csv", sep = ""), header=T, stringsAsFactors=FALSE,
+             col.names=c("hlId","slId","sampType","vslFlgCtry","landCtry","year","proj","trpCode","staNum","sppName","stock","sex","catchCat","landCat",
+            "commCatScl","commCat","subSampCat","lenCls","lenCode","lenNum","sampLenNum"))
+head(hl)
+str(hl)
+write.table(hl,paste(dir_data,"hl_her.csv", sep=""), row.names=F, sep=",")
+
+
+ca<-read.csv(paste(dir_data, "CA herring SD2025 DK SE PL DE.csv", sep = ""), header=T, stringsAsFactors=FALSE,
+             col.names=c("caId","trId","sampType", "landCtry", "vslFlgCtry", "year", "quarter", "month", "proj", "trpCode", "staNum", "sppName", "sex", "catchCat", 
+                         "landCat", "commCatScl", "commCat", "stock","area", "rect", "lenCode","lenCls", "age", "plusGrp", "otoWt", "otoSide", "indWt", "matScale",
+                         "matStage", "fishId"))
+head(ca)
+str(ca)
+write.table(ca,paste(dir_data,"ca_her.csv", sep=""), row.names=F, sep=",")
+```
+
