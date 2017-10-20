@@ -167,7 +167,7 @@ colnames(cnnew)<-c("wr0","wr1","wr2","wr3","wr4","wr5","wr6","wr7","wr8")
 cnnew1<-cnnew
 cnnew1$year<-c(2000:2016)
 
-#Sum of canum from input files with fleet 
+#Sum of canum from input files with fleet - these figures should equal the figures in the spreadsheet
 cnnew1
 
 cncom<-cnorg-cnnew
