@@ -1,0 +1,183 @@
+---
+title: "WKHERRING - Multi fleet - split input data"
+author: "Kirsten Birch Håkansson"
+date: \today
+output: pdf_document
+---
+
+Split CANUM, WECA - maybe CATON, but is should be CANUM * WECA
+
+Combined fleet A with fleet C - do we want to do that? No - keep them seperate (Henrik) - done
+
+Input:
+
+WBSSH & NSASH_Input_14.06.2017.xlsx - file from Tomas\
+Input files from assessment 2017 - from Valerio
+
+
+```{r setup, include=FALSE}
+library(readxl)
+library(sqldf)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+options(scripen=9999, digits=4)
+
+knitr::opts_chunk$set(fig.width=8, fig.height=8)
+
+dir_in<-"X:/Assessement_discard_and_the_like/WG/WKHERRING/2017/mulitFleet/input/"
+dir_out<-"X:/Assessement_discard_and_the_like/WG/WKHERRING/2017/mulitFleet/output/"
+```
+
+#What do we have?
+Overviews based on the spreadsheet
+```{r, echo=F, warning=FALSE, message=F}
+
+#Read in data from spreadsheet and tidy  
+canum<-read_excel(paste(dir_in,"WBSSH & NSASH_Input_14.06.2017.xlsx", sep=""), sheet=1)  
+canum<-canum[,c(1:13)]
+colnames(canum)<-c("year","stock","area","fleet","0","1","2","3","4","5","6","7","8")
+canum1<-subset(canum, stock=="WBSS" & area!="TOTAL")
+canumt<-melt(canum1, id=c("year","stock","area","fleet"))
+colnames(canumt)<-c("year","stock","area","fleet","wr","number_mil")
+canumt[is.na(canumt)] <- 0
+
+weca<-read_excel(paste(dir_in,"WBSSH & NSASH_Input_14.06.2017.xlsx", sep=""), sheet=2) 
+weca<-weca[,c(1:13)]
+colnames(weca)<-c("year","stock","area","fleet","0","1","2","3","4","5","6","7","8")
+weca1<-subset(weca, stock=="WBSS" & area!="TOTAL")
+wecat<-melt(weca1, id=c("year","stock","area","fleet"))
+colnames(wecat)<-c("year","stock","area","fleet","wr","mw_g")
+wecat[is.na(wecat)] <- 0
+
+caton<-merge(canumt,wecat)
+caton$t_1000<-caton$number*caton$mw
+
+caton_test<-summarise(group_by(caton, year, stock,area, fleet), t_1000=sum(t_1000))
+
+```
+
+\newpage
+
+```{r}
+
+canump<-summarise(group_by(canumt, year, stock, area), number_mil=sum(number_mil))
+canump[canump==0] <- NA
+ggplot(canump, aes(area, year )) +
+  geom_tile(aes(fill = number_mil), color="white") +
+  scale_fill_gradient(na.value="white", low="grey", high="black") +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"))
+
+canump1<-summarise(group_by(canumt, year, stock, fleet), number_mil=sum(number_mil))
+canump1[canump1==0] <- NA
+ggplot(canump1, aes(fleet, year )) +
+  geom_tile(aes(fill = number_mil), color="white") +
+  scale_fill_gradient(na.value="white", low="grey", high="black") +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"))
+
+canump2<-summarise(group_by(canumt, area, stock, fleet), number_mil=sum(number_mil))
+canump2[canump2==0] <- NA
+ggplot(canump2, aes(area, fleet)) +
+  geom_tile(aes(fill = number_mil), color="white") +
+  scale_fill_gradient(na.value="white", low="grey", high="black") +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"))
+
+ggplot(subset(canump1, fleet %in% c("A","C","D","F") & year>1999), aes(year, number_mil, fill=fleet)) +
+  geom_bar(stat = "identity")
+```
+
+#CANUM & WECA
+```{r, message=F}
+#read in original file
+
+cn_txt = readLines(paste(dir_in, "cn.dat", sep=""),-1)
+cn_txt1<-gsub(pattern = "\t", replace = "   ", x = cn_txt)
+
+cw_txt = readLines(paste(dir_in, "cw.dat", sep=""),-1)
+cw_txt1<-gsub(pattern = "\t", replace = "   ", x = cw_txt)
+
+#Create new files
+#canum & weca 1991-1999
+cn_all<-cn_txt1
+cn_all[1]=c("Herring in Sub-division 22-24 and Division IIIa (CANUM: Number in thousands), one fleet. 
+            Figures same as in input file 2017")
+cn_all[3]=c("1991 1999")
+cn_all<-cn_all[1:14]
+write.table(cn_all, paste(dir_out, "cn_all.dat", sep=""), row.names=F, col.names=F, quote=FALSE)
+
+cw_all<-cw_txt1
+cw_all[1]=c("Herring in SD 22-24 and Division IIIa (spring-spawners)(WECA: Mean weight in kg), one fleet. 
+            Figures same as in input file 2017")
+cw_all[3]=c("1991 1999")
+cw_all<-cw_all[1:14]
+write.table(cw_all, paste(dir_out, "cw_all.dat", sep=""), row.names=F, col.names=F, quote=FALSE)
+
+#Per fleet 2000-2016
+caton1<-subset(caton, !(area %in% c("22","23","24")) & !(fleet %in% c("C, D")) & year>1999)
+distinct(caton1, area, fleet)
+
+fak<-as.factor(caton1$fleet)
+
+for(f in levels(fak)){catonf<-caton1[fak==f,]
+cnf<-cn_txt1
+cnf[1]=c(paste("Herring in Sub-division 22-24 and Division IIIa (CANUM: Number in thousands), fleet ", f, sep=""))
+cnf[3]=c("2000 2016")
+cnf<-cnf[1:5]
+
+catonf[is.na(catonf)]<-0
+catonf1<-summarise(group_by(catonf, year, stock, fleet, wr), number_mil=sum(number_mil))
+catonft<-dcast(catonf1, year+stock+fleet~wr, sum)
+catonft<-as.matrix(catonft[c(1:17),c(4:12)])*1000
+catonft<-round(catonft, 0)
+catonft1<-apply(catonft,1,paste, collapse="  ")
+write.table(cnf, paste(dir_out, "cn_",f,".dat", sep=""), row.names=F, col.names=F, quote=FALSE)
+write.table(catonft1, paste(dir_out, "cn_",f,".dat", sep=""), row.names=F, col.names=F, quote=FALSE, append=T)
+
+cwf<-cw_txt1
+cwf[1]=c(paste("Herring in SD 22-24 and Division IIIa (spring-spawners)(WECA: Mean weight in kg), fleet ", f, sep=""))
+cwf[3]=c("2000 2016")
+cwf<-cwf[1:5]
+
+mwf<-summarise(group_by(catonf, year, stock, fleet, wr), mw_g=sum(t_1000)/sum(number_mil))
+mw_ft<-dcast(mwf, year+stock+fleet~wr, sum)
+mw_ft[is.na(mw_ft)]<-0
+mw_ft<-as.matrix(mw_ft[c(1:17),c(4:12)])/1000
+mw_ft<-round(mw_ft, 5)
+mw_ft1<-apply(mw_ft,1,paste, collapse="  ")
+write.table(cwf, paste(dir_out, "cw_",f,".dat", sep=""), row.names=F, col.names=F, quote=FALSE)
+write.table(mw_ft1, paste(dir_out, "cw_",f,".dat", sep=""), row.names=F, col.names=F, quote=FALSE, append=T)
+
+}
+
+```
+
+#Check data
+##Compare with original input files
+###CN
+```{r}
+cnorg<-read.table(paste(dir_in, "cn.dat", sep=""), skip=5)[c(10:26),]
+colnames(cnorg)<-c("wr0","wr1","wr2","wr3","wr4","wr5","wr6","wr7","wr8")
+cna<-read.table(paste(dir_out, "cn_A.dat", sep=""), skip=5)
+cnc<-read.table(paste(dir_out, "cn_C.dat", sep=""), skip=5)
+cnd<-read.table(paste(dir_out, "cn_D.dat", sep=""), skip=5)
+cnf<-read.table(paste(dir_out, "cn_F.dat", sep=""), skip=5)
+
+cnnew<-cna+cnc+cnd+cnf
+colnames(cnnew)<-c("wr0","wr1","wr2","wr3","wr4","wr5","wr6","wr7","wr8")
+cnnew1<-cnnew
+cnnew1$year<-c(2000:2016)
+
+#Sum of canum from input files with fleet 
+cnnew1
+
+cncom<-cnorg-cnnew
+cncom$year<-c(2000:2016)
+#Difference in canum between the original input file and sum of input files per fleet
+cncom
+
+cncom_pct<-round(((cnorg-cnnew)/cnorg)*100, 2)
+cncom_pct$year<-c(2000:2016)
+#Pct. difference in canum between the original input file and sum of input files per fleet
+cncom_pct
+
+```
