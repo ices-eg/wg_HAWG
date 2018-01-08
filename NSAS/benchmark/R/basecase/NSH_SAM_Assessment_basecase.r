@@ -72,15 +72,15 @@ try(setwd(path),silent=TRUE)
 
 #Perform assessment
 NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-name(NSH.sam) <- "HAWG2017"
+name(NSH.sam) <- "basecase"
 
 #Update stock object
 NSH       <- NSH + NSH.sam
 NSH@stock <- computeStock(NSH)
-name(NSH) <- "HAWG2017"
+name(NSH) <- "basecase"
 
 # Save results
-save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,paste(name(NSH),".RData",sep="")))
+save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSH.RData",sep="")))
 
 ### ============================================================================
 ### ============================================================================
@@ -98,84 +98,84 @@ png(file.path(output.dir,paste(name(NSH.sam),"figures - %02d.png")),units = "px"
 ### Input data
 ### ============================================================================
 #
-##figure - TACs and catches
-#TACs          <- read.csv(file.path(".","data","historic data","TAC-historic.csv"))
-#TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("Agreed_A","Bycatch_B")],na.rm=T),each=2))
-#catch         <- as.data.frame(NSH@catch[,ac(TACs$year)]/1e3)
-#plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=1.2,cex.axis=1.1,font=2)
-#rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
-#lines(TAC.plot.dat,lwd=3)
-#legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2),box.lty=0)
-#box()
-#title(main=paste(NSH@name,"Catch and TAC"))
-#
+#figure - TACs and catches
+TACs          <- read.csv(file.path(".","data","historic data","TAC-historic.csv"))
+TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("Agreed_A","Bycatch_B")],na.rm=T),each=2))
+catch         <- as.data.frame(NSH@catch[,ac(TACs$year)]/1e3)
+plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=1.2,cex.axis=1.1,font=2)
+rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
+lines(TAC.plot.dat,lwd=3)
+legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2),box.lty=0)
+box()
+title(main=paste(NSH@name,"Catch and TAC"))
 
-## === Plot the overlay of tuning series ===
-## figure - plot of time series: HERAS, IBTS0, IBTSQ1 by cohort.
-#print(overlayTimeseries(lapply(NSH.tun,index),nyrs=20,ages=0:1))
-## figure - plot of time series: IBTS0, IBTSQ1 by cohort.
-#print(overlayTimeseries(FLQuants(IBTS0=NSH.tun[["IBTS0"]]@index,IBTSQ1=NSH.tun[["IBTS-Q1"]]@index),nyrs=20,ages=0:1))
-#  
-## figure - time series of all data by age
-#print(surveyTimeseries(NSH.tun))
-#
-## figure - internal consistency HERAS, plot survey index versus each other
-#tmp.tun <- NSH.tun; dmns <- dimnames(tmp.tun[["IBTS0"]]@index); tmp.tun[["IBTS0"]] <- FLIndex(FLQuant(NA,dimnames=list(age=1,year=ac(an(dmns$year)+1),unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter)))
-#tmp.tun[["IBTS0"]]@index <- FLQuant(NSH.tun[["IBTS0"]]@index@.Data,dimnames=list(age=1,year=ac(an(dmns$year)+1),unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter))
-##plot(tmp.tun,type="pairwise")
-#plot(NSH.tun[["HERAS"]],type="internal")
-#
-## === Plot the proportion of catch and weight in numbers and weight to see if the catch is representative for the stock build-up ===
-## figure - catch number at age
-#print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.n)),groups="age",main="Proportion of Catch numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-## figure - proportion of stock weight at age
-#print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@stock.wt)),groups="age",main="Proportion of Stock weight at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-## figure - proportion of catch weight at age
-#print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.wt)),groups="age",main="Proportion of Catch weight at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-#
-## figure - acoustic index at age
-#print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[["HERAS"]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-#
-## figure - proportion of natural mortality at age
-#  print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@m)),groups="age",main="Proportion of natural mortality at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-#
-## === Plot the time series of weight in the stock and catch in the stock ===
-## figure - times series for each age, stock
-#timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt")
-## figure - times series for each age, catches
-#timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt")
-## figure - times series for each age, harvest
-#timeseries(window(NSH,2000,range(NSH)["maxyear"]),slot="harvest")
-## figure - times series for each age, maturity
-#timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="mat")
-## figure - times series for each age, mortality
-#timeseries(window(NSH,1947,range(NSH)["maxyear"]),slot="m")
-#
-## === Plot the time series of the surveys ===
-## figure - times series, SCAI
-#timeseries(NSH.tun[["SCAI"]],slot="index")
-## figure - times series, IBTSQ1
-#timeseries(NSH.tun[["IBTS-Q1"]],slot="index")
-## figure - times series, IBTS0
-#timeseries(NSH.tun[["IBTS0"]],slot="index")
-#
-## figure - times series, weight in stock following each cohort
-#west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,range(NSH)["maxyear"])))
-#west.by.cohort      <- subset(west.by.cohort,!is.na(west.by.cohort$data))
-#west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
-#west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
-#                              groups=cohort,
-#                              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
-#                              type="b",
-#                              xlab="Year",ylab="Weight in the stock (kg)",
-#                              main=paste(NSH@name,"Weight in the stock by cohort"),
-#                              par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
-#                              panel=function(...) {
-#                                panel.grid(h=-1,v=-1)
-#                                panel.xyplot(...)
-#                              })
-#print(west.cohort.plot)
-#
+
+# === Plot the overlay of tuning series ===
+# figure - plot of time series: HERAS, IBTS0, IBTSQ1 by cohort.
+print(overlayTimeseries(lapply(NSH.tun,index),nyrs=20,ages=0:1))
+# figure - plot of time series: IBTS0, IBTSQ1 by cohort.
+print(overlayTimeseries(FLQuants(IBTS0=NSH.tun[["IBTS0"]]@index,IBTSQ1=NSH.tun[["IBTS-Q1"]]@index),nyrs=20,ages=0:1))
+  
+# figure - time series of all data by age
+print(surveyTimeseries(NSH.tun))
+
+# figure - internal consistency HERAS, plot survey index versus each other
+tmp.tun <- NSH.tun; dmns <- dimnames(tmp.tun[["IBTS0"]]@index); tmp.tun[["IBTS0"]] <- FLIndex(FLQuant(NA,dimnames=list(age=1,year=ac(an(dmns$year)+1),unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter)))
+tmp.tun[["IBTS0"]]@index <- FLQuant(NSH.tun[["IBTS0"]]@index@.Data,dimnames=list(age=1,year=ac(an(dmns$year)+1),unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter))
+#plot(tmp.tun,type="pairwise")
+plot(NSH.tun[["HERAS"]],type="internal")
+
+# === Plot the proportion of catch and weight in numbers and weight to see if the catch is representative for the stock build-up ===
+# figure - catch number at age
+print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.n)),groups="age",main="Proportion of Catch numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+# figure - proportion of stock weight at age
+print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@stock.wt)),groups="age",main="Proportion of Stock weight at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+# figure - proportion of catch weight at age
+print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.wt)),groups="age",main="Proportion of Catch weight at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+
+# figure - acoustic index at age
+print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[["HERAS"]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+
+# figure - proportion of natural mortality at age
+  print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@m)),groups="age",main="Proportion of natural mortality at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+
+# === Plot the time series of weight in the stock and catch in the stock ===
+# figure - times series for each age, stock
+timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt")
+# figure - times series for each age, catches
+timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt")
+# figure - times series for each age, harvest
+timeseries(window(NSH,2000,range(NSH)["maxyear"]),slot="harvest")
+# figure - times series for each age, maturity
+timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="mat")
+# figure - times series for each age, mortality
+timeseries(window(NSH,1947,range(NSH)["maxyear"]),slot="m")
+
+# === Plot the time series of the surveys ===
+# figure - times series, SCAI
+timeseries(NSH.tun[["SCAI"]],slot="index")
+# figure - times series, IBTSQ1
+timeseries(NSH.tun[["IBTS-Q1"]],slot="index")
+# figure - times series, IBTS0
+timeseries(NSH.tun[["IBTS0"]],slot="index")
+
+# figure - times series, weight in stock following each cohort
+west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,range(NSH)["maxyear"])))
+west.by.cohort      <- subset(west.by.cohort,!is.na(west.by.cohort$data))
+west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
+west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
+                              groups=cohort,
+                              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+                              type="b",
+                              xlab="Year",ylab="Weight in the stock (kg)",
+                              main=paste(NSH@name,"Weight in the stock by cohort"),
+                              par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
+                              panel=function(...) {
+                                panel.grid(h=-1,v=-1)
+                                panel.xyplot(...)
+                              })
+print(west.cohort.plot)
+
 ### ============================================================================
 ### Model fit
 ### ============================================================================
@@ -258,41 +258,41 @@ otolith(NSH.sam,n=1000)
 #### Management
 #### ============================================================================
 #
-## figure - fishing mortality vs SSB, management plan
-#plot(x=c(0,0.8,1.5,2.6),y=c(0.1,0.1,0.26,0.26),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tonnes",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
-#abline(v=0.8,col="red",lwd=2,lty=2)
-#abline(v=1.0,col="blue",lwd=2,lty=2)
-#abline(v=1.5,col="darkgreen",lwd=2,lty=2)
-#text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
-#text(1.0,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
-#text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
+# figure - fishing mortality vs SSB, management plan
+plot(x=c(0,0.8,1.5,2.6),y=c(0.1,0.1,0.26,0.26),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tonnes",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
+abline(v=0.8,col="red",lwd=2,lty=2)
+abline(v=1.0,col="blue",lwd=2,lty=2)
+abline(v=1.5,col="darkgreen",lwd=2,lty=2)
+text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
+text(1.0,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
+text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
+
+points(y=fbar(NSH[,ac(2005:2016)]), x=(ssb(NSH[,ac(2005:2016)])/1e6),pch=19)
+lines(y=fbar(NSH[,ac(2005:2016)]),  x=(ssb(NSH[,ac(2005:2016)])/1e6))
+text(y=fbar(NSH[,ac(2005:2016)]),   x=(ssb(NSH[,ac(2005:2016)])/1e6),labels=ac(2005:2016),pos=3,cex=0.7)
 #
-#points(y=fbar(NSH[,ac(2005:2016)]), x=(ssb(NSH[,ac(2005:2016)])/1e6),pch=19)
-#lines(y=fbar(NSH[,ac(2005:2016)]),  x=(ssb(NSH[,ac(2005:2016)])/1e6))
-#text(y=fbar(NSH[,ac(2005:2016)]),   x=(ssb(NSH[,ac(2005:2016)])/1e6),labels=ac(2005:2016),pos=3,cex=0.7)
-##
-#### ============================================================================
-#### Reference points
-#### ============================================================================
-#library(FLBRP)
-#ref. <- brp(FLBRP(NSH,fbar=seq(0,1,length.out=101),nyears=3))
-#print(refpts(ref.))
-#
-#NSH.SRR <- FLSR(
-#	rec = rec(NSH)[,ac((range(NSH)["minyear"]+1): range(NSH)["maxyear"])],
-#	ssb = ssb(NSH)[,ac((range(NSH)["minyear"])  :(range(NSH)["maxyear"]-1))],
-#	model='segreg')
-#NSH.SRR <- fmle(NSH.SRR)
-#plot(NSH.SRR)
-#
-## figure - recruitment vs SSB
-#newData <- predict(NSH.SRR,ssb=FLQuant(seq(0,max(ssb(NSH)),length.out=200)))
-#yrange  <- range(pretty(c(0,range(rec(NSH)))))/1e6; xrange <- range(pretty(c(0,range(ssb(NSH)))))/1e6
-#plot(y=newData/1e6,x=seq(0,max(ssb(NSH)),length.out=200)/1e6,type="l",lwd=2,
-#     xlab="SSB (million tonnes)",ylab="Recruitment (billions)",xlim=xrange,ylim=yrange,
-#     las=1,cex.lab=1.3,cex.axis=1.1,xaxs="i",yaxs="i")
-#points(y=rec(NSH)/1e6,x=ssb(NSH)/1e6)
-#
+### ============================================================================
+### Reference points
+### ============================================================================
+library(FLBRP)
+ref. <- brp(FLBRP(NSH,fbar=seq(0,1,length.out=101),nyears=3))
+print(refpts(ref.))
+
+NSH.SRR <- FLSR(
+	rec = rec(NSH)[,ac((range(NSH)["minyear"]+1): range(NSH)["maxyear"])],
+	ssb = ssb(NSH)[,ac((range(NSH)["minyear"])  :(range(NSH)["maxyear"]-1))],
+	model='segreg')
+NSH.SRR <- fmle(NSH.SRR)
+plot(NSH.SRR)
+
+# figure - recruitment vs SSB
+newData <- predict(NSH.SRR,ssb=FLQuant(seq(0,max(ssb(NSH)),length.out=200)))
+yrange  <- range(pretty(c(0,range(rec(NSH)))))/1e6; xrange <- range(pretty(c(0,range(ssb(NSH)))))/1e6
+plot(y=newData/1e6,x=seq(0,max(ssb(NSH)),length.out=200)/1e6,type="l",lwd=2,
+     xlab="SSB (million tonnes)",ylab="Recruitment (billions)",xlim=xrange,ylim=yrange,
+     las=1,cex.lab=1.3,cex.axis=1.1,xaxs="i",yaxs="i")
+points(y=rec(NSH)/1e6,x=ssb(NSH)/1e6)
+
 # closing pdf and png print
 dev.off()
 dev.off()
@@ -305,45 +305,45 @@ dev.off()
 ### ============================================================================
 ### ============================================================================
 #
-#log.msg("GENERATING DOCUMENTATION...\n")
-##Document the run with alternative table numbering and a reduced width
-#old.opt           <- options("width","scipen")
-#options("width"=75,"scipen"=1000)
-#
-##2013 fix
-#NSH.sam@control@sam.binary <- "character()"
-#sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
-#write(sam.out.file,file=paste(output.base,"sam.out",sep="."))
-#options("width"=old.opt$width,"scipen"=old.opt$scipen)
-#
-##And finally, write the results out in the lowestoft VPA format for further analysis
-#writeFLStock(NSH,output.file=file.path(output.dir,"NSAS_47d3_"))
-#writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
-##writeFLStock(wbss,file.path(output.dir,"hawg_her-IIIa.ypr"),type="YPR")
-##Prepare standard graph table
-#NSH.brp <- brp(FLBRP(NSH,sr=NSH.SRR,fbar=seq(0,1,length.out=100),refpts=refpts()))
-## Calculate the spawners in number
-#spawners                          <- colSums(NSH.brp@stock.n * sweep(exp(sweep(-sweep(NSH.brp@harvest,c(1,3:6),NSH.brp@harvest.spwn,"*"),
-#                                             c(1,3:6),NSH.brp@m*NSH.brp@m.spwn,"-")),c(1,3:6),NSH.brp@mat,"*"))
-## Put all the standard input in a dataframe in columns
-#standardGraphTable                <- cbind(NSH.brp@fbar,yield(NSH.brp),ssb(NSH.brp),rec(NSH.brp),yield(NSH.brp)/rec(NSH.brp),
-#                                           ssb(NSH.brp)/rec(NSH.brp),spawners,landings(NSH.brp))
-#standardGraphTable                <- data.frame(standardGraphTable)
-#colnames(standardGraphTable)      <- c("Fbar","Yield","SSB","Recruits","Yield.Recruit","SSB.Recruit","Spawners","Landings")
-## Round some values
-#standardGraphTable$Fbar           <- round(an(ac(standardGraphTable$Fbar)),3)
-#standardGraphTable$Yield          <- round(an(ac(standardGraphTable$Yield)))
-#standardGraphTable$SSB            <- round(an(ac(standardGraphTable$SSB)))
-#standardGraphTable$Recruits       <- round(an(ac(standardGraphTable$Recruits)))
-#standardGraphTable$Yield.Recruit  <- round(an(ac(standardGraphTable$Yield.Recruit)),4)
-#standardGraphTable$SSB.Recruit    <- round(an(ac(standardGraphTable$SSB.Recruit)),3)
-#standardGraphTable$Spawners       <- round(an(ac(standardGraphTable$Spawners)))
-#standardGraphTable$Landings       <- round(an(ac(standardGraphTable$Landings)))
-#standardGraphTable                <- rbind(c(paste("Ages ",range(stck.)["minfbar"],"-",range(stck.)["maxfbar"],sep=""),
-#                                           "Tonnes","Tonnes","Number","","","Number","Tonnes"),standardGraphTable)
-## Write the standard graph to file and the reference points as well
-#write.table(standardGraphTable,file=file.path(output.dir,"standardGraphTable.csv"),col.names=T,row.names=F,sep=",")
-#
+log.msg("GENERATING DOCUMENTATION...\n")
+#Document the run with alternative table numbering and a reduced width
+old.opt           <- options("width","scipen")
+options("width"=75,"scipen"=1000)
+
+#2013 fix
+NSH.sam@control@sam.binary <- "character()"
+sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
+write(sam.out.file,file=paste(output.base,"sam.out",sep="."))
+options("width"=old.opt$width,"scipen"=old.opt$scipen)
+
+#And finally, write the results out in the lowestoft VPA format for further analysis
+writeFLStock(NSH,output.file=file.path(output.dir,"NSAS_47d3_"))
+writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
+#writeFLStock(wbss,file.path(output.dir,"hawg_her-IIIa.ypr"),type="YPR")
+#Prepare standard graph table
+NSH.brp <- brp(FLBRP(NSH,sr=NSH.SRR,fbar=seq(0,1,length.out=100),refpts=refpts()))
+# Calculate the spawners in number
+spawners                          <- colSums(NSH.brp@stock.n * sweep(exp(sweep(-sweep(NSH.brp@harvest,c(1,3:6),NSH.brp@harvest.spwn,"*"),
+                                             c(1,3:6),NSH.brp@m*NSH.brp@m.spwn,"-")),c(1,3:6),NSH.brp@mat,"*"))
+# Put all the standard input in a dataframe in columns
+standardGraphTable                <- cbind(NSH.brp@fbar,yield(NSH.brp),ssb(NSH.brp),rec(NSH.brp),yield(NSH.brp)/rec(NSH.brp),
+                                           ssb(NSH.brp)/rec(NSH.brp),spawners,landings(NSH.brp))
+standardGraphTable                <- data.frame(standardGraphTable)
+colnames(standardGraphTable)      <- c("Fbar","Yield","SSB","Recruits","Yield.Recruit","SSB.Recruit","Spawners","Landings")
+# Round some values
+standardGraphTable$Fbar           <- round(an(ac(standardGraphTable$Fbar)),3)
+standardGraphTable$Yield          <- round(an(ac(standardGraphTable$Yield)))
+standardGraphTable$SSB            <- round(an(ac(standardGraphTable$SSB)))
+standardGraphTable$Recruits       <- round(an(ac(standardGraphTable$Recruits)))
+standardGraphTable$Yield.Recruit  <- round(an(ac(standardGraphTable$Yield.Recruit)),4)
+standardGraphTable$SSB.Recruit    <- round(an(ac(standardGraphTable$SSB.Recruit)),3)
+standardGraphTable$Spawners       <- round(an(ac(standardGraphTable$Spawners)))
+standardGraphTable$Landings       <- round(an(ac(standardGraphTable$Landings)))
+standardGraphTable                <- rbind(c(paste("Ages ",range(stck.)["minfbar"],"-",range(stck.)["maxfbar"],sep=""),
+                                           "Tonnes","Tonnes","Number","","","Number","Tonnes"),standardGraphTable)
+# Write the standard graph to file and the reference points as well
+write.table(standardGraphTable,file=file.path(output.dir,"standardGraphTable.csv"),col.names=T,row.names=F,sep=",")
+
 stockSummaryTable <- cbind(rec(NSH.sam)$year,
                            rec(NSH.sam)$value,      rec(NSH.sam)$lbnd,    rec(NSH.sam)$ubnd,
                            tsb(NSH.sam)$value,      tsb(NSH.sam)$lbnd,    tsb(NSH.sam)$ubnd,
@@ -380,7 +380,7 @@ log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),
 ### run retrospective
 ### ============================================================================
 NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,retro=3)
-save(NSH.retro,file=file.path(output.dir,paste(name(NSH),"_retro.RData",sep="")))
+save(NSH.retro,file=file.path(output.dir,"NSHretro.RData",sep="")))
 
 ### ============================================================================
 ### figures
