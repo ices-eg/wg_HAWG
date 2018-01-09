@@ -25,7 +25,7 @@ output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base fil
 ### ============================================================================
 ### imports
 ### ============================================================================
-library(FLSAM); library(FLEDA)
+library(FLSAM); library(FLEDA)  ; library(ggplot2)
 
 
 
@@ -148,3 +148,5 @@ g   <-  g  +  geom_line(aes(colour = assess   ))
 g   <-  g  +  ggtitle("assessment uncertainty")  + xlab("") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 g   <-  g  +  facet_grid(var~.,scales = "free")
 g
+
+
