@@ -42,7 +42,7 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 ### Define parameters and paths for use in the assessment code
 ### ======================================================================================================
-output.dir          <-  file.path(".","results/newM/")                #figures directory
+output.dir          <-  file.path(".","results/1_newFprop/")                #figures directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  10                                      #Number of years for which to run the retrospective
 .libPaths("C:/software/Rpackages")
@@ -52,8 +52,8 @@ n.retro.years       <-  10                                      #Number of years
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA); library(FLBRP)
-source(file.path("R/newM/setupAssessmentObjects_newM.r"))
-source(file.path("R/newM/setupControlObject_newM.r"))
+source(file.path("R/1_newFprop/setupAssessmentObjects_newFprop.r"))
+source(file.path("R/1_newFprop/setupControlObject_newFprop.r"))
 path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 source(file.path("../_Common/HAWG_Common_module.r"))
@@ -72,15 +72,15 @@ try(setwd(path),silent=TRUE)
 
 #Perform assessment
 NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-name(NSH.sam) <- "HAWG2017"
+name(NSH.sam) <- "newFprop"
 
 #Update stock object
 NSH       <- NSH + NSH.sam
 NSH@stock <- computeStock(NSH)
-name(NSH) <- "HAWG2017"
+name(NSH) <- "newFprop"
 
 # Save results
-save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,paste(name(NSH),".RData",sep="")))
+save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSH.RData",sep=""))
 
 ### ============================================================================
 ### ============================================================================
@@ -307,19 +307,19 @@ dev.off()
 #
 #log.msg("GENERATING DOCUMENTATION...\n")
 ##Document the run with alternative table numbering and a reduced width
-#old.opt           <- options("width","scipen")
-#options("width"=75,"scipen"=1000)
+old.opt           <- options("width","scipen")
+options("width"=75,"scipen"=1000)
 #
 ##2013 fix
-#NSH.sam@control@sam.binary <- "character()"
-#sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
-#write(sam.out.file,file=paste(output.base,"sam.out",sep="."))
-#options("width"=old.opt$width,"scipen"=old.opt$scipen)
+NSH.sam@control@sam.binary <- "character()"
+sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
+write(sam.out.file,file=paste(output.base,"sam.out",sep="."))
+options("width"=old.opt$width,"scipen"=old.opt$scipen)
 #
 ##And finally, write the results out in the lowestoft VPA format for further analysis
-#writeFLStock(NSH,output.file=file.path(output.dir,"NSAS_47d3_"))
-#writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
-##writeFLStock(wbss,file.path(output.dir,"hawg_her-IIIa.ypr"),type="YPR")
+writeFLStock(NSH,output.file=file.path(output.dir,"NSAS_47d3_"))
+writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
+writeFLStock(wbss,file.path(output.dir,"hawg_her-IIIa.ypr"),type="YPR")
 ##Prepare standard graph table
 #NSH.brp <- brp(FLBRP(NSH,sr=NSH.SRR,fbar=seq(0,1,length.out=100),refpts=refpts()))
 ## Calculate the spawners in number
@@ -380,7 +380,7 @@ log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),
 ### run retrospective
 ### ============================================================================
 NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,retro=3)
-save(NSH.retro,file=file.path(output.dir,paste(name(NSH),"_retro.RData",sep="")))
+save(NSH.retro,file=file.path(output.dir,"NSHretro.RData",sep="")))
 
 ### ============================================================================
 ### figures
@@ -400,4 +400,5 @@ print(plot(NSH.retro,futureYrs=F))
 
 #print(lapply(NSH.retro,retroParam))
 # closing pdf and png print
+dev.off()
 dev.off()

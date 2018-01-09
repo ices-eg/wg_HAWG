@@ -87,6 +87,17 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 ### ============================================================================
 ### Specific to this script : read in the values of Fprop from csv file
 ### ============================================================================
@@ -96,6 +107,18 @@ names(fprop)[1] <- "month"
 yrs<-names(fprop)[-1]
 
 for (a in dimnames(NSH@harvest.spwn)$age)  NSH@harvest.spwn[a,yrs]  <-  unlist(fprop[35,-1])
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### ============================================================================
 ### Prepare Natural Mortality estimates 
