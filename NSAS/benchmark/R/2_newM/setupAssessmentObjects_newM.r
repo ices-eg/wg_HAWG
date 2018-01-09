@@ -87,19 +87,8 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 ### ============================================================================
-### Specific to this script : read in the values of Fprop from csv file
+### change n-1 : Specific to this script : read in the values of Fprop from csv file
 ### ============================================================================
 fprop <- read.csv(file.path(data.source, "propFraw.csv"))
 names(fprop) <- gsub("X","",names(fprop))

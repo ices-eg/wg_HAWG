@@ -8,8 +8,8 @@ options(stringsAsFactors=FALSE)
 
 
 # choose the assessments to be compared
-assess1 <- "basecase"
-assess2 <- "newFprop"
+assess1 <- "0_basecase"
+assess2 <- "1_newFprop"
 
 # local path
 path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"

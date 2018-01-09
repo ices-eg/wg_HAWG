@@ -56,9 +56,7 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 ### Define parameters and paths for use in the assessment code
 ### ======================================================================================================
-output.dir          <-  file.path(".","results/2_newM/")                #figures directory
-output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  10                                      #Number of years for which to run the retrospective
+output.dir          <-  file.path(path,"data/")                #data directory
 .libPaths("C:/software/Rpackages")
 
 
@@ -67,47 +65,52 @@ n.retro.years       <-  10                                      #Number of years
 ### ============================================================================
 library(FLSAM); library(FLEDA); library(FLBRP)
 
+load(file.path(output.dir,"natMortDataFrame.RData"))
+
+
   #-----------------------------------------------------------------------------
-  # 1b) create M matrix raw from 2010 data
+  # 1b) create M matrix raw from 2016 data
   #-----------------------------------------------------------------------------
 
-SMSher              <- rbind(her2007,her2010)
+SMSher              <- (her2016)
 SMSher$M            <- SMSher$M1+SMSher$M2
-rawM                <- t(matrix(subset(SMSher,SMSyear==2010)$M,ncol=length(sort(unique(SMSher$Age))),nrow=length(sort(unique(SMSher$Year))),
+#rawM                <- t(matrix(subset(SMSher,SMSyear==2010)$M,ncol=length(sort(unique(SMSher$Age))),nrow=length(sort(unique(SMSher$Year))),
+#                                dimnames=list(sort(unique(SMSher$Year)),sort(unique(SMSher$Age)))))
+rawM                <- t(matrix(SMSher$M,ncol=length(sort(unique(SMSher$Age))),nrow=length(sort(unique(SMSher$Year))),
                                 dimnames=list(sort(unique(SMSher$Year)),sort(unique(SMSher$Age)))))
-years   <- 1960:2010
-extryrs <- 1960:1962
+years   <- 1960:2016
+extryrs <- 1960:1973
 ages    <- 0:9
 finalM  <- matrix(NA,nrow=length(ages),ncol=length(1960:max(years)),dimnames=list(ages=ages,years=years))
 
   #- Fill in values already known for finalM
-finalM[ac(0:7),ac(1963:2010)] <- rawM
-write.csv(finalM,file=paste(outPath,"Raw_NotExtrapolated_NSAS.csv",sep=""))
+finalM[ac(0:9),ac(1974:2016)] <- rawM
+write.csv(finalM,file=paste(output.dir ,"/Raw_NotExtrapolated_NSAS2016.csv",sep=""))
 
   #-----------------------------------------------------------------------------
-  # 1c) create M matrix raw from 2015 data
-  #-----------------------------------------------------------------------------
-
-SMSher              <- rbind(her2007[which(her2007$Year>1973),],her2010[which(her2010$Year>1973),],her2015)
-SMSher$M            <- SMSher$M1+SMSher$M2
-rawM                <- t(matrix(subset(SMSher,SMSyear==2015)$M,ncol=length(sort(unique(SMSher$Age))),nrow=length(sort(unique(SMSher$Year))),
-                                dimnames=list(sort(unique(SMSher$Year)),sort(unique(SMSher$Age)))))
-years   <- 1960:2013
-#extryrs <- 1960:1962
-ages    <- 0:9
-finalM  <- matrix(NA,nrow=length(ages),ncol=length(1960:max(years)),dimnames=list(ages=ages,years=years))
-
-#- Fill in values already known for finalM
-finalM[ac(0:7),ac(1974:2013)] <- rawM
-write.csv(finalM,file=paste(outPath,"Raw_NotExtrapolated_NSAS_NEW.csv",sep=""))
-
+#  # 1c) create M matrix raw from 2015 data
+#  #-----------------------------------------------------------------------------
+#
+#SMSher              <- rbind(her2007[which(her2007$Year>1973),],her2010[which(her2010$Year>1973),],her2015)
+#SMSher$M            <- SMSher$M1+SMSher$M2
+#rawM                <- t(matrix(subset(SMSher,SMSyear==2015)$M,ncol=length(sort(unique(SMSher$Age))),nrow=length(sort(unique(SMSher$Year))),
+#                                dimnames=list(sort(unique(SMSher$Year)),sort(unique(SMSher$Age)))))
+#years   <- 1960:2013
+##extryrs <- 1960:1962
+#ages    <- 0:9
+#finalM  <- matrix(NA,nrow=length(ages),ncol=length(1960:max(years)),dimnames=list(ages=ages,years=years))
+#
+##- Fill in values already known for finalM
+#finalM[ac(0:7),ac(1974:2013)] <- rawM
+#write.csv(finalM,file=paste(outPath,"Raw_NotExtrapolated_NSAS_NEW.csv",sep=""))
+#
 
   #-----------------------------------------------------------------------------
   # 2) Plot the natural mortality estimates of the three SMS key-runs
   #-----------------------------------------------------------------------------
 
 windows()
-xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2007),type="l",xlab="Years",ylab="Total Natural Mortality",
+xyplot((M1+M2)~Year|as.factor(Age),data=SMSher,type="l",xlab="Years",ylab="Total Natural Mortality",
        prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},main="North Sea herring M SMS2007",
        panel=function(...){
         dat <- list(...)
@@ -116,44 +119,50 @@ xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2007),type="l",xl
         panel.loess(...,col="red",lwd=2)
        },
        scales=list(alternating=1,y=list(relation="free",rot=0)))
-savePlot(paste(outPath,"SMS2007_TotalNaturalMortalityNSAS.png",sep=""),type="png")
-
-windows()
-xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2010),type="l",xlab="Years",ylab="Total Natural Mortality",
-       prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},main="North Sea herring M SMS2010",
-       panel=function(...){
-        dat <- list(...)
-        panel.grid(h=-1, v= -1)
-        panel.xyplot(...)
-        panel.loess(...,col="red",lwd=2)
-       },
-       scales=list(alternating=1,y=list(relation="free",rot=0)),add=TRUE)
-savePlot(paste(outPath,"SMS2010_TotalNaturalMortalityNSAS.png",sep=""),type="png")
-
-windows()
-xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2015),type="l",xlab="Years",ylab="Total Natural Mortality",
-       prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},main="North Sea herring M SMS2015",
-       panel=function(...){
-         dat <- list(...)
-         panel.grid(h=-1, v= -1)
-         panel.xyplot(...)
-         panel.loess(...,col="red",lwd=2)
-       },
-       scales=list(alternating=1,y=list(relation="free",rot=0)))
-savePlot(paste(outPath,"SMS2015_TotalNaturalMortalityNSAS.png",sep=""),type="png")
+savePlot(paste(output.dir ,"/SMS2016_TotalNaturalMortalityNSAS.png",sep=""),type="png")
+#
+#windows()
+#xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2010),type="l",xlab="Years",ylab="Total Natural Mortality",
+#       prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},main="North Sea herring M SMS2010",
+#       panel=function(...){
+#        dat <- list(...)
+#        panel.grid(h=-1, v= -1)
+#        panel.xyplot(...)
+#        panel.loess(...,col="red",lwd=2)
+#       },
+#       scales=list(alternating=1,y=list(relation="free",rot=0)),add=TRUE)
+#savePlot(paste(outPath,"SMS2010_TotalNaturalMortalityNSAS.png",sep=""),type="png")
+#
+#windows()
+#xyplot((M1+M2)~Year|as.factor(Age),data=subset(SMSher,SMSyear==2015),type="l",xlab="Years",ylab="Total Natural Mortality",
+#       prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},main="North Sea herring M SMS2015",
+#       panel=function(...){
+#         dat <- list(...)
+#         panel.grid(h=-1, v= -1)
+#         panel.xyplot(...)
+#         panel.loess(...,col="red",lwd=2)
+#       },
+#       scales=list(alternating=1,y=list(relation="free",rot=0)))
+#savePlot(paste(outPath,"SMS2015_TotalNaturalMortalityNSAS.png",sep=""),type="png")
 
   #-----------------------------------------------------------------------------
   # 3) Fit loess smoothers to each age and SMS year and predict new smoothed values
   #-----------------------------------------------------------------------------
 
-storeSmooth   <- array(NA,dim=c(length(sort(unique(SMSher$Age))),3,length(sort(unique(SMSher$Year))),3),
-                          dimnames=list(Age=sort(unique(SMSher$Age)),SMS=c(2007,2010,2015),Year=sort(unique(SMSher$Year)),Fit=c("5%","50%","95")))
+storeSmooth   <- array(NA,dim=c(length(sort(unique(SMSher$Age))),1,length(sort(unique(SMSher$Year))),3),
+                          dimnames=list(Age=sort(unique(SMSher$Age)),SMS=c(2016),Year=sort(unique(SMSher$Year)),Fit=c("5%","50%","95")))
 for(iAge in sort(unique(SMSher$Age))){
-  for(iSMS in sort(unique(SMSher$SMSyear))){
-    res         <- predict(loess((M1+M2)~Year,data=subset(SMSher,SMSyear==iSMS & Age == iAge),span=0.5),
-                           newdata=expand.grid(Year=sort(unique(subset(SMSher,SMSyear==iSMS & Age == iAge)$Year))),
-                           se=T)
-    yrs         <- sort(unique(subset(SMSher,SMSyear==iSMS & Age == iAge)$Year))
+  #for(iSMS in sort(unique(SMSher$SMSyear))){
+  for(iSMS in 2016){
+#    res         <- predict(loess((M1+M2)~Year,data=subset(SMSher,SMSyear==iSMS & Age == iAge),span=0.5),
+#                           newdata=expand.grid(Year=sort(unique(subset(SMSher,SMSyear==iSMS & Age == iAge)$Year))),
+#                           se=T)
+#   yrs         <- sort(unique(subset(SMSher,SMSyear==iSMS & Age == iAge)$Year))
+#   storeSmooth[ac(iAge),ac(iSMS),ac(yrs),] <- matrix(c(res$fit-1.96*res$se.fit,res$fit,res$fit+1.96*res$se.fit),nrow=length(yrs),ncol=3)
+    res         <- predict(loess((M1+M2)~Year,data=subset(SMSher, Age == iAge),span=0.5),
+                           newdata=expand.grid(Year=sort(unique(subset(SMSher,Age == iAge)$Year))),
+                           se=T)                           
+    yrs         <- sort(unique(subset(SMSher, Age == iAge)$Year))
     storeSmooth[ac(iAge),ac(iSMS),ac(yrs),] <- matrix(c(res$fit-1.96*res$se.fit,res$fit,res$fit+1.96*res$se.fit),nrow=length(yrs),ncol=3)
   }
 }
@@ -161,21 +170,21 @@ for(iAge in sort(unique(SMSher$Age))){
   #-----------------------------------------------------------------------------
   # 4) Plot averaged new predicted smoothed values
   #-----------------------------------------------------------------------------
+#
+#  #- 2010
+#dtfSmooth           <- vectorise(storeSmooth[,"2010",,"50%"])
+#dtfRaw              <- subset(SMSher,SMSyear==2010)[,c("M1","M2","Age","Year")]
+#  dtfRaw$M          <- dtfRaw$M1+dtfRaw$M2
+#  dtfRaw            <- dtfRaw[,c("M","Age","Year")]; colnames(dtfRaw) <- c("Value","Age","Year")
+#colnames(dtfSmooth) <- c("Value","Age","Year")
+#dtfSmooth$Age       <- as.factor(dtfSmooth$Age)
+#dtfSmooth$Year      <- as.numeric(dtfSmooth$Year)
+#dtftotal            <- rbind(cbind(dtfSmooth,type="Smooth"),cbind(dtfRaw,type="Raw"))
+##save(file="dtftotal2010.RData",dtftotal)
 
-  #- 2010
-dtfSmooth           <- vectorise(storeSmooth[,"2010",,"50%"])
-dtfRaw              <- subset(SMSher,SMSyear==2010)[,c("M1","M2","Age","Year")]
-  dtfRaw$M          <- dtfRaw$M1+dtfRaw$M2
-  dtfRaw            <- dtfRaw[,c("M","Age","Year")]; colnames(dtfRaw) <- c("Value","Age","Year")
-colnames(dtfSmooth) <- c("Value","Age","Year")
-dtfSmooth$Age       <- as.factor(dtfSmooth$Age)
-dtfSmooth$Year      <- as.numeric(dtfSmooth$Year)
-dtftotal            <- rbind(cbind(dtfSmooth,type="Smooth"),cbind(dtfRaw,type="Raw"))
-#save(file="dtftotal2010.RData",dtftotal)
-
-#- 2015
-dtfSmooth           <- vectorise(storeSmooth[,"2015",,"50%"])
-dtfRaw              <- subset(SMSher,SMSyear==2015)[,c("M1","M2","Age","Year")]
+#- 2016
+dtfSmooth           <- vectorise(storeSmooth[,"2016",,"50%"])
+dtfRaw              <- SMSher[,c("M1","M2","Age","Year")]
 dtfRaw$M          <- dtfRaw$M1+dtfRaw$M2
 dtfRaw            <- dtfRaw[,c("M","Age","Year")]; colnames(dtfRaw) <- c("Value","Age","Year")
 colnames(dtfSmooth) <- c("Value","Age","Year")
@@ -198,7 +207,7 @@ xyplot(Value~Year|Age,data=dtftotal,type="l",xlab="Years",ylab="Total Natural Mo
         panel.xyplot(dat$x[idx2],dat$y[idx2],type="l",col=2)
        },
        scales=list(alternating=1,y=list(relation="free",rot=0)))
-savePlot(paste(outPath,"SmoothedNaturalMortalityNSAS_NEW.png",sep=""),type="png")
+savePlot(paste(output.dir,"SmoothedNaturalMortalityNSAS_NEW.png",sep=""),type="png")
 
   #-----------------------------------------------------------------------------
   # 5) Check for lags in autocorrelation to see what extrapolation smoother
@@ -233,14 +242,14 @@ savePlot(paste(outPath,"SmoothedNaturalMortalityNSAS_NEW.png",sep=""),type="png"
   # 6) Extrapolate the M-at-age
   #-----------------------------------------------------------------------------
 
-years   <- 1974:2013
-extryrs <- years[which(!years %in% unique(subset(dtfSmooth,Year %in% 1963:2013)$Year))]
+years   <- 1974:2016
+extryrs <- years[which(!years %in% unique(subset(dtfSmooth,Year %in% 1963:2016)$Year))]
 ages    <- 0:9
 finalM  <- matrix(NA,nrow=length(ages),ncol=length(1974:max(years)),dimnames=list(ages=ages,years=years))
 
   #- Fill in values already known for finalM
-finalM[ac(0:7),ac(1974:2013)] <- storeSmooth[,"2015",,"50%"]
-write.csv(finalM,file=paste(outPath,"Smoothed_span50_M_NotExtrapolated_NSAS.csv",sep=""))
+finalM[ac(0:9),ac(1974:2016)] <- storeSmooth[,"2016",,"50%"]
+write.csv(finalM,file=paste(output.dir,"Smoothed_span50_M_NotExtrapolated_NSAS2016.csv",sep=""))
 
 #  #- Extrapolate for early years back based on age-smoother correlation factor
 #for(iYr in rev(sort(extryrs[which(extryrs < min(unique(subset(dtfSmooth,Year %in% 1963:2007)$Year)))]))){

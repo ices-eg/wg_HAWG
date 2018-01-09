@@ -36,13 +36,13 @@ log.msg("\nNSH Final Assessment\n=====================\n")
 path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
 
 
-
+                                                  
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
 ### Define parameters and paths for use in the assessment code
 ### ======================================================================================================
-output.dir          <-  file.path(".","results/1_newFprop/")                #figures directory
+output.dir          <-  file.path(".","results/2_newM/")                #figures directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  10                                      #Number of years for which to run the retrospective
 .libPaths("C:/software/Rpackages")
@@ -52,8 +52,8 @@ n.retro.years       <-  10                                      #Number of years
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA); library(FLBRP)
-source(file.path("R/1_newFprop/setupAssessmentObjects_newFprop.r"))
-source(file.path("R/1_newFprop/setupControlObject_newFprop.r"))
+source(file.path("R/2_newM/setupAssessmentObjects_newM.r"))
+source(file.path("R/2_newM/setupControlObject_newM.r"))
 path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 source(file.path("../_Common/HAWG_Common_module.r"))
@@ -72,12 +72,12 @@ try(setwd(path),silent=TRUE)
 
 #Perform assessment
 NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-name(NSH.sam) <- "newFprop"
+name(NSH.sam) <- "newM"
 
 #Update stock object
 NSH       <- NSH + NSH.sam
 NSH@stock <- computeStock(NSH)
-name(NSH) <- "newFprop"
+name(NSH) <- "newM"
 
 # Save results
 save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSH.RData",sep=""))
