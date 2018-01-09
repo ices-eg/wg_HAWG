@@ -301,4 +301,4 @@ b <- xyplot(Value~Year|Age,data=MSmooth,type="l",xlab="Years",ylab="Total Natura
 
 windows()
 a + as.layer(b)
-savePlot(paste(outPath,"SmoothedNaturalMortalityNSAS_combined.png",sep=""),type="png")
+savePlot(paste(outPath,"SmoothedNaturalMortalityNSAS_combined2018.png",sep=""),type="png")
