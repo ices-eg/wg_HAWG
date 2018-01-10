@@ -207,7 +207,7 @@ xyplot(Value~Year|Age,data=dtftotal,type="l",xlab="Years",ylab="Total Natural Mo
         panel.xyplot(dat$x[idx2],dat$y[idx2],type="l",col=2)
        },
        scales=list(alternating=1,y=list(relation="free",rot=0)))
-savePlot(paste(output.dir,"SmoothedNaturalMortalityNSAS_NEW.png",sep=""),type="png")
+savePlot(paste(output.dir,"/SmoothedNaturalMortalityNSAS_NEW.png",sep=""),type="png")
 
   #-----------------------------------------------------------------------------
   # 5) Check for lags in autocorrelation to see what extrapolation smoother
@@ -249,7 +249,7 @@ finalM  <- matrix(NA,nrow=length(ages),ncol=length(1974:max(years)),dimnames=lis
 
   #- Fill in values already known for finalM
 finalM[ac(0:9),ac(1974:2016)] <- storeSmooth[,"2016",,"50%"]
-write.csv(finalM,file=paste(output.dir,"Smoothed_span50_M_NotExtrapolated_NSAS2016.csv",sep=""))
+write.csv(finalM,file=paste(output.dir,"/Smoothed_span50_M_NotExtrapolated_NSAS2016.csv",sep=""))
 
 #  #- Extrapolate for early years back based on age-smoother correlation factor
 #for(iYr in rev(sort(extryrs[which(extryrs < min(unique(subset(dtfSmooth,Year %in% 1963:2007)$Year)))]))){

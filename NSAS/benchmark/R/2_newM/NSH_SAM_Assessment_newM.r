@@ -380,7 +380,7 @@ log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),
 ### run retrospective
 ### ============================================================================
 NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,retro=3)
-save(NSH.retro,file=file.path(output.dir,"NSHretro.RData",sep="")))
+save(NSH.retro,file=file.path(output.dir,"NSHretro.RData",sep=""))
 
 ### ============================================================================
 ### figures
