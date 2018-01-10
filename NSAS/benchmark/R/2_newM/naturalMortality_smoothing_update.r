@@ -64,7 +64,7 @@ output.dir          <-  file.path(path,"data/")                #data directory
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA); library(FLBRP)
-
+source("vectorise.r")
 load(file.path(output.dir,"natMortDataFrame.RData"))
 
 

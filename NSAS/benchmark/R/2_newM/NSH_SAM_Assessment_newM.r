@@ -42,9 +42,9 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 ### Define parameters and paths for use in the assessment code
 ### ======================================================================================================
-output.dir          <-  file.path(".","results/2_newM/")                #figures directory
-output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  10                                      #Number of years for which to run the retrospective
+output.dir          <-  file.path(".","results/2_newM/")        # figures directory
+output.base         <-  file.path(output.dir,"NSH Assessment")  # Output base filename, including directory. Other output filenames are built by appending onto this one
+n.retro.years       <-  10                                      # Number of years for which to run the retrospective
 .libPaths("C:/software/Rpackages")
 
 

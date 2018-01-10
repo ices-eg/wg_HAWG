@@ -113,7 +113,7 @@ for (a in dimnames(NSH@harvest.spwn)$age)  NSH@harvest.spwn[a,yrs]  <-  unlist(f
 ### Prepare Natural Mortality estimates 
 ### ============================================================================
 #Read in estimates from external file
- M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS.csv"),
+ M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS2016.csv"),
 #                    header=TRUE)
 #M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS_2010.csv"),
                           header=TRUE)
