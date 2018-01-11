@@ -63,7 +63,7 @@ plot(flsam)
 library(ggplotFL)
 M<-FLQuants(fit1.stck@m,fit2.stck@m)
 names(M) <- st.names
-plot(M)
+ggplot(M , aes (x =year ,y =data  , colour = qname)) + geom_line() + facet_wrap(~age)
 
 
 # look at parameter values
