@@ -57,13 +57,16 @@ flsam <- FLSAMs(fit1.flsam,fit2.flsam)
 names(flsam) <- st.names
 
 plot(stc)
-plot(flsam)
+savePlot(file.path(".","results",assess2,"comparison of stock trajectories.png"),type="png")
+
 
 #  compare the M vectors
 library(ggplotFL)
 M<-FLQuants(fit1.stck@m,fit2.stck@m)
 names(M) <- st.names
 ggplot(M , aes (x =year ,y =data  , colour = qname)) + geom_line() + facet_wrap(~age)
+
+savePlot(file.path(".","results",assess2,"comparison of M.png"),type="png")
 
 
 # look at parameter values
@@ -85,7 +88,7 @@ g   <-  g  +  geom_errorbar(aes(ymin=lbnd, ymax=ubnd),width=1, position=position
 g   <-  g  +  facet_grid(fleet~.,scales = "free")
 g
 
-
+savePlot(file.path(".","results",assess2,"comparison of catchabilities.png"),type="png")
 
   # observation variance values
 obs1 <- obs.var(fit1.flsam)
@@ -103,6 +106,7 @@ g   <-  g  +  geom_errorbar(aes(ymin=lbnd, ymax=ubnd),width=1, position=position
 g   <-  g  +  facet_grid(fleet~.,scales = "free")
 g
 
+savePlot(file.path(".","results",assess2,"comparison of obs.vars.png"),type="png")
 
   # process variances 
 mvars <- c("logSdLogFsta","logSdLogN") 
@@ -130,7 +134,7 @@ g   <-  g  +  geom_errorbar(aes(ymin=lbnd, ymax=ubnd),width=1, position=position
 g   <-  g  +  facet_grid(name~.,scales = "free")
 g
 
-
+savePlot(file.path(".","results",assess2,"comparison of process.vars.png"),type="png")
 
 
 # uncertainty
@@ -156,3 +160,4 @@ g   <-  g  +  facet_grid(var~.,scales = "free")
 g
 
 
+savePlot(file.path(".","results",assess2,"comparison of model uncertainty.png"),type="png")
