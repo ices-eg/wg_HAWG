@@ -8,8 +8,10 @@ options(stringsAsFactors=FALSE)
 
 
 # choose the assessments to be compared
-assess1 <- "0_basecase"
-assess2 <- "1_newFprop"
+
+assess1 <- "1_newFprop"
+assess2 <- "2_newM"
+
 
 # local path
 path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
@@ -57,7 +59,11 @@ names(flsam) <- st.names
 plot(stc)
 plot(flsam)
 
-#
+#  compare the M vectors
+library(ggplotFL)
+M<-FLQuants(fit1.stck@m,fit2.stck@m)
+names(M) <- st.names
+plot(M)
 
 
 # look at parameter values
