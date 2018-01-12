@@ -64,7 +64,7 @@ savePlot(file.path(".","results",assess2,"comparison of stock trajectories.png")
 library(ggplotFL)
 M<-FLQuants(fit1.stck@m,fit2.stck@m)
 names(M) <- st.names
-ggplot(M , aes (x =year ,y =data  , colour = qname)) + geom_line() + facet_wrap(~age)
+ggplot(M , aes (x =year ,y =data  , colour = qname)) + geom_line() + facet_wrap(~age) + scale_colour_discrete(name = "ASSESSMENT")
 
 savePlot(file.path(".","results",assess2,"comparison of M.png"),type="png")
 
@@ -85,7 +85,7 @@ g <- ggplot(data = catchab , aes(label , value , fill = assess))
 g   <-  g  +  geom_bar(aes(fill = assess   ), position = "dodge", stat="identity")
 g   <-  g  +  ggtitle("survey catchability")  + xlab("")  + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 g   <-  g  +  geom_errorbar(aes(ymin=lbnd, ymax=ubnd),width=1, position=position_dodge(.9))
-g   <-  g  +  facet_grid(fleet~.,scales = "free")
+g   <-  g  +  facet_grid(fleet~.,scales = "free") + scale_colour_discrete(name = "ASSESSMENT")
 g
 
 savePlot(file.path(".","results",assess2,"comparison of catchabilities.png"),type="png")
@@ -103,7 +103,7 @@ g <- ggplot(data = obs , aes(label , value , fill = assess))
 g   <-  g  +  geom_bar(aes(fill = assess   ), position = "dodge", stat="identity")
 g   <-  g  +  ggtitle("observation variances")  + xlab("") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 g   <-  g  +  geom_errorbar(aes(ymin=lbnd, ymax=ubnd),width=1, position=position_dodge(.9))
-g   <-  g  +  facet_grid(fleet~.,scales = "free")
+g   <-  g  +  facet_grid(fleet~.,scales = "free") + scale_colour_discrete(name = "ASSESSMENT")
 g
 
 savePlot(file.path(".","results",assess2,"comparison of obs.vars.png"),type="png")
@@ -131,7 +131,7 @@ g <- ggplot(data = pvar , aes(label , value , fill = assess))
 g   <-  g  +  geom_bar(aes(fill = assess   ), position = "dodge", stat="identity")
 g   <-  g  +  ggtitle("process variances")  + xlab("")   + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 g   <-  g  +  geom_errorbar(aes(ymin=lbnd, ymax=ubnd),width=1, position=position_dodge(.9))
-g   <-  g  +  facet_grid(name~.,scales = "free")
+g   <-  g  +  facet_grid(name~.,scales = "free")  + scale_colour_discrete(name = "ASSESSMENT")
 g
 
 savePlot(file.path(".","results",assess2,"comparison of process.vars.png"),type="png")
@@ -156,7 +156,7 @@ CV.dat <- rbind(CV.dat1,CV.dat2)
 g <- ggplot(data = CV.dat , aes(x = year , y  = value , colour = assess))
 g   <-  g  +  geom_line(aes(colour = assess   ))
 g   <-  g  +  ggtitle("assessment uncertainty")  + xlab("") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-g   <-  g  +  facet_grid(var~.,scales = "free")
+g   <-  g  +  facet_grid(var~.,scales = "free")   + scale_colour_discrete(name = "ASSESSMENT")
 g
 
 
