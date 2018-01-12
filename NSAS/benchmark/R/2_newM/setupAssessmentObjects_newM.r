@@ -88,7 +88,7 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 
 
 ### ============================================================================
-### change n-1 : Specific to this script : read in the values of Fprop from csv file
+### previous update: read in the values of Fprop from csv file
 ### ============================================================================
 fprop <- read.csv(file.path(data.source, "propFraw.csv"))
 names(fprop) <- gsub("X","",names(fprop))
@@ -96,6 +96,12 @@ names(fprop)[1] <- "month"
 yrs<-names(fprop)[-1]
 
 for (a in dimnames(NSH@harvest.spwn)$age)  NSH@harvest.spwn[a,yrs]  <-  unlist(fprop[35,-1])
+
+# replace value for older year with the mean of the first years
+yrsold <- an(dimnames(NSH@harvest.spwn)$year)
+yrsold <- yrsold[!is.element(yrsold,yrs)]
+
+NSH@harvest.spwn[,ac(yrsold)] <- yearMeans(NSH@harvest.spwn[,yrs[1:5]])
 
 
 

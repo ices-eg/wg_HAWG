@@ -108,10 +108,11 @@ yrs<-names(fprop)[-1]
 
 for (a in dimnames(NSH@harvest.spwn)$age)  NSH@harvest.spwn[a,yrs]  <-  unlist(fprop[35,-1])
 
+# replace value for older year with the mean of the first years
+yrsold <- an(dimnames(NSH@harvest.spwn)$year)
+yrsold <- yrsold[!is.element(yrsold,yrs)]
 
-
-
-
+NSH@harvest.spwn[,ac(yrsold)] <- yearMeans(NSH@harvest.spwn[,yrs[1:5]])
 
 
 

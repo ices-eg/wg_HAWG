@@ -53,10 +53,17 @@ names(stc) <- st.names
 flsam <- FLSAMs(fit1.flsam,fit2.flsam)
 names(flsam) <- st.names
 
-plot(stc)
+plot(stc)  + scale_colour_discrete(name = "ASSESSMENT")
 savePlot(file.path(".","results",assess2,"comparison of stock trajectories.png"),type="png")
 
 #
+#  compare the Fprop vectors
+library(ggplotFL)
+fp<-FLQuants(fit1.stck@harvest.spwn,fit2.stck@harvest.spwn)
+names(fp) <- st.names
+ggplot(fp , aes (x =year ,y =data  , colour = qname)) + geom_line() + ylim(0,1)  + scale_colour_discrete(name = "ASSESSMENT")
+
+savePlot(file.path(".","results",assess2,"comparison of Fprop.png"),type="png")
 
 
 # look at parameter values
