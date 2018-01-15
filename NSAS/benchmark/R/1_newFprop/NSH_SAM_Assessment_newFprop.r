@@ -33,7 +33,8 @@ log.msg("\nNSH Final Assessment\n=====================\n")
 
 # local path
 
-path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
+#path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
+path <- "D:/git/wg_HAWG/NSAS/benchmark/"
 
 
 
@@ -54,12 +55,14 @@ n.retro.years       <-  10                                      #Number of years
 library(FLSAM); library(FLEDA); library(FLBRP)
 source(file.path("R/1_newFprop/setupAssessmentObjects_newFprop.r"))
 source(file.path("R/1_newFprop/setupControlObject_newFprop.r"))
-path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/"
+#path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/"
+path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 source(file.path("../_Common/HAWG_Common_module.r"))
 source(file.path("retroResidual.R"))
 source(file.path("retro_param.R"))
-path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
+#path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
+path <- "D:/git/wg_HAWG/NSAS/benchmark/"
 try(setwd(path),silent=TRUE)
 
 ### ============================================================================

@@ -11,7 +11,8 @@ options(stringsAsFactors=FALSE)
 assess1 <- "0_basecase"
 assess2 <- "1_newFprop"
 # local path
-path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
+#path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
+path <- "D:/git/wg_HAWG/NSAS/benchmark/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
