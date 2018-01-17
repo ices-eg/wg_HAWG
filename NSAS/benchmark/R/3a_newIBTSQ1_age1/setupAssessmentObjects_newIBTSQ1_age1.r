@@ -163,9 +163,11 @@ NSH@m     <- NSHM2@m
 ### Prepare index object for assessment
 ### ============================================================================
 #Load and modify all numbers at age data
-NSH.tun   <- readFLIndices(file.path(data.source,"fleet.txt"))
-NSH.tun   <- lapply(NSH.tun,function(x) {x@type <- "number"; return(x)})
-NSH.tun[["IBTS0"]]@range["plusgroup"] <- NA
+NSH.tun   <- readFLIndices(file.path(data.source,"fleet_3a_newIBTSQ1_age1.txt"))
+NSH.tun   <- lapply(NSH.tun,function(x) {x@type <- "number"; return(x)}) # what is this doing???
+NSH.tun[["IBTS0"]]@range["plusgroup"] <- NA # what is this doing???
+
+#idxAll_frame <- as.data.frame(NSH.tun)
 
 #- Trim the survey index of IBTS to age 1 only
 NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=dims(NSH.tun[["IBTS-Q1"]]@index)$min)

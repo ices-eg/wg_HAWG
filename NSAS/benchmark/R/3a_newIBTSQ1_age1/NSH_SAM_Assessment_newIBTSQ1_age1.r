@@ -43,7 +43,7 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 ### Define parameters and paths for use in the assessment code
 ### ======================================================================================================
-output.dir          <-  file.path(".","results/2_newM/")        # figures directory
+output.dir          <-  file.path(".","results/3a_newIBTSQ1_age1/")        # figures directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  # Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  10                                      # Number of years for which to run the retrospective
 .libPaths("C:/software/Rpackages")
@@ -53,14 +53,14 @@ n.retro.years       <-  10                                      # Number of year
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA); library(FLBRP)
-source(file.path("R/2_newM/setupAssessmentObjects_newM.r"))
-source(file.path("R/2_newM/setupControlObject_newM.r"))
+source(file.path("R/3a_newIBTSQ1_age1/setupAssessmentObjects_newIBTSQ1_age1.r"))
+source(file.path("R/3a_newIBTSQ1_age1/setupControlObject_newIBTSQ1_age1.r"))
 #path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/"
 path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 source(file.path("../_Common/HAWG_Common_module.r"))
 source(file.path("retroResidual.R"))
-source(file.path("retro_param.R"))
+#source(file.path("retro_param.R"))
 #path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
 path <- "D:/git/wg_HAWG/NSAS/benchmark/"
 try(setwd(path),silent=TRUE)
@@ -75,12 +75,12 @@ try(setwd(path),silent=TRUE)
 
 #Perform assessment
 NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-name(NSH.sam) <- "newM"
+name(NSH.sam) <- "newIBTSQ1_age1"
 
 #Update stock object
 NSH       <- NSH + NSH.sam
 NSH@stock <- computeStock(NSH)
-name(NSH) <- "newM"
+name(NSH) <- "newIBTSQ1_age1"
 
 # Save results
 save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSH.RData",sep=""))
