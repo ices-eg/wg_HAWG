@@ -16,8 +16,8 @@ options(stringsAsFactors=FALSE)
 ### ======================================================================================================
 
 # choose the assessments to be compared
-assess1 <- "2_newM"
-assess2 <- "3a_newIBTSQ1_age1"
+assess1 <- "3a_newIBTSQ1_age1"
+assess2 <- "3b_newIBTSQ1_allAges"
 
 # local path
 path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
@@ -25,7 +25,7 @@ path <- "D:/git/wg_HAWG/NSAS/benchmark/"
 try(setwd(path),silent=TRUE)
 
 # paths
-output.dir          <-  file.path(".","results/3a_newIBTSQ1_age1/")                #figures directory
+output.dir          <-  file.path(".","results/3b_newIBTSQ1_allAges/")                #figures directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
 data.source <- file.path(".","data")    #Data source, not code or package source!!!
 
@@ -46,91 +46,6 @@ fit2.flsam <-NSH.sam
 
 #AIC(fit1)
 #AIC(fit2)
-
-### ======================================================================================================
-### Comparing time series
-### ======================================================================================================
-
-########################## compare IBTSQ1 time series at all ages ##########################
-idxIBTSQ1 <- readFLIndices(file.path(data.source, "fleet.txt"))
-idxIBTSQ1_new <- readFLIndices(file.path(data.source, "fleet_3a_newIBTSQ1_age1.txt"))
-
-idxIBTSQ1 <- as.data.frame(idxIBTSQ1)
-idxIBTSQ1 <- as.data.frame( idxIBTSQ1[idxIBTSQ1$cname == "IBTS-Q1" & 
-                                      idxIBTSQ1$slot == "index" &
-                                      !is.na(idxIBTSQ1$data),])
-
-idxIBTSQ1_new <- as.data.frame(idxIBTSQ1_new)
-idxIBTSQ1_new <- as.data.frame( idxIBTSQ1_new[idxIBTSQ1_new$cname == "IBTS-Q1" & 
-                                              idxIBTSQ1_new$slot == "index" &
-                                              !is.na(idxIBTSQ1_new$data),])
-
-#par(mfrow=c(3,2))
-for(idxAge in unique(idxIBTSQ1$age)){
-  
-  png(filename = file.path(output.dir,paste("comparison of IBTSQ1 time series age", idxAge, ".png")), 
-      units = "px",
-      width = 672, height = 800)
-  
-  x <- idxIBTSQ1_new$year[idxIBTSQ1_new$age == idxAge]
-  y1 <- idxIBTSQ1$data[idxIBTSQ1$age == idxAge]
-  y2 <- idxIBTSQ1_new$data[idxIBTSQ1_new$age == idxAge]
-  
-  format(x, scientific = FALSE)
-  
-  roundUp <- function(x) 10^ceiling(log10(x))
-  
-  marks <- seq(min(y1)-min(y1)*20/100,max(y1)+max(y1)*20/100,length=3)
-  
-  marks <- 100*ceiling(marks/100)
-  
-  # add extra space to right margin of plot within frame
-  par(mar=c(5, 4, 4, 6))
-  
-  # Plot first set of data and draw its axis
-  plot(x, y1, 
-       pch=16, 
-       axes=FALSE, 
-       xlab="", 
-       ylab="IBTSQ1 old", 
-       type="l", main=paste("Age ", idxAge))
-  axis(2, col="black",las=2)  ## las=1 makes horizontal labels
-  axis(1, col="black",las=1)  ## las=1 makes horizontal labels
-  box()
-  
-  # Allow a second plot on the same graph
-  par(new=TRUE)
-  
-  marks <- seq(min(y2)-min(y2)*20/100,max(y2)+max(y2)*20/100,length=4)
-  
-  marks <- 100*ceiling(marks/100)
-  
-  # Plot the second plot and put axis scale on right
-  plot(x, y2, pch=15,  xlab="", ylab="",
-       axes=FALSE, 
-       type="l", 
-       col="red")
-  mtext("IBTSQ1 new",side=4,col="red",line=4) 
-  
-  axis(4, col="red",col.axis="red",las=2)
-  
-  dev.off()
-}
-
-########################## compare stock trajectories ##########################
-st.names <- c(assess1,assess2)
-stc <- FLStocks(fit1.stck,fit2.stck)
-names(stc) <- st.names
-flsam <- FLSAMs(fit1.flsam,fit2.flsam)
-names(flsam) <- st.names
-
-plot(stc)
-png(filename = file.path(output.dir,paste("comparison of stock trajectories.png")), 
-    units = "px",
-    width = 672, height = 800)
-dev.off()
-#savePlot(file.path(".","results",assess2,"comparison of stock trajectories.png"),type="png")
-
 
 ### ======================================================================================================
 ### parameter values
