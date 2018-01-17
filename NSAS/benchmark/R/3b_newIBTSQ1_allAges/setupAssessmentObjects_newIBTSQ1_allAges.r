@@ -170,7 +170,7 @@ NSH.tun[["IBTS0"]]@range["plusgroup"] <- NA # what is this doing???
 #idxAll_frame <- as.data.frame(NSH.tun)
 
 #- Trim the survey index of IBTS to age 1 only
-NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=dims(NSH.tun[["IBTS-Q1"]]@index)$min)
+#NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=dims(NSH.tun[["IBTS-Q1"]]@index)$min)
 
 #Load additional indices derived from IHLS (SCAI, MLAI)
 #Note that there is a bug in readFLIndex which means that we have to
