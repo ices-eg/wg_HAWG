@@ -153,7 +153,7 @@ write.table(mw_ft1, paste(dir_out, "cw_",f,".dat", sep=""), row.names=F, col.nam
 
 #Check data
 ##Compare with original input files
-###CN
+###CANUM (CN)
 ```{r}
 cnorg<-read.table(paste(dir_in, "cn.dat", sep=""), skip=5)[c(10:26),]
 colnames(cnorg)<-c("wr0","wr1","wr2","wr3","wr4","wr5","wr6","wr7","wr8")
@@ -181,3 +181,61 @@ cncom_pct$year<-c(2000:2016)
 cncom_pct
 
 ```
+
+
+###CATON
+CATON has not been made by fleet, so testing CANUM*WECA against the CATON used in the model presently
+
+```{r}
+ctorg<-read.table(paste(dir_in, "CATON.dat", sep=""), skip=5)[c(10:26),]
+cwa<-read.table(paste(dir_out, "cw_A.dat", sep=""), skip=5)
+cwc<-read.table(paste(dir_out, "cw_C.dat", sep=""), skip=5)
+cwd<-read.table(paste(dir_out, "cw_D.dat", sep=""), skip=5)
+cwf<-read.table(paste(dir_out, "cw_F.dat", sep=""), skip=5)
+
+cta<-cna*cwa
+ctc<-cnc*cwc
+ctd<-cnd*cwd
+ctf<-cnf*cwf
+
+ctnew<-cta+ctc+ctd+ctf
+colnames(ctnew)<-c("wr0","wr1","wr2","wr3","wr4","wr5","wr6","wr7","wr8")
+ctnew1<-ctnew
+ctnew1$year<-c(2000:2016)
+ctnew1$totalNew<-ctnew1$wr0+ctnew1$wr1+ctnew1$wr2+ctnew1$wr3+ctnew1$wr4+ctnew1$wr5+ctnew1$wr6+ctnew1$wr7+ctnew1$wr8
+ctnew1$totalOrg<-ctorg
+ctnew1$diffTon<-ctnew1$totalOrg-ctnew1$totalNew
+ctnew1$diffPct<-(ctnew1$diffTon/ctnew1$totalOrg)*100
+
+#Difference in CATON betweeen new and original input file
+ctnew1[,c(10:14)]
+```
+
+###WECA
+```{r}
+cworg<-read.table(paste(dir_in, "cw.dat", sep=""), skip=5)[c(10:26),]
+colnames(cworg)<-c("wr0","wr1","wr2","wr3","wr4","wr5","wr6","wr7","wr8")
+cwnew<-(ctnew/cnnew)
+colnames(cwnew)<-c("wr0","wr1","wr2","wr3","wr4","wr5","wr6","wr7","wr8")
+
+cwcom<-round(cworg-cwnew, digits=5)
+cwcom$year<-c(2000:2016)
+#Difference in WECA between the original input file and sum of input files per fleet
+cwcom
+```
+
+###CATON
+Files presently used in the model: Testing CANUMxWECA againt CATON
+```{r}
+cncworg<-cnorg*cworg
+colnames(cncworg)<-c("wr0","wr1","wr2","wr3","wr4","wr5","wr6","wr7","wr8")
+cncworg$year<-c(2000:2016)
+cncworg$caton_cnxcw<-cncworg$wr0+cncworg$wr1+cncworg$wr2+cncworg$wr3+cncworg$wr4+cncworg$wr5+cncworg$wr6+cncworg$wr7+cncworg$wr8
+cncworg$caton_CATON<-ctorg
+cncworg$diffTon<-cncworg$caton_cnxcw-cncworg$caton_CATON
+cncworg$diffPct<-(cncworg$diffTon/cncworg$caton_cnxcw)*100
+
+#Difference in CATON betweeen the CATON file and cs*cn used presently
+cncworg[,c(10:14)]
+```
+
