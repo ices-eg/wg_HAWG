@@ -1,4 +1,4 @@
-newIBTSQ1_age1 proportion of M before spawning - m.spwn (units : NA )
+IBTSQ3_age1 proportion of M before spawning - m.spwn (units : NA )
 1	8	
 1947	2016	
 0	8	

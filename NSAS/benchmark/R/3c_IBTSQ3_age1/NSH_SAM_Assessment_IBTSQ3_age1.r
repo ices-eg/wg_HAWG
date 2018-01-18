@@ -53,8 +53,8 @@ n.retro.years       <-  10                                      # Number of year
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA); library(FLBRP)
-source(file.path("R/3a_newIBTSQ1_age1/setupAssessmentObjects_newIBTSQ1_age1.r"))
-source(file.path("R/3a_newIBTSQ1_age1/setupControlObject_newIBTSQ1_age1.r"))
+source(file.path("R/3c_IBTSQ3_age1/setupAssessmentObjects_IBTSQ3_age1.r"))
+source(file.path("R/3c_IBTSQ3_age1/setupControlObject_IBTSQ3_age1.r"))
 #path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/"
 path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
@@ -75,12 +75,12 @@ try(setwd(path),silent=TRUE)
 
 #Perform assessment
 NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-name(NSH.sam) <- "newIBTSQ1_age1"
+name(NSH.sam) <- "IBTSQ3_age1"
 
 #Update stock object
 NSH       <- NSH + NSH.sam
 NSH@stock <- computeStock(NSH)
-name(NSH) <- "newIBTSQ1_age1"
+name(NSH) <- "IBTSQ3_age1"
 
 # Save results
 save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSH.RData",sep=""))

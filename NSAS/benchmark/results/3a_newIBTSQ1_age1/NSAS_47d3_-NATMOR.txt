@@ -1,4 +1,4 @@
-newIBTSQ1_age1 natural mortality - m (units : NA )
+IBTSQ3_age1 natural mortality - m (units : NA )
 1	5	
 1947	2016	
 0	8	

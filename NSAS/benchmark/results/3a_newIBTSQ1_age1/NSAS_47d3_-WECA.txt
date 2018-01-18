@@ -1,4 +1,4 @@
-newIBTSQ1_age1 catch weight-at-age - catch.wt (units : kg )
+IBTSQ3_age1 catch weight-at-age - catch.wt (units : kg )
 1	3	
 1947	2016	
 0	8	

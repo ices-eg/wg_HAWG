@@ -163,7 +163,7 @@ NSH@m     <- NSHM2@m
 ### Prepare index object for assessment
 ### ============================================================================
 #Load and modify all numbers at age data
-NSH.tun   <- readFLIndices(file.path(data.source,"fleet_3a_newIBTSQ1_age1.txt"))
+NSH.tun   <- readFLIndices(file.path(data.source,"fleet_3a_newIBTSQ1.txt"))
 NSH.tun   <- lapply(NSH.tun,function(x) {x@type <- "number"; return(x)}) # what is this doing???
 NSH.tun[["IBTS0"]]@range["plusgroup"] <- NA # what is this doing???
 

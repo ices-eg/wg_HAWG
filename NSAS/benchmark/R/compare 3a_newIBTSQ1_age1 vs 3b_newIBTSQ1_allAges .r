@@ -47,6 +47,22 @@ fit2.flsam <-NSH.sam
 #AIC(fit1)
 #AIC(fit2)
 
+########################## compare stock trajectories ##########################
+st.names <- c(assess1,assess2)
+stc <- FLStocks(fit1.stck,fit2.stck)
+names(stc) <- st.names
+flsam <- FLSAMs(fit1.flsam,fit2.flsam)
+names(flsam) <- st.names
+
+plot(stc)
+png(filename = file.path(output.dir,paste("comparison of stock trajectories.png")), 
+    units = "px",
+    width = 672, height = 800)
+dev.off()
+#savePlot(file.path(".","results",assess2,"comparison of stock trajectories.png"),type="png")
+
+
+
 ### ======================================================================================================
 ### parameter values
 ### ======================================================================================================
