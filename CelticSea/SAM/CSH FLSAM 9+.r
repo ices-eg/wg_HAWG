@@ -104,7 +104,7 @@ CSH.ctrl@states[1,] <- c(1:7,8,8)
 
 
 #Correlated Random walks for fishing mortalities - Default = FALSE = independent)
-CSH.ctrl@cor.F<-2
+CSH.ctrl@cor.F<-T
 
 # Catchabilities
 CSH.ctrl@catchabilities["CS HerAS",]<-c(1,2,3,3,3,3,3,3,3)
@@ -126,9 +126,9 @@ CSH.ctrl@obs.vars["CS HerAS",1:9] <- 6
 #CSH.ctrl@name <- "Final Assessment"
 #CSH.ctrl <- update(CSH.ctrl)
 
-CSH.ctrl@cor.obs[1,] <- NA
-CSH.ctrl@cor.obs[2,] <- rep(1,8)
-CSH.ctrl@cor.obs.Flag[2] <- af("AR")
+#CSH.ctrl@cor.obs[1,] <- NA
+#CSH.ctrl@cor.obs[2,] <- rep(1,8)
+#CSH.ctrl@cor.obs.Flag[2] <- af("AR")
 CSH.ctrl <- update(CSH.ctrl)
 ### ======================================================================================================
 ### Perform the assessment
@@ -136,7 +136,8 @@ CSH.ctrl <- update(CSH.ctrl)
 log.msg("PERFORMING ASSESSMENT...\n")
 
 #Now perform the asssessment
-CSH.sam   <-  FLSAM(CSH,CSH.tun,CSH.ctrl)
+CSH.sam   <- FLSAM(CSH,CSH.tun,CSH.ctrl)
+CSH.retro <- retro(CSH,CSH.tun,CSH.ctrl,7)
 
 #save AIC
 write.csv(AIC(CSH.sam),file=file.path(output.dir,"AIC.csv"))
