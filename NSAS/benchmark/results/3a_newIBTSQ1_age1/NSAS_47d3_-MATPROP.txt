@@ -1,4 +1,4 @@
-IBTSQ3_age1 maturity-at-age ogive - mat (units : NA )
+newIBTSQ1_age1 maturity-at-age ogive - mat (units : NA )
 1	6	
 1947	2016	
 0	8	

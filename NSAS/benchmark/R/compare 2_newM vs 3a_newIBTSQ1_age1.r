@@ -65,14 +65,16 @@ idxIBTSQ1_new <- as.data.frame( idxIBTSQ1_new[idxIBTSQ1_new$cname == "IBTS-Q1" &
                                               idxIBTSQ1_new$slot == "index" &
                                               !is.na(idxIBTSQ1_new$data),])
 
-png(filename = file.path(output.dir,paste("comparison of IBTSQ1 time series.png")), 
-    units = "px",
-    width = 672, height = 800)
+#png(filename = file.path(output.dir,paste("comparison of IBTSQ1 time series.png")), 
+#    units = "px",
+#    width = 672, height = 800)
 
-par(mfrow=c(3,2))
+#par(mfrow=c(3,2))
 for(idxAge in unique(idxIBTSQ1$age)){
   
-
+  png(filename = file.path(output.dir,paste("comparison of IBTSQ1 time series age", idxAge, ".png")), 
+      units = "px",
+      width = 672, height = 800)
   
   x <- idxIBTSQ1_new$year[idxIBTSQ1_new$age == idxAge]
   y1 <- idxIBTSQ1$data[idxIBTSQ1$age == idxAge]
@@ -116,10 +118,10 @@ for(idxAge in unique(idxIBTSQ1$age)){
   
   axis(4, col="red",col.axis="red",las=2)
   
-  
+  dev.off() 
 }
 
-dev.off()
+#dev.off()
 
 ########################## compare stock trajectories ##########################
 st.names <- c(assess1,assess2)

@@ -1,4 +1,4 @@
-IBTSQ3_age1 proportion of F before spawning - harvest.spwn (units : NA )
+newIBTSQ1_age1 proportion of F before spawning - harvest.spwn (units : NA )
 1	7	
 1947	2016	
 0	8	

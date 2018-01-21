@@ -1,4 +1,4 @@
-IBTSQ3_age1 discards weight-at-age - discards.wt (units : kg )
+newIBTSQ1_age1 discards weight-at-age - discards.wt (units : kg )
 1	23	
 1947	2016	
 0	8	
