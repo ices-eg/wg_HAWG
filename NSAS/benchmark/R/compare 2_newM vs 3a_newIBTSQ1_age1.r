@@ -123,6 +123,12 @@ for(idxAge in unique(idxIBTSQ1$age)){
 
 #dev.off()
 
+#####################################################################################################################
+
+## open png print
+
+png(file.path(output.dir,paste(name(NSH.sam),"figures_comparison - %02d.png")),units = "px", height=800,width=672, bg = "white")
+
 ########################## compare stock trajectories ##########################
 st.names <- c(assess1,assess2)
 stc <- FLStocks(fit1.stck,fit2.stck)
@@ -130,11 +136,12 @@ names(stc) <- st.names
 flsam <- FLSAMs(fit1.flsam,fit2.flsam)
 names(flsam) <- st.names
 
-plot(stc)
-png(filename = file.path(output.dir,paste("comparison of stock trajectories.png")), 
-    units = "px",
-    width = 672, height = 800)
-dev.off()
+print(plot(stc))
+
+#png(filename = file.path(output.dir,paste("comparison of stock trajectories.png")), 
+#    units = "px",
+#    width = 672, height = 800)
+#dev.off()
 #savePlot(file.path(".","results",assess2,"comparison of stock trajectories.png"),type="png")
 
 
@@ -157,12 +164,12 @@ g   <-  g  +  geom_bar(aes(fill = assess   ), position = "dodge", stat="identity
 g   <-  g  +  ggtitle("survey catchability")  + xlab("")  + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 g   <-  g  +  geom_errorbar(aes(ymin=lbnd, ymax=ubnd),width=1, position=position_dodge(.9))
 g   <-  g  +  facet_grid(fleet~.,scales = "free") + scale_colour_discrete(name = "ASSESSMENT")
-g
+print(g)
 
-png(filename = file.path(output.dir,paste("comparison of catchabilities.png")), 
-    units = "px",
-    width = 672, height = 800)
-dev.off()
+#png(filename = file.path(output.dir,paste("comparison of catchabilities.png")), 
+#    units = "px",
+#    width = 672, height = 800)
+#dev.off()
 #savePlot(file.path(".","results",assess2,"comparison of catchabilities.png"),type="png")
 
 ################# observation variance values ##########################
@@ -180,9 +187,9 @@ g   <-  g  +  geom_bar(aes(fill = assess   ), position = "dodge", stat="identity
 g   <-  g  +  ggtitle("observation variances")  + xlab("") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 g   <-  g  +  geom_errorbar(aes(ymin=lbnd, ymax=ubnd),width=1, position=position_dodge(.9))
 g   <-  g  +  facet_grid(fleet~.,scales = "free") + scale_colour_discrete(name = "ASSESSMENT")
-g
+print(g)
 
-savePlot(file.path(".","results",assess2,"comparison of obs.vars.png"),type="png")
+#savePlot(file.path(".","results",assess2,"comparison of obs.vars.png"),type="png")
 
 ################# process variances ##########################
 mvars <- c("logSdLogFsta","logSdLogN") 
@@ -208,9 +215,9 @@ g   <-  g  +  geom_bar(aes(fill = assess   ), position = "dodge", stat="identity
 g   <-  g  +  ggtitle("process variances")  + xlab("")   + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 g   <-  g  +  geom_errorbar(aes(ymin=lbnd, ymax=ubnd),width=1, position=position_dodge(.9))
 g   <-  g  +  facet_grid(name~.,scales = "free")  + scale_colour_discrete(name = "ASSESSMENT")
-g
+print(g)
 
-savePlot(file.path(".","results",assess2,"comparison of process.vars.png"),type="png")
+#savePlot(file.path(".","results",assess2,"comparison of process.vars.png"),type="png")
 
 
 ################# uncertainty ##########################
@@ -233,7 +240,9 @@ g <- ggplot(data = CV.dat , aes(x = year , y  = value , colour = assess))
 g   <-  g  +  geom_line(aes(colour = assess   ))
 g   <-  g  +  ggtitle("assessment uncertainty")  + xlab("") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 g   <-  g  +  facet_grid(var~.,scales = "free")   + scale_colour_discrete(name = "ASSESSMENT")
-g
+print(g)
 
 
-savePlot(file.path(".","results",assess2,"comparison of model uncertainty.png"),type="png")
+#savePlot(file.path(".","results",assess2,"comparison of model uncertainty.png"),type="png")
+
+dev.off()

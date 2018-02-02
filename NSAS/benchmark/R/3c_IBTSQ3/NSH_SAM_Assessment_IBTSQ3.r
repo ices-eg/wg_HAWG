@@ -93,6 +93,9 @@ save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSH.RData",sep=""))
 ### ============================================================================
 ### ============================================================================
 
+assess2 <- "3c_IBTSQ3"
+load(file.path(".","results",assess2,"NSH.RData")  )
+
 #Setup plots
 pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
 png(file.path(output.dir,paste(name(NSH.sam),"figures - %02d.png")),units = "px", height=800,width=672, bg = "white")
