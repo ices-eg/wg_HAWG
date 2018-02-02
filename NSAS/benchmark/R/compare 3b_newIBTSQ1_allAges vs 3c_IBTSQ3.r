@@ -49,7 +49,98 @@ fit2.flsam <-NSH.sam
 
 
 ### ======================================================================================================
-### plotting time series
+### Comparing IBTSQ1 and Q3 time series
+### ======================================================================================================
+
+########################## compare IBTSQ1 time series at all ages ##########################
+data_surveys_old <- readFLIndices(file.path(data.source, "fleet.txt"))
+data_surveys <- readFLIndices(file.path(data.source, "fleet_3c_newIBTSQ3.txt"))
+
+data_IBTSQ3 <- as.data.frame(data_surveys)
+data_IBTSQ3 <- as.data.frame( data_IBTSQ3[data_IBTSQ3$cname == "IBTS-Q3" & 
+                                          data_IBTSQ3$slot == "index" &
+                                          !is.na(data_IBTSQ3$data),])
+
+data_IBTSQ1 <- as.data.frame(data_surveys)
+data_IBTSQ1 <- as.data.frame( data_IBTSQ1[data_IBTSQ1$cname == "IBTS-Q1" & 
+                                            data_IBTSQ1$slot == "index" &
+                                        !is.na(data_IBTSQ1$data),])
+
+data_IBTSQ1_old <- as.data.frame(data_surveys_old)
+data_IBTSQ1_old <- as.data.frame( data_IBTSQ1_old[data_IBTSQ1_old$cname == "IBTS-Q1" & 
+                                                  data_IBTSQ1_old$slot == "index" &
+                                                  !is.na(data_IBTSQ1_old$data),])
+
+data_HERAS <- as.data.frame(data_surveys)
+data_HERAS <- as.data.frame( data_HERAS[data_HERAS$cname == "HERAS" & 
+                                        data_HERAS$slot == "index" &
+                                        !is.na(data_HERAS$data),])
+
+write.csv(data_IBTSQ3, file.path(".","results",assess2,"data_IBTSQ3.csv"))
+write.csv(data_IBTSQ1, file.path(".","results",assess2,"data_IBTSQ1.csv"))
+write.csv(data_IBTSQ1_old, file.path(".","results",assess2,"data_IBTSQ1_old.csv"))
+write.csv(data_HERAS, file.path(".","results",assess2,"data_HERAS.csv"))
+
+#png(filename = file.path(output.dir,paste("comparison of IBTSQ1 time series.png")), 
+#    units = "px",
+#    width = 672, height = 800)
+
+#par(mfrow=c(3,2))
+for(idxAge in unique(idxIBTSQ1$age)){
+  
+  png(filename = file.path(output.dir,paste("comparison of IBTSQ1 time series age", idxAge, ".png")), 
+      units = "px",
+      width = 672, height = 800)
+  
+  x1 <- data_IBTSQ3$year[data_IBTSQ3$age == idxAge]
+  y1 <- data_IBTSQ3$data[data_IBTSQ3$age == idxAge]
+  x2 <- data_IBTSQ1$year[data_IBTSQ1$age == idxAge]
+  y2 <- data_IBTSQ1$data[data_IBTSQ1$age == idxAge]
+  
+  format(x, scientific = FALSE)
+  
+  roundUp <- function(x) 10^ceiling(log10(x))
+  
+  marks <- seq(min(y1)-min(y1)*20/100,max(y1)+max(y1)*20/100,length=3)
+  
+  marks <- 100*ceiling(marks/100)
+  
+  # add extra space to right margin of plot within frame
+  par(mar=c(5, 4, 4, 6))
+  
+  # Plot first set of data and draw its axis
+  plot(x1, y1, 
+       pch=16, 
+       axes=FALSE, 
+       xlab="", 
+       ylab="IBTSQ1 old", 
+       type="l", main=paste("Age ", idxAge))
+  axis(2, col="black",las=2)  ## las=1 makes horizontal labels
+  axis(1, col="black",las=1)  ## las=1 makes horizontal labels
+  box()
+  
+  # Allow a second plot on the same graph
+  par(new=TRUE)
+  
+  marks <- seq(min(y2)-min(y2)*20/100,max(y2)+max(y2)*20/100,length=4)
+  
+  marks <- 100*ceiling(marks/100)
+  
+  # Plot the second plot and put axis scale on right
+  plot(x2, y2, pch=15,  xlab="", ylab="",
+       axes=FALSE, 
+       type="l", 
+       col="red")
+  mtext("IBTSQ1 new",side=4,col="red",line=4) 
+  
+  axis(4, col="red",col.axis="red",las=2)
+  
+  dev.off() 
+}
+
+
+### ======================================================================================================
+### plotting IBTSQ3 time series
 ### ======================================================================================================
 
 ########################## compare IBTSQ1 time series at all ages ##########################
