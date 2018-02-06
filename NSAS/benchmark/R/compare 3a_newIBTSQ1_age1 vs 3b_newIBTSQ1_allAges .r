@@ -5,7 +5,7 @@
 ### ============================================================================
 ### imports
 ### ============================================================================
-library(FLSAM); library(FLEDA);library(ggplot2); library(grid)
+library(FLSAM); library(FLEDA);library(ggplot2); library(grid); library(FLEDA); library(FLBRP)
 
 rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
