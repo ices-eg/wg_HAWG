@@ -17,6 +17,8 @@ options(stringsAsFactors=FALSE)
 
 # choose the assessments to be compared
 assess1 <- "3b_newIBTSQ1_allAges"
+#assess1 <- "3a_newIBTSQ1_age1"
+
 assess2 <- "3c_IBTSQ3"
 
 # local path
