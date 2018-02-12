@@ -27,17 +27,10 @@ NSH3.ctrl <- FLSAM.control(NSHs3,NSH.tun,sumFleets=dimnames(NSHs3[["residual"]]@
 catchRow                            <- grep("catch",rownames(NSH3.ctrl@f.vars))
 NSH3.ctrl@states["catch A",]        <- c(-1,0:6,6)
 NSH3.ctrl@states["catch BD",]       <- c(7:8,8,rep(-1,6))
-<<<<<<< HEAD
 NSH3.ctrl@states["catch C",]        <- c(-1,10:11,11,rep(-1,5))
 NSH3.ctrl@catchabilities["HERAS",ac(2:8)]   <- c(rep(101,1),rep(102,2),rep(103,4))
 NSH3.ctrl@catchabilities["IBTS-Q3",ac(0:4)] <- c(201,202,202,203,203)
 NSH3.ctrl@obs.vars["catch A",]      <- c(-1,0,rep(1,2),rep(2,3),rep(5,2))
-=======
-NSH3.ctrl@states["catch C",]        <- c(-1,9:10,10,rep(-1,5))
-NSH3.ctrl@catchabilities["HERAS",ac(2:8)]   <- c(rep(101,1),rep(102,2),rep(103,4))
-NSH3.ctrl@catchabilities["IBTS-Q3",ac(0:4)] <- c(201,202,202,203,203)
-NSH3.ctrl@obs.vars["catch A",]      <- c(-1,0,rep(1,2),rep(2,5))
->>>>>>> 50ae4f3... adding new runs
 NSH3.ctrl@obs.vars["catch BD",]     <- c(rep(3,3),rep(-1,6))
 NSH3.ctrl@obs.vars["catch C",]      <- c(-1,4,4,4,rep(-1,5))
 NSH3.ctrl@obs.vars["IBTS0",ac(0)]   <- 801
@@ -46,15 +39,10 @@ NSH3.ctrl@obs.vars["IBTS-Q3",ac(0:4)]<- 200
 NSH3.ctrl@obs.vars["HERAS",ac(2:8)] <- c(rep(101,5),102,102)
 laiRow                              <- grep("LAI",rownames(NSH3.ctrl@obs.vars))
 NSH3.ctrl@catchabilities[laiRow,1]  <- 601
-<<<<<<< HEAD
 NSH3.ctrl@cor.obs[7,1:4] <- 1
 NSH3.ctrl@cor.obs.Flag[7] <- as.factor("AR")
 #NSH3.ctrl@power.law.exps[laiRow,1]  <- 101
 NSH3.ctrl@obs.vars[laiRow,1]        <- 601#:604
-=======
-#NSH3.ctrl@power.law.exps[laiRow,1]  <- 101
-NSH3.ctrl@obs.vars[laiRow,1]        <- 601
->>>>>>> 50ae4f3... adding new runs
 NSH3.ctrl@cor.F                     <- as.integer(c(2,1,2))
 NSH3.ctrl@f.vars[catchRow,]         <- matrix(c(c(rep(0,4),rep(1,5)),c(rep(2,4),rep(-1,5)),c(rep(3,4),rep(4,5))),nrow=length(catchRow),byrow=T)
 NSH3.ctrl@f.vars["catch A",]        <- c(-1,101,rep(102,4),rep(103,3))
@@ -63,11 +51,7 @@ NSH3.ctrl@f.vars["catch C",]        <- c(-1,301,302,302,rep(-1,5))
 NSH3.ctrl@name                      <- "Three fleet model"
 NSH3.ctrl@residuals                 <- FALSE
 NSH3.ctrl                           <- update(NSH3.ctrl)
-<<<<<<< HEAD
-NSH3.ctrl@f.vars["IBTS0",1]         <- -3
-=======
 
->>>>>>> 50ae4f3... adding new runs
 
 #- 4-fleets
 NSH4.ctrl <- FLSAM.control(NSHs4,NSH.tun,sumFleets=dimnames(NSHs4[["residual"]]@catch)$area)

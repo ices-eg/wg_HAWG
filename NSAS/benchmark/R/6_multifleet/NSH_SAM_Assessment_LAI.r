@@ -57,39 +57,21 @@ source(file.path("R/6_multifleet/setupControlObject_sf.r"))
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-<<<<<<< HEAD
 NSH.ctrl@residuals <- F
 
-for(iLai in grep("LAI",names(NSH.tun))){
-NSH.tun[[iLai]]@index <- sqrt(NSH.tun[[iLai]]@index)
-NSH.tun[[iLai]]@index[is.na(NSH.tun[[iLai]]@index)] <- -1
-}
-
-
 NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-
-sams <- FLSAMs(original=NSH.sam,corForDowns=NSHcorDowns.sam)
-
-=======
-
-NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
->>>>>>> 50ae4f3... adding new runs
 name(NSH.sam) <- "base run"
 NSH.ctrl@residuals <- F
 NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,7)
 
 source(file.path("R/6_multifleet/setupMultiFleetData.r"))
 source(file.path("R/6_multifleet/setupControlObject_mf.r"))
-<<<<<<< HEAD
 
-=======
->>>>>>> 50ae4f3... adding new runs
 NSH3f.sam   <- FLSAM(NSHs3,
                      NSH.tun,
                      NSH3.ctrl)
 NSH3.ctrl@residuals <- F
 NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
-<<<<<<< HEAD
 
 mean(mohns.rho(NSH3f.retro,ref.year=2016,span=7,type="fbar")[1:7,1])
 mean(mohns.rho(NSH3f.retro,ref.year=2016,span=7,type="ssb")[1:7,1])
@@ -98,13 +80,9 @@ mean(mohns.rho(NSH.retro,ref.year=2016,span=7,type="fbar")[1:7,1])
 mean(mohns.rho(NSH.retro,ref.year=2016,span=7,type="ssb")[1:7,1])
 mean(mohns.rho(NSH.retro,ref.year=2016,span=7,type="rec")[1:7,1])
 
-
-
 sams <- FLSAMs(original=NSH.sam,threeFleet=NSH3f.sam)
 
 
-=======
->>>>>>> 50ae4f3... adding new runs
 NSH4f.sam   <- FLSAM(NSHs4,
                      NSH.tun,
                      NSH4.ctrl)
@@ -124,29 +102,6 @@ plot(NSH4f.retro)
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-
-#Stabalize model 3f: extra f.vars
-source(file.path("R/6_multifleet/setupMultiFleetData.r"))
-source(file.path("R/6_multifleet/setupControlObject_mf.r"))
-
-NSH3.ctrl@residuals <- F
-NSH3.ctrl@f.vars[1:3,] <- matrix(c(c(rep(0,4),rep(1,5)),c(rep(2,4),rep(-1,5)),c(rep(3,4),rep(4,5))),nrow=3,byrow=T)
-<<<<<<< HEAD
-NSH3.ctrl@cor.F <- c(2,1,1)
-NSH3f.samOrig <- NSH3f.sam
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl,starting.values=startVals)
-  NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
-=======
-NSH3.ctrl@cor.F <- c(2,1,2)
-NSH3f.samOrig <- NSH3f.sam
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl)
-NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
->>>>>>> 50ae4f3... adding new runs
-retroParams(NSH3f.retro)
 
 #
 NSH3.ctrl@residuals <- F
@@ -302,11 +257,7 @@ residual.diagnostics(NSH.sam)
 print(plot(NSH.sam,futureYrs=F))
 
 # figure - uncertainties as a function of time
-<<<<<<< HEAD
-par(mfrow=c(1,2))
-=======
 par(mfrow=c(1,3))
->>>>>>> 50ae4f3... adding new runs
 CV.yrs <- ssb(NSH.sam)$year
 CV.dat <- cbind(SSB=ssb(NSH.sam)$CV,
                 Fbar=fbar(NSH.sam)$CV,Rec=rec(NSH.sam)$CV)

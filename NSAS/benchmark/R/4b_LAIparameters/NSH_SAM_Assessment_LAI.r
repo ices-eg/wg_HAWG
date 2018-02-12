@@ -101,7 +101,7 @@ sams <- FLSAMs(NSHlai.sam,NSHlailogp.sam,NSHlaiobsv.sam,NSHlaipl.sam)
 AIC(sams)
 
 # Save results
-save(NSH,NSHlai.sam,file=file.path(output.dir,"NSH.RData",sep=""))
+save(NSH,NSHlai.sam,sams,file=file.path(output.dir,"NSH.RData",sep=""))
 
 ### ============================================================================
 ### ============================================================================

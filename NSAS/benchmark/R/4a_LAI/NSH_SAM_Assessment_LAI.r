@@ -83,7 +83,7 @@ NSHlai.retro <- retro(NSH,NSHlai.tun,NSHlai.ctrl,7)
 mohns.rho(NSHscai.retro,span=7,ref.year=2016,type="fbar")
 mohns.rho(NSHlai.retro,span=7,ref.year=2016,type="fbar")
 # Save results
-save(NSH,NSHscai.tun,NSHlai.tun,NSHlaip.tun,NSHlai.ctrl,NSHscai.ctrl,NSHlaiNSHscai.sam,NSHlai.sam,file=file.path(output.dir,"NSH.RData",sep=""))
+save(NSH,NSHscai.tun,NSHlai.tun,NSHlai.ctrl,NSHscai.ctrl,NSHscai.sam,NSHlai.sam,NSHlai.retro,NSHscai.retro,file=file.path(output.dir,"NSH.RData",sep=""))
 
 ### ============================================================================
 ### ============================================================================
