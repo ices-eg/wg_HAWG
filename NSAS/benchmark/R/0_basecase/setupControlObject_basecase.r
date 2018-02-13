@@ -23,27 +23,28 @@ NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
 #Set the variances. Separate variance for recruitment and plus group
 #Fishing mortality RWs are set from an analysis of ICA VPA results
 NSH.ctrl@logN.vars[]      <- c(1,rep(2,dims(NSH)$age-1))
-NSH.ctrl@f.vars["catch",] <- c(rep(1,2),rep(2,2),rep(3,2),rep(4,3))
+NSH.ctrl@f.vars["catch unique",] <- c(rep(1,2),rep(2,2),rep(3,2),rep(4,3))
 
 #All fishing mortality states are free except
 #oldest ages to ensure stablity
-NSH.ctrl@states["catch",] <- seq(dims(NSH)$age)
-NSH.ctrl@states["catch",ac(7:8)] <- 101
+NSH.ctrl@states["catch unique",] <- seq(dims(NSH)$age)
+NSH.ctrl@states["catch unique",ac(7:8)] <- 101
 
-#Group observation variances of catches to ensure stability
-NSH.ctrl@obs.vars["catch",ac(0)]  <- 201
-NSH.ctrl@obs.vars["catch",ac(1:5)]  <- 202
-NSH.ctrl@obs.vars["catch",ac(6:8)]  <- 203
-#NSH.ctrl@obs.vars["catch",ac(8)]    <- 204
+#Group observation variances of catch uniquees to ensure stability
+NSH.ctrl@obs.vars["catch unique",ac(0)]  <- 201
+NSH.ctrl@obs.vars["catch unique",ac(1:5)]  <- 202
+NSH.ctrl@obs.vars["catch unique",ac(6:8)]  <- 203
+#NSH.ctrl@obs.vars["catch unique",ac(8)]    <- 204
 
 NSH.ctrl@obs.vars["HERAS",ac(1)]    <- 301
 NSH.ctrl@obs.vars["HERAS",ac(2:5)]  <- 302
 NSH.ctrl@obs.vars["HERAS",ac(6:8)]  <- 303
 
-#Group catchability parametesr
+#Group catch uniqueability parametesr
 NSH.ctrl@catchabilities["HERAS",ac(1:8)]  <- c(rep(101,2),rep(102,2),rep(103,4))
 #NSH.ctrl@catchabilities["HERAS",ac(1:8)]  <- 101:108
 
+NSH.ctrl@cor.F <- 0
 #Finalise
 NSH.ctrl@name <- "Final Assessment"
 NSH.ctrl <- update(NSH.ctrl)

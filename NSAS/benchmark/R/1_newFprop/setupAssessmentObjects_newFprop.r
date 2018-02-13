@@ -189,9 +189,16 @@ NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=dims(NSH.tun[["IBTS-Q1"]]@
 SCAI.idx <-  readFLIndices(file.path(data.source,"fleet.txt"),
                    file.path(data.source,"scai.txt"),type="ICA")[-seq(NSH.tun)]
 
-#Combine all surveys into one object and set names
-NSH.tun   <- FLIndices(c(SCAI.idx,NSH.tun))
-names(NSH.tun) <- sapply(NSH.tun,name)
+SCAI.idx[[1]]@catch.n <- SCAI.idx[[1]]@index
+SCAI.idx[[1]]@range[6:7] <- 0:1
+name(SCAI.idx[[1]]) <- "SCAI"
+
+SCAI <- FLIndex(index=FLQuant(c(SCAI.idx[[1]]@index),dimnames=list(age=-1,year=SCAI.idx[[1]]@range["minyear"]:SCAI.idx[[1]]@range["maxyear"],unit="unique",season="all",area="unique",iter=1)))
+SCAI@catch.n <- SCAI@index
+SCAI@range[6:7] <- 0:1
+name(SCAI) <- "SCAI"
+NSH.tun <- FLIndices(NSH.tun[[1]],NSH.tun[[2]],NSH.tun[[3]],SCAI)
+type(NSH.tun[["SCAI"]]) <- "biomass"
 
 ### ============================================================================
 ### Apply plusgroup to all data sets
