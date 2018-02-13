@@ -45,7 +45,8 @@ for idxAge = 1:length(age_comp)
 
         I(idxSurveyName,a(a~=idxSurveyName)) = corrCurrent;
         I(a(a~=idxSurveyName),idxSurveyName) = corrCurrent;
-%         I(a(a~=idxSurveyName),idxSurveyName) = pvalueCurrent;
+%         I(idxSurveyName,a(a~=idxSurveyName)) = pvalueCurrent/alpha;
+%         I(a(a~=idxSurveyName),idxSurveyName) = pvalueCurrent/alpha;
     end
 %     L = tril(I)/boundCorr;
 % 	U = triu(I);
@@ -63,6 +64,7 @@ for idxAge = 1:length(age_comp)
     matRes(idxAge).age = age_comp(idxAge);
     
     [myColorMap]=buildcmap('ryg');
+%     [myColorMap]=buildcmap('gyr');
 
     lowThreshold = 0;
     highThreshold = 1;
