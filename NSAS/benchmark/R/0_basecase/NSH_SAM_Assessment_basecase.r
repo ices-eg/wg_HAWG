@@ -17,6 +17,13 @@
 # Notes: Have fun running this assessment!
 #
 ################################################################################
+install <- FALSE
+if(install){
+  install.packages(pkgs="FLCore",repos="http://flr-project.org/R")
+  devtools::install_github("fishfollower/SAM/stockassessment", ref="components")
+  devtools::install_github("flr/FLSAM", ref="develop_V2")
+}
+
 
 ### ============================================================================
 ### ============================================================================
@@ -55,15 +62,6 @@ n.retro.years       <-  10                                      #Number of years
 library(FLSAM); library(FLEDA); library(FLBRP)
 source(file.path("R/0_basecase/setupAssessmentObjects_basecase.r"))
 source(file.path("R/0_basecase/setupControlObject_basecase.r"))
-#path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/"
-path <- "D:/git/wg_HAWG/NSAS/"
-try(setwd(path),silent=TRUE)
-source(file.path("../_Common/HAWG_Common_module.r"))
-source(file.path("retroResidual.R"))
-source(file.path("retro_param.R"))
-#path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
-path <- "D:/git/wg_HAWG/NSAS/benchmark/"
-try(setwd(path),silent=TRUE)
 
 ### ============================================================================
 ### ============================================================================
