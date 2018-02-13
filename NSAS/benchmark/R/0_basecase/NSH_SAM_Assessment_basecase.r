@@ -42,9 +42,6 @@ log.msg("\nNSH Final Assessment\n=====================\n")
 
 #path <- "C:/Users/brune001/my git files/wg_HAWG/NSAS/benchmark/"
 path <- "D:/git/wg_HAWG/NSAS/benchmark/"
-
-
-
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -53,7 +50,7 @@ try(setwd(path),silent=TRUE)
 output.dir          <-  file.path(".","results/0_basecase/")                #figures directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  10                                      #Number of years for which to run the retrospective
-.libPaths("C:/software/Rpackages")
+#.libPaths("C:/software/Rpackages")
 
 
 ### ============================================================================
@@ -62,6 +59,12 @@ n.retro.years       <-  10                                      #Number of years
 library(FLSAM); library(FLEDA); library(FLBRP)
 source(file.path("R/0_basecase/setupAssessmentObjects_basecase.r"))
 source(file.path("R/0_basecase/setupControlObject_basecase.r"))
+
+path <- "D:/git/wg_HAWG/NSAS/"
+try(setwd(path),silent=TRUE)
+source(file.path("../_Common/HAWG_Common_module.r"))
+path <- "D:/git/wg_HAWG/NSAS/benchmark/"
+try(setwd(path),silent=TRUE)
 
 ### ============================================================================
 ### ============================================================================

@@ -1,5 +1,5 @@
 basecase catch-at-age - catch.n (units : thousands )
-1	2	
+1	25	
 1947	2016	
 0	8	
 1 
