@@ -18,6 +18,8 @@
 #
 ################################################################################
 
+rm(list=ls())
+
 library(tidyverse)
 
 install <- FALSE
@@ -81,6 +83,74 @@ name(NSH) <- "newMscaled2014"
 
 # Save results
 save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSH.RData",sep=""))
+
+NSHbench      <- NSH
+NSHbench.ctrl <- NSH.ctrl
+NSHbench.sam  <- NSH.sam
+NSHbench.tun  <- NSH.tun
+
+### ============================================================================
+### compare with 2017 assessment
+### ============================================================================
+
+load("D:/HAWG/2017/06. Data/NSAS/SAM/North Sea Herring 2017.RData")
+NSH2017 <- NSH
+
+tmp1 <-
+  as.data.frame(ssb(NSH2017)) %>% 
+  mutate(assess="NSH2017") %>% 
+  dplyr::select(assess, year, data)
+
+tmp2 <-
+  as.data.frame(ssb(NSHbench)) %>% 
+  mutate(assess="Mscaledto2014") %>% 
+  dplyr::select(assess, year, data)
+
+bind_rows(tmp1, tmp2) %>% 
+  ggplot(aes(year, data, group=assess)) +
+  geom_line(aes(colour=assess)) 
+
+
+
+
+tmp1 <-
+  as.data.frame(NSH2017@stock.n) %>% 
+  mutate(assess="NSH2017")
+
+as.data.frame(NSHbench@stock.n) %>% 
+  mutate(assess="Mscaledto2014") %>% 
+  bind_rows(., tmp1) %>% 
+  ggplot(aes(year, data, group=assess)) +
+  geom_line(aes(colour=assess)) +
+  facet_wrap(~age, scales="free_y")
+
+
+
+tmp1 <-
+  as.data.frame(NSH2017@harvest) %>% 
+  mutate(assess="NSH2017")
+
+as.data.frame(NSHbench@harvest) %>% 
+  mutate(assess="Mscaledto2014") %>% 
+  bind_rows(., tmp1) %>% 
+  ggplot(aes(year, data, group=assess)) +
+  geom_line(aes(colour=assess)) +
+  facet_wrap(~age, scales="free_y")
+
+
+
+tmp1 <-
+  as.data.frame(NSH2017@m) %>% 
+  mutate(assess="NSH2017")
+
+as.data.frame(NSHbench@m) %>% 
+  mutate(assess="Mscaledto2014") %>% 
+  bind_rows(., tmp1) %>% 
+  ggplot(aes(year, data, group=assess)) +
+  geom_line(aes(colour=assess)) +
+  facet_wrap(~age, scales="free_y")
+
+
 
 ### ============================================================================
 ### ============================================================================
@@ -376,28 +446,6 @@ log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),
 ### ============================================================================
 ### ============================================================================
 
-### ============================================================================
-### compare with 2017 assessment
-### ============================================================================
-
-NSH2017  <- get(load("D:/HAWG/2017/06. Data/NSAS/SAM/North Sea Herring 2017.RData"))
-
-tmp1 <-
-  as.data.frame(ssb(NSH2017)) %>% 
-  mutate(assess="NSH2017") %>% 
-  select(assess, year, data)
-
-tmp2 <-
-  as.data.frame(ssb(NSH)) %>% 
-  mutate(assess="Benchmark Mscaledto2014") %>% 
-  select(assess, year, data)
-
-bind_rows(tmp1, tmp2) %>% 
-  ggplot(aes(year, data, group=assess)) +
-  geom_line(aes(colour=assess)) +
-  facet_wrap(~assess)
-
-  
 
 ### ============================================================================
 ### run retrospective

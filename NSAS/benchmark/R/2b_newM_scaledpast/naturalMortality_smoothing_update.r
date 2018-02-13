@@ -31,144 +31,140 @@ try(setwd(path),silent=TRUE)
 # output directory
 output.dir  <-  file.path(path,"R/2b_newM_scaledpast/") 
 
-# load natural mortality data frame from SMS2017
-load(file.path(output.dir,"natMortDataFrame.RData"))
+#-----------------------------------------------------------------------------
+# 1. get new and old M data and calculate scaling factor
+#-----------------------------------------------------------------------------
 
-### ======================================================================================================
-### Get M from last years assessment
-### ======================================================================================================
+# load natural mortality data frame from SMS2017 (object her2016)
+SMSher  <-  get(load(file.path(output.dir,"natMortDataFrame.RData")))
 
-# read the old M from file
+# Get M from last years assessment
 load("D:/HAWG/2017/06. Data/NSAS/SAM/North Sea Herring 2017.RData");     
 
-# calculate scaler
-scaler <-
-  as.data.frame(NSH@m) %>% 
+# calculate average m by age from old assessment
+oldmall <-
+  as.data.frame(NSH@m) 
+
+oldm <-
+  oldmall %>% 
+  filter(year >= 1974) %>% 
   group_by(age) %>% 
   summarize(oldm = mean(data, na.rm=TRUE))
 
+# remove old data objects
+rm(NSH, NSH.ctrl, NSH.sam, NSH.tun)
+rm(her2016)
 
-#-----------------------------------------------------------------------------
-# 1b) create M matrix raw from 2016 data
-#-----------------------------------------------------------------------------
-
-SMSher  <-  (her2016)
-
-scalor <-
+# calculate scaled from newM to oldM
+scaler <-
   SMSher %>% 
-  group_by(Age) %>% 
   mutate(M = M1 + M2) %>% 
+  group_by(Age) %>% 
   summarize(M = mean(M)) %>%
   rename(age = Age) %>% 
-  left_join(scaler, by=c("age")) %>% 
-  mutate(scaler = oldm / M) %>% 
-  select(scaler) %>% 
-  unlist()
+  left_join(oldm, by=c("age")) %>% 
+  mutate(ratio = oldm / M) %>% 
+  rename(Age = age) %>% 
+  dplyr::select(Age, ratio)
 
-SMSher$M   <- SMSher$M1+SMSher$M2
-agesM      <- unique(SMSher$Age)
+#-----------------------------------------------------------------------------
+# 2. create M matrix raw from SMS 2016 data, scaled to M values of 2017 assessment
+#-----------------------------------------------------------------------------
 
-for(idxAge in 1:length(agesM)){
-  SMSher$M[SMSher$Age == agesM[idxAge]] <- SMSher$M[SMSher$Age == agesM[idxAge]]*scalor[idxAge]
-}
+# add the M1 and M2 columns in the SMS data and apply the scaling
+SMSher   <- 
+  SMSher %>%
+  filter(Age %in% 0:8) %>% 
+  mutate(M = M1 + M2) %>% 
+  left_join(scaler, by="Age") %>% 
+  mutate(scaledM = M * ratio)
 
-rawM                <- t(matrix(SMSher$M,
-                                ncol=length(sort(unique(SMSher$Age))),
-                                nrow=length(sort(unique(SMSher$Year))),
-                                dimnames=list(sort(unique(SMSher$Year)),
-                                              sort(unique(SMSher$Age)))))
+# convert to a matrix for further manipulations
+rawM  <- t(matrix(SMSher$scaledM,
+                  ncol=length(sort(unique(SMSher$Age))),
+                  nrow=length(sort(unique(SMSher$Year))),
+                  dimnames=list(sort(unique(SMSher$Year)),
+                                sort(unique(SMSher$Age)))))
 
 
+# construct matrix for final M to be used in assessment
+# only fill in the years 1974 and beyond. 
 years   <- 1960:2016
 extryrs <- 1960:1973
 ages    <- 0:9
-finalM  <- matrix(NA,nrow=length(ages),ncol=length(1960:max(years)),dimnames=list(ages=ages,years=years))
+finalM  <- matrix(NA,
+                  nrow=length(ages),
+                  ncol=length(1960:max(years)),
+                  dimnames=list(ages=ages,years=years))
 
-  #- Fill in values already known for finalM
-finalM[ac(0:9),ac(1974:2016)] <- rawM
-write.csv(finalM,file=paste(output.dir ,"/Raw_NotExtrapolated_NSAS2016scaledto2014.csv",sep=""))
+#- Fill in values already known for finalM
+finalM[ac(0:8),ac(1974:2016)] <- rawM
 
-
-#-----------------------------------------------------------------------------
-# 2) Plot the natural mortality estimates of the last SMS key-run
-#-----------------------------------------------------------------------------
-
-windows()
-xyplot((M1+M2)~Year|as.factor(Age),data=SMSher,type="l",xlab="Years",ylab="Total Natural Mortality",
-       prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},main="North Sea herring M SMS2017 scaled to 2014",
-       panel=function(...){
-        dat <- list(...)
-        panel.grid(h=-1, v= -1)
-        panel.xyplot(...)
-        panel.loess(...,col="red",lwd=2)
-       },
-       scales=list(alternating=1,y=list(relation="free",rot=0)))
-savePlot(paste(output.dir ,"/SMS2017_TotalNaturalMortalityNSASscaledto2014.png",sep=""),type="png")
-
+# Write raw, non-smoothed values to file
+write.csv(finalM,
+          file=paste(output.dir ,"/Raw_NotExtrapolated_NSAS2016scaledto2014.csv",sep=""))
 
 #-----------------------------------------------------------------------------
 # 3) Fit loess smoothers to each age and SMS year and predict new smoothed values
 #-----------------------------------------------------------------------------
 
-storeSmooth   <- array(NA,dim=c(length(sort(unique(SMSher$Age))),1,length(sort(unique(SMSher$Year))),3),
-                          dimnames=list(Age=sort(unique(SMSher$Age)),SMS=c(2016),Year=sort(unique(SMSher$Year)),Fit=c("5%","50%","95")))
+# library(broom)
+# library(mgcv)
+# 
+# storesmooth <-
+#   SMSher %>% 
+#   group_by(Age) %>% 
+#   do(smoothed = loess(scaledM ~ Year, data = .)) 
+# 
+# m <- gam(scaledM ~ Age + s(Year, by = Age), data = SMSher)
+# summary(m)
+# pdat <- expand.grid(Year=1974:2016, Age=0:8)
+# xp <- predict(m, newdata = pdat, type = 'lpmatrix')
+
+# Create array to store smoothed values
+storeSmooth   <- 
+  array(NA,
+        dim=c(length(sort(unique(SMSher$Age))),1,length(sort(unique(SMSher$Year))),3),
+        dimnames=list(Age=sort(unique(SMSher$Age)),
+                      SMS=c(2016),
+                      Year=sort(unique(SMSher$Year)),
+                      Fit=c("5%","50%","95%")))
+
+# Fill the array of smoothed values
 for(iAge in sort(unique(SMSher$Age))){
-  #for(iSMS in sort(unique(SMSher$SMSyear))){
   for(iSMS in 2016){
-#    res         <- predict(loess((M1+M2)~Year,data=subset(SMSher,SMSyear==iSMS & Age == iAge),span=0.5),
-#                           newdata=expand.grid(Year=sort(unique(subset(SMSher,SMSyear==iSMS & Age == iAge)$Year))),
-#                           se=T)
-#   yrs         <- sort(unique(subset(SMSher,SMSyear==iSMS & Age == iAge)$Year))
-#   storeSmooth[ac(iAge),ac(iSMS),ac(yrs),] <- matrix(c(res$fit-1.96*res$se.fit,res$fit,res$fit+1.96*res$se.fit),nrow=length(yrs),ncol=3)
-    res         <- predict(loess((M1+M2)~Year,data=subset(SMSher, Age == iAge),span=0.5),
-                           newdata=expand.grid(Year=sort(unique(subset(SMSher,Age == iAge)$Year))),
-                           se=T)                           
-    yrs         <- sort(unique(subset(SMSher, Age == iAge)$Year))
-    storeSmooth[ac(iAge),ac(iSMS),ac(yrs),] <- matrix(c(res$fit-1.96*res$se.fit,res$fit,res$fit+1.96*res$se.fit),nrow=length(yrs),ncol=3)
+    res <- 
+      predict(loess((scaledM)~Year,
+                    data=subset(SMSher, Age == iAge),
+                    span=0.5),
+              newdata=expand.grid(Year=sort(unique(subset(SMSher,Age == iAge)$Year))),
+              se=T)                           
+    yrs <- 
+      sort(unique(subset(SMSher, Age == iAge)$Year))
+    
+    storeSmooth[ac(iAge),ac(iSMS),ac(yrs),] <- 
+      matrix(c(res$fit-1.96*res$se.fit,res$fit,res$fit+1.96*res$se.fit),
+             nrow=length(yrs),
+             ncol=3)
   }
 }
 
+
+
+
+
 #-----------------------------------------------------------------------------
-# 4) Plot averaged new predicted smoothed values
+# 4) Extrapolate the M-at-age
 #-----------------------------------------------------------------------------
 
-#- 2016
 dtfSmooth           <- vectorise(storeSmooth[,"2016",,"50%"])
-dtfRaw              <- SMSher[,c("M1","M2","Age","Year")]
-dtfRaw$M            <- dtfRaw$M1+dtfRaw$M2
-dtfRaw              <- dtfRaw[,c("M","Age","Year")]; colnames(dtfRaw) <- c("Value","Age","Year")
+dtfRaw              <- SMSher[,c("M1","M2","scaledM", "Age","Year")]
+# dtfRaw$M            <- dtfRaw$M1+dtfRaw$M2
+dtfRaw              <- dtfRaw[,c("scaledM","Age","Year")]; colnames(dtfRaw) <- c("Value","Age","Year")
 colnames(dtfSmooth) <- c("Value","Age","Year")
 dtfSmooth$Age       <- as.factor(dtfSmooth$Age)
 dtfSmooth$Year      <- as.numeric(dtfSmooth$Year)
 dtftotal            <- rbind(cbind(dtfSmooth,type="Smooth"),cbind(dtfRaw,type="Raw"))
-
-windows()
-xyplot(Value~Year|Age,data=dtftotal,type="l",xlab="Years",ylab="Total Natural Mortality - Span = 0.5",
-       groups="type",
-       prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},
-       main="North Sea herring M - span = 0.5",
-       panel=function(...){
-        dat <- list(...)
-        idx1 <- 1:(length(dat$x)/2)
-        idx2 <- (rev(idx1)[1]+1):length(dat$x)
-
-        panel.grid(h=-1, v= -1)
-        panel.xyplot(dat$x[idx1],dat$y[idx1],type="l",col=1)
-        panel.xyplot(dat$x[idx2],dat$y[idx2],type="l",col=2)
-       },
-       scales=list(alternating=1,y=list(relation="free",rot=0)))
-savePlot(paste(output.dir,"/SmoothedNaturalMortalityNSAS_SMS2017scaledto2014.png",sep=""),type="png")
-
-#-----------------------------------------------------------------------------
-# 5) Check for lags in autocorrelation to see what extrapolation smoother
-#     years can be taken
-#-----------------------------------------------------------------------------
-
-# Removed
-
-#-----------------------------------------------------------------------------
-# 6) Extrapolate the M-at-age
-#-----------------------------------------------------------------------------
 
 years   <- 1974:2016
 extryrs <- years[which(!years %in% unique(subset(dtfSmooth,Year %in% 1963:2016)$Year))]
@@ -176,49 +172,34 @@ ages    <- 0:9
 finalM  <- matrix(NA,nrow=length(ages),ncol=length(1974:max(years)),dimnames=list(ages=ages,years=years))
 
 #- Fill in values already known for finalM
-finalM[ac(0:9),ac(1974:2016)] <- storeSmooth[,"2016",,"50%"]
+finalM[ac(0:8),ac(years)] <- storeSmooth[,"2016",,"50%"]
 write.csv(finalM,file=paste(output.dir,"/Smoothed_span50_M_NotExtrapolated_NSAS2016scaledto2014.csv",sep=""))
 
+
 #-----------------------------------------------------------------------------
-# 7) plot comparison between assessment runs
+# 2) Plot the raw natural mortality estimates of the last SMS key-run
 #-----------------------------------------------------------------------------
 
-finalM2015 <- finalM
+SMSher %>% 
+  rename(age=Age, year=Year) %>% 
+  
+  ggplot(aes(x=year, y=scaledM, group=age)) +
+  geom_line(aes(y=M), colour="red") +
+  geom_line(aes(y=scaledM), size=1, colour="blue") +
+  geom_line(data=oldmall, aes(x=year, y=data), colour="green") +
+  facet_wrap(~age, scales="free_y")
 
-load("finalM2010.RData")
-finalM[ac(8),]    <- finalM[ac(7),]
-finalM[ac(9),]    <- finalM[ac(7),]
-finalM2010 <- finalM
-load("finalM2013.RData")
-finalM[ac(8),]    <- finalM[ac(7),]
-finalM[ac(9),]    <- finalM[ac(7),]
-finalM2013 <- finalM
+# savePlot(paste(output.dir ,"/SMS2017_TotalNaturalMortalityNSASscaledto2014.png",sep=""),type="png")
 
-MSmooth           <- vectorise(finalM2010)
-colnames(MSmooth) <- c("Value","Age","Year")
-MSmooth$Age       <- as.factor(MSmooth$Age)
-MSmooth$Year      <- as.numeric(MSmooth$Year)
-a <- xyplot(Value~Year|Age,data=MSmooth,type="l",xlab="Years",ylab="Total Natural Mortality",
-       prepanel=function(...) {list(ylim=range(c(0,1.5)))},main="North Sea herring smoothed M",
-       panel=function(...){
-        dat <- list(...)
-        panel.grid(h=-1, v= -1)
-        panel.xyplot(...,col='red')
-       },
-       scales=list(alternating=1,y=list(relation="free",rot=0)))
-MSmooth           <- vectorise(finalM2015)
-colnames(MSmooth) <- c("Value","Age","Year")
-MSmooth$Age       <- as.factor(MSmooth$Age)
-MSmooth$Year      <- as.numeric(MSmooth$Year)
-b <- xyplot(Value~Year|Age,data=MSmooth,type="l",xlab="Years",ylab="Total Natural Mortality",
-       prepanel=function(...) {list(ylim=range(c(0,1.5)))},main="North Sea herring smoothed M",
-       panel=function(...){
-         dat <- list(...)
-         panel.grid(h=-1, v= -1)
-         panel.xyplot(...,col='blue')
-       },
-       scales=list(alternating=1,y=list(relation="free",rot=0)))
+#-----------------------------------------------------------------------------
+# 4) Plot averaged new predicted smoothed values
+#-----------------------------------------------------------------------------
 
-windows()
-a + as.layer(b)
-savePlot(paste(outPath,"SmoothedNaturalMortalityNSAS_combined2018scaledto2014.png",sep=""),type="png")
+dtftotal %>% 
+  ggplot(aes(x=Year, y=Value, group=type)) +
+  geom_line(aes(colour=type), size=1) +
+  facet_wrap(~Age, scales="free_y")
+
+# savePlot(paste(output.dir,"/SmoothedNaturalMortalityNSAS_SMS2017scaledto2014.png",sep=""),type="png")
+
+
