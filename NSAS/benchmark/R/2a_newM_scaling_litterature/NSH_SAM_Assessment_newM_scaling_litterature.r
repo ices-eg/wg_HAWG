@@ -57,8 +57,8 @@ n.retro.years       <-  10                                      #Number of years
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA); library(FLBRP)
-source(file.path("R/0_basecase/setupAssessmentObjects_basecase.r"))
-source(file.path("R/0_basecase/setupControlObject_basecase.r"))
+source(file.path("R/2a_newM_scaling_litterature/setupAssessmentObjects_newM_scaling_litterature.r"))
+source(file.path("R/2a_newM_scaling_litterature/setupControlObject_newM_scaling_litterature.r"))
 
 path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
@@ -76,12 +76,12 @@ try(setwd(path),silent=TRUE)
 
 #Perform assessment
 NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-name(NSH.sam) <- "newM"
+name(NSH.sam) <- "newM_scaling_litterature"
 
 #Update stock object
 NSH       <- NSH + NSH.sam
 NSH@stock <- computeStock(NSH)
-name(NSH) <- "newM"
+name(NSH) <- "newM_scaling_litterature"
 
 # Save results
 save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSH.RData",sep=""))
@@ -239,7 +239,7 @@ print(xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
 cor.plot(NSH.sam)
 
 # figure - catch residuals per year per age
-dat <- subset(residuals(NSH.sam),fleet=="catch")
+dat <- subset(residuals(NSH.sam),fleet=="catch unique")
 xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch",
 panel=function(...){
     lst <- list(...)

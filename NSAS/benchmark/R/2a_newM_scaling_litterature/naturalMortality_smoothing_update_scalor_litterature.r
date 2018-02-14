@@ -168,7 +168,7 @@ for(iAge in sort(unique(SMSher$Age))){
 #                           se=T)
 #   yrs         <- sort(unique(subset(SMSher,SMSyear==iSMS & Age == iAge)$Year))
 #   storeSmooth[ac(iAge),ac(iSMS),ac(yrs),] <- matrix(c(res$fit-1.96*res$se.fit,res$fit,res$fit+1.96*res$se.fit),nrow=length(yrs),ncol=3)
-    res         <- predict(loess((M1+M2)~Year,data=subset(SMSher, Age == iAge),span=0.5),
+    res         <- predict(loess((M)~Year,data=subset(SMSher, Age == iAge),span=0.5),
                            newdata=expand.grid(Year=sort(unique(subset(SMSher,Age == iAge)$Year))),
                            se=T)                           
     yrs         <- sort(unique(subset(SMSher, Age == iAge)$Year))
@@ -258,7 +258,8 @@ finalM  <- matrix(NA,nrow=length(ages),ncol=length(1974:max(years)),dimnames=lis
 
   #- Fill in values already known for finalM
 finalM[ac(0:9),ac(1974:2016)] <- storeSmooth[,"2016",,"50%"]
-write.csv(finalM,file=paste(output.dir,"/Smoothed_span50_M_NotExtrapolated_NSAS2016.csv",sep=""))
+write.csv(finalM,file=paste(output.dir,"/Smoothed_span50_M_NotExtrapolated_NSAS2016_scaling_litterature.csv",sep=""))
+write.csv(finalM,file=paste(input.dir,"/Smoothed_span50_M_NotExtrapolated_NSAS2016_scaling_litterature.csv",sep=""))
 
 #  #- Extrapolate for early years back based on age-smoother correlation factor
 #for(iYr in rev(sort(extryrs[which(extryrs < min(unique(subset(dtfSmooth,Year %in% 1963:2007)$Year)))]))){

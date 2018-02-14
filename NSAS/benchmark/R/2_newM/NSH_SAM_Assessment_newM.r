@@ -58,6 +58,12 @@ library(FLSAM); library(FLEDA);
 source(file.path("R/2_newM/setupAssessmentObjects_newM.r"))
 source(file.path("R/2_newM/setupControlObject_newM.r"))
 
+path <- "D:/git/wg_HAWG/NSAS/"
+try(setwd(path),silent=TRUE)
+source(file.path("../_Common/HAWG_Common_module.r"))
+path <- "D:/git/wg_HAWG/NSAS/benchmark/"
+try(setwd(path),silent=TRUE)
+
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
