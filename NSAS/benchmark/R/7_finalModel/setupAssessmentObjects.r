@@ -90,18 +90,18 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 ### ============================================================================
 ### previous update: read in the values of Fprop from csv file
 ### ============================================================================
-fprop <- read.csv(file.path(data.source, "propFraw.csv"))
-names(fprop) <- gsub("X","",names(fprop))
-names(fprop)[1] <- "month"
-yrs<-names(fprop)[-1]
+#fprop <- read.csv(file.path(data.source, "propFraw.csv"))
+#names(fprop) <- gsub("X","",names(fprop))
+#names(fprop)[1] <- "month"
+#yrs<-names(fprop)[-1]
 
-for (a in dimnames(NSH@harvest.spwn)$age)  NSH@harvest.spwn[a,yrs]  <-  unlist(fprop[35,-1])
+#for (a in dimnames(NSH@harvest.spwn)$age)  NSH@harvest.spwn[a,yrs]  <-  unlist(fprop[35,-1])
 
 # replace value for older year with the mean of the first years
-yrsold <- an(dimnames(NSH@harvest.spwn)$year)
-yrsold <- yrsold[!is.element(yrsold,yrs)]
+#yrsold <- an(dimnames(NSH@harvest.spwn)$year)
+#yrsold <- yrsold[!is.element(yrsold,yrs)]
 
-NSH@harvest.spwn[,ac(yrsold)] <- yearMeans(NSH@harvest.spwn[,yrs[1:5]])
+#NSH@harvest.spwn[,ac(yrsold)] <- yearMeans(NSH@harvest.spwn[,yrs[1:5]])
 
 
 
@@ -263,9 +263,9 @@ NSH.tun[["HERAS"]]@range["plusgroup"] <- pg
 idxSCAI <- which(names(NSH.tun)=="SCAI")
 NSH.tun <- NSH.tun[-idxSCAI]
 
-NSH.tun[["IBTS-Q3"]] <- trim(NSH.tun[["IBTS-Q3"]],age=0:5)
-NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=1:4)
-NSH.tun[["HERAS"]] <- trim(NSH.tun[["HERAS"]],age=2:8)
+NSH.tun[["IBTS-Q3"]] <- trim(NSH.tun[["IBTS-Q3"]],age=0:6)
+NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=1:5)
+NSH.tun[["HERAS"]] <- trim(NSH.tun[["HERAS"]],age=1:8)
 
 ### ============================================================================
 ### Closure data deletion

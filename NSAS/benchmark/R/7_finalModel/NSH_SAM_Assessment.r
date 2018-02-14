@@ -38,7 +38,7 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 ### Define parameters and paths for use in the assessment code
 ### ======================================================================================================
-output.dir          <-  file.path(".","results/6_multifleet/")        # figures directory
+output.dir          <-  file.path(".","results/7_finalModel/")        # figures directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  # Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  10                                      # Number of years for which to run the retrospective
 
@@ -47,9 +47,9 @@ n.retro.years       <-  10                                      # Number of year
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA)
-source(file.path("R/6_multifleet/setupAssessmentObjects_LAI.r"))
-source(file.path("R/6_multifleet/setupControlObject_sf.r"))
-
+source(file.path("R/7_finalModel/setupAssessmentObjects.r"))
+source(file.path("R/7_finalModel/setupControlObject_sf.r"))
+source(file.path("R/7_finalModel/plot.cordata.r"))
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
@@ -57,224 +57,136 @@ source(file.path("R/6_multifleet/setupControlObject_sf.r"))
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-load("./data/result_retro_Q1.RData")
-retroIBTSQ1 <- res[,c("year","age1","iround")]
-retroIBTSQ1$iround <- 2017-anf(retroIBTSQ1$iround)
-load("./data/result_retro_Q3.RData")
-retroIBTSQ3 <- res[,c("year","age0","age1","age2","age3","age4","iround")]
-retroIBTSQ3$iround <- 2017-anf(retroIBTSQ3$iround)
-retroTuns <- list("IBTS-Q1"=retroIBTSQ1,"IBTS-Q3"=retroIBTSQ3)
-source("R/6_multifleet/retro.r")
 
-NSH.ctrl@residuals <- F
+NSH.samCorall                             <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+NSH.retroCorall                           <- retro(NSH,NSH.tun,NSH.ctrl,7)
+mean(mohns.rho(NSH.retroCorall,ref.year=2016,span=7,type="fbar")[1:7,1]) #-29.9
+source(file.path("R/7_finalModel/setupAssessmentObjects.r"))
+source(file.path("R/7_finalModel/setupControlObject_sf.r"))
+NSH.ctrl@cor.obs["HERAS",]                <- -1
+NSH.ctrl@cor.obs.Flag[2]                  <- as.factor("ID")
+NSH.ctrl                                  <- update(NSH.ctrl)
+NSH.samdCorH                              <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+NSH.retrodCorH                            <- retro(NSH,NSH.tun,NSH.ctrl,7)
+mean(mohns.rho(NSH.retrodCorH,ref.year=2016,span=7,type="fbar")[1:7,1]) #-10.0
+source(file.path("R/7_finalModel/setupAssessmentObjects.r"))
+source(file.path("R/7_finalModel/setupControlObject_sf.r"))
+NSH.ctrl@cor.obs["IBTS-Q1",]              <- -1
+NSH.ctrl@cor.obs.Flag[3]                  <- as.factor("ID")
+NSH.ctrl                                  <- update(NSH.ctrl)
+NSH.samdCorQ1                             <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+NSH.retrodCorQ1                           <- retro(NSH,NSH.tun,NSH.ctrl,7)
+mean(mohns.rho(NSH.retrodCorQ1,ref.year=2016,span=7,type="fbar")[1:7,1]) #-31.9
+source(file.path("R/7_finalModel/setupAssessmentObjects.r"))
+source(file.path("R/7_finalModel/setupControlObject_sf.r"))
+NSH.ctrl@cor.obs["IBTS-Q3",]              <- -1
+NSH.ctrl@cor.obs.Flag[5]                  <- as.factor("ID")
+NSH.ctrl                                  <- update(NSH.ctrl)
+NSH.samdCorQ3                             <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+NSH.retrodCorQ3                           <- retro(NSH,NSH.tun,NSH.ctrl,7)
+mean(mohns.rho(NSH.retrodCorQ3,ref.year=2016,span=7,type="fbar")[1:7,1]) #-23.5
+AIC(FLSAMs(allcor=NSH.samCorall,dropHeras=NSH.samdCorH,dropIBTSQ1=NSH.samdCorQ1,dropIBTSQ3=NSH.samdCorQ3))
+save(NSH.samCorall,NSH.samdCorH,NSH.samdCorQ1,NSH.samdCorQ3,file=file.path(output.dir,"NSH cor checks.RData"))
 
-NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-name(NSH.sam) <- "base run"
-NSH.ctrl@residuals <- F
-NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,7)
-NSH.retroT <- retroStckNSAS(NSH,NSH.tun,retroTuns,NSH.ctrl)
-NSH.retroF <- retroStckNSAS(NSH,NSH.tun,retroTuns,NSH.ctrl,retro=7)
+#- Base run
+source(file.path("R/7_finalModel/setupAssessmentObjects.r"))
+source(file.path("R/7_finalModel/setupControlObject_sf.r"))
+NSH.ctrl@residuals                  <- TRUE
+NSH.sam                             <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+name(NSH.sam)                       <- "All data in"
+NSH.ctrl@residuals                  <- FALSE
+NSH.retro                           <- retro(NSH,NSH.tun,NSH.ctrl,7)
+mean(mohns.rho(NSH.retro,ref.year=2016,span=7,type="fbar")[1:7,1]) #-10.0
+mean(mohns.rho(NSH.retro,ref.year=2016,span=7,type="ssb")[1:7,1])  # 11.7
+mean(mohns.rho(NSH.retro,ref.year=2016,span=7,type="rec")[1:7,1])  # 12.5
+xyplot(log(value) ~ an(name) | fleet,data=catchabilities(NSH.retro),group=age,type="b",scales=list(y="free"))
+save(NSH,NSH.tun,NSH.ctrl,NSH.sam,NSH.retro,file=file.path(output.dir,paste("NSH_",name(NSH.sam),".RData",sep="")))
 
-source(file.path("R/6_multifleet/setupMultiFleetData.r"))
-source(file.path("R/6_multifleet/setupControlObject_mf.r"))
-
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl)
-NSH3.ctrl@residuals <- F
-NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,6)
-NSH3f.retroT <- retroStcksNSAS(NSHs3,NSH.tun,retroTuns,NSH3.ctrl)
-
-mean(mohns.rho(NSH3f.retroT,ref.year=2016,span=6,type="fbar")[1:6,1])
-mean(mohns.rho(NSH3f.retroT,ref.year=2016,span=6,type="ssb")[1:6,1])
-mean(mohns.rho(NSH3f.retroT,ref.year=2016,span=6,type="rec")[1:6,1])
-mean(mohns.rho(NSH3f.retro,ref.year=2016,span=6,type="fbar")[1:6,1])
-mean(mohns.rho(NSH3f.retro,ref.year=2016,span=6,type="ssb")[1:6,1])
-mean(mohns.rho(NSH3f.retro,ref.year=2016,span=6,type="rec")[1:6,1])
-
-mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="fbar")[1:6,1])
-mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="ssb")[1:6,1])
-mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="rec")[1:6,1])
-mean(mohns.rho(NSH.retroT,ref.year=2016,span=6,type="fbar")[1:6,1])
-mean(mohns.rho(NSH.retroT,ref.year=2016,span=6,type="ssb")[1:6,1])
-mean(mohns.rho(NSH.retroT,ref.year=2016,span=6,type="rec")[1:6,1])
-
-
-
-sams <- FLSAMs(original=NSH.retroT[["2016"]],threeFleet=NSH3f.retro[["2016"]])
-
-
-NSH4f.sam   <- FLSAM(NSHs4,
-                     NSH.tun,
-                     NSH4.ctrl)
-NSH4.ctrl@residuals <- F
-NSH4f.retro <- retro(NSHs4,NSH.tun,NSH4.ctrl,7)
-
-
-# Save results
-save(NSH,   NSH.sam,  NSH.ctrl, NSH.retro,NSH.tun,
-     NSHs3, NSH3f.sam,NSH3.ctrl,NSH3f.sam,
-     NSHs4, NSH4f.sam,NSH4.ctrl,NSH4f.sam,file=file.path(output.dir,"NSH.RData",sep=""))
-     
-sams <- FLSAMs(singleFLeet=NSH.sam,threeFleet=NSH3f.sam,fourFleet=NSH4f.sam)
-plot(NSH.retro)
-plot(NSH3f.retro)
-plot(NSH4f.retro)
-### ============================================================================
-### ============================================================================
-### ============================================================================
-
-#Stabalize model 3f: extra f.vars
-source(file.path("R/6_multifleet/setupMultiFleetData.r"))
-source(file.path("R/6_multifleet/setupControlObject_mf.r"))
-
-NSH3.ctrl@residuals <- F
-NSH3.ctrl@f.vars[1:3,] <- matrix(c(c(rep(0,4),rep(1,5)),c(rep(2,4),rep(-1,5)),c(rep(3,4),rep(4,5))),nrow=3,byrow=T)
-NSH3.ctrl@cor.F <- c(2,1,1)
-NSH3f.samOrig <- NSH3f.sam
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl,starting.values=startVals)
-  NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
-retroParams(NSH3f.retro)
-
-#
-NSH3.ctrl@residuals <- F
-NSH3.ctrl@f.vars[1:3,] <- matrix(c(c(rep(0,4),rep(1,5)),c(rep(2,4),rep(-1,5)),c(rep(3,4),rep(4,5))),nrow=3,byrow=T)
-NSH3.ctrl@cor.F <- c(2,1,2)
-NSH3.ctrl@obs.vars[grep("LAI",rownames(NSH3.ctrl@obs.vars)),1] <- 11
-NSH3.ctrl <- update(NSH3.ctrl)
-NSH3f.samOrig <- NSH3f.sam
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl)
-NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
+#- Drop IBTS-Q3 age 5-6
+source(file.path("R/7_finalModel/setupAssessmentObjects.r"))
+source(file.path("R/7_finalModel/setupControlObject_sf.r"))
+NSH.ctrl@residuals                  <- TRUE
+NSH.tun[["IBTS-Q3"]]                <- trim(NSH.tun[["IBTS-Q3"]],age=0:4)
+NSH.ctrl@catchabilities["IBTS-Q3",] <- c(3,4,5,6,6,rep(-1,4))
+NSH.ctrl@obs.vars["IBTS-Q3",]       <- c(7,8,9,9,9,rep(-1,4))
+NSH.ctrl@cor.obs["IBTS-Q3",]        <- c(rep(0,4),rep(-1,4))
+NSH.ctrl                            <- update(NSH.ctrl)
+NSH.samdq3_56                       <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+name(NSH.samdq3_56)                 <- "Drop IBTS Q3 age 5_6"
+NSH.ctrl@residuals                  <- FALSE
+NSH.retrodq3_56                     <- retro(NSH,NSH.tun,NSH.ctrl,7)
+mean(mohns.rho(NSH.retrodq3_56,ref.year=2016,span=7,type="fbar")[1:7,1]) #-15.8
+mean(mohns.rho(NSH.retrodq3_56,ref.year=2016,span=7,type="ssb")[1:7,1])  # 18.1
+mean(mohns.rho(NSH.retrodq3_56,ref.year=2016,span=7,type="rec")[1:7,1])  # 18.0
+xyplot(value ~ an(name) | fleet,data=catchabilities(NSH.retrodq3_56),group=age,type="b",scales=list(y="free"))
+save(NSH,NSH.tun,NSH.ctrl,NSH.samdq3_56,NSH.retrodq3_56,file=file.path(output.dir,paste("NSH_",name(NSH.samdq3_56),".RData",sep="")))
 
 
-#
-NSH3.ctrl@residuals <- F
-NSH3.ctrl@f.vars[1:3,] <- matrix(c(c(rep(0,4),rep(1,5)),c(rep(2,4),rep(-1,5)),c(rep(3,4),rep(4,5))),nrow=3,byrow=T)
-NSH3.ctrl@cor.F <- c(2,1,2)
-NSH3.ctrl@obs.vars[grep("LAI",rownames(NSH3.ctrl@obs.vars)),1] <- 11
-NSH3.ctrl@catchabilities["HERAS",ac(2:8)] <- c(101,101,rep(102,5))
-NSH3.ctrl@obs.vars["HERAS",ac(2:8)] <- rep(101,7)
-NSH3.ctrl <- update(NSH3.ctrl)
-NSH3f.samOrig <- NSH3f.sam
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl)
-NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
-#
-NSH3.ctrl@residuals <- F
-NSH3.ctrl@f.vars[1:3,] <- matrix(c(c(rep(0,4),rep(1,5)),c(rep(2,4),rep(-1,5)),c(rep(3,4),rep(4,5))),nrow=3,byrow=T)
-NSH3.ctrl@cor.F <- c(2,1,2)
-NSH3.ctrl@obs.vars[grep("LAI",rownames(NSH3.ctrl@obs.vars)),1] <- 11
-NSH3.ctrl@catchabilities["HERAS",ac(2:8)] <- c(202,203,203,rep(204,4))
-NSH3.ctrl@obs.vars["HERAS",ac(2:8)] <- c(202,203,203,203,205,205,205)
-NSH3.ctrl <- update(NSH3.ctrl)
-NSH3f.samOrig <- NSH3f.sam
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl,return.fit=T)
-NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
-mohns.rho(NSH3f.retro,ref.year=2016,span=5,type="fbar")
-mohns.rho(NSH3f.retro,ref.year=2016,span=7,type="ssb")
-mohns.rho(NSH3f.retro,ref.year=2016,span=7,type="rec")
+#- Drop IBTS-Q1 age 2-5
+source(file.path("R/7_finalModel/setupAssessmentObjects.r"))
+source(file.path("R/7_finalModel/setupControlObject_sf.r"))
+NSH.ctrl@residuals                  <- TRUE
+NSH.tun[["IBTS-Q1"]]                <- trim(NSH.tun[["IBTS-Q1"]],age=1)
+NSH.ctrl@catchabilities["IBTS-Q1",] <- c(-1,101,rep(-1,7))
+NSH.ctrl@obs.vars["IBTS-Q1",]       <- c(-1,101,rep(-1,7))
+NSH.ctrl@cor.obs["IBTS-Q1",]        <- rep(-1,8)
+NSH.ctrl@cor.obs.Flag[which(rownames(NSH.ctrl@cor.obs)=="IBTS-Q1")] <- "ID"
+NSH.ctrl                            <- update(NSH.ctrl)
+NSH.samdq1_25                       <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+name(NSH.samdq1_25)                 <- "Drop IBTS Q1 age 2_5"
+NSH.ctrl@residuals                  <- FALSE
+NSH.retrodq1_25                     <- retro(NSH,NSH.tun,NSH.ctrl,7)
+mean(mohns.rho(NSH.retrodq1_25,ref.year=2016,span=7,type="fbar")[1:7,1]) #-9.4
+mean(mohns.rho(NSH.retrodq1_25,ref.year=2016,span=7,type="ssb")[1:7,1])  # 10.8
+mean(mohns.rho(NSH.retrodq1_25,ref.year=2016,span=7,type="rec")[1:7,1])  # 12.2
+save(NSH,NSH.tun,NSH.ctrl,NSH.samdq1_25,NSH.retrodq1_25,file=file.path(output.dir,paste("NSH_",name(NSH.samdq1_25),".RData",sep="")))
+xyplot(log(value) ~ an(name) | fleet,data=catchabilities(NSH.retrodq1_25),group=age,type="b",scales=list(y="free"))
+plot.cordata(NSH,NSH.tun,age=2:5)
 
-startVals <- list(logF=NSH3f.sam$pl$logF,
-                  logN=NSH3f.sam$pl$logN,
-                  logPS=NSH3f.sam$pl$logPS)
+#- Drop HERAS 1
+source(file.path("R/7_finalModel/setupAssessmentObjects.r"))
+source(file.path("R/7_finalModel/setupControlObject_sf.r"))
+NSH.ctrl@residuals                  <- TRUE
+NSH.tun[["HERAS"]]                  <- trim(NSH.tun[["HERAS"]],age=2:8)
+NSH.ctrl@catchabilities["HERAS",2]  <- -1
+NSH.ctrl@obs.vars["HERAS",2]        <- -1
+NSH.ctrl                            <- update(NSH.ctrl)
+NSH.samdh1                       <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+name(NSH.samdh1)                 <- "Drop IBTS Q1 age 2_5"
+NSH.ctrl@residuals                  <- FALSE
+NSH.retrodh1                     <- retro(NSH,NSH.tun,NSH.ctrl,7)
+mean(mohns.rho(NSH.retrodh1,ref.year=2016,span=7,type="fbar")[1:7,1]) #-12.1
+mean(mohns.rho(NSH.retrodh1,ref.year=2016,span=7,type="ssb")[1:7,1])  # 13.5
+mean(mohns.rho(NSH.retrodh1,ref.year=2016,span=7,type="rec")[1:7,1])  # 12.7
+save(NSH,NSH.tun,NSH.ctrl,NSH.samdh1,NSH.retrodh1,file=file.path(output.dir,paste("NSH_",name(NSH.samdh1),".RData",sep="")))
+#plot.cordata(NSH,NSH.tun,age=2:5)
 
-#-
-corRuns <- list( run1=  data.frame(slot="cor.F",value=c(0,0,0)),
-                 run2=  data.frame(slot="cor.F",value=c(1,0,0)),
-                 run3=  data.frame(slot="cor.F",value=c(0,1,0)),
-                 run4=  data.frame(slot="cor.F",value=c(0,0,1)),
-                 run5=  data.frame(slot="cor.F",value=c(1,1,1)),
-                 run6=  data.frame(slot="cor.F",value=c(2,2,2)),
-                 run7=  data.frame(slot="cor.F",value=c(2,0,0)),
-                 run8=  data.frame(slot="cor.F",value=c(0,2,0)),
-                 run9=  data.frame(slot="cor.F",value=c(0,0,2)),
-                 run10= data.frame(slot="cor.F",value=c(1,1,0)),
-                 run11= data.frame(slot="cor.F",value=c(0,1,1)),
-                 run12= data.frame(slot="cor.F",value=c(1,0,1)),
-                 run13= data.frame(slot="cor.F",value=c(2,2,0)),
-                 run14= data.frame(slot="cor.F",value=c(0,2,2)),
-                 run15= data.frame(slot="cor.F",value=c(2,0,2)),
-                 run16= data.frame(slot="cor.F",value=c(2,2,1)),
-                 run17= data.frame(slot="cor.F",value=c(1,2,2)),
-                 run18= data.frame(slot="cor.F",value=c(2,1,2)),
-                 run19= data.frame(slot="cor.F",value=c(1,2,1)),
-                 run20= data.frame(slot="cor.F",value=c(1,1,2)),
-                 run21= data.frame(slot="cor.F",value=c(2,1,1)))
-corRes <- list()
-for(iCor in 1:length(corRuns)){
-  print(iCor)
-  NSH3.ctrltemp <- NSH3.ctrl
-  slot(NSH3.ctrltemp,corRuns[[iCor]]$slot[1]) <- corRuns[[iCor]]$value
-  corRes[[iCor]] <- try(FLSAM(NSHs3,NSH.tun,NSH3.ctrltemp,starting.values=startVals))
-}
-corResSams <- as(corRes[which(unlist(lapply(corRes,class))=="FLSAM")],"FLSAMs")
-AIC(corResSams)
-
-#-
-obsvarRuns <- list(run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:106,106)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),rep(101,2),102:105,105)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),rep(101,3),102:104,104)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),rep(101,4),102:103,103)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),rep(101,5),102,102)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:105,rep(105,2))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:104,rep(105,3))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:103,rep(104,4))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:102,rep(103,5))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101,rep(102,6))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101,101,101,102,102,103,103)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101,101,102,102,102,103,103)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101,101,102,102,103,103,103)),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200:203,203,rep(-1,4)),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200:201,rep(202,3),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200,rep(201,4),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(rep(200,2),rep(201,3),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(rep(200,3),rep(201,2),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(rep(200,4),rep(201,1),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200,200,201,201,202,rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200,201,201,201,202,rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200,201,201,202,202,rep(-1,4)))))
-)
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601:604,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601,601,602,602,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601,602,602,603,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601,601,602,603,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601,602,602,602,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(602,601,602,602,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(602,602,601,602,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(602,602,602,601,rep(-1,8*4)),nrow=4,ncol=9))
-                   
-
-obsvarRes <- list()
-for(iObsvar in 6:length(obsvarRuns)){
-  print(iObsvar)
-  NSH3.ctrltemp <- NSH3.ctrl
-  slot(NSH3.ctrltemp,obsvarRuns[[iObsvar]]$slot[1])[unique(obsvarRuns[[iObsvar]]$row),] <- obsvarRuns[[iObsvar]]$value
-  obsvarRes[[iObsvar]] <- try(FLSAM(NSHs3,NSH.tun,update(NSH3.ctrltemp),starting.values=startVals))
-}
-obsvarResSams <- as(obsvarRes[which(unlist(lapply(obsvarRes,class))=="FLSAM")],"FLSAMs")
-AIC(obsvarResSams)
+#- Drop IBTS-Q3 age 0 and IBTS-Q1 age 2-5
+source(file.path("R/7_finalModel/setupAssessmentObjects.r"))
+source(file.path("R/7_finalModel/setupControlObject_sf.r"))
+NSH.ctrl@residuals                  <- TRUE
+NSH.tun[["IBTS-Q1"]]                <- trim(NSH.tun[["IBTS-Q1"]],age=1)
+NSH.ctrl@catchabilities["IBTS-Q1",] <- c(-1,101,rep(-1,7))
+NSH.ctrl@obs.vars["IBTS-Q1",]       <- c(-1,101,rep(-1,7))
+NSH.ctrl@cor.obs["IBTS-Q1",]        <- rep(-1,8)
+NSH.ctrl@cor.obs.Flag[which(rownames(NSH.ctrl@cor.obs)=="IBTS-Q1")] <- "ID"
+NSH.tun[["IBTS-Q3"]]                <- trim(NSH.tun[["IBTS-Q3"]],age=1:6)
+NSH.ctrl@catchabilities["IBTS-Q3",1]<- -1
+NSH.ctrl@obs.vars["IBTS-Q3",1]      <- -1
+NSH.ctrl@cor.obs["IBTS-Q3",1]       <- -1
+NSH.ctrl                            <- update(NSH.ctrl)
+NSH.samdq1_25_q3_0                  <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+name(NSH.samdq1_25_q3_0)            <- "Drop IBTS Q1 age 2_5 IBTS Q3 age 0"
+NSH.ctrl@residuals                  <- FALSE
+NSH.retrodq1_25_q3_0                <- retro(NSH,NSH.tun,NSH.ctrl,7)
+mean(mohns.rho(NSH.retrodq1_25_q3_0,ref.year=2016,span=7,type="fbar")[1:7,1]) #-9.4
+mean(mohns.rho(NSH.retrodq1_25_q3_0,ref.year=2016,span=7,type="ssb")[1:7,1])  # 10.7
+mean(mohns.rho(NSH.retrodq1_25_q3_0,ref.year=2016,span=7,type="rec")[1:7,1])  # 13.2
+save(NSH,NSH.tun,NSH.ctrl,NSH.samdq1_25,NSH.retrodq1_25,file=file.path(output.dir,paste("NSH_",name(NSH.samdq1_25),".RData",sep="")))
 
 
-fvarRuns <- list(run1 = data.frame(slot="f.vars",row=1,value=c(-1,101:107,107)),
-                 run1 = data.frame(slot="f.vars",row=2,value=c(200:201,201,rep(-1,6))),
-                 run1 = data.frame(slot="f.vars",row=3,value=c(-1,300:301,301,rep(-1,5))))
-fvarRes <- list()
-for(iFvar in 1:length(fvarRuns)){
-  print(iFvar)
-  NSH3.ctrltemp <- NSH3.ctrl
-  slot(NSH3.ctrltemp,fvarRuns[[iFvar]]$slot[1])[fvarRuns[[iFvar]]$row[1],] <- fvarRuns[[iFvar]]$value
-  fvarRes[[iFvar]] <- try(FLSAM(NSHs3,NSH.tun,update(NSH3.ctrltemp),starting.values=startVals))
-}
 
-xyplot(value+ubnd+lbnd ~ age | fleet,data=f.var(fvarRes[[1]]),type="l",col=c("black","grey","grey"),lwd=c(2,1,1))
-  
+
 
 #Setup plots
 #pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
