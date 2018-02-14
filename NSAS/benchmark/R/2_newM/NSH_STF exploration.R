@@ -60,7 +60,7 @@ TaY <- dims(NSH)$maxyear   #Terminal assessment year (2016 in 2017 HAWG)
 ImY <- TaY+1                #Intermediate Year (TAC year - 2017 in 2017 HAWG)
 AdY <- TaY+2                #Advice year (Advice year - 2018 in 2017 HAWG)
 CtY <- TaY+3                #Continuation year - not of major concern but used in calculations in places
-tbl.yrs     <- as.character(c(ImY,AdY,CtY))   #Years to report in the output table
+tbl.yrs     <- as.character(c(ImY:my))   #Years to report in the output table
 
 #In NSH - use geometric mean of last 3 years from final SAM.out file from assessment
 rec <- exp(mean(log((trim(NSH@stock.n, age=0,year=2014:2016))))) 
@@ -91,16 +91,16 @@ NSH.proj@stock.n
 #Define some constants
 #intermediate year catch (be 2017 in hawg 2017 forecast)
   
-ImY.catch <- 450000 
+ImY.catch <- 527500 
 
 #advice year catch (year after assessmnet)
-AdY.catch <- 450000   #another rollover
+AdY.catch <- 527500   #another rollover
 
 numFmsy <- 0.33
-numFmgt <- 0.25
-numFpa  <- 0.38
-numFlim <- 0.46
-numFImY <- 0.30
+numFmgt <- 0.26
+numFpa  <- 0.34
+numFlim <- 0.39
+numFImY <- 0.26
 my      <- dims(NSH.proj)$maxyear
 fy      <- my - ImY 
   
@@ -279,6 +279,7 @@ opt.sum.tbl(stcks=NSH.mult.opts,fname=file.path(output.base,"multi-options - sum
 
 
 #How to call ssb for one of the options
-ssb(NSH.options[[1]])
+plot(ssb(NSH.options[[1]]))
+plot(catch(NSH.options[[1]]))
 
 
