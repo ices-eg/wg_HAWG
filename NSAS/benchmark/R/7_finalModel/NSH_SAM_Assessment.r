@@ -63,7 +63,7 @@ NSH.sam    <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 #Update stock object
 NSH       <- NSH + NSH.sam
 NSH@stock <- computeStock(NSH)
-name(NSH) <- "NSHnocorMIK"
+name(NSH) <- "NSHcorMIK"
 
 # save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSHnocorMIK.RData"))
 save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSHcorMIK.RData"))
