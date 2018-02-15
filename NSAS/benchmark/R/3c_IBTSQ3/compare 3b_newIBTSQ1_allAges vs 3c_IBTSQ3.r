@@ -41,6 +41,8 @@ load(file.path(".","results",assess2,"NSH.RData")  )
 fit2.stck  <-NSH
 fit2.flsam <-NSH.sam
 
+plot(NSH.tun[["IBTS-Q1"]],type="internal")
+
 #logLik(fit1.flsam)
 #logLik(fit2)
 
