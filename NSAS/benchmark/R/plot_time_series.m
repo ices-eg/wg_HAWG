@@ -44,16 +44,16 @@ Y = array2table(Y, 'VariableNames',erase(surveys, '-'));
 % hold on
 % plot(table2array(Y(1:28,2)))
 % 
-% x1 = varcanum.year(str2double(varcanum.age) == age);
-% y1 = varcanum.data(str2double(varcanum.age) == age);
-% 
-% x2 = varHERAS.year(str2double(varHERAS.age) == age);
-% y2 = varHERAS.data(str2double(varHERAS.age) == age);
+x1 = varcanum.year(str2double(varcanum.age) == age);
+y1 = varcanum.data(str2double(varcanum.age) == age);
 
-% x3 = varHERAS.year(str2double(varHERAS.age) == age);
-% y3 = varHERAS.data(str2double(varHERAS.age) == age);
+x2 = varHERAS.year(str2double(varHERAS.age) == age);
+y2 = varHERAS.data(str2double(varHERAS.age) == age);
 
-% plotyy(x1,log10(y1),x2,log10(y2))
+x3 = varHERAS.year(str2double(varHERAS.age) == age);
+y3 = varHERAS.data(str2double(varHERAS.age) == age);
+
+plotyy(x1,(y1),x2,(y2))
 % 
 % [C,i1,i2] = intersect(x1, x2);
 % 
