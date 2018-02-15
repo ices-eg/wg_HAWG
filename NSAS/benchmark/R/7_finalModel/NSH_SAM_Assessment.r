@@ -32,7 +32,9 @@ log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
 
 # local path
-path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/"
+# path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/"
+path <- "D:/GIT/wg_HAWG/NSAS/benchmark/"
+
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -56,8 +58,15 @@ source(file.path("R/7_finalModel/setupControlObject_sf.r"))
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-NSH.sam               <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-NSH                   <- NSH + NSH.sam
+NSH.sam    <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+
+#Update stock object
+NSH       <- NSH + NSH.sam
+NSH@stock <- computeStock(NSH)
+name(NSH) <- "NSHnocorMIK"
+
+# save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSHnocorMIK.RData"))
+save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSHcorMIK.RData"))
 
 # Run retrospective, turn residuals off as it takes a long time
 NSH.ctrl@residuals    <- FALSE
