@@ -53,8 +53,8 @@ NSH.ctrl@f.vars[1,]         <- c(101,101,rep(102,4),rep(103,3))
 #NSH.ctrl@power.law.exps[laiRow,1] <- 101
 #Group observation variances of catches to ensure stability
 NSH.ctrl@obs.vars[catchRow,]  <- c(rep(0,4),rep(1,5))
-NSH.ctrl@obs.vars["IBTS-Q3",ac(0:4)] <-  c(201,202,202,203,203)
-NSH.ctrl@obs.vars["HERAS",ac(2:8)]   <- c(rep(101,2),rep(102,3),rep(103,2))
+NSH.ctrl@obs.vars["IBTS-Q3",ac(0:4)] <-  200#c(201,202,202,203,203)
+NSH.ctrl@obs.vars["HERAS",ac(2:8)]   <- c(rep(101,5),102,102)#c(rep(101,2),rep(102,3),rep(103,2))
 
 laiRow <- grep("LAI",rownames(NSH.ctrl@catchabilities))
 #NSH.ctrl@catchabilities[laiRow,1] <- 201
@@ -65,6 +65,7 @@ laiRow <- grep("LAI",rownames(NSH.ctrl@catchabilities))
 #Finalise
 NSH.ctrl@name <- "Final Assessment"
 NSH.ctrl <- update(NSH.ctrl)
+NSH.ctrl@cor.F <- 0
 #NSH.ctrl@f.vars["IBTS0",1]         <- -3
 NSH.ctrl@residuals <- F
 

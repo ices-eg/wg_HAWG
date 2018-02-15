@@ -185,8 +185,37 @@ mean(mohns.rho(NSH.retrodq1_25_q3_0,ref.year=2016,span=7,type="rec")[1:7,1])  # 
 save(NSH,NSH.tun,NSH.ctrl,NSH.samdq1_25,NSH.retrodq1_25,file=file.path(output.dir,paste("NSH_",name(NSH.samdq1_25),".RData",sep="")))
 
 
+#####
+#- Calculate the difference in output from single vs multifleet
+#####
 
+#-difference in selection pattern
+NSHs3[[1]]@harvest <- NSH3f.sam@harvest[,ac(1997:2016)]
+a <- as.data.frame(NSHs3[[1]]@harvest) #real f
+b <- as.data.frame(sweep(sweep(NSHs3[[1]]@catch.n,c(1:4,6),areaSums(NSHs3[[1]]@catch.n),"/"),c(1:4,6),areaSums(NSHs3[[1]]@harvest),"*")) #approx f
 
+comb <- rbind(cbind(type="single",b),cbind(type="multi",a))
+ xyplot(data ~ an(age) | as.factor(year)*as.factor(area),data=subset(comb,year%in%2011:2016),type="l",group=type,scales=list(y="free"),xlab="Age",ylab="F at age",main="Selection at age by fleet",auto.key=T,lwd=2)
+ 
+#-difference in catch
+a <- as.data.frame(quantSums(sweep(sweep(NSHs3[[1]]@harvest,c(1:4,6),areaSums(NSHs3[[1]]@harvest + NSHs3[[1]]@m),"/") * NSHs3[[1]]@stock.n * NSHs3[[1]]@catch.wt,c(1:4,6),(1-exp(-areaSums(NSHs3[[1]]@harvest + NSHs3[[1]]@m))),"*"))) #real catch
+approxfb <- sweep(sweep(NSHs3[[1]]@catch.n,c(1:4,6),areaSums(NSHs3[[1]]@catch.n),"/"),c(1:4,6),areaSums(NSHs3[[1]]@harvest),"*")
+b <- as.data.frame(quantSums(sweep(sweep(approxfb,c(1:4,6),areaSums(approxfb + NSHs3[[1]]@m),"/") * NSHs3[[1]]@stock.n * NSHs3[[1]]@catch.wt,c(1:4,6),(1-exp(-areaSums(approxfb + NSHs3[[1]]@m))),"*"))) #real catch
+# approx catch
+comb <-rbind(cbind(type="single",b),cbind(type="multi",a))
+xyplot(data ~ an(year)|as.factor(area),data=comb,type="l",auto.key=T,group=type,scales=list(y="free"),main="Catch by fleet",xlab="Years",ylab="Catch in tonnes",lwd=2)
+
+#-error in catch
+comb <- cbind(subset(comb,type=="single"),subset(comb,type=="multi")[,"data"])
+colnames(comb)[ncol(comb)] <- "datamulti"
+comb$error <- (comb$data - comb$datamulti)/comb$datamulti*100
+
+xyplot(error ~ an(year) | as.factor(area),data=comb,type="l",auto.key=T,scales=list(y="free"),main="Error in catch forecast",xlab="Years",ylab="Percentage error",lwd=2,
+panel=function(...){
+  panel.xyplot(...)
+  panel.abline(h=0,lwd=2,lty=2)
+  panel.grid()
+  })
 
 #Setup plots
 #pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
