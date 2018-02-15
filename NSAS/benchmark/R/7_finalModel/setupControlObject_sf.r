@@ -58,5 +58,5 @@ NSH.ctrl@cor.F                              <- 0
 NSH.ctrl@name                               <- "Final Assessment"
 NSH.ctrl                                    <- update(NSH.ctrl)
 
-NSH.ctrl@f.vars["IBTS0",1]                  <- -3
+# NSH.ctrl@f.vars["IBTS0",1]                  <- -3
 
