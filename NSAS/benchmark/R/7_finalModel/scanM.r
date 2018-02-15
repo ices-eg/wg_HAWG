@@ -19,6 +19,8 @@ n.retro.years       <-  10                                      # Number of year
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA)
+source(file.path("R/0_basecase/setupAssessmentObjects_basecase.r"))
+oldM <- NSH@m
 source(file.path("R/6_multifleet/setupAssessmentObjects_LAI.r"))
 source(file.path("R/6_multifleet/setupControlObject_sf.r"))
 
@@ -31,4 +33,26 @@ for(iM in seq(-0.1,0.6,0.01)){
 }
 
 plot(unlist(lapply(NSH.sams,nlogl)))
+addMNew <- an(names(which.min(unlist(lapply(NSH.sams,nlogl)))))
 save(NSH.sams,file="D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/results/2_newM/scanM.RData")
+
+mOrig <- oldM
+NSH.samsOld <- new("FLSAMs")
+for(iM in seq(-0.1,0.6,0.01)){
+  print(iM)
+  NSH@m <- mOrig + iM
+  NSH.samsOld[[ac(iM)]] <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+}
+
+plot(y=unlist(lapply(NSH.samsOld[ac(seq(-0.1,0.22,0.01))],nlogl)),x=an(names(NSH.samsOld[ac(seq(-0.1,0.22,0.01))])),xlab="Additive M",ylab="Negative log-likelihood",las=1)
+points(y=unlist(lapply(NSH.sams,nlogl)),x=an(names(NSH.sams)),pch=19,col=3)
+addMOld <- an(names(which.min(unlist(lapply(NSH.samsOld,nlogl)))))
+
+comb <- rbind(cbind(model="oldM",as.data.frame(oldM)),
+              cbind(model="newM",as.data.frame(NSH@m)),
+              cbind(model="oldM+profile",as.data.frame(oldM+addMOld)),
+              cbind(model="newM+profile",as.data.frame(NSH@m+addMNew)))
+              
+xyplot(data ~ year | as.factor(age),groups=model,data=comb,type="l",auto.key=T)
+
+

@@ -73,12 +73,12 @@ NSH3f.sam   <- FLSAM(NSHs3,
 NSH3.ctrl@residuals <- F
 NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
 
-mean(mohns.rho(NSH3f.retro,ref.year=2016,span=7,type="fbar")[1:7,1])
-mean(mohns.rho(NSH3f.retro,ref.year=2016,span=7,type="ssb")[1:7,1])
-mean(mohns.rho(NSH3f.retro,ref.year=2016,span=7,type="rec")[1:7,1])
-mean(mohns.rho(NSH.retro,ref.year=2016,span=7,type="fbar")[1:7,1])
-mean(mohns.rho(NSH.retro,ref.year=2016,span=7,type="ssb")[1:7,1])
-mean(mohns.rho(NSH.retro,ref.year=2016,span=7,type="rec")[1:7,1])
+mean(mohns.rho(NSH3f.retro,ref.year=2016,span=6,type="fbar")[1:6,1])
+mean(mohns.rho(NSH3f.retro,ref.year=2016,span=6,type="ssb")[1:6,1])
+mean(mohns.rho(NSH3f.retro,ref.year=2016,span=6,type="rec")[1:6,1])
+mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="fbar")[1:6,1])
+mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="ssb")[1:6,1])
+mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="rec")[1:6,1])
 
 sams <- FLSAMs(original=NSH.sam,threeFleet=NSH3f.sam)
 
@@ -92,8 +92,8 @@ NSH4f.retro <- retro(NSHs4,NSH.tun,NSH4.ctrl,7)
 
 # Save results
 save(NSH,   NSH.sam,  NSH.ctrl, NSH.retro,NSH.tun,
-     NSHs3, NSH3f.sam,NSH3.ctrl,NSH3f.sam,
-     NSHs4, NSH4f.sam,NSH4.ctrl,NSH4f.sam,file=file.path(output.dir,"NSH.RData",sep=""))
+     NSHs3, NSH3f.sam,NSH3.ctrl,NSH3f.retro,file=file.path(output.dir,"NSH.RData",sep=""))
+     #NSHs4, NSH4f.sam,NSH4.ctrl,NSH4f.sam,
      
 sams <- FLSAMs(singleFLeet=NSH.sam,threeFleet=NSH3f.sam,fourFleet=NSH4f.sam)
 plot(NSH.retro)
@@ -243,8 +243,7 @@ xyplot(value+ubnd+lbnd ~ age | fleet,data=f.var(fvarRes[[1]]),type="l",col=c("bl
 
 #Setup plots
 #pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
-png(file.path(output.dir,paste(name(NSH.sam),"figures - %02d.png")),units = "px", height=800,wi
-dth=672, bg = "white")
+png(file.path(output.dir,paste("SurveyConsistency","figures - %02d.png")),units = "px", height=800,width=672, bg = "white")
 
 ### ============================================================================
 ### Model fit

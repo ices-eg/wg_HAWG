@@ -156,7 +156,8 @@ for(iAge in extrags)
   NSHM2@m[ac(iAge),]          <- NSHM2@m[ac(as.numeric(min(sort(extrags)))-1),]
 
 #Write new M values into the original stock object
-NSH@m     <- NSHM2@m
+addM      <- 0.11 #M profiling based on 2018 benchmark meeting
+NSH@m     <- NSHM2@m + addM
 
 
 ### ============================================================================
@@ -263,8 +264,8 @@ NSH.tun[["HERAS"]]@range["plusgroup"] <- pg
 idxSCAI <- which(names(NSH.tun)=="SCAI")
 NSH.tun <- NSH.tun[-idxSCAI]
 
-NSH.tun[["IBTS-Q3"]] <- trim(NSH.tun[["IBTS-Q3"]],age=0:6)
-NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=1:5)
+NSH.tun[["IBTS-Q3"]] <- trim(NSH.tun[["IBTS-Q3"]],age=0:5)
+NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=1)
 NSH.tun[["HERAS"]] <- trim(NSH.tun[["HERAS"]],age=1:8)
 
 ### ============================================================================
