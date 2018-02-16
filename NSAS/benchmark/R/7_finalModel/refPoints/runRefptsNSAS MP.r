@@ -45,13 +45,15 @@ runsFlim <- list(
   run1=list(srryears=c(2002:2016),  bioyears=c(2007:2016), models=c("Bevholt","Ricker")),
   run2=list(srryears=c(2002:2016),  bioyears=c(2007:2016), models=c("Ricker")),
   run3=list(srryears=c(1947:2016),  bioyears=c(2007:2016), models=c("Bevholt", "Ricker")),
-  run3=list(srryears=c(1994:2016),  bioyears=c(2007:2016), models=c("Ricker"))
+  run4=list(srryears=c(1994:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run4b=list(srryears=c(1994:2016),  bioyears=c(2007:2016), models=c("Ricker","Bevholt"))
+  
 )
 
 FITLIM <- list()
 SIMLIM <- list()
 
-i <- 4
+i <- 5
 
 for(i in 1:length(runsFlim)){
   print(i)
@@ -116,13 +118,15 @@ runsFmsy <- list(
   run5=list(srryears=c(1994:2015),  bioyears=c(2007:2016), models=c("Bevholt","Ricker")),
   run6=list(srryears=c(1994:2015),  bioyears=c(2007:2016), models=c("Ricker")),
   run7=list(srryears=c(1947:2016),  bioyears=c(2007:2016), models=c("Bevholt", "Ricker")),
-  run8=list(srryears=c(1994:2016),  bioyears=c(2007:2016), models=c("Ricker"))
+  run8=list(srryears=c(1994:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run8b=list(srryears=c(1994:2016),  bioyears=c(2007:2016), models=c("Bevholt", "Ricker"))
+  
 )
 
 FITMSY   <- list()
 SIMMSY   <- list()
 
-i <- 4
+i <- 5
 
 for(i in 1:length(runsFmsy)){
   
@@ -189,42 +193,42 @@ for(i in 1:length(runsFmsy)){
 
 # fp05 <- round(t(SIMMSY[[i]]$Refs2)["F05","catF"],3)
 
-# load("D:/HAWG/North Sea Herring 2014.RData")
-# NSH2014 <- NSH
-# 
-# load("D:/GIT/wg_HAWG/NSAS/benchmark/R/7_finalModel/refPoints_nocorMIK/NSHnocorMIK.RData")
-# NSHnoCorr <- NSH
-# 
-# load("D:/HAWG/2017/06. Data/NSAS/SAM/North Sea Herring 2017.RData")
-# NSH2017 <- NSH
-# 
-# ssbbench <- as.data.frame(ssb(NSHbench)) %>%  mutate(run="Bench")
-# ssbnoCorr <- as.data.frame(ssb(NSHnoCorr)) %>%  mutate(run="noCorr")
-# ssb2017  <- as.data.frame(ssb(NSH2017)) %>% mutate(run="HAWG2017")
-# ssb2014  <- as.data.frame(ssb(NSH2014)) %>% mutate(run="HAWG2014")
-# 
-# rbench <- as.data.frame(trim(NSHbench@stock.n, age=0)) %>%  mutate(run="Bench")
-# rnoCorr <- as.data.frame(trim(NSHnoCorr@stock.n, age=0)) %>%  mutate(run="noCorr")
-# 
-# ssb2017 %>% 
-#   bind_rows(ssbbench) %>% 
-#   bind_rows(ssb2014) %>% 
-#   bind_rows(ssbnoCorr) %>% 
-#   
-#   ggplot(aes(year, data, group=run)) +
-#   theme_bw() +
-#   geom_line(aes(colour=run))
-# 
-# ssbnoCorr %>% 
-#   bind_rows(ssbbench) %>% 
-# 
-#   ggplot(aes(year, data, group=run)) +
-#   theme_bw() +
-#   geom_line(aes(colour=run))
-# 
-# rnoCorr %>% 
-#   bind_rows(rbench) %>% 
-#   
-#   ggplot(aes(year, data, group=run)) +
-#   theme_bw() +
-#   geom_line(aes(colour=run))
+load("D:/HAWG/North Sea Herring 2014.RData")
+NSH2014 <- NSH
+
+load("D:/GIT/wg_HAWG/NSAS/benchmark/R/7_finalModel/refPoints_nocorMIK/NSHnocorMIK.RData")
+NSHnoCorr <- NSH
+
+load("D:/HAWG/2017/06. Data/NSAS/SAM/North Sea Herring 2017.RData")
+NSH2017 <- NSH
+
+ssbbench <- as.data.frame(ssb(NSHbench)) %>%  mutate(run="Bench")
+ssbnoCorr <- as.data.frame(ssb(NSHnoCorr)) %>%  mutate(run="noCorr")
+ssb2017  <- as.data.frame(ssb(NSH2017)) %>% mutate(run="HAWG2017")
+ssb2014  <- as.data.frame(ssb(NSH2014)) %>% mutate(run="HAWG2014")
+
+rbench <- as.data.frame(trim(NSHbench@stock.n, age=0)) %>%  mutate(run="Bench")
+rnoCorr <- as.data.frame(trim(NSHnoCorr@stock.n, age=0)) %>%  mutate(run="noCorr")
+
+ssb2017 %>%
+  bind_rows(ssbbench) %>%
+  bind_rows(ssb2014) %>%
+  bind_rows(ssbnoCorr) %>%
+
+  ggplot(aes(year, data, group=run)) +
+  theme_bw() +
+  geom_line(aes(colour=run))
+
+ssbnoCorr %>%
+  bind_rows(ssbbench) %>%
+
+  ggplot(aes(year, data, group=run)) +
+  theme_bw() +
+  geom_line(aes(colour=run))
+
+rnoCorr %>%
+  bind_rows(rbench) %>%
+
+  ggplot(aes(year, data, group=run)) +
+  theme_bw() +
+  geom_line(aes(colour=run))
