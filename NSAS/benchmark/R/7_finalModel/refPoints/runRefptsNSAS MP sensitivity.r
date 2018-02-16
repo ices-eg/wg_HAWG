@@ -51,7 +51,7 @@ runsFmsy <- list(
 FITMSY <- list()
 SIMMSY <- list()
 
-i <- 8
+# i <- 8
 
 for(i in 1:length(runsFmsy)){
   print(i)
@@ -64,14 +64,6 @@ for(i in 1:length(runsFmsy)){
                                  rshift       = 1, 
                                  models       = runsFmsy[[i]]$models
                                  )
-  
-  # write out the SR data to text file
-  # sink(paste(run," SRR ",title,".txt",sep="")); FITMSY[i]$sr.det; sink()
-
-  # write out SRR plot
-  # png(paste(run," SRR ",title," gg.png",sep=""), width=1500, height=1500, res=200, bg="white"); 
-  # eqsr_plot(FITMSY[[i]],n=2e4, ggPlot=TRUE); 
-  # dev.off()
   
   SIMMSY[[i]] <- eqsim_run(
     FITMSY[[i]],
@@ -89,18 +81,6 @@ for(i in 1:length(runsFmsy)){
     verbose   = TRUE,
     extreme.trim=c(0.01,0.99))
   
-  # Save the MSY intervals as text file
-  # sink(paste(run," MSY ",title,".txt",sep="")); MSY_Intervals(SIMMSY[[i]]); sink()
-  # MSY_Intervals(SIMMSY[[i]]); 
-  
-  # Save the MSY simulation results
-  # sink(paste(run," SIM ",title,".txt",sep="")); SIMMSY[[i]]; sink()
-  # SIMMSY[[i]];
-  
-  # png(paste(run," MSY ",title,".png",sep=""), width=1500, height=1500, res=200, bg="white")
-  # eqsim_plot(SIMMSY[[i]],catch=TRUE); 
-  # dev.off()
-  
   fmsy <- round(t(SIMMSY[[i]]$Refs2)["medianMSY","lanF"],3)
   
   print(paste0(i,
@@ -114,19 +94,3 @@ for(i in 1:length(runsFmsy)){
 }
 
 
-# save(FITLIM,SIMLIM,file=paste("./simulation_",title,".RData",sep=""))
-
-
-
-
-lsf.str("package:msy")
-LLplot(FITMSY[[6]])
-
-round(t(SIMMSY[[5]]$Refs2)["medianMSY","lanF"],6)
-round(t(SIMMSY[[6]]$Refs2)["medianMSY","lanF"],6)
-summary(OBJ)
-
-for(i in 1:length(runsFmsy)){
-  # MSY_Intervals(SIMMSY[[i]])
-  print(SIMMSY[[i]]$Refs2[2,4])
-}
