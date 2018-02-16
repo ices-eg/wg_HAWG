@@ -32,9 +32,7 @@ log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
 
 # local path
-# path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/"
-path <- "D:/GIT/wg_HAWG/NSAS/benchmark/"
-
+path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -58,25 +56,18 @@ source(file.path("R/7_finalModel/setupControlObject_sf.r"))
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-NSH.sam    <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-
-#Update stock object
-NSH       <- NSH + NSH.sam
-NSH@stock <- computeStock(NSH)
-name(NSH) <- "NSHcorMIK"
-
-# save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSHnocorMIK.RData"))
-save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,"NSHcorMIK.RData"))
+NSH.sam               <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+NSH                   <- NSH + NSH.sam
 
 # Run retrospective, turn residuals off as it takes a long time
 NSH.ctrl@residuals    <- FALSE
 NSH.retro             <- retro(NSH,NSH.tun,NSH.ctrl,7)
 
-mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="fbar")[1:6,1]) #-8.5
-mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="ssb")[1:6,1]) #9.6
-mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="rec")[1:6,1]) #17.4
+mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="fbar")[1:6,1]) #-8.4
+mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="ssb")[1:6,1]) #10.1
+mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="rec")[1:6,1]) #17.5
 
-save(NSH,NSH.tun,NSH.ctrl,NSH.sam,NSH.retro,file=file.path(output.dir,"NSHnocorMIK.RData"))
+save(NSH,NSH.tun,NSH.ctrl,NSH.sam,NSH.retro,file=file.path(output.dir,"NSH_final.RData"))
 
 #Setup plots
 #pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))

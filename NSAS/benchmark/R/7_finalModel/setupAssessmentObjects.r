@@ -264,7 +264,7 @@ NSH.tun[["HERAS"]]@range["plusgroup"] <- pg
 idxSCAI <- which(names(NSH.tun)=="SCAI")
 NSH.tun <- NSH.tun[-idxSCAI]
 
-NSH.tun[["IBTS-Q3"]] <- trim(NSH.tun[["IBTS-Q3"]],age=0:6)
+NSH.tun[["IBTS-Q3"]] <- trim(NSH.tun[["IBTS-Q3"]],age=0:5)
 NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=1)
 NSH.tun[["HERAS"]] <- trim(NSH.tun[["HERAS"]],age=1:8)
 
