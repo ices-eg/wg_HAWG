@@ -38,14 +38,16 @@ NSHbench <- NSH
 # -------------------------------------------------------------------------------
 
 runsFmsy <- list(
-  run1=list(srryears=c(1994:2016),  bioyears=c(2007:2016), models=c("Bevholt","Ricker")),
-  run2=list(srryears=c(1996:2016),  bioyears=c(2007:2016), models=c("Bevholt","Ricker")),
-  run3=list(srryears=c(1998:2016),  bioyears=c(2007:2016), models=c("Bevholt","Ricker")),
-  run4=list(srryears=c(2000:2016),  bioyears=c(2007:2016), models=c("Bevholt","Ricker")),
-  run5=list(srryears=c(2001:2016),  bioyears=c(2007:2016), models=c("Bevholt","Ricker")),
-  run6=list(srryears=c(2002:2016),  bioyears=c(2007:2016), models=c("Bevholt","Ricker")),
-  run7=list(srryears=c(2004:2016),  bioyears=c(2007:2016), models=c("Bevholt","Ricker")),
-  run8=list(srryears=c(2006:2016),  bioyears=c(2007:2016), models=c("Bevholt","Ricker"))
+  run1=list(srryears=c(1994:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run2=list(srryears=c(1996:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run3=list(srryears=c(1998:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run4=list(srryears=c(2000:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run5=list(srryears=c(2001:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run6=list(srryears=c(2002:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run7=list(srryears=c(2004:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run8=list(srryears=c(2006:2016),  bioyears=c(2007:2016), models=c("Ricker")),
+  run9=list(srryears=c(2008:2016),     bioyears=c(2008:2016), models=c("Ricker")),
+  run10=list(srryears=c(2010:2016),    bioyears=c(2010:2016), models=c("Ricker"))
 )
 
 FITMSY <- list()
@@ -59,11 +61,12 @@ for(i in 1:length(runsFmsy)){
   run     <- title
   OBJ     <- trim(NSH, year=runsFmsy[[i]]$srryears)
   
-  FITMSY[[i]]  <- eqsr_fit_shift(OBJ, 
-                                 nsamp        = 2000,   
-                                 rshift       = 1, 
-                                 models       = runsFmsy[[i]]$models
-                                 )
+  FITMSY[[i]]  <- eqsr_fit_shift(
+    OBJ, 
+    nsamp        = 2000,   
+    rshift       = 1, 
+    models       = runsFmsy[[i]]$models
+    )
   
   SIMMSY[[i]] <- eqsim_run(
     FITMSY[[i]],
@@ -92,5 +95,58 @@ for(i in 1:length(runsFmsy)){
   
 
 }
+
+eqsr_plot(FITMSY[[10]],n=2e4, ggPlot=TRUE)
+round(t(SIMMSY[[9]]$Refs2)["medianMSY","lanF"],3)
+
+# save(FITMSY, SIMMSY, file="refpoints.RData")
+
+fitrby <-
+  mutate   (FITMSY[[1]]$rby, sim=1) %>%
+  bind_rows(mutate(FITMSY[[2]]$rby, sim=2)) %>% 
+  bind_rows(mutate(FITMSY[[3]]$rby, sim=3)) %>% 
+  bind_rows(mutate(FITMSY[[4]]$rby, sim=4)) %>% 
+  bind_rows(mutate(FITMSY[[5]]$rby, sim=5)) %>% 
+  bind_rows(mutate(FITMSY[[6]]$rby, sim=6)) %>% 
+  bind_rows(mutate(FITMSY[[7]]$rby, sim=7)) %>% 
+  bind_rows(mutate(FITMSY[[8]]$rby, sim=8))  
+
+# x.mult <- y.mult <- 1
+# out <- list()
+# for (i in 1:8) {
+#   modset   <- FITMSY[[1]]$sr.sto
+#   data     <- FITMSY[[1]]$rby[, 1:3]
+#   minSSB   <- min(data$ssb, max(data$ssb) * 0.0125)
+#   maxSSB   <- max(data$ssb) * x.mult
+#   maxrec   <- max(data$rec * y.mult)
+#   out[[i]] <- do.call(rbind, lapply(sample(1:nrow(modset), 500), 
+#                                function(i) {
+#                                  fssb <- stats::runif(500, minSSB, maxSSB)
+#                                  FUN  <- match.fun(modset$model[i])
+#                                  frec <- exp(FUN(modset[i, ], fssb) + stats::rnorm(500, 
+#                                                                                    sd = modset$cv[i]))
+#                                  srModel <- modset$model[i]
+#                                  data.frame(ssb = fssb, rec = frec, model = srModel)
+#                                })) 
+# }
+
+# fitout <-
+#   mutate   (out[[1]], sim=1) %>%
+#   bind_rows(mutate(out[[2]], sim=2)) %>% 
+#   bind_rows(mutate(out[[3]], sim=3)) %>% 
+#   bind_rows(mutate(out[[4]], sim=4)) %>% 
+#   bind_rows(mutate(out[[5]], sim=5)) %>% 
+#   bind_rows(mutate(out[[6]], sim=6)) %>% 
+#   bind_rows(mutate(out[[7]], sim=7)) %>% 
+#   bind_rows(mutate(out[[8]], sim=8))  
+
+
+ggplot(fitrby, aes(x=ssb, y=rec)) +
+  theme_bw() +
+  # geom_point(data=fitout, aes(x=ssb,y=rec), colour="red", size=0.05, alpha=0.1) +
+  geom_point(aes(colour=as.factor(sim)), size=1) +
+  facet_wrap(~sim) +
+  expand_limits(x=0,y=0) +
+  guides(colour=FALSE)
 
 
