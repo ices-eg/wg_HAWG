@@ -33,12 +33,20 @@ source("Refpoints functions.R")
 source("D:/GIT/wg_HAWG/_Common/eqsr_fit_shift.R")
 load("D:/WKPELA/06. Data/NSAS/SAM/NSH_final.RData")
 
-# 1. Get estimate of Blim using the whole time series
+# 1. Get estimate of Blim using the whole time series and calculate Bpa
 
 FIT_segregBlim <- 
   eqsr_fit(NSH,nsamp=2000, models = "Segreg")
 
 blim <- round(FIT_segregBlim$sr.det$b/1e5)*1e5  # 796 kT = 800 kT
+
+#Now calculate the uncertainty in SSB in terminal year. We need the sd that belongs to log(ssb) to calculate Bpa
+logssb    <- subset(ssb(NSH.sam),year==2016)
+sdmin     <- function(sdestim){
+  return(abs(0.025 - dnorm(log(logssb$lbnd),log(logssb$value),sdestim)))}
+sdSSB     <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
+Bpa       <- blim * exp(1.645*sdSSB)  # MP 878 kT
+Bpa       <- ceiling(Bpa/1e5)*1e5  # rounding up
 
 
 # 2. parameterize the segreg model with Blim breakpoint and (roughly) geomean rec above this
@@ -94,8 +102,8 @@ SIM <- eqsim_run(FIT,
                  recruitment.trim = c(3, -3),
                  Fcv       = 0.27,            #From Martin 2018 WKPELA
                  Fphi      = 0.51,            #From Martin  2018 WKPELA
-                 Blim      = 800000,
-                 Bpa       = 1000000,
+                 Blim      = blim,
+                 Bpa       = Bpa,
                  Btrigger  = 0,
                  Fscan     = seq(0,0.80,len=40),
                  verbose   = TRUE,
@@ -104,13 +112,6 @@ SIM <- eqsim_run(FIT,
 Fmsy      <- SIM$Refs2["lanF","medianMSY"] #0.275
 Fmsy      <- ifelse(Fmsy>Fpa,Fpa,Fmsy)
 
-#Now calculate the uncertainty in SSB in terminal year. We need the sd that belongs to log(ssb) to calculate Bpa
-logssb    <- subset(ssb(NSH.sam),year==2016)
-sdmin     <- function(sdestim){
-             return(abs(0.025 - dnorm(log(logssb$lbnd),log(logssb$value),sdestim)))}
-sdSSB     <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
-Bpa       <- blim * exp(1.645*sdSSB)  # MP 878 kT
-Bpa       <- ceiling(Bpa/1e5)*1e5  # rounding up
 
 # Select MSY Btrigger   (from schematic guidelines: yes, yes, no -> 5th percentile of MSYBtrigger
 MSYBtrigger <- SIM$Refs2["catB","F05"]  # MP 1396 kT
@@ -138,10 +139,14 @@ Fp05      <- checkFmsy$Refs2["catF","F05"] # MP: 0.256
 propFmsy  <- subset(checkFmsy$pProfile,Ftarget==round(Fmsy,2) & variable=="Blim")$value
 if (Fmsy > Fp05) {Fmsy <- Fp05}
 
+Flim       <- round(Flim,2)
+Fpa        <- round(Fpa,2)
+Fmsy       <- round(Fmsy, 2)
+
 # 8. final set of reference points
-refpts <- data.frame(Flim       = round(Flim,2),
-                     Fpa        = round(Fpa,2),
-                     Fmsy       = round(Fmsy, 2),
+refpts <- data.frame(Flim       = Flim,
+                     Fpa        = Fpa,
+                     Fmsy       = Fmsy,
                      Blim       = blim,
                      Bpa        = Bpa,
                      MSYBtrigger= MSYBtrigger)
