@@ -47,8 +47,9 @@ SegregBlim  <- function(ab, ssb) log(ifelse(ssb >= blim,
                                             ab$a * ssb))
 
 # 3. truncate the NSH object
+# NSHtrunc <- trim(NSH, year=2000:2016)
 NSHtrunc <- trim(NSH, year=2002:2016)
-  
+
 # 4. fit the stock recruitment model(s)
 FIT <- eqsr_fit_shift(NSHtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"),
                       rshift=1)
@@ -101,6 +102,7 @@ SIM <- eqsim_run(FIT,
                  extreme.trim=c(0.01,0.99))
 
 Fmsy      <- SIM$Refs2["lanF","medianMSY"] #0.275
+Fmsy      <- ifelse(Fmsy>Fpa,Fpa,Fmsy)
 
 #Now calculate the uncertainty in SSB in terminal year. We need the sd that belongs to log(ssb) to calculate Bpa
 logssb    <- subset(ssb(NSH.sam),year==2016)
@@ -108,9 +110,11 @@ sdmin     <- function(sdestim){
              return(abs(0.025 - dnorm(log(logssb$lbnd),log(logssb$value),sdestim)))}
 sdSSB     <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
 Bpa       <- blim * exp(1.645*sdSSB)  # MP 878 kT
+Bpa       <- ceiling(Bpa/1e5)*1e5  # rounding up
 
 # Select MSY Btrigger   (from schematic guidelines: yes, yes, no -> 5th percentile of MSYBtrigger
 MSYBtrigger <- SIM$Refs2["catB","F05"]  # MP 1396 kT
+MSYBtrigger <- round((2*MSYBtrigger)/1e5)*1e5/2 # rounding
 
 # 7. Check if FMSY is precautionary, so do a scan
 checkFmsy <- eqsim_run(FIT,
@@ -121,29 +125,27 @@ checkFmsy <- eqsim_run(FIT,
            recruitment.trim = c(3, -3),
            Fcv       = 0.27,
            Fphi      = 0.51,
-           Blim      = 800000,
-           Bpa       = 1000000,
-           Btrigger  = 1400000,
+           Blim      = blim,
+           Bpa       = Bpa,
+           Btrigger  = MSYBtrigger,
            Fscan     = seq(0.18,0.35,0.01),
+#           Fscan     = seq(0.18,0.5,0.01),
            verbose   = TRUE,
            extreme.trim=c(0.01,0.99))
 
-#Here do the check
-if(subset(checkFmsy$pProfile,Ftarget==round(Fmsy,2) & variable=="Blim")$value<0.05)
-  Fmsy <- checkFmsy$Refs2["catF","F05"]
-
+# If the precautionary criterion (FMSY < Fp.05) evaluated is not met, then FMSY should be reduced to  Fp.05. 
 Fp05      <- checkFmsy$Refs2["catF","F05"] # MP: 0.256
 propFmsy  <- subset(checkFmsy$pProfile,Ftarget==round(Fmsy,2) & variable=="Blim")$value
+if (Fmsy > Fp05) {Fmsy <- Fp05}
 
 # 8. final set of reference points
-refpts <- data.frame(Flim=round(Flim,2),
-                     Fpa=round(Fpa,2),
-                     Fmsy=ifelse(Fmsy>Fpa,round(Fpa,2),round(Fmsy,2)),
-                     Blim=blim,
-                     Bpa=ceiling(Bpa/1e5)*1e5,
-                     MSYBtrigger=ceiling(MSYBtrigger/1e4)*1e4)
-
+refpts <- data.frame(Flim       = round(Flim,2),
+                     Fpa        = round(Fpa,2),
+                     Fmsy       = round(Fmsy, 2),
+                     Blim       = blim,
+                     Bpa        = Bpa,
+                     MSYBtrigger= MSYBtrigger)
 
 print(refpts)
 
-
+save(NSH, NSHtrunc, FIT, SIM, refpts, file="refpoints.RData")
