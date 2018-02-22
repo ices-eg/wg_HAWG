@@ -1,3 +1,15 @@
+# ==============================================================================
+# Reference points estimation
+# North Sea herring; final assessment at benchmark meeting 2018
+# Sensititivity analysis with ricker and segreg
+#
+# Uses: R 3.4.3
+#       FLCore 2.6.5
+#       msy 0.1.18
+#
+# Changed: 22/2/2018 Martin Pastoors
+# ==============================================================================
+
 # install package devtools first
 rm(list=ls())
 
