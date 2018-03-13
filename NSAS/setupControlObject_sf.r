@@ -55,7 +55,7 @@ NSH.ctrl@f.vars[1,]                         <- c(101,101,rep(102,4),rep(103,3))
 #No correlation structure among ages in F random walks
 NSH.ctrl@cor.F                              <- 0
 #Finalise
-NSH.ctrl@name                               <- "Final Assessment"
+NSH.ctrl@name                               <- "HAWG_NSAS_Assessment"
 NSH.ctrl                                    <- update(NSH.ctrl)
 
 #NSH.ctrl@f.vars["IBTS0",1]                  <- -3

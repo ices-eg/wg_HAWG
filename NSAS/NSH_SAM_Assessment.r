@@ -33,7 +33,7 @@ source(file.path("./setupControlObject_sf.r"))
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-### Run the assessment
+### Assessment
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
@@ -50,19 +50,29 @@ mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="rec")[1:6,1]) #17.5
 
 save(NSH,NSH.tun,NSH.ctrl,NSH.sam,NSH.retro,file=file.path(output.dir,"NSH_final.RData"))
 
-#Setup plots
+### ============================================================================
+### ============================================================================
+### ============================================================================
+### plots
+### ============================================================================
+### ============================================================================
+### ============================================================================
+
 #pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
-png(file.path(output.dir,paste(name(NSH.sam),"figures - %02d.png")),units = "px", height=800,width=672, bg = "white")
+#png(file.path(output.dir,paste(name(NSH.sam),"figures - %02d.png")),units = "px", height=800,width=672, bg = "white")
+windows()
 
 ### ============================================================================
 ### Model fit
 ### ============================================================================
 
 # figure - residual plots at each age for each time series
-residual.diagnostics(NSH.sam)
+#residual.diagnostics(NSH.sam)
 
 # figure - assessment result, spawning stock biomass, fishing mortality, recruitment
-print(plot(NSH.sam,futureYrs=F))
+#print(plot(NSH.sam,futureYrs=F))
+plot(NSH.sam,futureYrs=F)
+savePlot(file.path(".","results",assess2,"comparison of catchabilities.png"),type="png")
 
 # figure - uncertainties as a function of time
 par(mfrow=c(1,2))
@@ -80,9 +90,9 @@ matplot(CV.yrs,CV.dat,type="l",ylim=range(pretty(c(0,CV.dat))),yaxs="i",
         xlab="Year",ylab="CV of estimate",main="Uncertainties of key parameters")
 grid()
 legend("topleft",legend=colnames(CV.dat),lty=1:5,col=1:6,bty="n")
-CV.yrs <- ssb(NSH4f.sam)$year
-CV.dat <- cbind(SSB=ssb(NSH4f.sam)$CV,
-                Fbar=fbar(NSH4f.sam)$CV,Rec=rec(NSH4f.sam)$CV)
+CV.yrs <- ssb(NSH.sam)$year
+CV.dat <- cbind(SSB=ssb(NSH.sam)$CV,
+                Fbar=fbar(NSH.sam)$CV,Rec=rec(NSH.sam)$CV)
 matplot(CV.yrs,CV.dat,type="l",ylim=range(pretty(c(0,CV.dat))),yaxs="i",
         xlab="Year",ylab="CV of estimate",main="Uncertainties of key parameters")
 grid()
