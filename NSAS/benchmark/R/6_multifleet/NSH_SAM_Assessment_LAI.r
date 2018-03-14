@@ -47,8 +47,8 @@ n.retro.years       <-  10                                      # Number of year
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA)
-source(file.path("R/6_multifleet/setupAssessmentObjects_LAI.r"))
-source(file.path("R/6_multifleet/setupControlObject_sf.r"))
+source(file.path("R/6_multifleet/setupMultiFleetData.r"))
+source(file.path("R/6_multifleet/setupControlObject_mf.r"))
 
 ### ============================================================================
 ### ============================================================================
@@ -57,15 +57,7 @@ source(file.path("R/6_multifleet/setupControlObject_sf.r"))
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-NSH.ctrl@residuals <- F
-
-NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-name(NSH.sam) <- "base run"
-NSH.ctrl@residuals <- F
-NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,7)
-
-source(file.path("R/6_multifleet/setupMultiFleetData.r"))
-source(file.path("R/6_multifleet/setupControlObject_mf.r"))
+#NSH3.ctrl@residuals <- F
 
 NSH3f.sam   <- FLSAM(NSHs3,
                      NSH.tun,
@@ -73,177 +65,15 @@ NSH3f.sam   <- FLSAM(NSHs3,
 NSH3.ctrl@residuals <- F
 NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
 
-mean(mohns.rho(NSH3f.retro,ref.year=2016,span=6,type="fbar")[1:6,1])
-mean(mohns.rho(NSH3f.retro,ref.year=2016,span=6,type="ssb")[1:6,1])
-mean(mohns.rho(NSH3f.retro,ref.year=2016,span=6,type="rec")[1:6,1])
-mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="fbar")[1:6,1])
-mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="ssb")[1:6,1])
-mean(mohns.rho(NSH.retro,ref.year=2016,span=6,type="rec")[1:6,1])
+save(NSH,NSH.tun,NSH3.ctrl,NSH3f.sam,NSH3f.retro,file=file.path(output.dir,"NSH_mf_final.RData"))
 
-sams <- FLSAMs(original=NSH.sam,threeFleet=NSH3f.sam)
-
-
-NSH4f.sam   <- FLSAM(NSHs4,
-                     NSH.tun,
-                     NSH4.ctrl)
-NSH4.ctrl@residuals <- F
-NSH4f.retro <- retro(NSHs4,NSH.tun,NSH4.ctrl,7)
-
-
-# Save results
-save(NSH,   NSH.sam,  NSH.ctrl, NSH.retro,NSH.tun,
-     NSHs3, NSH3f.sam,NSH3.ctrl,NSH3f.retro,file=file.path(output.dir,"NSH.RData",sep=""))
-     #NSHs4, NSH4f.sam,NSH4.ctrl,NSH4f.sam,
-     
-sams <- FLSAMs(singleFLeet=NSH.sam,threeFleet=NSH3f.sam,fourFleet=NSH4f.sam)
-plot(NSH.retro)
-plot(NSH3f.retro)
-plot(NSH4f.retro)
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-
-#
-NSH3.ctrl@residuals <- F
-NSH3.ctrl@f.vars[1:3,] <- matrix(c(c(rep(0,4),rep(1,5)),c(rep(2,4),rep(-1,5)),c(rep(3,4),rep(4,5))),nrow=3,byrow=T)
-NSH3.ctrl@cor.F <- c(2,1,2)
-NSH3.ctrl@obs.vars[grep("LAI",rownames(NSH3.ctrl@obs.vars)),1] <- 11
-NSH3.ctrl <- update(NSH3.ctrl)
-NSH3f.samOrig <- NSH3f.sam
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl)
-NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
-
-
-#
-NSH3.ctrl@residuals <- F
-NSH3.ctrl@f.vars[1:3,] <- matrix(c(c(rep(0,4),rep(1,5)),c(rep(2,4),rep(-1,5)),c(rep(3,4),rep(4,5))),nrow=3,byrow=T)
-NSH3.ctrl@cor.F <- c(2,1,2)
-NSH3.ctrl@obs.vars[grep("LAI",rownames(NSH3.ctrl@obs.vars)),1] <- 11
-NSH3.ctrl@catchabilities["HERAS",ac(2:8)] <- c(101,101,rep(102,5))
-NSH3.ctrl@obs.vars["HERAS",ac(2:8)] <- rep(101,7)
-NSH3.ctrl <- update(NSH3.ctrl)
-NSH3f.samOrig <- NSH3f.sam
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl)
-NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
-#
-NSH3.ctrl@residuals <- F
-NSH3.ctrl@f.vars[1:3,] <- matrix(c(c(rep(0,4),rep(1,5)),c(rep(2,4),rep(-1,5)),c(rep(3,4),rep(4,5))),nrow=3,byrow=T)
-NSH3.ctrl@cor.F <- c(2,1,2)
-NSH3.ctrl@obs.vars[grep("LAI",rownames(NSH3.ctrl@obs.vars)),1] <- 11
-NSH3.ctrl@catchabilities["HERAS",ac(2:8)] <- c(202,203,203,rep(204,4))
-NSH3.ctrl@obs.vars["HERAS",ac(2:8)] <- c(202,203,203,203,205,205,205)
-NSH3.ctrl <- update(NSH3.ctrl)
-NSH3f.samOrig <- NSH3f.sam
-NSH3f.sam   <- FLSAM(NSHs3,
-                     NSH.tun,
-                     NSH3.ctrl,return.fit=T)
-NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,7)
-mohns.rho(NSH3f.retro,ref.year=2016,span=5,type="fbar")
-mohns.rho(NSH3f.retro,ref.year=2016,span=7,type="ssb")
-mohns.rho(NSH3f.retro,ref.year=2016,span=7,type="rec")
-
-startVals <- list(logF=NSH3f.sam$pl$logF,
-                  logN=NSH3f.sam$pl$logN,
-                  logPS=NSH3f.sam$pl$logPS)
-
-#-
-corRuns <- list( run1=  data.frame(slot="cor.F",value=c(0,0,0)),
-                 run2=  data.frame(slot="cor.F",value=c(1,0,0)),
-                 run3=  data.frame(slot="cor.F",value=c(0,1,0)),
-                 run4=  data.frame(slot="cor.F",value=c(0,0,1)),
-                 run5=  data.frame(slot="cor.F",value=c(1,1,1)),
-                 run6=  data.frame(slot="cor.F",value=c(2,2,2)),
-                 run7=  data.frame(slot="cor.F",value=c(2,0,0)),
-                 run8=  data.frame(slot="cor.F",value=c(0,2,0)),
-                 run9=  data.frame(slot="cor.F",value=c(0,0,2)),
-                 run10= data.frame(slot="cor.F",value=c(1,1,0)),
-                 run11= data.frame(slot="cor.F",value=c(0,1,1)),
-                 run12= data.frame(slot="cor.F",value=c(1,0,1)),
-                 run13= data.frame(slot="cor.F",value=c(2,2,0)),
-                 run14= data.frame(slot="cor.F",value=c(0,2,2)),
-                 run15= data.frame(slot="cor.F",value=c(2,0,2)),
-                 run16= data.frame(slot="cor.F",value=c(2,2,1)),
-                 run17= data.frame(slot="cor.F",value=c(1,2,2)),
-                 run18= data.frame(slot="cor.F",value=c(2,1,2)),
-                 run19= data.frame(slot="cor.F",value=c(1,2,1)),
-                 run20= data.frame(slot="cor.F",value=c(1,1,2)),
-                 run21= data.frame(slot="cor.F",value=c(2,1,1)))
-corRes <- list()
-for(iCor in 1:length(corRuns)){
-  print(iCor)
-  NSH3.ctrltemp <- NSH3.ctrl
-  slot(NSH3.ctrltemp,corRuns[[iCor]]$slot[1]) <- corRuns[[iCor]]$value
-  corRes[[iCor]] <- try(FLSAM(NSHs3,NSH.tun,NSH3.ctrltemp,starting.values=startVals))
-}
-corResSams <- as(corRes[which(unlist(lapply(corRes,class))=="FLSAM")],"FLSAMs")
-AIC(corResSams)
-
-#-
-obsvarRuns <- list(run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:106,106)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),rep(101,2),102:105,105)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),rep(101,3),102:104,104)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),rep(101,4),102:103,103)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),rep(101,5),102,102)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:105,rep(105,2))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:104,rep(105,3))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:103,rep(104,4))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101:102,rep(103,5))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101,rep(102,6))),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101,101,101,102,102,103,103)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101,101,102,102,102,103,103)),
-                   run1 = data.frame(slot="obs.vars",row="HERAS",value=c(rep(-1,2),101,101,102,102,103,103,103)),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200:203,203,rep(-1,4)),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200:201,rep(202,3),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200,rep(201,4),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(rep(200,2),rep(201,3),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(rep(200,3),rep(201,2),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(rep(200,4),rep(201,1),rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200,200,201,201,202,rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200,201,201,201,202,rep(-1,4))),
-                   run1 = data.frame(slot="obs.vars",row="IBTS-Q3",value=c(200,201,201,202,202,rep(-1,4)))))
-)
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601:604,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601,601,602,602,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601,602,602,603,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601,601,602,603,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(601,602,602,602,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(602,601,602,602,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(602,602,601,602,rep(-1,8*4)),nrow=4,ncol=9)),
-                   run1 = data.frame(slot="obs.vars",row=8:11,value=matrix(c(602,602,602,601,rep(-1,8*4)),nrow=4,ncol=9))
-                   
-
-obsvarRes <- list()
-for(iObsvar in 6:length(obsvarRuns)){
-  print(iObsvar)
-  NSH3.ctrltemp <- NSH3.ctrl
-  slot(NSH3.ctrltemp,obsvarRuns[[iObsvar]]$slot[1])[unique(obsvarRuns[[iObsvar]]$row),] <- obsvarRuns[[iObsvar]]$value
-  obsvarRes[[iObsvar]] <- try(FLSAM(NSHs3,NSH.tun,update(NSH3.ctrltemp),starting.values=startVals))
-}
-obsvarResSams <- as(obsvarRes[which(unlist(lapply(obsvarRes,class))=="FLSAM")],"FLSAMs")
-AIC(obsvarResSams)
-
-
-fvarRuns <- list(run1 = data.frame(slot="f.vars",row=1,value=c(-1,101:107,107)),
-                 run1 = data.frame(slot="f.vars",row=2,value=c(200:201,201,rep(-1,6))),
-                 run1 = data.frame(slot="f.vars",row=3,value=c(-1,300:301,301,rep(-1,5))))
-fvarRes <- list()
-for(iFvar in 1:length(fvarRuns)){
-  print(iFvar)
-  NSH3.ctrltemp <- NSH3.ctrl
-  slot(NSH3.ctrltemp,fvarRuns[[iFvar]]$slot[1])[fvarRuns[[iFvar]]$row[1],] <- fvarRuns[[iFvar]]$value
-  fvarRes[[iFvar]] <- try(FLSAM(NSHs3,NSH.tun,update(NSH3.ctrltemp),starting.values=startVals))
-}
-
-xyplot(value+ubnd+lbnd ~ age | fleet,data=f.var(fvarRes[[1]]),type="l",col=c("black","grey","grey"),lwd=c(2,1,1))
-  
-
 #Setup plots
 #pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
-png(file.path(output.dir,paste("SurveyConsistency","figures - %02d.png")),units = "px", height=800,width=672, bg = "white")
+NSH.sam <- NSH3f.sam
+png(file.path(output.dir,paste("Multifleet_NSAS","figures - %02d.png")),units = "px", height=800,width=672, bg = "white")
 
 ### ============================================================================
 ### Model fit
@@ -256,31 +86,14 @@ residual.diagnostics(NSH.sam)
 print(plot(NSH.sam,futureYrs=F))
 
 # figure - uncertainties as a function of time
-par(mfrow=c(1,3))
 CV.yrs <- ssb(NSH.sam)$year
 CV.dat <- cbind(SSB=ssb(NSH.sam)$CV,
                 Fbar=fbar(NSH.sam)$CV,Rec=rec(NSH.sam)$CV)
 matplot(CV.yrs,CV.dat,type="l",ylim=range(pretty(c(0,CV.dat))),yaxs="i",
         xlab="Year",ylab="CV of estimate",main="Uncertainties of key parameters")
-grid()
-legend("topleft",legend=colnames(CV.dat),lty=1:5,col=1:6,bty="n")
-CV.yrs <- ssb(NSH3f.sam)$year
-CV.dat <- cbind(SSB=ssb(NSH3f.sam)$CV,
-                Fbar=fbar(NSH3f.sam)$CV,Rec=rec(NSH3f.sam)$CV)
-matplot(CV.yrs,CV.dat,type="l",ylim=range(pretty(c(0,CV.dat))),yaxs="i",
-        xlab="Year",ylab="CV of estimate",main="Uncertainties of key parameters")
-grid()
-legend("topleft",legend=colnames(CV.dat),lty=1:5,col=1:6,bty="n")
-CV.yrs <- ssb(NSH4f.sam)$year
-CV.dat <- cbind(SSB=ssb(NSH4f.sam)$CV,
-                Fbar=fbar(NSH4f.sam)$CV,Rec=rec(NSH4f.sam)$CV)
-matplot(CV.yrs,CV.dat,type="l",ylim=range(pretty(c(0,CV.dat))),yaxs="i",
-        xlab="Year",ylab="CV of estimate",main="Uncertainties of key parameters")
-grid()
-legend("topleft",legend=colnames(CV.dat),lty=1:5,col=1:6,bty="n")
 
 # figure - catchabilities at age from HERAS
-catch <- catchabilities(NSH3f.sam)
+catch <- catchabilities(NSH.sam)
 print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
              scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
              type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
@@ -302,7 +115,7 @@ pch=16,col=obv$fleet,main="Observation variance vs uncertainty")
 text(obv$value,obv$CV,obv$str,pos=4,cex=0.75,xpd=NA)
 
 # figure - fishing age selectivity per year
-sel.pat <- merge(f(NSH3f.sam),fbar(NSH3f.sam),
+sel.pat <- merge(f(NSH.sam),fbar(NSH.sam),
                by="year",suffixes=c(".f",".fbar"))
 sel.pat$sel <- sel.pat$value.f/sel.pat$value.fbar
 sel.pat$age <- as.numeric(as.character(sel.pat$age))

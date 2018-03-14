@@ -1,6 +1,6 @@
-Proportion mature at spawning time   (14/Mar/2017 14:50)
+Proportion mature at spawning time   (13/Mar/2018 17:31)
        1       6
-  1947    2016
+  1947    2017
        0   9
        1
        0       0       1           1        1       1       1       1       1     NA   #1947
@@ -73,3 +73,4 @@ Proportion mature at spawning time   (14/Mar/2017 14:50)
        0       0    0.85           1        1       1       1       1       1       1
        0       0    0.7         0.9     0.96        1       1       1       1       1
        0    0.01    0.71        0.89    0.95        1       1       1       1       1
+       0    0.02    0.55        0.96    0.97        1       1       1       1       1
