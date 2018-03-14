@@ -20,7 +20,7 @@ load("./results/7_finalModel/NSH_final.RData")
 
 # 0. Get Flim and thereby Fpa. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0), and Fcv=Fphi=0
 FIT <- eqsr_fit_shift(NSH, nsamp = 2000, models = c("Ricker"),
-                      rshift=1,remove.years=c(1947:2001))
+                      rshift=1,remove.years=c(1947:1993))
 SIM <- eqsim_run(FIT,
                  bio.years = c(2007:2016),
                  bio.const = FALSE,
@@ -85,14 +85,14 @@ checkFmsy <- eqsim_run(FIT,
            Fphi      = 0.50,
            Blim      = 800000,
            Bpa       = 1000000,
-           Btrigger  = 1.5e6,
-           Fscan     = seq(0.18,0.35,0.01),
+           Btrigger  = MSYBtrigger,
+           Fscan     = seq(0.18,round(Fmsy,2)+0.2,0.01),
            verbose   = TRUE,
            extreme.trim=c(0.01,0.99))
 
 
 #Here do the check
-if(subset(checkFmsy$pProfile,Ftarget==round(Fmsy,2) & variable=="Blim")$value<0.05)
+if(subset(checkFmsy$pProfile,Ftarget==round(Fmsy,2) & variable=="Blim")$value>0.05)
   Fmsy <- checkFmsy$Refs2["catF","F05"]
            
 refpts <- data.frame(Flim=round(Flim,2),
