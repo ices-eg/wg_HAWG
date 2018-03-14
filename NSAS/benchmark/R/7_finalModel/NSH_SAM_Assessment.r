@@ -32,7 +32,8 @@ log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
 
 # local path
-path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/"
+#path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/"
+path <- "D:/git/wg_HAWG/NSAS/benchmark/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================

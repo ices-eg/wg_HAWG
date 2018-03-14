@@ -25,7 +25,7 @@ output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base fil
 ### ============================================================================
 ### imports
 ### ============================================================================
-library(FLSAM); library(FLEDA)  ; library(ggplot2)
+library(FLSAM); library(FLEDA)  ; library(ggplot2); library(FLBRP)
 
 
 
@@ -39,22 +39,23 @@ load(file.path(".","results",assess2,"NSH.RData")  )
 fit2.stck  <-NSH
 fit2.flsam <-NSH.sam
 
-logLik(fit1.flsam)
-logLik(fit2)
+#logLik(fit1.flsam)
+#logLik(fit2)
 
-1-pchisq(2*(logLik(fit2)-logLik(fit1)),6)
+#1-pchisq(2*(logLik(fit2)-logLik(fit1)),6)
 
-AIC(fit1)
-AIC(fit2)
+#AIC(fit1)
+#AIC(fit2)
+windows()
 
 #compare stock trajectories
 st.names <- c(assess1,assess2)
 stc <- FLStocks(fit1.stck,fit2.stck)
-names(stc) <- st.names
+names(stc) <- c("base case","new Fprop")
 flsam <- FLSAMs(fit1.flsam,fit2.flsam)
-names(flsam) <- st.names
+names(flsam) <- c("base case","new Fprop")
 
-plot(stc)  + scale_colour_discrete(name = "ASSESSMENT")
+plot(flsam)
 savePlot(file.path(".","results",assess2,"comparison of stock trajectories.png"),type="png")
 
 #
