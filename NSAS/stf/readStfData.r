@@ -6,23 +6,31 @@ OOF   <- read.csv(paste("./data/over_underfishing",DtY,".csv",sep=""),header=T);
 #-------------------------------------------------------------------------------
 #- Partial Ns per fleet to partial Fs
 #-------------------------------------------------------------------------------
+
+# NOTE: THIS NEEDS TO BE TAKEN FROM THE MULTIFLEET ASSESSMENT
+
 Ns            <- read.csv(paste("./data/partial_ns",ac(an(ImY)-1),".csv",sep=""),header=T)
 Ns1           <- read.csv(paste("./data/partial_ns",ac(an(ImY)-2),".csv",sep=""),header=T)
 Ns2           <- read.csv(paste("./data/partial_ns",ac(an(ImY)-3),".csv",sep=""),header=T)
 Nstot         <- cbind(Ns2,Ns1,Ns)
+
 #-Apply plusgroup
 Ns[ac(9),]    <- apply(Ns[ac(9:10),],2,sum); Ns <- Ns[ac(1:9),]
 
 #-------------------------------------------------------------------------------
 #- Partial Ws per fleet
 #-------------------------------------------------------------------------------
+
+# NOTE: THIS NEEDS TO BE TAKEN FROM THE MULTIFLEET ASSESSMENT
+
 Ws            <- read.csv(paste("./data/partial_ws",ac(an(ImY)-1),".csv",sep=""),header=T)
+
 #- Leave these options below in case we move back to 9+ group
-#WA            <- apply(Ws[,paste("A",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
-#WB            <- apply(Ws[,paste("B",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
-#WC            <- apply(Ws[,paste("C",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
-#WD            <- apply(Ws[,paste("D",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
-#
+WA            <- apply(Ws[,paste("A",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
+WB            <- apply(Ws[,paste("B",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
+WC            <- apply(Ws[,paste("C",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
+WD            <- apply(Ws[,paste("D",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
+
 WA            <- apply(Ws[,paste("A",ac((an(DtY)-2):DtY),sep="")] * Nstot[,paste("A",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T) / apply(Nstot[,paste("A",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T)
 WA[9]         <- sum(Ws[9:10,paste("A",ac((an(DtY)-2):DtY),sep="")] * Nstot[9:10,paste("A",ac((an(DtY)-2):DtY),sep="")],na.rm=T) / sum(Nstot[9:10,paste("A",ac((an(DtY)-2):DtY),sep="")],na.rm=T)
 WA            <- WA[1:9]; WA[is.na(WA)] <- 0

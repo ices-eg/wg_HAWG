@@ -9,6 +9,7 @@
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
+
 library(FLCore)
 library(FLSAM)
 library(minpack.lm)  # install.packages("minpack.lm")
@@ -21,10 +22,12 @@ require(msm)         # install.packages("msm")
 #path <- "C:/DATA/GIT/HAWG/NSAS/"
 #path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
 path <- "D:/git/wg_HAWG/NSAS/"
-try(setwd(path),silent=TRUE)
+try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
+
 #load(file=file.path(output.dir,"North Sea Herring.RData"))
-load(file=file.path(output.dir,"NSH_final.RData"))
+#load(file=file.path(output.dir,"NSH_final.RData"))
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/09. Personal Folders/Benoit/NSH_final.RData")
 try(setwd("./stf/"))
 
 #-------------------------------------------------------------------------------
@@ -32,7 +35,6 @@ try(setwd("./stf/"))
 #-------------------------------------------------------------------------------
 
 DtY   <- ac(range(NSH)["maxyear"]) #Data year
-DtY   <- 2016
 ImY   <- ac(an(DtY)+1)             #Intermediate year
 FcY   <- ac(an(DtY)+2)             #Forecast year
 CtY   <- ac(an(DtY)+3)             #Continuation year
@@ -49,7 +51,13 @@ stk     <- NSH
 stk.sam <- NSH.sam
 
 #- Set reference points (Fstatus-quo will be filled after intermediate year
-referencePoints <- list(Fmsy=0.33,Fsq=NA,Flim=0.39,Fpa=0.34,Blim=0.8e6,Bpa=1e6,MSYBtrigger=1.5e6)
+referencePoints <- list(Fmsy = 0.26,
+                        Fsq  = NA,
+                        Flim = 0.34,
+                        Fpa  = 0.30,
+                        Blim = 800000,
+                        Bpa  = 900000,
+                        MSYBtrigger = 1400000)
 
 FA      <- Ns[,paste("A",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
 FB      <- Ns[,paste("B",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
@@ -79,20 +87,22 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harve
 #   However, this might be changed by the Danish
 #-------------------------------------------------------------------------------
 
-# TAC information for 2017
-TACNSA      <- 481608  # taken from TAC regulation document HER/4AB. + HER/4CXB7D
-TACNSB      <- 11375   # taken from TAC regulation document HER/2A47DX
-TAC3aC      <- 50740   # HER/03A. Split
+# TAC information for 2018
+TACNSA      <- 600588  # taken from TAC regulation document HER/4AB. + HER/4CXB7D
+TACNSB      <- 9669    # taken from TAC regulation document HER/2A47DX
+TAC3aC      <- 48427   # HER/03A. Split
 TAC3aD      <- 6659    # HER/03A-BC
 
 # Splits and transfers
-Csplit      <- 0.33    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
-Dsplit      <- 0.70    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
-Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016
-WBSScatch   <- 34618   # Recommended MSY catch for WBSS herring; from Valerio
-transfer    <- 0.5     # Assumed transfer of C-fleet TAC into A-fleet
-  
+Csplit      <- 0.30    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
+Dsplit      <- 0.60    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
+Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in assessment year
+WBSScatch   <- 25000   # Recommended MSY catch for WBSS herring; from Valerio
+transfer    <- 0.46    # Assumed transfer of C-fleet TAC into A-fleet
+
 Buptake     <- 1       # Uptake of Bfleet TAC in the previous year
+Duptake     <- .46     # Uptake of the Dfleet TAC in the previous year (3 year average)
+
 WBSSsplit   <- 0.005   # 3 year average proportion WBSS caught in North Sea
 
 # Create TAC objects for current year, forecast year and last year
@@ -114,17 +124,23 @@ TACS[,,"B"] <- c(TACNSB * Buptake,
 TACS[,,"C"] <- c(TAC3aC*(1-Ctransfer)*Csplit,
                  TAC3aC*(1-Ctransfer)*Csplit,
                  NA);
-TACS[,,"D"] <- c(TAC3aD*Dsplit,
-                 TAC3aD*Dsplit,
-                 TAC3aD*Dsplit);
+TACS[,,"D"] <- c(TAC3aD*Dsplit*Duptake,
+                 TAC3aD*Dsplit*Duptake,
+                 TAC3aD*Dsplit*Duptake);
 
 
 # Retrieve uncertainty estimate on recruitment estimates by the model
-recWeights  <- subset(NSH.sam@params,name=="U");
-recWeights  <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
+
+#recWeights  <- subset(NSH.sam@params,name=="U");  # takes the output "U" from the model parameters. Uncertainty of the recruitment. 
+#recWeights  <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch unique",]))),]$std.dev)^2
+
+recWeights  <- subset(NSH.sam@params, name=="logR")$std.dev^2
+
+
 RECS        <- FLQuants("ImY" =FLQuant(subset(rec(NSH.sam),year==ImY)$value,dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
                         "FcY" =exp(apply(log(rec(stk)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:12]),na.rm=T)),
                         "CtY" =exp(apply(log(rec(stk)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:12]),na.rm=T)))
+
 
 # Combining the F and weight vectors for the previous year
 FS          <- list("A"=FA,"B"=FB,"C"=FC,"D"=FD)
@@ -159,10 +175,14 @@ mp.options  <- c("i")
 # Setup stock file
 #===============================================================================
 
+# Create an stf object 
 stf         <- FLStock(name=nam,desc=dsc,m=FLQuant(NA,dimnames=dms))
+
 for(i in dms$unit)
   stf[,,i]  <- window(stk,start=an(dms$year)[1],end=rev(an(dms$year))[1])
+
 units(stf)  <- units(stk)
+
 # Fill slots that are the same for all fleets
 for(i in c(unlist(yrs1),unlist(yrs3),unlist(yrs5))){
   if(i %in% unlist(yrs1)){ for(j in dms$unit){ slot(stf,i)[,FuY,j] <- slot(stk,i)[,DtY]}}
@@ -206,6 +226,7 @@ stf.table <- array(NA,dim=c(c(length(stf.options)+1),12,3),
                    dimnames=list("options"=c("intermediate year",stf.options),
                                  "values" =c("Fbar 2-6 A","Fbar 0-1 B","Fbar 0-1 C","Fbar 0-1 D","Fbar 2-6","Fbar 0-1","Catch A","Catch B","Catch C","Catch D","SSB","SSB"),
                                  "stats"  =c("5%","50%","95%")))
+
 #- Fix in 2017 for iterQuantile function:
 iterQuantile <- function(x){return(x)}
 stf.table[1,"Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,ImY,"A"]))
@@ -768,7 +789,8 @@ write.csv(stf.table[,,2],
 for(i in dimnames(stf.table)$stats) 
 write.csv(stf.table[,,i],
             file=paste0("stf.table_","deterministic",strsplit(i,"%")[[1]],".csv"))
+
 #- Save the output to an RData file
-save.image(file="ShortTermForecast Workspace.RData")
+# save.image(file="ShortTermForecast Workspace.RData")
 
 
