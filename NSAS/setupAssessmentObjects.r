@@ -1,29 +1,5 @@
-################################################################################
-# NSH_Setup_Objects
-#
-# $Rev: 710 $
-# $Date: 2012-02-15 15:50:32 +0100 (wo, 15 feb 2012) $
-#
-# Author: HAWG model devlopment group
-#
-# Sets up the data objects (specifically an FLStock and an FLIndices object)
-# necessary to perform a stock assessment. Necessary preprocessing, such as
-# the smoothing of weights, is performed here. Script is intended to be called
-# from other external sources.
-#
-# Developed with:
-#   - R version 2.14.2
-#   - FLCore 2.4
-#
-# To be done:
-#
-# Notes: Have fun running this assessment!
-#
-################################################################################
-
-### ============================================================================
-### Misc
-### ============================================================================
+require(reshape2)
+# setup data path
 data.source         <- file.path(".","data")    #Data source, not code or package source!!!
 
 ### ============================================================================
@@ -31,18 +7,10 @@ data.source         <- file.path(".","data")    #Data source, not code or packag
 ### ============================================================================
 #Load object
 NSH                 <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE,quiet=FALSE)
-# readVPAFile(file.path(data.source, "canum.txt"), quiet = FALSE, sep = "")
-# readVPAFile(file.path(data.source, "caton.txt"), quiet = FALSE, sep = "")
-# readVPAFile(file.path(data.source, "weca.txt"), quiet = FALSE, sep = "")
-# readVPAFile(file.path(data.source, "west.txt"), quiet = FALSE, sep = "")
-# readVPAFile(file.path(data.source, "fprop.txt"), quiet = FALSE, sep = "")
-# readVPAFile(file.path(data.source, "mprop.txt"), quiet = FALSE, sep = "")
-# readVPAFile(file.path(data.source, "natmor.txt"), quiet = FALSE, sep = "")
-# readVPAFile(file.path(data.source, "matprop.txt"), quiet = FALSE, sep = "")
-# readFLIndices(file.path(data.source, "fleet.txt"))
 
 #Catch is calculated from: catch.wt * catch.n, however, the reported landings are
 #normally different (due to SoP corrections). Hence we overwrite the calculate landings
+# are we not using catches data then?
 NSH@catch           <- NSH@landings
 units(NSH)[1:17]    <- as.list(c(rep(c("tonnes","thousands","kg"),4), 
                                rep("NA",2),"f",rep("NA",2)))
@@ -61,7 +29,7 @@ NSH                                   <- setPlusGroup(NSH,NSH@range["max"])
 #  - proportion mature at age 9 is 1.0 (same as age 8)
 #  - harvest.spwn and m.spwn are the same as elsewhere
 hist.yrs                      <- as.character(1947:1959)
-NSH@catch.wt                  <- NSH@landings.wt #Automatic population of catch.wt introduces NAs
+NSH@catch.wt                  <- NSH@landings.wt #Automatic population of catch.wt introduces NAS
 NSH@catch.wt["9",hist.yrs]    <- 0.271
 NSH@landings.wt["9",hist.yrs] <- 0.271
 NSH@catch.n["9",hist.yrs]     <- NSH@catch.n["8",hist.yrs]/2
@@ -83,15 +51,11 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
                                           NSH@stock.wt[,2:(dim(NSH@stock.wt)[2]-1)] +
                                           NSH@stock.wt[,1:(dim(NSH@stock.wt)[2]-2)]) / 3
 
-
 ### ============================================================================
 ### Prepare Natural Mortality estimates 
 ### ============================================================================
 #Read in estimates from external file
- M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS.csv"),
-#                    header=TRUE)
-#M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS_2010.csv"),
-                          header=TRUE)
+M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS2016.csv"),header=TRUE)
 
 colnames(M2)  <- sub("X","",colnames(M2))
 rownames(M2)  <- M2[,1]
@@ -125,7 +89,8 @@ for(iAge in extrags)
   NSHM2@m[ac(iAge),]          <- NSHM2@m[ac(as.numeric(min(sort(extrags)))-1),]
 
 #Write new M values into the original stock object
-NSH@m     <- NSHM2@m
+addM      <- 0.11 #M profiling based on 2018 benchmark meeting
+NSH@m     <- NSHM2@m + addM
 
 
 ### ============================================================================
@@ -133,7 +98,6 @@ NSH@m     <- NSHM2@m
 ### ============================================================================
 #Load and modify all numbers at age data
 NSH.tun   <- readFLIndices(file.path(data.source,"fleet.txt"))
-<<<<<<< HEAD
 NSH.tun   <- lapply(NSH.tun,function(x) {x@type <- "number"; return(x)}) # what is this doing???
 NSH.tun[["IBTS0"]]@range["plusgroup"] <- NA # what is this doing???
 
@@ -183,30 +147,6 @@ FLSNS@index@.Data[which(is.na(FLSNS@index))] <- -1
 NSH.tun[(length(NSH.tun)+1):(length(NSH.tun)+4)] <- c(FLORSH,FLBUN,FLCNS,FLSNS)
 names(NSH.tun)[(length(NSH.tun)-3):(length(NSH.tun))] <- paste("LAI",c("ORSH","CNS","BUN","SNS"),sep="-")
 
-=======
-NSH.tun   <- lapply(NSH.tun,function(x) {x@type <- "number"; return(x)})
-NSH.tun[["IBTS0"]]@range["plusgroup"] <- NA
-
-#- Trim the survey index of IBTS to age 1 only
-NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=dims(NSH.tun[["IBTS-Q1"]]@index)$min)
-
-#Load additional indices derived from IHLS (SCAI, MLAI)
-#Note that there is a bug in readFLIndex which means that we have to
-#take such a round-about approach of loading everything, then dropping
-#the first set of indices. Hopefully will be patched in a future release
-#MPA 20140306: We have deprecated the MLAI but continue to store its values in
-#              data/mlai.txt. However, it is now stored in the native format
-#              output from the code, so this line, which assumes VPA formatt, 
-#               doesn't work anymore. Will need to add custom reading functionality
-#MLAI.idx <-  readFLIndices(file.path(data.source,"fleet.txt"),
-#                   file.path(data.source,"mlai.txt"),type="ICA")[-seq(NSH.tun)]
-SCAI.idx <-  readFLIndices(file.path(data.source,"fleet.txt"),
-                   file.path(data.source,"scai.txt"),type="ICA")[-seq(NSH.tun)]
-
-#Combine all surveys into one object and set names
-NSH.tun   <- FLIndices(c(SCAI.idx,NSH.tun))
-names(NSH.tun) <- sapply(NSH.tun,name)
->>>>>>> 5e6549054444f3beea3778f1750b467568779086
 
 ### ============================================================================
 ### Apply plusgroup to all data sets
@@ -219,6 +159,13 @@ NSH <- setPlusGroup(NSH,pg)
 NSH.tun[["HERAS"]]@index[ac(pg),]     <- quantSums(NSH.tun[["HERAS"]]@index[ac(pg:dims(NSH.tun[["HERAS"]]@index)$max),])
 NSH.tun[["HERAS"]]                    <- trim(NSH.tun[["HERAS"]],age=dims(NSH.tun[["HERAS"]]@index)$min:pg)
 NSH.tun[["HERAS"]]@range["plusgroup"] <- pg
+
+#idxSCAI <- which(names(NSH.tun)=="SCAI")
+#NSH.tun <- NSH.tun[-idxSCAI]
+
+NSH.tun[["IBTS-Q3"]] <- trim(NSH.tun[["IBTS-Q3"]],age=0:5)
+NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=1)
+NSH.tun[["HERAS"]] <- trim(NSH.tun[["HERAS"]],age=1:8)
 
 ### ============================================================================
 ### Closure data deletion
