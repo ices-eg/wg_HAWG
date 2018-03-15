@@ -1,0 +1,10 @@
+Herring 6a(comb)7bc   (14/Mar/2017 22:47)
+1
+caton.txt
+canum.txt
+weca.txt
+west.txt
+natmor.txt
+matprop.txt
+fprop.txt
+mprop.txt
