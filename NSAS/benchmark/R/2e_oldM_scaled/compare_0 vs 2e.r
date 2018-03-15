@@ -29,7 +29,7 @@ output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base fil
 ### ============================================================================
 ### imports
 ### ============================================================================
-library(FLSAM); library(FLEDA)  ; library(ggplot2); library(FLBRP)
+library(FLSAM); library(FLEDA)  ; library(ggplot2)
 
 
 data_series <- "catch unique"
@@ -70,42 +70,20 @@ windows()
 st.names <- c(assess1,assess2,assess3,assess4)
 stc <- FLStocks(fit1.stck,fit2.stck, fit3.stck, fit4.stck)
 names(stc) <- st.names
-flsam <- FLSAMs(fit3.flsam, fit4.flsam)
-names(flsam) <- c("HAWG 2016 profiling","SMS 2017 profiling")
+flsam <- FLSAMs(fit1.flsam,fit2.flsam, fit3.flsam, fit4.flsam)
+names(flsam) <- st.names
 
-plot(flsam)
+plot(stc)
 savePlot(file.path(".","results",assess4,"comparison of stock trajectories.png"),type="png")
 
 
 #  compare the M vectors
 library(ggplotFL)
 M<-FLQuants(fit1.stck@m,fit2.stck@m, fit3.stck@m, fit4.stck@m)
-st.names <- c("HAWG2016","SMS2017","HAWG2016 profiling","SMS2017 profiling")
-#st.names <- c("0_basecase","2_newM","2_newM","2_newM")
 names(M) <- st.names
-#names(M) <- c("HAWG_2016","SMS_2017","SMS_2017_profiling","SMS_2017_profiling")#st.names#c("HAWG 2016", "SMS 2017", "SMS 2017 profiling", "SMS 2017 profiling")#st.names
-ggplot(M , aes (x =year ,y =data  , colour = qname)) + geom_line() + facet_wrap(~age) + ylab("M") + xlab("year") + theme(legend.position="bottom") + scale_colour_discrete(name = "")
+ggplot(M , aes (x =year ,y =data  , colour = qname)) + geom_line() + facet_wrap(~age) + scale_colour_discrete(name = "ASSESSMENT")
 
 savePlot(file.path(".","results",assess4,"comparison of M.png"),type="png")
-
-# plot last M
-windows()
-M <- as.data.frame(FLQuants(fit2.stck@m))
-
-for(idx in 1:dim(M)[1]){M$age[idx] <- toString(M$age[idx])}
-
-g <- ggplot(M, aes (x =year ,y =data)) + geom_line(aes(color = age)) + geom_text(aes(label=age,color = age)) + ylab("Time series of M") + xlab("year") + theme_bw()
-g
-savePlot(file.path(".","results",assess4,"M at age_SMS2017.png"),type="png")
-
-windows()
-M <- as.data.frame(FLQuants(fit3.stck@m))
-
-for(idx in 1:dim(M)[1]){M$age[idx] <- toString(M$age[idx])}
-
-g <- ggplot(M, aes (x =year ,y =data)) + geom_line(aes(color = age)) + geom_text(aes(label=age,color = age)) + ylab("Time series of M") + xlab("year") + theme_bw()
-g
-savePlot(file.path(".","results",assess4,"M at age_SMS2017_profile.png"),type="png")
 
 
 # look at parameter values
