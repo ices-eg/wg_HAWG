@@ -14,7 +14,7 @@ log.msg("\nNSH Final Assessment\n=====================\n")
 # local path
 #path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/"
 path <- "D:/git/wg_HAWG/NSAS/"
-try(setwd(path),silent=TRUE)
+try(setwd(path),silent=FALSE)
 
 ### ======================================================================================================
 ### Define parameters and paths for use in the assessment code
@@ -46,6 +46,10 @@ source(file.path("./stf/multifleet_assessment/setupControlObject_mf.r"))
 NSH3f.sam   <- FLSAM(NSHs3,
                      NSH.tun,
                      NSH3.ctrl)
+
+NSH3f <- NSH
+save(NSH3f,NSH.tun,NSH3.ctrl,NSH3f.sam,file=file.path(output.dir,"NSH_mf_final_no_retro.RData"))
+
 #NSH3.ctrl@residuals <- F
 NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,n.retro.years)
 
