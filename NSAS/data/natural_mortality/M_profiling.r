@@ -21,6 +21,8 @@ library(FLSAM); library(FLEDA)
 source(file.path("./setupAssessmentObjects.r"))
 source(file.path("./setupControlObject_sf.r"))
 
+NSH@m <- NSH@m - 0.11
+
 mOrig <- NSH@m
 NSH.sams <- new("FLSAMs")
 for(iM in seq(-0.1,0.25,0.05)){

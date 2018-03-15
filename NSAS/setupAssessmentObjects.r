@@ -16,7 +16,7 @@ units(NSH)[1:17]    <- as.list(c(rep(c("tonnes","thousands","kg"),4),
                                rep("NA",2),"f",rep("NA",2)))
 
 #Set object details
-NSH@name                              <- "North Sea Herring"
+NSH@name                              <- "NSH_HAWG2018"
 range(NSH)[c("minfbar","maxfbar")]    <- c(2,6)
 NSH                                   <- setPlusGroup(NSH,NSH@range["max"])
 
@@ -125,10 +125,10 @@ formatLAI <- function(x,minYr,maxYr){
               attr(x,"time") <- c(0.67,0.67)
              return(x)}
 
-ORSH <- formatLAI(ORSH,1972,2016);
-CNS <- formatLAI(CNS,1972,2016);
-BUN <- formatLAI(BUN,1972,2016);
-SNS <- formatLAI(SNS,1972,2016);
+ORSH <- formatLAI(ORSH,1972,2017);
+CNS <- formatLAI(CNS,1972,2017);
+BUN <- formatLAI(BUN,1972,2017);
+SNS <- formatLAI(SNS,1972,2017);
 
 FLORSH  <- FLIndex(index=FLQuant(t(ORSH),dimnames=list(age=colnames(ORSH),year=rownames(ORSH),unit="ORSH",season="all",area="unique",iter="1")))
 FLCNS   <- FLIndex(index=FLQuant(t(CNS),dimnames=list(age=colnames(CNS),year=rownames(CNS),unit="CNS",season="all",area="unique",iter="1")))

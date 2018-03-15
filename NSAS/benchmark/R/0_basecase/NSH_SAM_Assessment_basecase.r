@@ -145,7 +145,7 @@ png(file.path(output.dir,paste(name(NSH.sam),"figures - %02d.png")),units = "px"
 #
 ## === Plot the time series of weight in the stock and catch in the stock ===
 ## figure - times series for each age, stock
-#timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt")
+#imeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt")
 ## figure - times series for each age, catches
 #timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt")
 ## figure - times series for each age, harvest
@@ -164,20 +164,20 @@ png(file.path(output.dir,paste(name(NSH.sam),"figures - %02d.png")),units = "px"
 #timeseries(NSH.tun[["IBTS0"]],slot="index")
 #
 ## figure - times series, weight in stock following each cohort
-#west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,range(NSH)["maxyear"])))
-#west.by.cohort      <- subset(west.by.cohort,!is.na(west.by.cohort$data))
-#west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
-#west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
-#                              groups=cohort,
-#                              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
-#                              type="b",
-#                              xlab="Year",ylab="Weight in the stock (kg)",
-#                              main=paste(NSH@name,"Weight in the stock by cohort"),
-#                              par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
-#                              panel=function(...) {
-#                                panel.grid(h=-1,v=-1)
-#                                panel.xyplot(...)
-#                              })
+west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,range(NSH)["maxyear"])))
+west.by.cohort      <- subset(west.by.cohort,!is.na(west.by.cohort$data))
+west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
+west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
+                              groups=cohort,
+                              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+                              type="b",
+                              xlab="Year",ylab="Weight in the stock (kg)",
+                              main=paste(NSH@name,"Weight in the stock by cohort"),
+                              par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
+                              panel=function(...) {
+                                panel.grid(h=-1,v=-1)
+                                panel.xyplot(...)
+                              })
 #print(west.cohort.plot)
 #
 ### ============================================================================

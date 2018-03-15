@@ -19,10 +19,12 @@ require(msm)         # install.packages("msm")
 
 #path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
 #path <- "C:/DATA/GIT/HAWG/NSAS/"
-path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
+#path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
+path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 output.dir <- file.path(".","results")
-load(file=file.path(output.dir,"North Sea Herring.RData"))
+#load(file=file.path(output.dir,"North Sea Herring.RData"))
+load(file=file.path(output.dir,"NSH_final.RData"))
 try(setwd("./stf/"))
 
 #-------------------------------------------------------------------------------
@@ -30,6 +32,7 @@ try(setwd("./stf/"))
 #-------------------------------------------------------------------------------
 
 DtY   <- ac(range(NSH)["maxyear"]) #Data year
+DtY   <- 2016
 ImY   <- ac(an(DtY)+1)             #Intermediate year
 FcY   <- ac(an(DtY)+2)             #Forecast year
 CtY   <- ac(an(DtY)+3)             #Continuation year
@@ -48,10 +51,10 @@ stk.sam <- NSH.sam
 #- Set reference points (Fstatus-quo will be filled after intermediate year
 referencePoints <- list(Fmsy=0.33,Fsq=NA,Flim=0.39,Fpa=0.34,Blim=0.8e6,Bpa=1e6,MSYBtrigger=1.5e6)
 
-FA      <- Ns[,paste("A",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
-FB      <- Ns[,paste("B",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
-FC      <- Ns[,paste("C",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
-FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
+FA      <- Ns[,paste("A",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
+FB      <- Ns[,paste("B",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
+FC      <- Ns[,paste("C",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
+FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
 
 #-------------------------------------------------------------------------------
 # TAC information
@@ -88,7 +91,7 @@ Dsplit      <- 0.70    # Proportion NSAS in D fleet catch; 3 year average (from 
 Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in 2016
 WBSScatch   <- 34618   # Recommended MSY catch for WBSS herring; from Valerio
 transfer    <- 0.5     # Assumed transfer of C-fleet TAC into A-fleet
-
+  
 Buptake     <- 1       # Uptake of Bfleet TAC in the previous year
 WBSSsplit   <- 0.005   # 3 year average proportion WBSS caught in North Sea
 

@@ -29,7 +29,7 @@ output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base fil
 ### ============================================================================
 ### imports
 ### ============================================================================
-library(FLSAM); library(FLEDA)  ; library(ggplot2); library(FLBRP)
+library(FLSAM); library(FLEDA)  ; library(ggplot2); #library(FLBRP)
 
 
 data_series <- "catch unique"
@@ -80,13 +80,21 @@ savePlot(file.path(".","results",assess4,"comparison of stock trajectories.png")
 #  compare the M vectors
 library(ggplotFL)
 M<-FLQuants(fit1.stck@m,fit2.stck@m, fit3.stck@m, fit4.stck@m)
-st.names <- c("HAWG2016","SMS2017","HAWG2016 profiling","SMS2017 profiling")
+st.names <- c("HAWG2017","SMS2017","HAWG2017 profiled","SMS2017 profiled")
 #st.names <- c("0_basecase","2_newM","2_newM","2_newM")
 names(M) <- st.names
 #names(M) <- c("HAWG_2016","SMS_2017","SMS_2017_profiling","SMS_2017_profiling")#st.names#c("HAWG 2016", "SMS 2017", "SMS 2017 profiling", "SMS 2017 profiling")#st.names
 ggplot(M , aes (x =year ,y =data  , colour = qname)) + geom_line() + facet_wrap(~age) + ylab("M") + xlab("year") + theme(legend.position="bottom") + scale_colour_discrete(name = "")
 
 savePlot(file.path(".","results",assess4,"comparison of M.png"),type="png")
+
+# compare old and new M
+M<-FLQuants(fit1.stck@m,fit2.stck@m)
+st.names <- c("HAWG2017","SMS2017")
+names(M) <- st.names
+ggplot(M , aes (x =year ,y =data  , colour = qname)) + geom_line() + facet_wrap(~age) + ylab("M") + xlab("year") + theme(legend.position="bottom") + scale_colour_discrete(name = "")
+
+savePlot(file.path(".","results",assess4,"comparison of M_1.png"),type="png")
 
 # plot last M
 windows()
