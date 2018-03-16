@@ -53,6 +53,7 @@ load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/09
   #Deterministic
 NSH@stock.n <- NSH.sam@stock.n[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
 NSH@harvest <- NSH.sam@harvest[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
+
 stk     <- NSH
 stk.sam <- NSH.sam
 
@@ -99,15 +100,18 @@ TACNSB      <- 9669    # taken from TAC regulation document HER/2A47DX
 TAC3aC      <- 48427   # HER/03A. Split
 TAC3aD      <- 6659    # HER/03A-BC
 
+# from WBSS forecast: C fleet NSAS: 5951 cfleet (50% transfer) 
+# from WBSS forecast: D fleet NSAS: 1840 dfleet (50% transfer)
+
 # Splits and transfers
 Csplit      <- 0.30    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
 Dsplit      <- 0.60    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
 Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in assessment year
-WBSScatch   <- 25000   # Recommended MSY catch for WBSS herring; from Valerio
+WBSScatch   <- 26849   # Recommended MSY catch for WBSS herring; from Henrik
 transfer    <- 0.46    # Assumed transfer of C-fleet TAC into A-fleet
 
 Buptake     <- 1       # Uptake of Bfleet TAC in the previous year
-Duptake     <- .46     # Uptake of the Dfleet TAC in the previous year (3 year average)
+Duptake     <- 0.46    # Uptake of the Dfleet TAC in the previous year (3 year average)
 
 WBSSsplit   <- 0.005   # 3 year average proportion WBSS caught in North Sea
 
@@ -167,7 +171,7 @@ f01         <- ac(0:1)
 f26         <- ac(2:6)
 
 stf.options <- c("mp","mp transfer","tacro","-15%","+15%","fmsy","fpa","flim","fsq","bpa","blim","MSYBtrigger","nf")
-  # mp    =according to management plan,
+# mp    =according to management plan,
   # +/-%  =TAC change,
   # nf    =no fishing,
   # bpa   =reach BPA in CtY or if ssb > bpa fish at fpa,
@@ -420,11 +424,11 @@ if("mp transfer" %in% stf.options){
 
 # -------------------------------------------------------------------------
 
-BcatchMP    <- 7643 # Temporary value based on 2017 !!!
+# BcatchMP    <- 7643 # Temporary value based on 2017 !!!
 
-TACS[,,"B"] <- c(TACNSB * Buptake,
-                 BcatchMP ,
-                 BcatchMP); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
+# TACS[,,"B"] <- c(TACNSB * Buptake,
+#                  BcatchMP ,
+#                  BcatchMP); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
 
 
 ### No fishing ### ----------------------------------------------------------
@@ -870,24 +874,18 @@ for(i in c("catch","catch.n","stock.n","harvest")){
 source("./writeSTF.out.r")
 options("width"=80,"scipen"=1000)
 stf.out.file <- stf.out(stf,RECS,format="TABLE 2.7.%i NORTH SEA HERRING.")
-write(stf.out.file,file=paste("./","stf.out",sep="."))
+write(stf.out.file,file=paste("./","stf_mf.out",sep="."))
 
 #- Write the stf.table to file
 write.csv(stf.table[,,2],
-            file=paste0("stf.table_","deterministic.csv"))
+            file=paste0("stf.table_mf_","deterministic.csv"))
 
 for(i in dimnames(stf.table)$stats) 
 write.csv(stf.table[,,i],
-            file=paste0("stf.table_","deterministic",strsplit(i,"%")[[1]],".csv"))
+            file=paste0("stf.table_mf_","deterministic",strsplit(i,"%")[[1]],".csv"))
 
 #- Save the output to an RData file
-save(stf, stf.table, file="ShortTermForecast singlefleetmode.RData")
+save(stf, stf.table, file="ShortTermForecast multifleetmode.RData")
 
 
-cat("WBSS in A-fleet",stf.table["mp","Catch A","50%"] * WBSSsplit,"\n")
-cat("WBSS in C-fleet",(TAC.C - TAC.C10) * (1-Csplit),"\n")
-cat("WBSS in D-fleet",TAC3aD * (1-Dsplit),"\n")
-cat("NSAS in A-fleet",stf.table["mp","Catch A","50%"] * (1-WBSSsplit),"\n")
-cat("NSAS in C-fleet",(TAC.C - TAC.C10) * (Csplit),"\n")
-cat("NSAS in D-fleet",TAC3aD * (Dsplit),"\n")
 
