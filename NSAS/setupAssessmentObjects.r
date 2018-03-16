@@ -1,12 +1,13 @@
 require(reshape2)
 # setup data path
-data.source         <- file.path(".","data")    #Data source, not code or package source!!!
+data.source         <- file.path(".",
+                                 "data")    #Data source, not code or package source!!!
 
 ### ============================================================================
 ### Prepare stock object for assessment
 ### ============================================================================
 #Load object
-NSH                 <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE,quiet=FALSE)
+NSH                 <- readFLStock(file.path(data.source,"index.txt"),no.discards=TRUE,quiet=FALSE)
 
 #Catch is calculated from: catch.wt * catch.n, however, the reported landings are
 #normally different (due to SoP corrections). Hence we overwrite the calculate landings
@@ -55,7 +56,7 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 ### Prepare Natural Mortality estimates 
 ### ============================================================================
 #Read in estimates from external file
-M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS2016.csv"),header=TRUE)
+M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSASSMS2016.csv"),header=TRUE)
 
 colnames(M2)  <- sub("X","",colnames(M2))
 rownames(M2)  <- M2[,1]
