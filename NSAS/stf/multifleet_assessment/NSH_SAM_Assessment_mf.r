@@ -48,12 +48,12 @@ NSH3f.sam   <- FLSAM(NSHs3,
                      NSH3.ctrl)
 
 NSH3f <- NSH
-save(NSH3f,NSH.tun,NSH3.ctrl,NSH3f.sam,file=file.path(output.dir,"NSH_mf_final_no_retro.RData"))
+#save(NSHs3,NSHs4,NSH3f,NSH.tun,NSH3.ctrl,NSH3f.sam,file=file.path(output.dir,"NSH_mf_final_no_retro.RData"))
 
 #NSH3.ctrl@residuals <- F
 NSH3f.retro <- retro(NSHs3,NSH.tun,NSH3.ctrl,n.retro.years)
 
-save(NSH,NSH.tun,NSH3.ctrl,NSH3f.sam,NSH3f.retro,file=file.path(output.dir,"NSH_mf_final.RData"))
+save(NSHs3,NSHs4,NSHmf,NSH3f,NSH,NSH.tun,NSH3.ctrl,NSH3f.sam,NSH3f.retro,file=file.path(output.dir,"NSH_mf_final.RData"))
 
 ### ============================================================================
 ### ============================================================================
