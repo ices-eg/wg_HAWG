@@ -6,7 +6,7 @@
 # 2 January 2012
 # 
 # 02/04/2016 Martin Pastoors
-# 16/04/2018 Martin Pastoors; updating for HAWG 2018
+# 16/04/2018 Martin Pastoors; updating for HAWG 2018; still using single fleet data and F pattern calculations
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
@@ -98,7 +98,7 @@ TAC3aD      <- 6659    # HER/03A-BC
 Csplit      <- 0.30    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
 Dsplit      <- 0.60    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
 Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in assessment year
-WBSScatch   <- 25000   # Recommended MSY catch for WBSS herring; from Valerio
+WBSScatch   <- 26849   # Recommended MSY catch for WBSS herring; from Valerio
 transfer    <- 0.46    # Assumed transfer of C-fleet TAC into A-fleet
 
 Buptake     <- 1       # Uptake of Bfleet TAC in the previous year
@@ -231,14 +231,18 @@ stf.table <- array(NA,dim=c(c(length(stf.options)+1),12,3),
 #- Fix in 2017 for iterQuantile function:
 
 iterQuantile <- function(x){return(x)}
-# stf.table[1,"Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,ImY,"A"]))
-# stf.table[1,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,ImY,c("B","C","D")])),c(2:6,1))
-# stf.table[1,"Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,ImY,])))
-# stf.table[1,"Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,ImY,])))
-# stf.table[1,grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,ImY)),c(2:6,1))
-# stf.table[1,grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,ImY,1] * stf@stock.wt[,ImY,1] *
-#                                                                  exp(-unitSums(stf@harvest[,ImY])*stf@harvest.spwn[,ImY,1]-stf@m[,ImY,1]*stf@m.spwn[,ImY,1]) *
-#                                                                  stf@mat[,ImY,1]))
+
+
+# Fill intermediate year
+
+stf.table[1,"Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,ImY,"A"]))
+stf.table[1,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,ImY,c("B","C","D")])),c(2:6,1))
+stf.table[1,"Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,ImY,])))
+stf.table[1,"Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,ImY,])))
+stf.table[1,grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,ImY)),c(2:6,1))
+stf.table[1,grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,ImY,1] * stf@stock.wt[,ImY,1] *
+                                                                 exp(-unitSums(stf@harvest[,ImY])*stf@harvest.spwn[,ImY,1]-stf@m[,ImY,1]*stf@m.spwn[,ImY,1]) *
+                                                                 stf@mat[,ImY,1]))
 
 referencePoints$Fsq <- stf.table["intermediate year","Fbar 2-6","50%"]
 
@@ -322,6 +326,8 @@ if("mp" %in% stf.options){
 
 }
 
+# Management plan with 50% transfer
+
 if("mp transfer" %in% stf.options){
 
   transfer  <- 0.50
@@ -400,11 +406,11 @@ if("mp transfer" %in% stf.options){
 
 # -------------------------------------------------------------------------
 
-BcatchMP    <- 7643 # Temporary value based on 2017 !!!
-
-TACS[,,"B"] <- c(TACNSB * Buptake,
-                 BcatchMP ,
-                 BcatchMP); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
+# BcatchMP    <- 7643 # Temporary value based on 2017 !!!
+# 
+# TACS[,,"B"] <- c(TACNSB * Buptake,
+#                  BcatchMP ,
+#                  BcatchMP); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
 
 
 ### No fishing ### ----------------------------------------------------------
@@ -861,6 +867,6 @@ write.csv(stf.table[,,i],
             file=paste0("stf.table_","deterministic",strsplit(i,"%")[[1]],".csv"))
 
 #- Save the output to an RData file
-# save.image(file="ShortTermForecast Workspace.RData")
+save(stf, stf.table, file="ShortTermForecast singlefleetmode.RData")
 
 
