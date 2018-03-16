@@ -145,9 +145,9 @@ png(file.path(output.dir,paste(name(NSH.sam),"figures - %02d.png")),units = "px"
 #
 ## === Plot the time series of weight in the stock and catch in the stock ===
 ## figure - times series for each age, stock
-#imeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt")
+#timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt")
 ## figure - times series for each age, catches
-#timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt")
+#timeseries(window(NSH,2000,range(NSH)["maxyear"]),slot="catch.n")
 ## figure - times series for each age, harvest
 #timeseries(window(NSH,2000,range(NSH)["maxyear"]),slot="harvest")
 ## figure - times series for each age, maturity
