@@ -20,10 +20,8 @@ advCatchWB                  <- WBSScatch #advised WBSS catch in the forecast yea
 
 
 #- Find F multipliers for fleet A,B,C and D, based on Ftarget for A,B and
-# moving Ctarget for C and fixed Ctarget for D
-# only based on targets for F but not yet taking into account the TAC change constraints etc. 
-res                         <- optim(par=rep(1,dims(stf)$unit),
-                                     find.FABC,
+#   moving Ctarget for C and fixed Ctarget for D
+res                         <- optim(par=rep(1,dims(stf)$unit),find.FABC,
                                      Fs=    stf@harvest[,FcY,,,,iTer,drop=T],
                                      Ns=    stf@stock.n[,FcY,1,,,iTer,drop=T],
                                      Wts=   stf@stock.wt[,FcY,1,,,iTer,drop=T],
@@ -33,10 +31,8 @@ res                         <- optim(par=rep(1,dims(stf)$unit),
                                      mats=  stf@mat[,FcY,1,,,iTer,drop=T],
                                      Ms=    stf@m[,FcY,1,,,iTer,drop=T],f01=f01,f26=f26,
                                      Tcs=   iter(TACS[,c(ImY,FcY)],iTer),
-                                     mixprop=mixprop,
-                                     WBSScatch=advCatchWB,
-                                     lower=rep(0.01,4),
-                                     method="L-BFGS-B",control=list(maxit=100))$par
+                                     mixprop=mixprop,WBSScatch=advCatchWB,
+                                     lower=rep(0.01,4),method="L-BFGS-B",control=list(maxit=100))$par
 
 #- Update harvest accordingly
 stf@harvest[,FcY]           <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
@@ -50,17 +46,14 @@ for(i in dms$unit){
 }
 
 stf@catch[,FcY,"A"] #forecasted A-fleet TAC in FcY
-
 #test if IAV cap on TAC needs to be applied
 abs((stf@catch[,FcY,"A"] - TACS.orig[,ImY,"A"])/TACS.orig[,ImY,"A"]) > 0.15 #forecasted TAC is not smaller than ImY TAC-15%
 
 #- Since this is an iterative process (that could be minimised using an optimizer)
 #   we need to loop over a number of times. We use a proxy for convergence of 20
 #   iterations, check if it has converged (but it is highly likely)
-
-# i <- 1
 outsideF <- 1
-for(i in 1:20){
+for(i in 1:40){
 
   #- Check if catches are more than 15% from the year before. And if so, adjust
   if(outsideF==1){
@@ -72,33 +65,39 @@ for(i in 1:20){
       stf@catch[,FcY,"A",,,idxdown] <- TACS.orig[,ImY,"A",,,idxdown] *0.85
 
     #- If adjusted, recalculate harvest pattern (but safe to do it directly because harvest pattern will be the same if nothing changed)
-    stf@catch[,FcY,"C"]       <- (0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB) *mixprop #combined C-fleet TAC
+    stf@catch[,FcY,"C"]       <- (0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB)  #combined C-fleet TAC
+    idxup                     <- which(stf@catch[,FcY,"C"] > TACS.orig[,ImY,"C"]*1.15)
+    idxdown                   <- which(stf@catch[,FcY,"C"] < TACS.orig[,ImY,"C"]*0.85)
+    idxin                     <- which(stf@catch[,FcY,"C"] <= TACS.orig[,ImY,"C"]*1.15 &
+                                       stf@catch[,FcY,"C"] >= TACS.orig[,ImY,"C"]*0.85)
+    if(length(idxup)>0)
+      stf@catch[,FcY,"C",,,idxup]   <- TACS.orig[,ImY,"C",,,idxup]   *1.15 * mixprop
+    if(length(idxdown)>0)
+      stf@catch[,FcY,"C",,,idxdown] <- TACS.orig[,ImY,"C",,,idxdown] *0.85 * mixprop
+    if(length(idxin)>0)
+      stf@catch[,FcY,"C",,,idxin]   <- stf@catch[,FcY,"C",,,idxin] * mixprop
+
     stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
   }
   #- Check the F target according to adjusted TAC
   ssb                       <- quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1]*stf@mat[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]))
   resA <- resB              <- numeric(dims(stf)$iter)
-  
-  # if you are below 800 000 tonnes ...
   idx                       <- which(ssb < 0.8e6,arr.ind=T)
   if(length(idx)>0){
     resA[idx[,6]]           <- 0.1
     resB[idx[,6]]           <- 0.04
   }
-  
-  # if you are between 800 000 and 1 500 000 tonnes
   idx                       <- which(ssb >= 0.8e6 & ssb <= 1.5e6,arr.ind=T)
   if(length(idx)>0){
-    resA[idx[,6]]           <- 0.16/0.7*((ssb[,,,,,idx[,6]]-0.8e6)*outsideF/1e6)+0.1
+    resA[idx[,6]]           <- 0.16/0.7*((ssb[,,,,,idx]-0.8e6)*outsideF/1e6)+0.1
     resB[idx[,6]]           <- 0.05
   }
-  
-  # if you are above 1 500 000
   idx                       <- which(ssb > 1.5e6,arr.ind=T)
   if(length(idx)>0){
     resA[idx[,6]]           <- 0.26
     resB[idx[,6]]           <- 0.05
   }
+
   if(outsideF!=1){
     res                       <- optim(par=rep(1,dims(stf)$unit),find.FABC_F,
                                        Fs=stf@harvest[,FcY,,,,iTer,drop=T],
@@ -117,12 +116,14 @@ for(i in 1:20){
 
      stf@harvest[,FcY]        <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   }
+
+
+
   #-if Ftarget is off by more than 10%, make an adjustment
   outidx                    <- which(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) <  0.9 * resA |
                                      apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) >  1.1 * resA)
   inidx                     <- which(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) >= 0.9 * resA &
                                      apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T) <= 1.1 * resA)
-  
   #- If outside this range, do not apply TAC constraint and use 15% cap on F
   if(length(outidx)>0){
     sidx                    <- which((apply(unitSums(stf@harvest[f26,FcY,,,,outidx]),2:6,mean,na.rm=T)) <  0.9 * resA[outidx])
@@ -134,18 +135,15 @@ for(i in 1:20){
     if(length(bidx)>0) stf@harvest[,FcY,"A",,,outidx[bidx]]       <- sweep(stf@harvest[,FcY,"A",,,outidx[bidx]],2:6,
                                                                       ((resA[outidx[bidx]] * 1.1) - apply(unitSums(stf@harvest[f26,FcY,c("B","C","D"),,,outidx[bidx]]),2:6,mean,na.rm=T)) /
                                                                         apply(unitSums(stf@harvest[f26,FcY,"A",,,outidx[bidx]]),2:6,mean,na.rm=T),"*")
-    if(length(sidx)>0) resA[sidx] <- resA*0.9
-    if(length(bidx)>0) resA[bidx] <- resA*1.1
-    
+    if(length(sidx)>0) resA[sidx]              <- resA*0.9
+    if(length(bidx)>0) resA[bidx]              <- resA*1.1
     outsideF <- ifelse(length(sidx)>0,0.9,ifelse(length(bidx)>0,1.1,1))
   }
-  
   #-if Ftarget is off by more than 10%, make an adjustment
   outidx                    <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <  resB*(0.999) |
                                      apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >  resB*(1.001))
   inidx                     <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >= resB*(0.999) &
                                      apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <= resB*(1.001))
-  
   #- If outside this range, do not apply TAC constraint and use 15% cap on F
   if(length(outidx)>0){
     sidx                    <- which((apply(unitSums(stf@harvest[f01,FcY,,,,outidx]),2:6,mean,na.rm=T)) <  resB[outidx])
@@ -164,8 +162,19 @@ for(i in 1:20){
                                           (stf@harvest[,FcY,"B"]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,"B"])))
   }
 
-  stf@catch[,FcY,"C"]       <- 0.057*unitSums(stf@catch[,FcY,c("A")])*mixprop + TACS[,FcY,"C"]
+  stf@catch[,FcY,"C"]       <- 0.057*unitSums(stf@catch[,FcY,c("A")]) + TACS[,FcY,"C"]
+  idxup                     <- which(stf@catch[,FcY,"C"] > TACS.orig[,ImY,"C"]*1.15)
+  idxdown                   <- which(stf@catch[,FcY,"C"] < TACS.orig[,ImY,"C"]*0.85)
+  idxin                     <- which(stf@catch[,FcY,"C"] <= TACS.orig[,ImY,"C"]*1.15 &
+                                     stf@catch[,FcY,"C"] >= TACS.orig[,ImY,"C"]*0.85)
 
+  if(length(idxup)>0)
+    stf@catch[,FcY,"C",,,idxup]   <- TACS.orig[,ImY,"C",,,idxup]   *1.15 * mixprop
+  if(length(idxdown)>0)
+    stf@catch[,FcY,"C",,,idxdown] <- TACS.orig[,ImY,"C",,,idxdown] *0.85 * mixprop
+  if(length(idxin)>0)
+    stf@catch[,FcY,"C",,,idxin]   <- stf@catch[,FcY,"C",,,idxin] * mixprop
+    
   #- Based on the new catch (owing to the dynamic calculation of the C fleet catch, we need to find the multipliers of the ABC and D fleet again
   res                       <- optim(par=rep(1,dims(stf)$unit),find.FABC_F,
                                      Fs=stf@harvest[,FcY,,,,iTer,drop=T],
@@ -182,25 +191,35 @@ for(i in 1:20){
                                      FB=resB,
                                      lower=rep(0.01,4),method="L-BFGS-B",control=list(maxit=100))$par
 
-   stf@harvest[,FcY]        <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
-   stf@catch[,FcY,"A"]      <- quantSums(stf@catch.wt[,FcY,"A"] * stf@stock.n[,FcY,"A"] *
-                                        (1-exp(-unitSums(stf@harvest[,FcY,])-stf@m[,FcY,"A"])) *
-                                        (stf@harvest[,FcY,"A"]/(unitSums(stf@harvest[,FcY,])+stf@m[,FcY,"A"])))
-   stf@catch[,FcY,"B"]      <- quantSums(stf@catch.wt[,FcY,"B"] * stf@stock.n[,FcY,"B"] *
-                                        (1-exp(-unitSums(stf@harvest[,FcY,])-stf@m[,FcY,"B"])) *
-                                        (stf@harvest[,FcY,"B"]/(unitSums(stf@harvest[,FcY,])+stf@m[,FcY,"B"])))
-   stf@catch[,FcY,"C"]      <- (0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB) * mixprop
+  stf@harvest[,FcY]        <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
+  stf@catch[,FcY,"A"]      <- quantSums(stf@catch.wt[,FcY,"A"] * stf@stock.n[,FcY,"A"] *
+                                       (1-exp(-unitSums(stf@harvest[,FcY,])-stf@m[,FcY,"A"])) *
+                                       (stf@harvest[,FcY,"A"]/(unitSums(stf@harvest[,FcY,])+stf@m[,FcY,"A"])))
+  stf@catch[,FcY,"B"]      <- quantSums(stf@catch.wt[,FcY,"B"] * stf@stock.n[,FcY,"B"] *
+                                       (1-exp(-unitSums(stf@harvest[,FcY,])-stf@m[,FcY,"B"])) *
+                                       (stf@harvest[,FcY,"B"]/(unitSums(stf@harvest[,FcY,])+stf@m[,FcY,"B"])))
+  stf@catch[,FcY,"C"]      <- (0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB)
+  idxup                     <- which(stf@catch[,FcY,"C"] > TACS.orig[,ImY,"C"]*1.15)
+  idxdown                   <- which(stf@catch[,FcY,"C"] < TACS.orig[,ImY,"C"]*0.85)
+  idxin                     <- which(stf@catch[,FcY,"C"] <= TACS.orig[,ImY,"C"]*1.15 &
+                                     stf@catch[,FcY,"C"] >= TACS.orig[,ImY,"C"]*0.85)
+  if(length(idxup)>0)
+    stf@catch[,FcY,"C",,,idxup]   <- TACS.orig[,ImY,"C",,,idxup]   *1.15 * mixprop
+  if(length(idxdown)>0)
+    stf@catch[,FcY,"C",,,idxdown] <- TACS.orig[,ImY,"C",,,idxdown] *0.85 * mixprop
+  if(length(idxin)>0)
+    stf@catch[,FcY,"C",,,idxin]   <- stf@catch[,FcY,"C",,,idxin] * mixprop
 
    print(c(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T),apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T),stf@catch[,FcY,],(0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB )* mixprop - stf@catch[,FcY,"C"]))
    stf@harvest[,FcY]        <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
 }
-
 save.image(paste0(scen,"_STFbeforeTransfers.RData"))
 load(paste0(scen,"_STFbeforeTransfers.RData"))
 
 # calculate the C fleet TAC
-TAC.C                       <- 0.057 * sum(stf@catch[,FcY,c("A")]) + 
-                               0.41 * advCatchWB  #combined C-fleet TAC
+TAC.C                       <- 0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB  #combined C-fleet TAC
+TAC.C                       <- ifelse(c(TAC.C > TACS.orig[,ImY,"C"]*1.15),1.15*TACS.orig[,ImY,"C"],
+                                      ifelse(c(TAC.C < TACS.orig[,ImY,"C"]*0.85),0.85*TACS.orig[,ImY,"C"],TAC.C))
 
 # 0% option
 TAC.C10                     <- TAC.C * transfer   #  0% thereof, add to A-fleet as the minimum transfer amount
