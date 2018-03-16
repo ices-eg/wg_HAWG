@@ -6,7 +6,7 @@
 # 2 January 2012
 # 
 # 02/04/2016 Martin Pastoors
-# 16/04/2018 Martin Pastoors; updating for HAWG 2018
+# 16/04/2018 Martin Pastoors; updating for HAWG 2018; still using single fleet data and F pattern calculations
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
@@ -321,6 +321,8 @@ if("mp" %in% stf.options){
   cat("NSAS in D-fleet",TAC3aD * (Dsplit),"\n")
 
 }
+
+# Management plan with 50% transfer
 
 if("mp transfer" %in% stf.options){
 
@@ -861,6 +863,6 @@ write.csv(stf.table[,,i],
             file=paste0("stf.table_","deterministic",strsplit(i,"%")[[1]],".csv"))
 
 #- Save the output to an RData file
-# save.image(file="ShortTermForecast Workspace.RData")
+save(stf, stf.table, file="ShortTermForecast singlefleetmode.RData")
 
 
