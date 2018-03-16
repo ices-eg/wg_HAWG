@@ -323,7 +323,7 @@ find.FABCD <- function(mult,Fs,Ns,Wts,CWts,fspwns,mspwns,mats,Ms,f01,f26,Tcs,Tcs
       }
       if(mean(bigFnew[f26])<(0.9*resA)){
         targetA <- 0.9*resA
-        invokeFAIV <- TRUE
+        invokeFIAV <- TRUE
       }
     }
   }

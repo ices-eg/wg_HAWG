@@ -1,7 +1,7 @@
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-### NSAS single fleet assessment
+### Setup
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
@@ -22,44 +22,45 @@ try(setwd(path),silent=TRUE)
 output.dir          <-  file.path(".","results//")              # result directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  # Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  7                                       # Number of years for which to run the retrospective
-assessment_name     <- 'NSH_HAWG2018_sf'
+assessment_name     <- 'NSH_HAWG2018_mf'
 
 ### ============================================================================
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA)
-source(file.path("./setupAssessmentObjects_sf.r"))
-source(file.path("./setupControlObject_sf.r"))
-#source(file.path("../_Common/HAWG_Common_module.r"))
+source(file.path("./setupAssessmentObjects_mf.r"))
+source(file.path("./setupControlObject_mf.r"))
 
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-### Assessment
+### Run the assessment
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-NSH.sam               <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-NSH@stock.n           <- NSH.sam@stock.n[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
-NSH@harvest           <- NSH.sam@harvest[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
+#NSH3.ctrl@residuals <- F
 
-save(NSH,
+NSH3f.sam2   <- FLSAM(NSHs3,
+                     NSH.tun,
+                     NSH3.ctrl,return.fit=T)
+
+save(NSHs3,
      NSH.tun,
-     NSH.ctrl,
-     NSH.sam,
+     NSH3.ctrl,
+     NSH3f.sam,
      file=file.path(output.dir,paste0(assessment_name,'.Rdata')))
 
 ### ============================================================================
 ### run retrospective
 ### ============================================================================
-NSH.ctrl@residuals <- F
-NSH.retro             <- retro(NSH,NSH.tun,NSH.ctrl,retro=n.retro.years)
+NSH3.ctrl@residuals <- F
+NSH3f.retro             <- retro(NSHs3,NSH.tun,NSH3.ctrl,retro=n.retro.years)
 
-save(NSH,
+save(NSHs3,
      NSH.tun,
-     NSH.ctrl,
-     NSH.sam,
-     NSH.retro,
+     NSH3.ctrl,
+     NSH3f.sam,
+     NSH3f.retro,
      file=file.path(output.dir,
                     paste0(assessment_name,'_retro.Rdata')))
 
