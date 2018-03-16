@@ -26,8 +26,8 @@ NSH3.ctrl                           <- FLSAM.control(NSHs3,NSH.tun,sumFleets=dim
   catchRow                          <- grep("catch",rownames(NSH3.ctrl@f.vars))
   laiRow                            <- grep("LAI",rownames(NSH3.ctrl@obs.vars))
 NSH3.ctrl@states["catch A",]        <- c(-1,0:6,6)
-NSH3.ctrl@states["catch BD",]       <- c(7:8,10,10,rep(-1,5))
-NSH3.ctrl@states["catch C",]        <- c(-1,11:12,14,14,rep(-1,4))
+NSH3.ctrl@states["catch BD",]       <- c(7:9,10,10,10,rep(-1,3))
+NSH3.ctrl@states["catch C",]        <- c(-1,11:13,14,14,14,rep(-1,2))
 
 NSH3.ctrl@catchabilities["HERAS",ac(1:8)]   <- c(101,102,rep(103,6))
 NSH3.ctrl@catchabilities["IBTS-Q3",ac(0:5)] <- c(200:205)

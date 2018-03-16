@@ -9,7 +9,7 @@
 rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {cat(string);}
-log.msg("\nNSH Final Assessment (single fleet)\n=====================\n")
+log.msg("\nNSH Final Assessment (multi fleet)\n=====================\n")
 
 # local path
 #path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
@@ -32,17 +32,12 @@ source(file.path("./setupAssessmentObjects_mf.r"))
 source(file.path("./setupControlObject_mf.r"))
 
 ### ============================================================================
-### ============================================================================
-### ============================================================================
 ### Run the assessment
 ### ============================================================================
-### ============================================================================
-### ============================================================================
-#NSH3.ctrl@residuals <- F
 
-NSH3f.sam2   <- FLSAM(NSHs3,
+NSH3f.sam   <- FLSAM(NSHs3,
                      NSH.tun,
-                     NSH3.ctrl,return.fit=T)
+                     NSH3.ctrl)
 
 save(NSHs3,
      NSH.tun,

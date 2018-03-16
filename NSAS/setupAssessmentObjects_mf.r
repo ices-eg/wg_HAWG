@@ -188,6 +188,8 @@ NSH3f@landings.wt <- NSH3f@catch.wt
 NSH3f@catch.n[,ac(1947:1996),,,-1]    <- NA
 NSH3f@catch.wt[,ac(1947:1996),,,-1]   <- NA
 
+#We don't believe the closure catch data, so put it to NA
+NSH@catch.n[,ac(1978:1979)]           <- NA
 NSHsum <- NSH[,ac(1947:1996)]
 NSHres3 <- NSH3f[,ac(1997:2017)]; NSHres3@landings.n[] <- NSHres3@catch.n
 NSHs3        <- FLStocks(residual=NSHres3,sum=NSHsum)
@@ -207,6 +209,5 @@ NSH.tun[["HERAS"]] <- trim(NSH.tun[["HERAS"]],age=1:8)
 ### Closure data deletion
 ### ============================================================================
 
-#We don't believe the closure catch data, so put it to NA
-NSH@catch.n[,ac(1978:1979)]           <- NA
+
 
