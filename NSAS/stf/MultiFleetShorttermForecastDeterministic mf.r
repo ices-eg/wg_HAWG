@@ -6,7 +6,9 @@
 # 2 January 2012
 # 
 # 02/04/2016 Martin Pastoors
-# 16/03/2018 Martin Pastoors; Multifleet data
+# 16/03/2018 Martin Pastoors; Multifleet data + adapted for mpOption15.r that 
+#            takes into account the F when SSB in the current year is below management
+#            plan trigger. 
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
@@ -278,7 +280,7 @@ if("mp" %in% stf.options){
 
   transfer  <- 0
   scen      <- "mp"
-  source("./mpOption.r")
+  source("./mpOption15.r")
   
 #  stf@harvest[,FcY] <- fleet.harvest(stk=stf,iYr=FcY,TACS=TACS[,ImY])
 #
@@ -350,7 +352,7 @@ if("mp transfer" %in% stf.options){
 
   transfer  <- 0.50
   scen      <- "mp transfer"
-  source("./mpOption.r")
+  source("./mpOption15.r")
 
 
   #- Calculate F multipliers for each of the fleets (may take some time)
@@ -884,8 +886,8 @@ for(i in dimnames(stf.table)$stats)
 write.csv(stf.table[,,i],
             file=paste0("stf.table_mf_","deterministic",strsplit(i,"%")[[1]],".csv"))
 
-#- Save the output to an RData file
-save(stf, stf.table, file="ShortTermForecast multifleetmode.RData")
+# Save the output to an RData file
+# save(stf, stf.table, file="ShortTermForecast multifleetmode.RData")
 
 
 
