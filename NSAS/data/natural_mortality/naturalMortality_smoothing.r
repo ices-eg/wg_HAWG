@@ -4,7 +4,7 @@ library(lattice)
 library(latticeExtra)
 library(nlme)
 
-path <- "D:/git/wg_HAWG/NSAS/"
+path <- "D:/git/wg_HAWG/NSAS"
 
 
                                                   
@@ -14,16 +14,15 @@ try(setwd(path),silent=TRUE)
 ### Define parameters and paths for use in the assessment code
 ### ======================================================================================================
 output.dir          <- file.path(path,"data/")                #data directory
-input.dir           <- file.path(path,"data/natural_mortality//")
+input.dir           <- file.path(path,"data/natural_mortality/")
 SMSRun              <- 'SMS2016'
-year_last           <- 2017
 
 ### ============================================================================
 ### imports
 ### ============================================================================
-library(FLSAM); library(FLEDA); library(FLBRP)
+library(FLSAM); library(FLEDA); #library(FLBRP)
 source("vectorise.r")
-load(paste(input.dir,"natMortDataFrame_",SMSRun,".RData",sep=""))
+load(paste(input.dir,"/natMortDataFrame_",SMSRun,".RData",sep=""))
 
 
 #-----------------------------------------------------------------------------
@@ -43,7 +42,7 @@ finalM  <- matrix(NA,nrow=length(ages),ncol=length(1960:max(years)),dimnames=lis
 
 #- Fill in values already known for finalM
 finalM[ac(0:9),ac(1974:2016)] <- rawM
-write.csv(finalM,file=paste(input.dir,"Raw_NotExtrapolated_NSAS_",SMSRun,".csv",sep=""))
+write.csv(finalM,file=paste(input.dir,"/Raw_NotExtrapolated_NSAS_",SMSRun,".csv",sep=""))
 
 #-----------------------------------------------------------------------------
 # 2) compare different SMS key-runs - to be added
@@ -96,7 +95,7 @@ xyplot(Value~Year|Age,data=dtftotal,type="l",xlab="Years",ylab="Total Natural Mo
         panel.xyplot(dat$x[idx2],dat$y[idx2],type="l",col=2)
        },
        scales=list(alternating=1,y=list(relation="free",rot=0)))
-savePlot(paste(input.dir,"Raw_NotExtrapolated_NSAS_",SMSRun,".png",sep=""),type="png")
+savePlot(paste(input.dir,"/Raw_NotExtrapolated_NSAS_",SMSRun,".png",sep=""),type="png")
 
 #-----------------------------------------------------------------------------
 # 6) Extrapolate the M-at-age
@@ -109,6 +108,6 @@ finalM  <- matrix(NA,nrow=length(ages),ncol=length(1974:max(years)),dimnames=lis
 
   #- Fill in values already known for finalM
 finalM[ac(0:9),ac(1974:2016)] <- storeSmooth[,"2016",,"50%"]
-write.csv(finalM,file=paste(.dir,"Smoothed_span50_M_NotExtrapolated_NSAS",SMSRun,".csv",sep=""))
-write.csv(finalM,file=paste(output.dir,"Smoothed_span50_M_NotExtrapolated_NSAS",SMSRun,".csv",sep=""))
+write.csv(finalM,file=paste(input.dir,"/Smoothed_span50_M_NotExtrapolated_NSAS",SMSRun,".csv",sep=""))
+write.csv(finalM,file=paste(output.dir,"/Smoothed_span50_M_NotExtrapolated_NSAS",SMSRun,".csv",sep=""))
 
