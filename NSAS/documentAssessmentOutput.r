@@ -51,11 +51,7 @@ devtools::install_github("ices-tools-prod/icesSAG")
 library(icesSAG)
 library(tidyverse)
 
-# login to ICES SAG, generate a token and paste the token code below
-cat("# Standard Graphs personal access token",
-    "SG_PAT=f78abd38-aabb-4c2a-9ff2-e2e431f2ad66",
-    sep = "\n",
-    file = "~/.Renviron_SG")
+# login to ICES SAG, generate a token and put it in the ~/.Renviron_SG
 
 # make use of the token
 options(icesSAG.use_token = TRUE)
