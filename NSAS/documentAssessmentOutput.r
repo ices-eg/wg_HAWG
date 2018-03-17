@@ -1,6 +1,12 @@
 ### ============================================================================
 ### Document Assessment
+###
+### 18/03/2018 Added Standard Graph database output
 ### ============================================================================
+
+# library(FLCore)
+# library(FLSAM)
+# load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/09. Personal Folders/Benoit/NSH_final.RData")
 
 old.opt           <- options("width","scipen")
 options("width"=75,"scipen"=1000)
@@ -30,3 +36,59 @@ stockSummaryTable[nrow(stockSummaryTable),"Spawing biomass (tonnes) Mean"] <- 22
 stockSummaryTable[nrow(stockSummaryTable),2:4] <- c(rec(NSH.sam)$value[nrow(rec(NSH.sam))],rec(NSH.sam)$lbnd[nrow(rec(NSH.sam))],rec(NSH.sam)$ubnd[nrow(rec(NSH.sam))])
 write.csv(stockSummaryTable,file=file.path(output.dir,paste(name(NSH),"stockSummaryTable.csv",sep="_")))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
+
+
+# ----------------------------------------------------------------------------
+# Add assessment output to SAG database
+# ----------------------------------------------------------------------------
+
+library(icesSAG)
+library(tidyverse)
+
+# login to ICES SAG, generate a token and paste the token code below
+cat("# Standard Graphs personal access token",
+    "SG_PAT=f78abd38-aabb-4c2a-9ff2-e2e431f2ad66",
+    sep = "\n",
+    file = "~/.Renviron_SG")
+
+# make use of the token
+options(icesSAG.use_token = TRUE)
+
+info     <- stockInfo(StockCode="her.27.3a47d", AssessmentYear = 2018, ContactPerson = "mpastoors@pelagicfish.eu")
+fishdata <- stockFishdata(1947:2018)
+FiY       <- ac(range(NSH)["minyear"]) 
+DtY       <- ac(range(NSH)["maxyear"]) 
+LaY       <- ac(range(NSH.sam)["maxyear"]) 
+nyrs      <- range(NSH)["maxyear"]-range(NSH)["minyear"]+1
+
+glimpse(info)
+
+info$StockCategory             <- "1"
+info$MSYBtrigger               <- 1400000
+info$Blim                      <- 800000
+info$Bpa                       <- 900000
+info$Flim                      <- 0.34
+info$Fpa                       <- 0.30 
+info$FMSY                      <- 0.26
+  
+fishdata$Landings[1:nyrs]      <- an(NSH@landings) 
+fishdata$Catches               <- catch(NSH.sam)$value
+fishdata$Low_Recruitment       <- rec(NSH.sam)$lbnd
+fishdata$Recruitment           <- rec(NSH.sam)$value
+fishdata$High_Recruitment      <- rec(NSH.sam)$ubnd 
+fishdata$TBiomass              <- tsb(NSH.sam)$value
+fishdata$Low_TBiomass          <- tsb(NSH.sam)$lbnd
+fishdata$High_TBiomass         <- tsb(NSH.sam)$ubnd
+fishdata$StockSize             <- ssb(NSH.sam)$value
+fishdata$Low_StockSize         <- ssb(NSH.sam)$lbnd
+fishdata$High_StockSize        <- ssb(NSH.sam)$ubnd
+fishdata$FishingPressure       <- fbar(NSH.sam)$value
+fishdata$Low_FishingPressure   <- fbar(NSH.sam)$lbnd
+fishdata$High_FishingPressure  <- fbar(NSH.sam)$ubnd
+
+summary(fishdata)
+glimpse(fishdata)
+
+# upload to SAG
+key <- icesSAG::uploadStock(info, fishdata)
+
