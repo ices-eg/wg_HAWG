@@ -34,13 +34,19 @@ colnames(stockSummaryTable) <-
 stockSummaryTable[nrow(stockSummaryTable),] <- NA
 stockSummaryTable[nrow(stockSummaryTable),"Spawing biomass (tonnes) Mean"] <- 2271364
 stockSummaryTable[nrow(stockSummaryTable),2:4] <- c(rec(NSH.sam)$value[nrow(rec(NSH.sam))],rec(NSH.sam)$lbnd[nrow(rec(NSH.sam))],rec(NSH.sam)$ubnd[nrow(rec(NSH.sam))])
-write.csv(stockSummaryTable,file=file.path(output.dir,paste(name(NSH),"stockSummaryTable.csv",sep="_")))
+
+# write.csv(stockSummaryTable,file=file.path(output.dir,paste(name(NSH),"stockSummaryTable.csv",sep="_")))
+write.csv(stockSummaryTable,file=file.path("NSAS","stockSummaryTable.csv"))
+
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 
 # ----------------------------------------------------------------------------
 # Add assessment output to SAG database
 # ----------------------------------------------------------------------------
+
+library(devtools)
+devtools::install_github("ices-tools-prod/icesSAG")
 
 library(icesSAG)
 library(tidyverse)
@@ -61,7 +67,6 @@ DtY       <- ac(range(NSH)["maxyear"])
 LaY       <- ac(range(NSH.sam)["maxyear"]) 
 nyrs      <- range(NSH)["maxyear"]-range(NSH)["minyear"]+1
 
-glimpse(info)
 
 info$StockCategory             <- "1"
 info$MSYBtrigger               <- 1400000
@@ -70,9 +75,24 @@ info$Bpa                       <- 900000
 info$Flim                      <- 0.34
 info$Fpa                       <- 0.30 
 info$FMSY                      <- 0.26
-  
-fishdata$Landings[1:nyrs]      <- an(NSH@landings) 
-fishdata$Catches               <- catch(NSH.sam)$value
+info$Fage                      <- "2-6"
+info$RecruitmentAge            <- 0
+info$CatchesCatchesUnits       <- "tonnes"
+info$RecruitmentDescription    <- "wr"
+info$RecruitmentUnits          <- "thousands"
+info$FishingPressureDescription<- "F"
+info$FishingPressureUnits      <- "Year-1"
+info$StockSizeDescription      <- "SSB"
+info$StockSizeUnits            <- "tonnes"
+info$CustomSeriesName1         <- "model catch"
+info$CustomSeriesName2         <- "model catch low"
+info$CustomSeriesName3         <- "model catch high"
+info$CustomSeriesUnits1        <- "tonnes"
+info$CustomSeriesUnits2        <- "tonnes"
+info$CustomSeriesUnits3        <- "tonnes"
+
+# fishdata$Landings[1:nyrs]      <- an(NSH@landings) 
+fishdata$Catches[1:nyrs]       <- an(NSH@landings) 
 fishdata$Low_Recruitment       <- rec(NSH.sam)$lbnd
 fishdata$Recruitment           <- rec(NSH.sam)$value
 fishdata$High_Recruitment      <- rec(NSH.sam)$ubnd 
@@ -86,9 +106,14 @@ fishdata$FishingPressure       <- fbar(NSH.sam)$value
 fishdata$Low_FishingPressure   <- fbar(NSH.sam)$lbnd
 fishdata$High_FishingPressure  <- fbar(NSH.sam)$ubnd
 
-summary(fishdata)
-glimpse(fishdata)
+fishdata$CustomSeries1         <- catch(NSH.sam)$value
+fishdata$CustomSeries2         <- catch(NSH.sam)$lbnd
+fishdata$CustomSeries3         <- catch(NSH.sam)$ubnd
+
+# summary(fishdata)
+# glimpse(fishdata)
 
 # upload to SAG
 key <- icesSAG::uploadStock(info, fishdata)
 
+glimpse(info)
