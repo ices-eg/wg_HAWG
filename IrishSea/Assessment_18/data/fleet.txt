@@ -1,7 +1,7 @@
 Irish Sea herring (Division VIIa) (run name: ICAMDC20)
 101
 FLT01: Northern Ireland acoustic surveys (age disaggregated) (Catch: Thousands) (Effort: Unknown)
-1994 2016
+1994 2017
 1 1 0.70 0.80
 1 8
    1     66830     68290     73529     11860      9299      7550      3867     10118
@@ -27,3 +27,4 @@ FLT01: Northern Ireland acoustic surveys (age disaggregated) (Catch: Thousands) 
    1    299689    193267    127352     29691     43057     17342      7848     12481
    1    491894    141854     25153     17018     10340      8954      1890      4342
    1    131512    449316    257152    110196     32232     18312      8157      7042
+   1     33505     51413     35131     13178      1820      3881       803      1984
