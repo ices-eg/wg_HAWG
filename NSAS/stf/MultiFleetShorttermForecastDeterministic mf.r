@@ -103,7 +103,7 @@ dummy       <- 0.1
 Csplit      <- 0.30    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
 Dsplit      <- 0.60    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
 Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in assessment year
-WBSScatch   <- 26849   # Recommended MSY catch for WBSS herring; from Henrik
+WBSScatch   <- dummy #26849   # Recommended MSY catch for WBSS herring; from Henrik
 transfer    <- 0.46    # Assumed transfer of C-fleet TAC into A-fleet
 
 Buptake     <- 1       # Uptake of Bfleet TAC in the previous year
@@ -128,11 +128,11 @@ TACS[,,"B"] <- c(TACNSB * Buptake,
                  NA ,
                  NA); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
 TACS[,,"C"] <- c(TAC3aC*(1-Ctransfer)*Csplit,
-                 TAC3aC*(1-Ctransfer)*Csplit,
+                 dummy,#TAC3aC*(1-Ctransfer)*Csplit,
                  dummy)
 TACS[,,"D"] <- c(TAC3aD*Dsplit*Duptake,
-                 TAC3aD*Dsplit*Duptake,
-                 TAC3aD*Dsplit*Duptake)
+                 dummy,#TAC3aD*Dsplit*Duptake,
+                 dummy)#TAC3aD*Dsplit*Duptake)
 
 # Retrieve uncertainty estimate on recruitment estimates by the model
 
