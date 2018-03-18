@@ -450,13 +450,11 @@ find.FC <- function(mult,stk.=stk,f.=f.,f26.=f26,f01.=f01,TACS.=TACS,WBSScatch=W
                       stk.@catch.n[,,i]         <- stk.@stock.n[,,i]*(1-exp(-unitSums(stk.@harvest)-stk.@m[,,i]))*(stk.@harvest[,,i]/(unitSums(stk.@harvest)+stk.@m[,,i]))
                       stk.@catch[,,i]           <- computeCatch(stk.[,,i])
                     }
-
-                    resA                <- sqrt(c(f. - quantMeans(unitSums(stk.@harvest[f26.,])))^2)*100
-                    resB                <- sqrt(c((TACS. - c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)))^2))[2]
-                    resC                <- sqrt(c(stk.@catch[,,"C"] - ifelse(WBSScatch<=1,0.1,(0.41 * WBSScatch + stk.@catch[,,"A"] * 0.057) * Csplit))^2)
-                    resD                <- sqrt(c((TACS. - c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)))^2))[4]
-                    res                 <- c(resA,resB,resC,resD)
-
+                    resA                <- dnorm(log(f.),log(quantMeans(unitSums(stk.@harvest[f26.,]))),log=T)
+                    resB                <- dnorm(log(c((TACS.))),log(c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T))),log=T)
+                    resC                <- dnorm(log(c(stk.@catch[,,"C"])),ifelse(WBSScatch<=1,log(0.1),log((0.41 * WBSScatch + stk.@catch[,,"A"] * 0.057) * Csplit)),log=T)
+                    resD                <- dnorm(log(c((TACS.))),log(c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T))),log=T)
+                    res                 <- -1*c(resA,resB,resC,resD)
                  return(res)}
 
 #-------------------------------------------------------------------------------
@@ -476,13 +474,11 @@ find.FCAR <- function(mult,stk.=stk,f26.=f26,f01.=f01,TACS.=TACS,WBSScatch=WBSSc
 
                     f.                  <- ifelse(ssb<refs.$MSYBtrigger,ssb/refs.$MSYBtrigger * refs.$Fmsy,refs.$Fmsy)
 
-                    resA                <- sqrt(c(f. - quantMeans(unitSums(stk.@harvest[f26.,])))^2)*100
-                    resB                <- sqrt(c((TACS. - c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)))^2))[2]
-                    resC                <- sqrt(c(stk.@catch[,,"C"] - ifelse(WBSScatch<=1,0.1,(0.41 * WBSScatch + stk.@catch[,,"A"] * 0.057) * Csplit))^2)
-                    resD                <- sqrt(c((TACS. - c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)))^2))[4]
-                    res                 <- c(resA,resB,resC,resD)
-
-                    
+                    resA                <- dnorm(log(f.),log(quantMeans(unitSums(stk.@harvest[f26.,]))),log=T)
+                    resB                <- dnorm(log(c((TACS.))),log(c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T))),log=T)
+                    resC                <- dnorm(log(c(stk.@catch[,,"C"])),ifelse(WBSScatch<=1,log(0.1),log((0.41 * WBSScatch + stk.@catch[,,"A"] * 0.057) * Csplit)),log=T)
+                    resD                <- dnorm(log(c((TACS.))),log(c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T))),log=T)
+                    res                 <- -1*c(resA,resB,resC,resD)
                  return(res)}
                  
 #-------------------------------------------------------------------------------
@@ -500,10 +496,9 @@ find.BC <- function(mult,stk.=stk,b.=b.,f26.=f26,f01.=f01,TACS.=TACS,WBSScatch=W
                                                                       exp(-unitSums(stk.@harvest)*stk.@harvest.spwn[,,1]-stk.@m[,,1] *
                                                                       stk.@m.spwn[,,1]) * stk.@mat[,,1])
                     
-                    resA                <- sqrt(c(b. - ssb)^2)
-                    resB                <- sqrt(c((TACS. - c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)))^2))[2]
-                    resC                <- sqrt(c(stk.@catch[,,"C"] - ifelse(WBSScatch<=1,0.1,(0.41 * WBSScatch + stk.@catch[,,"A"] * 0.057) * Csplit))^2)
-                    resD                <- sqrt(c((TACS. - c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)))^2))[4]
-                    res                 <- c(resA,resB,resC,resD)
-
+                    resA                <- dnorm(log((c(b.))),log(ssb),log=T)
+                    resB                <- dnorm(log(c((TACS.))),log(c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T))),log=T)
+                    resC                <- dnorm(log(c(stk.@catch[,,"C"])),ifelse(WBSScatch<=1,log(0.1),log((0.41 * WBSScatch + stk.@catch[,,"A"] * 0.057) * Csplit)),log=T)
+                    resD                <- dnorm(log(c((TACS.))),log(c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T))),log=T)
+                    res                 <- -1*c(resA,resB,resC,resD)
                  return(res)}
