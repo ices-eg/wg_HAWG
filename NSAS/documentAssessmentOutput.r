@@ -8,11 +8,16 @@
 # library(FLSAM)
 # load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/09. Personal Folders/Benoit/NSH_final.RData")
 
+path <- "D:/git/wg_HAWG/NSAS/"
+try(setwd(path),silent=FALSE)
+
+output.dir          <-  file.path(".","results/")        # figures directory
+
 old.opt           <- options("width","scipen")
 options("width"=75,"scipen"=1000)
 
 sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
-write(sam.out.file,file=paste(output.base,"sam.out",sep="."))
+write(sam.out.file,file=paste(output.dir,"/sam.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 #
 ##And finally, write the results out in the lowestoft VPA format for further analysis
