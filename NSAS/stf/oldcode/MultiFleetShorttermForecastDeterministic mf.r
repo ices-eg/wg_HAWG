@@ -23,16 +23,14 @@ require(msm)         # install.packages("msm")
 
 #path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
 #path <- "C:/DATA/GIT/HAWG/NSAS/"
-path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
-#path <- "D:/git/wg_HAWG/NSAS/"
+#path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
+path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
 
 #load(file=file.path(output.dir,"North Sea Herring.RData"))
-load(file=file.path(output.dir,"NSH_HAWG2018_sf.RData"))
-load(file=file.path(output.dir,"NSH_HAWG2018_mf.RData"))
-
-#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/09. Personal Folders/Benoit/NSH_final.RData")
+#load(file=file.path(output.dir,"NSH_final.RData"))
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/09. Personal Folders/Benoit/NSH_final.RData")
 try(setwd("./stf/"))
 
 #-------------------------------------------------------------------------------
@@ -49,6 +47,8 @@ FuY   <- c(ImY,FcY,CtY)            #Future years
 source("stfFunctions.r")
 source("writeSTF.out.r")
 
+# Load the multifleet data
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/09. Personal Folders/Benoit/NSH_mf_final.RData")
 
 #- Generate multi-iters opbject
   #Deterministic
@@ -66,6 +66,11 @@ referencePoints <- list(Fmsy = 0.26,
                         Blim = 800000,
                         Bpa  = 900000,
                         MSYBtrigger = 1400000)
+
+# FA      <- Ns[,paste("A",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
+# FB      <- Ns[,paste("B",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
+# FC      <- Ns[,paste("C",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
+# FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * subset(stk@harvest, year == DtY)$data #stk@harvest[,DtY]
 
 #-------------------------------------------------------------------------------
 # TAC information
@@ -96,14 +101,14 @@ TACNSB      <- 9669    # taken from TAC regulation document HER/2A47DX
 TAC3aC      <- 48427   # HER/03A. Split
 TAC3aD      <- 6659    # HER/03A-BC
 
-# Set Dummy catch
-dummy       <- 0.1
+# from WBSS forecast: C fleet NSAS: 5951 cfleet (50% transfer) 
+# from WBSS forecast: D fleet NSAS: 1840 dfleet (50% transfer)
 
 # Splits and transfers
 Csplit      <- 0.30    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
 Dsplit      <- 0.60    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
 Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in assessment year
-WBSScatch   <- dummy #26849   # Recommended MSY catch for WBSS herring; from Henrik
+WBSScatch   <- 0.1#26849   # Recommended MSY catch for WBSS herring; from Henrik
 transfer    <- 0.46    # Assumed transfer of C-fleet TAC into A-fleet
 
 Buptake     <- 1       # Uptake of Bfleet TAC in the previous year
@@ -128,11 +133,12 @@ TACS[,,"B"] <- c(TACNSB * Buptake,
                  NA ,
                  NA); #estimated B-fleet catch for FcY & CtY from mp option added afterwards
 TACS[,,"C"] <- c(TAC3aC*(1-Ctransfer)*Csplit,
-                 dummy,#TAC3aC*(1-Ctransfer)*Csplit,
-                 dummy)
+                 0.1,#TAC3aC*(1-Ctransfer)*Csplit,
+                 0.1)
 TACS[,,"D"] <- c(TAC3aD*Dsplit*Duptake,
-                 dummy,#TAC3aD*Dsplit*Duptake,
-                 dummy)#TAC3aD*Dsplit*Duptake)
+                 0.1,#TAC3aD*Dsplit*Duptake,
+                 0.1)#TAC3aD*Dsplit*Duptake);
+
 
 # Retrieve uncertainty estimate on recruitment estimates by the model
 
@@ -458,9 +464,7 @@ if("+15%" %in% stf.options){
 
   TACS                      <- TACSlst #reset catch forecast
   TACS[,FcY,"A"]            <- TACS.orig[,ImY,"A"]*1.15
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]          <- dummy
-  } else { TACS[,FcY,"C"]   <- TAC3aC * 1.15 * Csplit}
+  TACS[,FcY,"C"]            <- TACS[,FcY,"C"] * 1.15 * Csplit
   stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=TACS[,FcY])
 
   for(i in dms$unit){
@@ -504,9 +508,7 @@ if("-15%" %in% stf.options){
 
   TACS                      <- TACSlst #reset catch forecast
   TACS[,FcY,"A"]            <- TACS.orig[,ImY,"A"]*0.85
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]          <- dummy
-  } else { TACS[,FcY,"C"]   <- TAC3aC * 0.85 * Csplit}
+  TACS[,FcY,"C"]            <- TACS[,FcY,"C"] * 0.85 * Csplit
   stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=TACS[,FcY])
   
   for(i in dms$unit){
@@ -547,9 +549,7 @@ if("tacro" %in% stf.options){
 
   TACS                      <- TACSlst #reset catch forecast
   TACS[,FcY,"A"]            <- TACS.orig[,ImY,"A"]
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]          <- dummy
-  } else { TACS[,FcY,"C"]   <- TAC3aC * Csplit}
+  TACS[,FcY,"C"]            <- TACS[,FcY,"C"] * Csplit
   stf@harvest[,FcY]         <- fleet.harvest(stk=stf,iYr=FcY,TACS=TACS[,FcY])
   
   for(i in dms$unit){
@@ -582,15 +582,13 @@ if("tacro" %in% stf.options){
 
 if("fmsy" %in% stf.options){
    #reset harvest for all fleets
-  stf@harvest[,FcY]           <- stf@harvest[,ImY]
-  TACS[,FcY,"A" ]             <- TACS.orig[,ImY,"A"]
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]            <- dummy
-  } else { TACS[,FcY,"C"]     <- TAC3aC * Csplit}
+  TACS                      <- TACSlst #reset catch forecast
+  stf@harvest[,FcY] <- stf@harvest[,ImY]
+  TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=rep(1e-08,4), upper=NULL,find.FC,stk=iter(stf[,FcY],iTer),f.=referencePoints$Fmsy,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.FC,stk=iter(stf[,FcY],iTer),f.=referencePoints$Fmsy,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
@@ -623,13 +621,10 @@ if("fmsyAR" %in% stf.options){
    #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]            <- dummy
-  } else { TACS[,FcY,"C"]     <- TAC3aC * Csplit}
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=rep(1e-08,4), upper=NULL,find.FCAR,stk=iter(stf[,FcY],iTer),f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,refs.=referencePoints,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.FCAR,stk=iter(stf[,FcY],iTer),f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,refs.=referencePoints,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
@@ -662,13 +657,10 @@ if("fpa" %in% stf.options){
    #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]            <- dummy
-  } else { TACS[,FcY,"C"]     <- TAC3aC * Csplit}
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=rep(1e-8,4), upper=NULL,find.FC,stk=iter(stf[,FcY],iTer),f.=referencePoints$Fpa,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.FC,stk=iter(stf[,FcY],iTer),f.=referencePoints$Fpa,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
@@ -702,13 +694,10 @@ if("flim" %in% stf.options){
   #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]            <- dummy
-  } else { TACS[,FcY,"C"]     <- TAC3aC * Csplit}
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=rep(1e-8,4), upper=NULL,find.FC,stk=iter(stf[,FcY],iTer),f.=referencePoints$Flim,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.FC,stk=iter(stf[,FcY],iTer),f.=referencePoints$Flim,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   
@@ -744,13 +733,10 @@ if("fsq" %in% stf.options){
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]            <- dummy
-  } else { TACS[,FcY,"C"]     <- TAC3aC * Csplit}
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=rep(1e-8,4), upper=NULL,find.FC,stk=iter(stf[,FcY],iTer),f.=referencePoints$Fsq,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.FC,stk=iter(stf[,FcY],iTer),f.=referencePoints$Fsq,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
@@ -783,13 +769,10 @@ if("bpa" %in% stf.options){
    #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]            <- dummy
-  } else { TACS[,FcY,"C"]     <- TAC3aC * Csplit}
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=rep(1e-8,4), upper=NULL,find.BC,stk=iter(stf[,FcY],iTer),b.=referencePoints$Bpa,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.BC,stk=iter(stf[,FcY],iTer),b.=referencePoints$Bpa,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
@@ -822,13 +805,10 @@ if("blim" %in% stf.options){
    #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]            <- dummy
-  } else { TACS[,FcY,"C"]     <- TAC3aC * Csplit}
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=rep(1e-8,4), upper=NULL,find.BC,stk=iter(stf[,FcY],iTer),b.=referencePoints$Blim,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.BC,stk=iter(stf[,FcY],iTer),b.=referencePoints$Blim,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),WBSScatch=WBSScatch,Csplit=Csplit,jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
@@ -862,9 +842,6 @@ if("MSYBtrigger" %in% stf.options){
   #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
-  if(WBSScatch<=1){
-    TACS[,FcY,"C"]            <- dummy
-  } else { TACS[,FcY,"C"]     <- TAC3aC * Csplit}
   
   # prepare results matrix = multiplier
   res <- matrix(NA,nrow=dims(stf)$unit,
@@ -907,7 +884,7 @@ if("MSYBtrigger" %in% stf.options){
 
 
 # Save the output to an RData file
-save(stf, stf.table, file="ShortTermForecast multifleetmode_noWBSS.RData")
+save(stf, stf.table, file="ShortTermForecast multifleetmode.RData")
 
 #- Writing the STF to file
 for(i in c("catch","catch.n","stock.n","harvest")){
@@ -922,7 +899,7 @@ write(stf.out.file,file=paste("./","stf_mf.out",sep="."))
 
 #- Write the stf.table to file
 write.csv(stf.table[,,2],
-            file=paste0("stf.table_mf_","deterministic_noWBSS.csv"))
+            file=paste0("stf.table_mf_","deterministic.csv"))
 
 
 

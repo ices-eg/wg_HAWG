@@ -69,9 +69,9 @@ for(i in 1:40){
 
     #- If adjusted, recalculate harvest pattern (but safe to do it directly because harvest pattern will be the same if nothing changed)
     if(advCatchWB<=1){
-      stf@catch[,FcY,"C"]     <- dummy
+      stf@catch[,FcY,"C"]     <- 0.1
     } else {
-      stf@catch[,FcY,"C"]     <- (0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB)  #combined C-fleet TAC
+      stf@catch[,FcY,"C"]       <- (0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB)  #combined C-fleet TAC
     }
     idxup                     <- which(stf@catch[,FcY,"C"] > TACS.orig[,ImY,"C"]*1.15)
     idxdown                   <- which(stf@catch[,FcY,"C"] < TACS.orig[,ImY,"C"]*0.85)
@@ -144,11 +144,33 @@ for(i in 1:40){
                                                                         apply(unitSums(stf@harvest[f26,FcY,"A",,,outidx[bidx]]),2:6,mean,na.rm=T),"*")
     if(length(sidx)>0) resA[sidx]              <- resA*0.9
     if(length(bidx)>0) resA[bidx]              <- resA*1.1
-    outsideF <- ifelse(length(sidx)>0,0.9,ifelse(length(bidx)>0,1.1,1))
+    outsideF <- ifelse(length(sidx)>0,1.1,ifelse(length(bidx)>0,0.9,1))
+  }
+  #-if Ftarget is off by more than 10%, make an adjustment
+  outidx                    <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <  resB*(0.999) |
+                                     apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >  resB*(1.001))
+  inidx                     <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >= resB*(0.999) &
+                                     apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <= resB*(1.001))
+  #- If outside this range, do not apply TAC constraint and use 15% cap on F
+  if(length(outidx)>0){
+    sidx                    <- which((apply(unitSums(stf@harvest[f01,FcY,,,,outidx]),2:6,mean,na.rm=T)) <  resB[outidx])
+    bidx                    <- which((apply(unitSums(stf@harvest[f01,FcY,,,,outidx]),2:6,mean,na.rm=T)) >  resB[outidx])
+
+    if(length(sidx)>0) stf@harvest[,FcY,"B",,,outidx[sidx]]       <- sweep(stf@harvest[,FcY,"B",,,outidx[sidx]],2:6,
+                                                                      ((resB[outidx[sidx]]) - apply(unitSums(stf@harvest[f01,FcY,c("A","C","D"),,,outidx[sidx]]),2:6,mean,na.rm=T)) /
+                                                                        apply(unitSums(stf@harvest[f01,FcY,"B",,,outidx[sidx]]),2:6,mean,na.rm=T),"*")
+    if(length(bidx)>0) stf@harvest[,FcY,"B",,,outidx[bidx]]       <- sweep(stf@harvest[,FcY,"B",,,outidx[bidx]],2:6,
+                                                                      ((resB[outidx[bidx]]) - apply(unitSums(stf@harvest[f01,FcY,c("A","C","D"),,,outidx[bidx]]),2:6,mean,na.rm=T)) /
+                                                                        apply(unitSums(stf@harvest[f01,FcY,"B",,,outidx[bidx]]),2:6,mean,na.rm=T),"*")
+
+    #- Now find the Fs and catches that correspond to the new Fs
+    stf@catch[,FcY,"B"]       <- quantSums(stf@catch.wt[,FcY,"B"] * stf@stock.n[,FcY,"B"] *
+                                          (1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,"B"])) *
+                                          (stf@harvest[,FcY,"B"]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,"B"])))
   }
 
   if(advCatchWB<=1){
-    stf@catch[,FcY,"C"]     <- dummy
+    stf@catch[,FcY,"C"]     <- 0.1
   } else {
     stf@catch[,FcY,"C"]       <- 0.057*unitSums(stf@catch[,FcY,c("A")]) + TACS[,FcY,"C"]  #combined C-fleet TAC
   }
@@ -188,9 +210,9 @@ for(i in 1:40){
                                        (1-exp(-unitSums(stf@harvest[,FcY,])-stf@m[,FcY,"B"])) *
                                        (stf@harvest[,FcY,"B"]/(unitSums(stf@harvest[,FcY,])+stf@m[,FcY,"B"])))
   if(advCatchWB<=1){
-    stf@catch[,FcY,"C"]     <- dummy
+    stf@catch[,FcY,"C"]     <- 0.1
   } else {
-   stf@catch[,FcY,"C"]      <- (0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB)  #combined C-fleet TAC
+   stf@catch[,FcY,"C"]       <- (0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB)  #combined C-fleet TAC
   }
 
   if(advCatchWB>1){
@@ -204,46 +226,20 @@ for(i in 1:40){
       stf@catch[,FcY,"C",,,idxdown] <- TACS.orig[,ImY,"C",,,idxdown] *0.85 * mixprop
     if(length(idxin)>0)
       stf@catch[,FcY,"C",,,idxin]   <- stf@catch[,FcY,"C",,,idxin] * mixprop
-  }
-
-  if(advCatchWB>1)
-     stf@harvest[,FcY]        <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
-  #- If outside this range, do not apply TAC constraint and use 15% cap on F
-  #-if Ftarget is off by more than 10%, make an adjustment
-  outidx                    <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <  resB*(0.999) |
-                                     apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >  resB*(1.001))
-  inidx                     <- which(apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) >= resB*(0.999) &
-                                     apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T) <= resB*(1.001))
-
-  if(length(outidx)>0){
-    sidx                    <- which((apply(unitSums(stf@harvest[f01,FcY,,,,outidx]),2:6,mean,na.rm=T)) <  resB[outidx])
-    bidx                    <- which((apply(unitSums(stf@harvest[f01,FcY,,,,outidx]),2:6,mean,na.rm=T)) >  resB[outidx])
-
-    if(length(sidx)>0) stf@harvest[,FcY,"B",,,outidx[sidx]]       <- sweep(stf@harvest[,FcY,"B",,,outidx[sidx]],2:6,
-                                                                      ((resB[outidx[sidx]]) - apply(unitSums(stf@harvest[f01,FcY,c("A","C","D"),,,outidx[sidx]]),2:6,mean,na.rm=T)) /
-                                                                        apply(unitSums(stf@harvest[f01,FcY,"B",,,outidx[sidx]]),2:6,mean,na.rm=T),"*")
-    if(length(bidx)>0) stf@harvest[,FcY,"B",,,outidx[bidx]]       <- sweep(stf@harvest[,FcY,"B",,,outidx[bidx]],2:6,
-                                                                      ((resB[outidx[bidx]]) - apply(unitSums(stf@harvest[f01,FcY,c("A","C","D"),,,outidx[bidx]]),2:6,mean,na.rm=T)) /
-                                                                        apply(unitSums(stf@harvest[f01,FcY,"B",,,outidx[bidx]]),2:6,mean,na.rm=T),"*")
-
-    #- Now find the Fs and catches that correspond to the new Fs
-    stf@catch[,FcY,"B"]       <- quantSums(stf@catch.wt[,FcY,"B"] * stf@stock.n[,FcY,"B"] *
-                                          (1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,"B"])) *
-                                          (stf@harvest[,FcY,"B"]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,"B"])))
-  }
-
-  print(c(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T),apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T),stf@catch[,FcY,],(0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB )* mixprop - stf@catch[,FcY,"C"]))
+   }
+   print(c(apply(unitSums(stf@harvest[f26,FcY]),2:6,mean,na.rm=T),apply(unitSums(stf@harvest[f01,FcY]),2:6,mean,na.rm=T),stf@catch[,FcY,],(0.057*unitSums(stf@catch[,FcY,c("A")]) + 0.41*advCatchWB )* mixprop - stf@catch[,FcY,"C"]))
+   #stf@harvest[,FcY]        <- fleet.harvest(stk=stf,iYr=FcY,TACS=stf@catch[,FcY])
 }
 save.image(paste0(scen,"_STFbeforeTransfers.RData"))
 load(paste0(scen,"_STFbeforeTransfers.RData"))
 
 # calculate the C fleet TAC
 if(advCatchWB>1){
-  TAC.C                     <- 0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB  #combined C-fleet TAC
-  TAC.C                     <- ifelse(c(TAC.C > TACS.orig[,ImY,"C"]*1.15),1.15*TACS.orig[,ImY,"C"],
-                                      ifelse(c(TAC.C < TACS.orig[,ImY,"C"]*0.85),0.85*TACS.orig[,ImY,"C"],TAC.C))
+  TAC.C                       <- 0.057 * sum(stf@catch[,FcY,c("A")]) + 0.41 * advCatchWB  #combined C-fleet TAC
+  TAC.C                       <- ifelse(c(TAC.C > TACS.orig[,ImY,"C"]*1.15),1.15*TACS.orig[,ImY,"C"],
+                                        ifelse(c(TAC.C < TACS.orig[,ImY,"C"]*0.85),0.85*TACS.orig[,ImY,"C"],TAC.C))
 } else {
-  TAC.C                     <- dummy
+  TAC.C                     <- 0.1
 }
 # 0% option
 TAC.C10                     <- TAC.C * transfer   #  0% thereof, add to A-fleet as the minimum transfer amount
