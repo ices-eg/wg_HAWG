@@ -80,16 +80,9 @@ print(surveyTimeseries(ISH.tun))
 #plot(tmp.tun,type="pairwise")
 plot(ISH.tun[["AC(VIIaN)"]],type="internal")
 
-# Plot the proportion of catch and weight in numbers and weight to see if the catch is representative for the stock build-up
+
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(ISH@catch.n)),groups="age",main="Proportion of Catch numbers at age",ylim=c(-0.01,1.01),xlim=c(range(ISH)["minyear"]-2,range(ISH)["maxyear"]+1),xlab="years",col=gray(9:0/9)))
-#print(stacked.area.plot(data~year| unit, as.data.frame(pay(ISH@stock.wt)),groups="age",main="Proportion of Stock weight at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9))) #not very informative plot#
-#print(stacked.area.plot(data~year| unit, as.data.frame(pay(ISH@catch.wt)),groups="age",main="Proportion of Catch weight at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9))) #not very informative plot#
-
-# Plot the proportion of catch in numbers in the indices to see if the indices are having specific yearclass trends
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(ISH.tun[["AC(VIIaN)"]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlim=c(1993.5,range(ISH.tun)["maxyear"]+0.5),xlab="years",col=gray(9:0/9)))
-
-# Plot the proportion of natural mortality - only informative if time variant M
-#print(stacked.area.plot(data~year| unit, as.data.frame(pay(ISH@m)),groups="age",main="Proportion of natural at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
 # Plot the time series of weight in the stock and catch in the stock
 timeseries(window(ISH,1961,range(ISH)["maxyear"]),slot="stock.wt")
@@ -106,7 +99,6 @@ timeseries <- function(stck.,slot.){
                groups=age,type="b",
                xlab="Year",ylab=paste("Time series of",slot.,ifelse(units(slot(stck.,slot.))=="NA","",paste("(",units(slot(stck.,slot.)),")",sep=""))),
                main=paste(stck.@name,"timeseries of",slot.)))}
-
 
 #Time series of west by cohort
 west.by.cohort      <- as.data.frame(FLCohort(window(ISH@stock.wt,1980,range(ISH)["maxyear"])))
@@ -245,7 +237,7 @@ load("ISH_assessment 2018.Rdata")
 
 #survivors
 dmns                <- dims(ISH@stock.n)
-gm.recruitmentEstimate <- exp(mean(log(ISH@stock.n[1,as.character(1999:(ISH@range['maxyear']-2)),,,,])))
+gm.recruitmentEstimate <- exp(mean(log(ISH@stock.n[1,as.character((ISH@range['maxyear']-11):(ISH@range['maxyear']-2)),,,,])))
 survivors           <- FLQuant(c(gm.recruitmentEstimate,stock.n(ISH)[,ac(ISH@range['maxyear'])] * exp(-harvest(ISH[,ac(ISH@range['maxyear'])])-m(ISH[,ac(2012)]))),
                                dimnames=list(ages=dmns$min:(dmns$max+1),year=ISH@range['maxyear']+1,unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter))
 
@@ -284,9 +276,9 @@ AdY <- TaY+2                      #Advice year
 CtY <- TaY+3                      #Continuation year - not of major concern but used in calculations in places
 tbl.yrs <- as.character(c(ImY,AdY,CtY))   #Years to report in the output table
 
-#Deal with recruitment - a geometric mean of the 15 years prior to the terminal assessment year
+#Deal with recruitment - a geometric mean of the 10 years prior to the terminal assessment year
 dmns                <- dims(ISH@stock.n)
-rec.years <- ((ISH@range['maxyear']-12):(ISH@range['maxyear']-2));
+rec.years <- ((ISH@range['maxyear']-11):(ISH@range['maxyear']-2));
 gm.recs  <- exp(mean(log(rec(ISH)[,as.character(rec.years)])));
 ISH.srr <- list(model="geomean",params=FLPar(gm.recs));
 
