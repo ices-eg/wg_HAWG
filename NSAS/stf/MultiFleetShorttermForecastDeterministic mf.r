@@ -9,6 +9,7 @@
 # 16/03/2018 Martin Pastoors; Multifleet data + adapted for mpOption15.r that 
 #            takes into account the F when SSB in the current year is below management
 #            plan trigger. 
+# 08/05/2018 Updated with new WBSS catch during ADG
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
@@ -21,10 +22,11 @@ require(msm)         # install.packages("msm")
 
 #Read in data                           1
 
-#path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
-#path <- "C:/DATA/GIT/HAWG/NSAS/"
-path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
-#path <- "D:/git/wg_HAWG/NSAS/"
+# path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
+# path <- "C:/DATA/GIT/HAWG/NSAS/"
+# path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
+path <- "D:/git/wg_HAWG/NSAS/"
+
 try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
 
@@ -103,7 +105,13 @@ dummy       <- 0.1
 Csplit      <- 0.30    # Proportion NSAS in C fleet catch; 3 year average (from WBSS assessment)
 Dsplit      <- 0.60    # Proportion NSAS in D fleet catch; 3 year average (from WBSS assessment)
 Ctransfer   <- 0.46    # Transfer of TAC from IIIa to IVa for C fleet in assessment year
+<<<<<<< HEAD
 WBSScatch   <- 13155 #26849   # Recommended MSY catch for WBSS herring; from Henrik
+=======
+
+# WBSScatch   <- dummy   # Similar to zero catch
+WBSScatch   <- 13155   # Recommended catch (F=0.1)for WBSS herring; ADG 2018
+>>>>>>> d1e2652778dd9893a2d7a9dd3bed0acab6837ebe
 transfer    <- 0.46    # Assumed transfer of C-fleet TAC into A-fleet
 
 Buptake     <- 1       # Uptake of Bfleet TAC in the previous year
@@ -1012,7 +1020,11 @@ if("MSYBtrigger" %in% stf.options){
 
 
 # Save the output to an RData file
+<<<<<<< HEAD
 save(stf, stf.table, file="ShortTermForecast multifleetmode_f01WBSS.RData")
+=======
+save(stf, stf.table, file="ShortTermForecast multifleetmode.RData")
+>>>>>>> d1e2652778dd9893a2d7a9dd3bed0acab6837ebe
 
 #- Writing the STF to file
 for(i in c("catch","catch.n","stock.n","harvest")){
@@ -1027,7 +1039,11 @@ write(stf.out.file,file=paste("./","stf_mf.out",sep="."))
 
 #- Write the stf.table to file
 write.csv(stf.table[,,2],
+<<<<<<< HEAD
             file=paste0("stf.table_mf_","deterministic_f01WBSS.csv"))
+=======
+            file=paste0("stf.table_mf_","deterministic.csv"))
+>>>>>>> d1e2652778dd9893a2d7a9dd3bed0acab6837ebe
 
 
 
