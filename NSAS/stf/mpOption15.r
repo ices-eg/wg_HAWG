@@ -96,7 +96,9 @@ for(i in 1:40){
   }
   idx                       <- which(ssb >= 0.8e6 & ssb <= 1.5e6,arr.ind=T)
   if(length(idx)>0){
-    resA[idx[,6]]           <- 0.16/0.7*((ssb[,,,,,idx[,6]]-0.8e6)*outsideF/1e6)+0.1
+    #resA[idx[,6]]           <- 0.16/0.7*((ssb[,,,,,idx[,6]]-0.8e6)*outsideF/1e6)+0.1
+    resA[idx[,6]]           <- outsideF*(((ssb[,,,,,idx[,6]]-0.8e6)/0.7e6)*0.26)-(((ssb[,,,,,idx[,6]]-0.8e6)/0.7e6)*0.1)+0.1
+    #resA[idx[,6]]           <- outsideF*(((seq(0.8e6,1.5e6,0.1e6)-0.8e6)/0.7e6)*0.26)-(((seq(0.8e6,1.5e6,0.1e6)-0.8e6)/0.7e6)*0.1)+0.1
     resB[idx[,6]]           <- 0.05
   }
   idx                       <- which(ssb > 1.5e6,arr.ind=T)

@@ -6,7 +6,13 @@
 
 # library(FLCore)
 # library(FLSAM)
-# load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/09. Personal Folders/Benoit/NSH_final.RData")
+
+# WKPELA 2018
+# load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2018/wkherring/2014 Meeting docs/06. Data/NSAS/SAM/NSH_final.RData")
+
+# HAWG 2018
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/05. Data/NSAS/NSH_HAWG2018_sf.Rdata")
+
 
 path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=FALSE)
@@ -50,8 +56,8 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 # Add assessment output to SAG database
 # ----------------------------------------------------------------------------
 
-library(devtools)
-devtools::install_github("ices-tools-prod/icesSAG")
+# library(devtools)
+# devtools::install_github("ices-tools-prod/icesSAG")
 
 library(icesSAG)
 library(tidyverse)
@@ -61,13 +67,14 @@ library(tidyverse)
 # make use of the token
 options(icesSAG.use_token = TRUE)
 
-info     <- stockInfo(StockCode="her.27.3a47d", AssessmentYear = 2018, ContactPerson = "mpastoors@pelagicfish.eu")
-fishdata <- stockFishdata(1947:2018)
+info     <- stockInfo(StockCode="her.27.3a47d", AssessmentYear = 2018, ContactPerson = "benoit.berges@wur.nl")
+
 FiY       <- ac(range(NSH)["minyear"]) 
 DtY       <- ac(range(NSH)["maxyear"]) 
 LaY       <- ac(range(NSH.sam)["maxyear"]) 
-nyrs      <- range(NSH)["maxyear"]-range(NSH)["minyear"]+1
+nyrs      <- an(LaY)-an(FiY)+1
 
+fishdata <- stockFishdata(an(FiY):an(LaY))
 
 info$StockCategory             <- "1"
 info$MSYBtrigger               <- 1400000
@@ -91,9 +98,10 @@ info$CustomSeriesName3         <- "model catch high"
 info$CustomSeriesUnits1        <- "tonnes"
 info$CustomSeriesUnits2        <- "tonnes"
 info$CustomSeriesUnits3        <- "tonnes"
+info$Purpose                   <- "Advice"
+# info$Purpose                   <- "Bench"
 
-# fishdata$Landings[1:nyrs]      <- an(NSH@landings) 
-fishdata$Catches[1:nyrs]       <- an(NSH@landings) 
+fishdata$Catches[1:nyrs-1]       <- an(NSH@landings) 
 fishdata$Low_Recruitment       <- rec(NSH.sam)$lbnd
 fishdata$Recruitment           <- rec(NSH.sam)$value
 fishdata$High_Recruitment      <- rec(NSH.sam)$ubnd 
@@ -103,13 +111,13 @@ fishdata$High_TBiomass         <- tsb(NSH.sam)$ubnd
 fishdata$StockSize             <- ssb(NSH.sam)$value
 fishdata$Low_StockSize         <- ssb(NSH.sam)$lbnd
 fishdata$High_StockSize        <- ssb(NSH.sam)$ubnd
-fishdata$FishingPressure       <- fbar(NSH.sam)$value
-fishdata$Low_FishingPressure   <- fbar(NSH.sam)$lbnd
-fishdata$High_FishingPressure  <- fbar(NSH.sam)$ubnd
+fishdata$FishingPressure[1:nyrs-1]       <- fbar(NSH.sam)$value[1:nyrs-1]
+fishdata$Low_FishingPressure[1:nyrs-1]   <- fbar(NSH.sam)$lbnd[1:nyrs-1]
+fishdata$High_FishingPressure[1:nyrs-1]  <- fbar(NSH.sam)$ubnd[1:nyrs-1]
 
-fishdata$CustomSeries1         <- catch(NSH.sam)$value
-fishdata$CustomSeries2         <- catch(NSH.sam)$lbnd
-fishdata$CustomSeries3         <- catch(NSH.sam)$ubnd
+fishdata$CustomSeries1[1:nyrs-1]         <- catch(NSH.sam)$value[1:nyrs-1]
+fishdata$CustomSeries2[1:nyrs-1]         <- catch(NSH.sam)$lbnd[1:nyrs-1]
+fishdata$CustomSeries3[1:nyrs-1]         <- catch(NSH.sam)$ubnd[1:nyrs-1]
 
 # summary(fishdata)
 # glimpse(fishdata)
