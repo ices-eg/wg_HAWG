@@ -30,7 +30,7 @@ assessment_name     <- 'NSH_HAWG2018_sf'
 library(FLSAM); library(FLEDA)
 source(file.path("./setupAssessmentObjects_sf.r"))
 source(file.path("./setupControlObject_sf.r"))
-#source(file.path("../_Common/HAWG_Common_module.r"))
+source(file.path("../_Common/HAWG_Common_module.r"))
 
 ### ============================================================================
 ### ============================================================================
