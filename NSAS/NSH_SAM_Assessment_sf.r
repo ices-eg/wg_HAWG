@@ -13,7 +13,7 @@ log.msg("\nNSH Final Assessment (single fleet)\n=====================\n")
 
 # local path
 #path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
-#path <- "D:/git/wg_HAWG/NSAS/"
+path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -30,7 +30,7 @@ assessment_name     <- 'NSH_HAWG2018_sf'
 library(FLSAM); library(FLEDA)
 source(file.path("./setupAssessmentObjects_sf.r"))
 source(file.path("./setupControlObject_sf.r"))
-#source(file.path("../_Common/HAWG_Common_module.r"))
+source(file.path("../_Common/HAWG_Common_module.r"))
 
 ### ============================================================================
 ### ============================================================================

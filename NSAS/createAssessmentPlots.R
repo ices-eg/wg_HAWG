@@ -1,12 +1,18 @@
 ### ======================================================================================================
 ### Setting up
 ### ======================================================================================================
+library(FLSAM); library(FLEDA)
+path <- "D:/git/wg_HAWG/NSAS/"
+try(setwd(path),silent=TRUE)
 
 output.dir          <-  file.path(".","results/")        # figures directory
 assessment_name_multifleet <- "HAWG2018_multifleet"
 assessment_name_singlefleet <- "HAWG2018_singlefleet"
 
-PDF <- T
+
+load(paste(output.dir,"/NSH_HAWG2018_sf_retro.RData",sep=""))
+
+PDF <- F
 PNG <- ifelse(PDF,F,T)
 ### ============================================================================
 ### single fleet
@@ -74,6 +80,14 @@ print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by 
          lst <- list(...)
          panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=3*abs(lst$cex))
        }))
+
+# figure - acosutic index residuals per year per age
+dat <- subset(residuals(NSH.sam),fleet=="HERAS")
+print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year HERAS",
+             panel=function(...){
+               lst <- list(...)
+               panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=3*abs(lst$cex))
+             }))
 
 # process error in terms of N
 print(procerr.plot(NSH+NSH.sam,weight="stock.wt",type="n",rel=T))
@@ -189,10 +203,82 @@ for(iAge in range(NSH)["min"]:range(NSH)["max"]){
 # figure - catch number at age
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.n)),groups="age",main="Proportion of Catch numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
+# IBTS0/IBTSQ1 relationship
+IBTSQ1 <- read.table(paste(output.dir,"/Indices_2018-03-18 17_09_31.csv",sep=""), sep=",", header = TRUE) # read raw indices instead of standardized ones
+IBTSQ1 <- IBTSQ1[IBTSQ1$IndexArea == "NS_Her",]
+IBTSQ1$Year <- IBTSQ1$Year-1
+
+array_IBTSQ1 <- data.frame(cbind(IBTSQ1$Year, IBTSQ1$Age_1))
+names(array_IBTSQ1) <- c("year","data")
+
+#array_IBTSQ1  <- subset(as.data.frame(NSH.tun), cname == "IBTS-Q1" & slot == "index")
+array_IBTS0   <- subset(as.data.frame(NSH.tun), cname == "IBTS0" & slot == "index")
+array_IBTS0$year <- array_IBTS0$year-1
+
+minYear <- max(c(min(array_IBTSQ1$year-1), 
+                 min(array_IBTS0$year)))
+
+array_IBTSQ1 <- array_IBTSQ1[array_IBTSQ1$year >= minYear,]
+array_IBTS0 <- array_IBTS0[array_IBTS0$year >= minYear,]
+
+array_IBTSQ1$year <- array_IBTSQ1$year-1
+array_IBTSQ1 <- array_IBTSQ1[2:dim(array_IBTSQ1)[1],] # this because IBTS0 is the limiting factor
+
+# construct the array to be plotted
+tabMarkers <- data.frame(cbind(array_IBTSQ1$year,
+                               array_IBTSQ1$data,
+                               array_IBTS0[1:dim(array_IBTS0)[1]-1,]$data)) # exclude last year from the vector
+
+names(tabMarkers) <- c("year", "IBTSQ1", "IBTS0")
+
+g<- ggplot(tabMarkers[1:dim(tabMarkers)[1]-1,], aes(x= IBTS0, y = IBTSQ1, label = year)) + 
+      ylab("IBTSQ1 index") + 
+      xlab("IBTS0 index") + 
+      geom_point(x=tabMarkers[dim(tabMarkers)[1],]$IBTS0, 
+                 y=tabMarkers[dim(tabMarkers)[1],]$IBTSQ1, 
+                 shape = 18,
+                 colour = "black",
+                 size=5) + # last year
+      geom_text(colour = "red") + 
+      geom_vline(xintercept=array_IBTS0[dim(array_IBTS0)[1],]$data,
+                 colour="blue") +
+      geom_text(aes(x=array_IBTS0[dim(array_IBTS0)[1],]$data, 
+                    label=array_IBTS0[dim(array_IBTS0)[1],]$year, 
+                    y=(max(tabMarkers$IBTSQ1)- min(tabMarkers$IBTSQ1))/2+min(tabMarkers$IBTSQ1)), 
+                colour="blue", 
+                angle=90, 
+                vjust = -0.3)
+print(g)
+
+# figure - fishing mortality vs SSB, management plan
+plot(x=c(0,0.8,1.4,2.6),
+     y=c(0.1,0.1,0.26,0.26),
+     type="l",
+     ylim=c(0,0.4),
+     lwd=2,
+     xlab="SSB in million tonnes",
+     ylab="Fbar",
+     cex.lab=1.3,
+     main="Management plan North Sea Herring")
+abline(v=0.8,col="red",lwd=2,lty=2)
+abline(v=0.9,col="blue",lwd=2,lty=2)
+abline(v=1.4,col="darkgreen",lwd=2,lty=2)
+text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
+text(0.9,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
+text(1.4,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
+
+points(y=fbar(NSH[,ac(2005:2017)]), x=(ssb(NSH[,ac(2005:2017)])/1e6),pch=19)
+lines(y=fbar(NSH[,ac(2005:2017)]),  x=(ssb(NSH[,ac(2005:2017)])/1e6))
+text(y=fbar(NSH[,ac(2005:2017)]),   x=(ssb(NSH[,ac(2005:2017)])/1e6),labels=ac(2005:2017),pos=3,cex=0.7)
+
+
+# internal consistency HERAS
 print(plot(NSH.tun[["HERAS"]],type="internal"))
 
+# internal consistency IBTS-Q3
 print(plot(NSH.tun[["IBTS-Q3"]],type="internal"))
 
+# retro stock trajectory
 print(plot(NSH.retro))
 
 # model parameters retrospective
@@ -201,39 +287,21 @@ print(retroParams(NSH.retro))
 # stock trajectory retrospective
 print(retroSelectivity(NSH.retro,2009:range(NSH)["maxyear"]))
 
-# LAI components retrospective
+# component proportions
+comp.plot(NSH.sam)
 
-yearListRetro <- names(NSH.retro)
+# figure - otholith. Warning, this takes very long!
+otolith(NSH.sam,n=1000)
 
-idxyear <- 1
-
-NSH_components  <- t(components(NSH.retro[[idxyear]]))
-#NSH_residuals   <- residuals(NSH.retro[[idxyear]])
-#LAI_BUN_residuals   <- subset(NSH_residuals, fleet == 'LAI-BUN')
-#LAI_CNS_residuals   <- subset(NSH_residuals, fleet == 'LAI-CNS')
-#LAI_ORSH_residuals   <- subset(NSH_residuals, fleet == 'LAI-ORSH')
-#LAI_SNS_residuals   <- subset(NSH_residuals, fleet == 'LAI-SNS')
-
-yearList            <- data.frame(as.numeric(row.names(NSH_components)))
-names(yearList)     <- 'year'
-LAI_data <- c(NSH_components[,1], NSH_components[,2], NSH_components[,3], NSH_components[,4])
-LAI_names <- c(rep('LAI_ORSH',dim(NSH_components)[1]), rep('LAI_CNS',dim(NSH_components)[1]), rep('LAI_BUN',dim(NSH_components)[1]), rep('LAI_SNS',dim(NSH_components)[1]))
-LAI_years <- c(yearList$year, yearList$year, yearList$year, yearList$year)
-NSH_components <- as.data.frame(t(rbind(LAI_years,LAI_names,LAI_data)))
-
-NSH_components[,1] <- as.numeric(NSH_components[,1])
-NSH_components[,3] <- as.numeric(NSH_components[,3])
-
-NSH_components <- NSH_components[NSH_components$LAI_names == 'LAI_ORSH',]
-#a <- NSH_components[NSH_components$LAI_names == 'LAI_ORSH',]
-
-g <- ggplot(NSH_components, aes(x= LAI_years, y = LAI_data, colour = LAI_names)) + geom_line() + ylab("index") + xlab("years")
-print(g)
 dev.off()
 
+################################################################################
 ### ============================================================================
 ### Multi-fleet
 ### ============================================================================
+################################################################################
+
+load("D:/git/wg_HAWG/NSAS/results/NSH_HAWG2018_mf.RData")
 
 if(PDF) pdf(file.path(output.dir,paste(assessment_name_multifleet,"_diagnostics.pdf",sep="")))
 if(PNG) png(file.path(output.dir,paste(assessment_name_multifleet,"_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
@@ -733,13 +801,21 @@ savePlot(paste(output.dir,assessment_name,"_prop_nat_mort.png",sep = ""),type="p
 #### ============================================================================
 #
 ## figure - fishing mortality vs SSB, management plan
-plot(x=c(0,0.8,1.5,2.6),y=c(0.1,0.1,0.26,0.26),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tonnes",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
+plot(x=c(0,0.8,1.4,2.6),
+     y=c(0.1,0.1,0.26,0.26),
+     type="l",
+     ylim=c(0,0.4),
+     lwd=2,
+     xlab="SSB in million tonnes",
+     ylab="Fbar",
+     cex.lab=1.3,
+     main="Management plan North Sea Herring")
 abline(v=0.8,col="red",lwd=2,lty=2)
-abline(v=1.0,col="blue",lwd=2,lty=2)
-abline(v=1.5,col="darkgreen",lwd=2,lty=2)
+abline(v=0.9,col="blue",lwd=2,lty=2)
+abline(v=1.4,col="darkgreen",lwd=2,lty=2)
 text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
-text(1.0,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
-text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
+text(0.9,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
+text(1.4,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
 
 points(y=fbar(NSH[,ac(2005:2017)]), x=(ssb(NSH[,ac(2005:2017)])/1e6),pch=19)
 lines(y=fbar(NSH[,ac(2005:2017)]),  x=(ssb(NSH[,ac(2005:2017)])/1e6))
@@ -897,3 +973,37 @@ for(idxyear in 1:length(yearListRetro)){
 ggplot(a, aes(x= LAI_years, y = LAI_data, colour = year_retro)) + geom_line() + ylab("index") + xlab("years") + ggtitle('Downs')
 
 savePlot(paste(output.dir,assessment_name,"_LAI_SNS_retro.png",sep = ""),type="png")
+
+################################################################################
+### ============================================================================
+### Dump
+### ============================================================================
+################################################################################
+# LAI components retrospective
+
+yearListRetro <- names(NSH.retro)
+
+idxyear <- 1
+
+NSH_components  <- t(components(NSH.retro[[idxyear]]))
+#NSH_residuals   <- residuals(NSH.retro[[idxyear]])
+#LAI_BUN_residuals   <- subset(NSH_residuals, fleet == 'LAI-BUN')
+#LAI_CNS_residuals   <- subset(NSH_residuals, fleet == 'LAI-CNS')
+#LAI_ORSH_residuals   <- subset(NSH_residuals, fleet == 'LAI-ORSH')
+#LAI_SNS_residuals   <- subset(NSH_residuals, fleet == 'LAI-SNS')
+
+yearList            <- data.frame(as.numeric(row.names(NSH_components)))
+names(yearList)     <- 'year'
+LAI_data <- c(NSH_components[,1], NSH_components[,2], NSH_components[,3], NSH_components[,4])
+LAI_names <- c(rep('LAI_ORSH',dim(NSH_components)[1]), rep('LAI_CNS',dim(NSH_components)[1]), rep('LAI_BUN',dim(NSH_components)[1]), rep('LAI_SNS',dim(NSH_components)[1]))
+LAI_years <- c(yearList$year, yearList$year, yearList$year, yearList$year)
+NSH_components <- as.data.frame(t(rbind(LAI_years,LAI_names,LAI_data)))
+
+NSH_components[,1] <- as.numeric(NSH_components[,1])
+NSH_components[,3] <- as.numeric(NSH_components[,3])
+
+NSH_components <- NSH_components[NSH_components$LAI_names == 'LAI_ORSH',]
+#a <- NSH_components[NSH_components$LAI_names == 'LAI_ORSH',]
+
+g <- ggplot(NSH_components, aes(x= LAI_years, y = LAI_data, colour = LAI_names)) + geom_line() + ylab("index") + xlab("years")
+print(g)
