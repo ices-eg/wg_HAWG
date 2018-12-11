@@ -68,7 +68,7 @@ CSH.weca  <-
 
 # Load WBSS data -------------------------------------------
 
-WBSS.dir  <- "E:/HAWG/2018 Meeting docs1/05. Data/WBSS/WBSS_HAWG_2018"
+WBSS.dir  <- "D:/HAWG/2018/05. Data/WBSS/WBSS_HAWG_2018"
 WBSS.data <- get(load(file.path(WBSS.dir,"run/data.RData")))
 WBSS.fit  <- get(load(file.path(WBSS.dir,"run/model.RData" )))
 
@@ -120,14 +120,14 @@ MSH.weca <-
 # Herring 6a north (WoS)
 
 WOS.canum  <- 
-  readVPAFile("E:/HAWG/2018 Meeting docs1/05. Data/WOS/data/canum.txt") %>% 
+  readVPAFile("D:/HAWG/2018/05. Data/6aN/data/canum.txt") %>% 
   as.data.frame() %>% 
   dplyr::select(year, age, number = data) %>%
   filter(number != -1) %>% 
-  mutate(stock = "WoS")
+  mutate(stock = "WOS")
 
 WOS.weca  <- 
-  readVPAFile("E:/HAWG/2018 Meeting docs1/05. Data/WOS/data/weca.txt") %>% 
+  readVPAFile("D:/HAWG/2018/05. Data/6aN/data/weca.txt") %>% 
   as.data.frame() %>% 
   dplyr::select(year, age, weight = data) %>%
   filter(weight != -1) %>% 
@@ -135,19 +135,19 @@ WOS.weca  <-
 
 # Herring 6a south 7bc (IRLW)
 
-IRLW.canum  <- 
-  readVPAFile("E:/HAWG/2018 Meeting docs1/05. Data/IRLW/data/canum.txt") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, number = data) %>%
-  filter(number != -1) %>% 
-  mutate(stock = "IRLW")
-
-IRLW.weca  <- 
-  readVPAFile("E:/HAWG/2018 Meeting docs1/05. Data/IRLW/data/weca.txt") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, weight = data) %>%
-  filter(weight != -1) %>% 
-  mutate(stock = "IRLW")
+# IRLW.canum  <- 
+#   readVPAFile("D:/HAWG/2018/05. Data/6aN/data/canum.txt") %>% 
+#   as.data.frame() %>% 
+#   dplyr::select(year, age, number = data) %>%
+#   filter(number != -1) %>% 
+#   mutate(stock = "IRLW")
+# 
+# IRLW.weca  <- 
+#   readVPAFile("E:/HAWG/2018 Meeting docs1/05. Data/IRLW/data/weca.txt") %>% 
+#   as.data.frame() %>% 
+#   dplyr::select(year, age, weight = data) %>%
+#   filter(weight != -1) %>% 
+#   mutate(stock = "IRLW")
 
 # Irish Sea herring ---------------------------------------------------
 
@@ -170,31 +170,31 @@ ISH.weca <-
 
 # North Sea sprat ---------------------------------------------------
 
-NSsprat.canum <-
-  read.csv(file="//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/05. Data/NSsprat/Total_catch_in_numbers_and_mean_weight_2017_IV.csv",
-           header=TRUE) %>% 
-  dplyr::select(year, quarter, n0, n1, n2, n3, n4) %>% 
-  gather(key=age, value=number, n0:n4) %>% 
-  mutate(age = an(gsub("n", "", age))) %>% 
-  group_by(year, age) %>% 
-  summarize(number= sum(number, na.rm=TRUE)) %>% 
-  ungroup() %>% 
-  filter(year <= max(NSsprat.ssb$year))
-
-NSsprat.weca <-
-  read.csv(file="//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/05. Data/NSsprat/Total_catch_in_numbers_and_mean_weight_2017_IV.csv",
-           header=TRUE) %>% 
-  dplyr::select(year, quarter, n0, n1, n2, n3, n4, mw0, mw1, mw2, mw3, mw4) %>% 
-  gather(key=var, value=number, n0:mw4) %>% 
-  mutate(weca  = ifelse(grepl("n",var), number, NA),
-         age   = gsub("n|mw","",var),
-         canum = ifelse(grepl("mw", var), number, NA)) %>% 
-  dplyr::select(year, quarter, age, weca, canum) %>%
-  gather(key=var, value=number, weca:canum) %>% 
-  group_by(year, age) %>% 
-  summarize(number= sum(number, na.rm=TRUE)) %>% 
-  ungroup() %>% 
-  filter(year <= max(NSsprat.ssb$year))
+# NSsprat.canum <-
+#   read.csv(file="//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018%20%Meeting%20%docs1/05.%20%Data/NSsprat/Total_catch_in_numbers_and_mean_weight_2017_IV.csv",
+#            header=TRUE) %>% 
+#   dplyr::select(year, quarter, n0, n1, n2, n3, n4) %>% 
+#   gather(key=age, value=number, n0:n4) %>% 
+#   mutate(age = an(gsub("n", "", age))) %>% 
+#   group_by(year, age) %>% 
+#   summarize(number= sum(number, na.rm=TRUE)) %>% 
+#   ungroup() %>% 
+#   filter(year <= max(NSsprat.ssb$year))
+# 
+# NSsprat.weca <-
+#   read.csv(file="//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/05. Data/NSsprat/Total_catch_in_numbers_and_mean_weight_2017_IV.csv",
+#            header=TRUE) %>% 
+#   dplyr::select(year, quarter, n0, n1, n2, n3, n4, mw0, mw1, mw2, mw3, mw4) %>% 
+#   gather(key=var, value=number, n0:mw4) %>% 
+#   mutate(weca  = ifelse(grepl("n",var), number, NA),
+#          age   = gsub("n|mw","",var),
+#          canum = ifelse(grepl("mw", var), number, NA)) %>% 
+#   dplyr::select(year, quarter, age, weca, canum) %>%
+#   gather(key=var, value=number, weca:canum) %>% 
+#   group_by(year, age) %>% 
+#   summarize(number= sum(number, na.rm=TRUE)) %>% 
+#   ungroup() %>% 
+#   filter(year <= max(NSsprat.ssb$year))
 
 # ===================================================================================
 # Combine all the data 
@@ -207,7 +207,7 @@ canum <-
     WBSS.canum,
     CSH.canum,
     ISH.canum,
-    IRLW.canum,
+    # IRLW.canum,
     WOS.canum
   )
 
@@ -218,7 +218,7 @@ weca <-
     WBSS.weca,
     CSH.weca,
     ISH.weca,
-    IRLW.weca,
+    # IRLW.weca,
     WOS.weca
   ) %>% 
   filter(!is.na(weight), !weight <= 0)
