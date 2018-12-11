@@ -1,0 +1,39 @@
+---
+output: 
+  word_document:
+    reference_docx: PFA_report_template_v1.4.2.dotx
+---
+
+```{r setup, include=FALSE}
+
+# =======================================================================================
+# WBSS MSE2.Rmd
+# 
+# 09/07/2018 adapted version eqsim3 with HCR that has steeper slope below Blim. 
+# 15/07/2018 Code is adapted to run for WBSS herring
+#              - changed average recruitment is calculated (only for years used in SR estimation)
+#              - changed calculation of starting population (old code had error in plus group)
+#              - added year to the arrays (instead of numbering from 1 onwards)
+# 13/08/2018 Converted r code to markdown
+# 17/08/2018 Omgezet naar FLSTOCK & FLASHER
+# =======================================================================================
+
+require("knitr")
+knitr::opts_chunk$set(echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE )
+knitr::opts_chunk$set(fig.width=10) 
+
+# packages 
+rm(list=ls())
+
+```
+
+**RMarkdown tester**
+
+**Martin Pastoors^1^**
+
+```{r echo=TRUE, eval=FALSE}
+print("this is a test")
+load("D:/HAWG/2018/05. Data/WBSS/WBSS_mf_004/Herring WBSS_2016_EqSim_Workspace.Rdata")
+
+```
+

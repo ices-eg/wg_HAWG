@@ -1,0 +1,1706 @@
+---
+output: 
+  word_document:
+    reference_docx: PFA_report_template_v1.4.2.dotx
+---
+
+```{r setup, include=FALSE}
+
+# =======================================================================================
+# WBSS MSE2.Rmd
+# 
+# 09/07/2018 adapted version eqsim3 with HCR that has steeper slope below Blim. 
+# 15/07/2018 Code is adapted to run for WBSS herring
+#              - changed average recruitment is calculated (only for years used in SR estimation)
+#              - changed calculation of starting population (old code had error in plus group)
+#              - added year to the arrays (instead of numbering from 1 onwards)
+# 13/08/2018 Converted r code to markdown
+# 17/08/2018 Omgezet naar FLSTOCK & FLASHER
+# 24/08/2018 Streamlined the code (faster; less storage); optional reading of results; finished text
+# =======================================================================================
+
+require("knitr")
+knitr::opts_chunk$set(echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE )
+knitr::opts_chunk$set(fig.width=10) 
+
+# packages 
+rm(list=ls())
+
+# Load FLCore packages
+library(FLCore)         # v2.6.9   # install.packages(c("FLCore"), repos="http://flr-project.org/R")
+library(FLEDA)          # v2.5.2   # install.packages(c("FLEDA"), repos="http://flr-project.org/R")
+library(FLasher) #x64   # v.0.0.5  #install.packages(c("FLasher"), repos="http://flr-project.org/R")
+# library(FLAssess)  # i386
+# library(FLash)     #i386
+# library(msy)
+
+#-Load the minimizer libraries needed
+library(MASS)#7.3-47
+library(minpack.lm)# 1.2-1
+
+# Read sam from stock assessment.org
+library(stockassessment) # stock assessment.org
+
+# Load the tidyverse packages
+library(tidyverse)
+library(ggplot2)
+library(captioner)     # captioning of figures and tables
+library(pander)        # tables etc.
+
+# library(readsam)       # tidy sam reader       # devtools::install_github("einarhjorleifsson/readsam")
+
+# Settings for captioner
+fig_nums <- captioner::captioner(prefix = "Figure")
+tab_nums <- captioner::captioner(prefix = "Table")
+
+# Load utils code
+source("D:/GIT/mptools/r/my_utils.r")
+
+source("theme_publication.r")
+
+# -------------------------------------------------------------------------------------------
+# load the WBSS assessment object(s)
+# -------------------------------------------------------------------------------------------
+
+load("D:/HAWG/2018/05. Data/WBSS/WBSS_mf_004/Herring WBSS_2016_EqSim_Workspace.Rdata")
+wbss <- stk
+
+# expand the stock object
+stk2018 <- FLasher::stf(wbss, nyears = 1)
+
+# now try to load the 2018 Single Fleet assessment results and create a new stock object from it
+fit    <- get(load("D:/HAWG/2018/05. Data/WBSS/model.RData"))
+
+
+
+minage <- dims(stk2018)$min
+maxage <- dims(stk2018)$max
+minyear<- dims(stk2018)$minyear
+maxyear<- dims(stk2018)$maxyear
+
+stk2018@harvest[ac(minage:(maxage-1)) ,,,,] <- exp(fit$pl$logF)
+stk2018@harvest[ac(maxage) ,,,,]            <- stk2018@harvest[ac(maxage-1) ,,,,]
+stk2018@stock.n[ac(minage:maxage) ,,,,]     <- exp(fit$pl$logN)
+stk2018@catch.n[]                           <- 
+         readVPAFile("D:/HAWG/2018/05. Data/WBSS/cn.dat")
+
+stk2018@catch.wt[]                          <- t(fit$data$catchMeanWeight)
+stk2018@stock.wt[]                          <- t(fit$data$stockMeanWeight)
+stk2018@m[]                                 <- t(fit$data$natMor)
+stk2018@mat[]                               <- t(fit$data$propMat)
+stk2018@catch[]                             <- computeCatch(stk2018)
+
+wbss <- stk2018
+# plot(wbss)
+
+
+
+```
+
+**Evaluation of alternative harvest control rules for Western Baltic Herring**
+
+**Martin Pastoors^1^**
+
+`r format(Sys.time(), '%d/%m/%Y %H:%M')`
+
+
+&nbsp;  
+
+**Abstract**
+
+The ICES advice for Western Baltic Spring Spawning herring (WBSS) in 2019 is for a zero TAC. The rationale behind this advice is "There are no catch scenarios that will rebuild the stock above Blim by 2020. ICES advises zero catch under such circumstances". This means that the standard interpretation of the ICES advice rule is that a zero advice will be issued if the stock cannot be rebuilt above Blim within a period of one year. However, this interpretation has not been informed by an analysis of consequences of allowing for longer periods of rebuilding to above Blim. 
+
+The HCR variant is that below Blim, fishing mortality will be strongly reduced. This is achieved by introducing a third biomass reference point (Blim2) which is the biomass at which fishing mortality will be set to zero. The evaluations are based on the agreed reference points for WBSS herring (i.e. Fmsy, Blim, MSY Btrigger) and evaluated the consequences of different choices for Blim2. The most extreme cases are Blim2 = Blim, which means that F is set to zero when the stock is below Blim and Blim2 = 0 which means a linear reduction of F from F at Blim down to the origin. Different recruitment scenarios and different target fishing mortalities have been explored.
+
+Results of the simulations show that allowing for a (reduced) fishing mortality below Blim does not jeopardize the rebuilding of the stock, although it does slightly extend the year in which the rebuilding is expected to be achieved. In most cases the difference between rebuilding in the most strict scenario (Blim2=120 000) and a more moderate scenario (Blim2=40000) is one or two years. At the same time the interannual variability in catch is lower in the moderate Blim2 scenario, because the initial change in TAC setting at the current level of stock is smaller when there is still some fishery allowed. This means that the HCR could provide a moderating effect on in situations where the stock drops below Blim: strong action needs to be taken in order to reduce fishing mortality and catch, but a closure is not a necessary condition. 
+
+The results are strongly dependent on the stock recruitment relationship and the target fishing mortality. The two segmented regression type of stock recruitment relationships that have been used, both show a relatively rapid recovery of the stock. However, if the recent low recruitment would continue in the future, then a strong reduction in target fishing mortality would be needed in order to achieve rebuilding of the stock. 
+
+
+^1^ mpastoors@pelagicfish.eu
+
+<!--1. Introduction ------------------------------------------------------ -->
+
+# Introduction
+
+The ICES advice for Western Baltic Spring Spawning herring (WBSS) is for a zero TAC in 2019 (ICES 2018a). The rationale behind this advice is "There are no catch scenarios that will rebuild the stock above Blim by 2020. ICES advises zero catch under such circumstances". This means that the standard interpretation of the ICES advice rule is that a zero advice will be issued if the stock cannot be rebuilt above Blim within a period of one year. However, this interpretation has not been informed by an analysis of consequences of allowing for longer periods of rebuilding to above Blim. The current working document is exploring the consequences of longer rebuilding periods as a trade-off between productivity of the stock, exploitation levels and harvest rules that still allow for some fishing below Blim. 
+
+The HCR variant is that below Blim, fishing mortality will be strongly reduced. This is achieved by introducing a third biomass reference point (Blim2) which is the biomass at which fishing mortality will be set to zero. The evaluations are based on the agreed reference points for WBSS herring (i.e. Fmsy, Blim, MSY Btrigger) and evaluated the consequences of different choices for Blim2. The most extreme cases are Blim2 = Blim, which means that F is set to zero when the stock is below Blim and Blim2 = 0 which means a linear reduction of F from F at Blim down to the origin `r fig_nums("hcrs", display="cite")`. In addition, we evaluated three different targets for fishing mortality (0.20, 0.25 and the current Fmsy=0.31) and three stock recruitment relationships (segmented regression, segmented regression forced through Blim and recent geometric mean recruitment). 
+
+```{r, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "hcrs", display = FALSE, 
+         caption = "ICES WBSS MSY rule (left) and Alternative WBSS MSY rules (right)" )
+
+include_graphics("HCRs.png")
+```
+
+*`r fig_nums("hcrs")`*
+
+<!--2. Material and methods ------------------------------------------------------ -->
+
+# Material and methods
+
+Initially, the evaluation was carried out using a modified version of the EQSIM software. However, it was found that the EQSIM code was of a level of complexity that was unwarrented by the type of analysis intended. In addition, the sequence of events in the EQSIM code was not straightforward to understand, creating the possibility of introducing errors. Instead, a simpler long-term forecast has been coded using FLCore objects. That simplified the code substantially. The method is now based on reading the stock objects from the most recent SAM assessment, converting the SAM output objects to FLStock objects, extending the FLStock object to a number of years into the future (2015) and then running the simulations.
+
+During the benchmark meeting of WBSS herring (ICES 2018b), the reference points for WBSS herring were updated using a EQSIM analysis using a mixture of three stock recruitment curves (Beverton-Holt, Ricker and Segmented regression), albeit largely dominated by the segmented regression curve (97%) `r fig_nums("wkpelasrr", display="cite")`. 
+
+```{r, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "wkpelasrr", display = FALSE, 
+         caption = "WKPELA 2018: stochastic S-R model with 95% CI based on Beverton-Holt, Ricker and segmented regression)" )
+
+include_graphics("EQSIM SRR.png")
+```
+
+*`r fig_nums("wkpelasrr")`*
+
+In this analysis, we explored three different stock recruitment curves: free segmented regression which ends up with a breakpoint around 220 000 tonnes, a constrained segmented regression which is forces through Blim at 120 000 tonnes (with the caveat that recruitment in the recent period will be somewhat overestimated) and a recent geometric mean recruitment from 2005 onwards, which is the very low recruitment period.The latter scenario can be viewed as a worst case scenario of what would happen if recruitment stays low over the coming years.  
+
+The alternative HCR was coded as follows: 
+
+```{r, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+
+include_graphics("HCR code2.png")
+```
+
+The settings used in the simulation were as follows:  
+
+```{r settings, echo=TRUE}
+
+FaY            <- dims(wbss)$minyear    # First assessment year
+TaY            <- dims(wbss)$maxyear    # Terminal assessment year
+ImY            <- TaY+1                 # Intermediate Year
+AdY            <- TaY+2                 # First Advice year
+FsY            <- 2025                  # Final simulation year
+maA            <- range(wbss)["max"]    # Maximum age
+miA            <- range(wbss)["min"]    # Minimum age
+niters         <- 500
+nages          <- maA - miA + 1 
+nforecastyears <- FsY - ImY + 1
+SSBcv          <- 0.31
+Blim           <- 120000
+Btrigger       <- 150000 
+
+# settings for simulation loops
+Fmsy           <- c(0.2, 0.25, 0.31)                    
+Blim2          <- c(0, 40000, 80000, 120000)       
+RecModel       <- c("segreg", "segregblim","geomean")        
+
+# simulate ?
+sim            <- FALSE
+
+```
+
+
+```{r simulation, echo=FALSE, message=FALSE, warning=FALSE}
+
+if (sim) {
+
+  start <- Sys.time()
+
+  # View settings
+  print          <- TRUE
+  
+  
+  nsim       <- length(Fmsy) * length(Blim2) * length(RecModel)
+  
+  # Define forecast object 
+  wbss_mtf <- FLasher::stf(wbss, nyears = nforecastyears)
+  
+  # expand to multiple iterations
+  wbss_mtf        <- propagate(wbss_mtf, niters)
+  
+  # start with stochastic population (in the terminal assessment year)
+  stockerr <- SSBcv * FLQuant(stats::rnorm(n = nages * niters, mean = 0, sd = 1), 
+                              dimnames = list(age= ac(miA:maA), year=TaY, iter=1:niters))
+  wbss_mtf[,ac(TaY)]@stock.n    <- wbss_mtf[,ac(TaY)]@stock.n * exp(stockerr)
+  
+  # Calculate selection by dividing F at age by Fbar
+  fbar      <- fbar(wbss_mtf)
+  sel       <- sweep(wbss_mtf@harvest, 2, fbar, "/")
+  
+  # create empty lists for simulation and SR results
+  ressim <- list()
+  ressr  <- list()
+  
+  # f <- 1; r <- 1; b <- 1; y <- ImY
+  
+  # start sim counter
+  i <- 0
+  
+  # Loop over different values of Fmsy ---------------------
+  
+  for (f in 1:length(Fmsy) ) {
+    
+    invisible(gc())
+  
+    FatBlim  <- Fmsy[f] * (Blim/Btrigger) 
+    
+    # Loop over recruitment models -------------------------
+    
+    for (r in 1:length(RecModel) ) {
+  
+      invisible(gc())
+    
+      if (RecModel[r] == "segreg")     system.time(wbss_sr <- fmle(as.FLSR(wbss, model="segreg"), 
+                                                       control=list(trace=0)))
+      if (RecModel[r] == "segregblim") system.time(wbss_sr <- fmle(as.FLSR(wbss, model="segreg"), 
+                                                       control=list(trace=0),
+                                                       fixed=list(b=Blim)))
+      if (RecModel[r] == "geomean")    system.time(wbss_sr <- fmle(
+                                                       as.FLSR(FLCore::trim(wbss,year=2005:TaY),
+                                                       model="geomean"),
+                                                       control=list(trace=0)))
+      
+      # Calculate residuals for stock recruitment
+      sample_years    <- sample(dimnames(residuals(wbss_sr))$year, niters * nforecastyears, 
+                                replace = TRUE)
+      wbss_srresid    <- FLQuant(NA, dimnames = list(year=ImY:FsY, iter=1:niters))
+      wbss_srresid[]  <- exp(residuals(wbss_sr)[,sample_years])
+    
+      # Loop over different values of Blim2 -------------------------
+      
+      for (b in 1:length(Blim2) ) {
+    
+        invisible(gc())
+        
+        old <- Sys.time() # get start time
+        
+        i <- i + 1
+        
+        if(print) print(paste("F:", Fmsy[f],
+                              "Recruitment model:", RecModel[r],
+                              "Blim2:", Blim2[b], 
+                              "iter", i, "of", nsim, 
+                              sep=" "))
+        
+      
+        # Loop over years -------------------------
+    
+        for (y in ImY:FsY) {
+          
+          # if(print) print(y)
+          
+          # Calculate SSB from year before
+          ssb <- ssb(wbss_mtf[,as.character(c(y-1))])
+          
+          # Apply HCR on SSB from year before
+          tmpBelow_Blim2    <- c(ssb <  Blim2[b])
+          tmpBlim2_Blim     <- c(ssb >= Blim2[b] & ssb < Blim)
+          tmpBlim_Btrigger  <- c(ssb >= Blim  & ssb < Btrigger); 
+          tmpAbove_Btrigger <- c(ssb >= Btrigger)
+          
+          # Define F
+          Fnext   <- ssb
+          Fnext[] <- NA
+          dimnames(Fnext)$year   <- ac(y)
+          
+        
+          # The HCR application to F   -------------------------------------------
+              
+          # below Blim2
+          Fnext[,,,,,tmpBelow_Blim2] <- 0
+        
+            # between Blim2 and Blim
+          Fnext[,,,,,tmpBlim2_Blim] <- FatBlim * (1 - (Blim - ssb[,,,,,tmpBlim2_Blim]) / 
+                                                      (Blim - Blim2[b]))
+        
+          # between Blim and Btrigger
+          Fnext[,ac(y),,,,tmpBlim_Btrigger] <- Fmsy[f] * (ssb[,,,,,tmpBlim_Btrigger]/Btrigger)
+          
+          # Above Btrigger
+          Fnext[,ac(y),,,,tmpAbove_Btrigger] <- Fmsy[f]
+              
+          # print(Fnext[,ac(y),,,,])
+          # hist(Fnext[,ac(y)])
+          
+          # ----------------------------------------------------------------------
+          
+          # Calculate survivors from previous year
+          wbss_mtf@stock.n[ac((miA+1):(maA-1)),ac(y)] <- 
+            wbss_mtf@stock.n[ac(miA:(maA-2)),ac(y-1)] * 
+            exp(-wbss_mtf@harvest[ac(miA:(maA-2)),ac(y-1)]-wbss_mtf@m[ac(miA:(maA-2)),ac(y-1)])
+          
+          # Calculate plusgroup
+          wbss_mtf@stock.n[ac(maA),ac(y)] <- 
+            wbss_mtf@stock.n[ac(maA-1),ac(y-1)] * 
+            exp(-wbss_mtf@harvest[ac(maA-1),ac(y-1)]-wbss_mtf@m[ac(maA-1),ac(y-1)]) + 
+            wbss_mtf@stock.n[ac(maA),ac(y-1)] * 
+            exp(-wbss_mtf@harvest[ac(maA),ac(y-1)]-wbss_mtf@m[ac(maA),ac(y-1)]) 
+          
+          # Resample SRR residual years from history 
+          sample_years <- 
+            sample(dimnames(residuals(wbss_sr))$year, niters * 1, replace = TRUE)
+          
+          # Calculate SRR residuals per iteration
+          residuals  <- 
+            wbss_mtf@stock.n[ac(miA),ac(y),,,,1:niters]       # Copy from FLQuant
+          residuals[ac(miA),ac(y),,,,1:niters]  <- 
+            an(exp(residuals(wbss_sr)[,sample_years])@.Data)  # Fill with appropriate values
+          
+          wbss_mtf@stock.n[ac(miA),ac(y),,,,] <- 
+            predict(wbss_sr, ssb=ssb) * residuals
+          
+          # Calculate F in year y based on HCR F and selectivity
+          sel[,ac(y),,,,1:niters] <- 
+            sel[,sample_years,,,,1]  # randomly select selectivity years and store them in iters
+          wbss_mtf@harvest[,ac(y),,,,1:niters] <-
+            sweep(sel[,ac(y),,,,1:niters], 2:6, Fnext, "*")
+          
+          # hist(wbss_mtf@harvest[,ac(y-1)])
+          # hist(Fmult)
+          
+          # Calculate catch in year y based on HCR (C = N * F/(F+M) * (1-exp(-F-M)))
+          wbss_mtf@catch.n[,ac(y)] <-
+            wbss_mtf@stock.n[,ac(y)] * 
+            wbss_mtf@harvest[,ac(y)] / (wbss_mtf@harvest[,ac(y)] + wbss_mtf@m[,ac(y)]) *
+            (1-exp(-wbss_mtf@harvest[,ac(y)]- wbss_mtf@m[,ac(y)])) 
+          
+          wbss_mtf@catch[,ac(y)] <-
+            computeCatch(wbss_mtf[,ac(y)])
+          
+          # hist(ssb)
+          # hist(fbar(wbss_mtf[,ac(y-1)]))
+          # iters(wbss_mtf@fbar[,ac(y-1)])
+               
+        } # end of year loop
+        
+        # plot(wbss_mtf)
+        ressr[paste(Fmsy[f], "~", Blim2[b], "~", RecModel[r], sep="")]  <- wbss_sr
+        ressim[paste(Fmsy[f], "~", Blim2[b], "~", RecModel[r], sep="")] <- wbss_mtf
+        
+        print(Sys.time() - old) # print in nice format
+        
+      } # end of Blim2 loop
+      
+    } # end of RecModel loop
+    
+  } # end of Fmsy loop
+  
+  cat("Total simulation time")
+  cat(Sys.time() - start) # print in nice format
+    
+  
+  # Convert to data.frames ------------------------------
+  
+  cat("Now converting to data.frames")
+  
+  start <- Sys.time()
+  
+  wormsdf <- data.frame()
+  summdf  <- data.frame()
+  
+  # print("Converting results to data.frames")
+  
+  i <- 1
+  
+  for (i in 1: length(ressim)) {
+    
+    print(i)
+    
+    old <- Sys.time() # get start time
+    
+    invisible(gc())
+    
+    resdf <- mutate(as.data.frame(ressim[[i]]), sim=names(ressim[i]))
+    resdf <- bind_rows(resdf, mutate(as.data.frame(ssb(ressim[[i]])), 
+                                                 sim=names(ressim[i]) ,slot="ssb"))
+    resdf <- bind_rows(resdf, mutate(as.data.frame(fbar(ressim[[i]])), 
+                                                 sim=names(ressim[i]) ,slot="fbar")) %>% 
+      mutate(slot = ifelse(slot=="stock.n" & age == minage, "rec",slot) )   %>% 
+      separate(sim, into=c("fmsy","blim2","recmodel"), sep="~") 
+  
+    # Creating a worms data.frames
+    wormsdf <-
+        resdf %>% 
+        ungroup() %>% 
+        mutate(blim2   = factor(blim2, levels=ac(sort(an(unique(Blim2))))) ) %>% 
+        mutate(plotvar = paste(recmodel, "F=",fmsy, sep=" ")) %>% 
+        mutate(iter    = an(iter)) %>% 
+        filter(an(iter) <= 5) %>% 
+        bind_rows(., wormsdf)
+  
+    # Creating a summary over all iterations
+      summ1 <-
+      resdf %>% 
+      group_by(recmodel, fmsy, blim2, slot, age, year, unit, season, area) %>% 
+      summarize(mean = mean(data, na.rm=TRUE),
+                sd   = sd(data, na.rm=TRUE)) %>% 
+      mutate(upr = mean + 1.96*sd,
+             lwr = mean - 1.96*sd)
+  
+    # Creating a summary for probability against Blim and Btrigger
+      summ2 <-
+      resdf %>% 
+      filter(slot == "ssb") %>% 
+      group_by(recmodel, fmsy, blim2, slot, age, year, unit, season, area) %>% 
+      mutate(probLessBlim      = ifelse(data < Blim, 1, 0),
+             probAboveBtrigger = ifelse(data >= Btrigger, 1, 0)) %>% 
+      summarize(probLessBlim = sum(probLessBlim, na.rm=TRUE) / n(),
+                probAboveBtrigger = sum(probAboveBtrigger, na.rm=TRUE) / n() ) %>% 
+      ungroup() %>% 
+      dplyr::select(-slot) %>% 
+      gather(key="slot", value="mean", probLessBlim:probAboveBtrigger)
+  
+    # Combine the two summary dataframes
+      summdf <-
+      bind_rows(summ1, summ2) %>% 
+      ungroup() %>% 
+      mutate(blim2   = factor(blim2, levels=ac(sort(an(unique(Blim2)))) )) %>% 
+      mutate(plotvar = paste(recmodel, "F=",fmsy, sep=" ")) %>% 
+      bind_rows(., summdf)
+      
+      print(Sys.time() - old) # print in nice format
+    }
+  
+  cat("Total data conversion time")
+  cat(Sys.time() - start) # print in nice format
+  
+  
+  save(wormsdf, summdf, ressr, file="wbss mse.RData")
+
+  
+} else { # don't simulate, simply load saved files
+
+    load(file="wbss mse.RData")
+  
+}
+
+```
+
+
+<!--3. Results ------------------------------------------------------ -->
+
+# Results
+
+The three different stock recruitment curves that have been used in this analyis are shown in  have been used: free segmented regression which ends up with a breakpoint around 220 000 tonnes, a constrained segmented regression which is forces through Blim at 120 000 tonnes (with the caveat that recruitment in the recent period will be somewhat overestimated) and a recent geometric mean recruitment from 2005 onwards, which is the very low recruitment period. 
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "srr1", display = FALSE, 
+         caption = "Three different WBSS SRR curves: free segmented regression(top), constrained segmented regression through Blim (middle) and recent (2005+) geometric mean recruitment" )
+
+i    <- "0.2~0~segreg"
+mysr <- ressr[[i]]
+
+ssb2 <- seq(0,max(mysr@ssb), by=10000 ) 
+rec2 <- ifelse(ssb2 < an(params(mysr)[2]), an(params(mysr)[1])*ssb2, an(params(mysr)[1])*an(params(mysr)[2]))
+
+plotdf <-
+  as.data.frame(mysr) %>% 
+  dplyr::select(slot, year, data) %>% 
+  filter(slot %in% c("rec","ssb")) %>% 
+  spread(key=slot, value=data) %>% 
+  mutate(type="data") %>% 
+  bind_rows(., data.frame(rec= rec2, ssb= ssb2, type="fitted", stringsAsFactors = FALSE))
+
+ggplot() +
+  theme_publication() +
+  theme(legend.position="none",
+        plot.margin      = unit(c(0,0,0,0),"cm") ) +
+  geom_point(data=filter(plotdf, type=="data"), aes(x=ssb,y=rec, group=type, colour=type)) +
+  geom_line (data=filter(plotdf, type=="fitted"), aes(x=ssb,y=rec, group=type, colour=type)) +
+  labs(x="")
+
+```
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+
+i    <- "0.25~0~segregblim"
+mysr <- ressr[[i]]
+
+ssb2 <- seq(0,max(mysr@ssb), by=10000 ) 
+rec2 <- ifelse(ssb2 < an(params(mysr)[2]), an(params(mysr)[1])*ssb2, an(params(mysr)[1])*an(params(mysr)[2]))
+
+plotdf <-
+  as.data.frame(mysr) %>% 
+  dplyr::select(slot, year, data) %>% 
+  filter(slot %in% c("rec","ssb")) %>% 
+  spread(key=slot, value=data) %>% 
+  mutate(type="data") %>% 
+  bind_rows(., data.frame(rec= rec2, ssb= ssb2, type="fitted", stringsAsFactors = FALSE))
+
+ggplot() +
+  theme_publication() +
+  theme(legend.position="none",
+        plot.margin      = unit(c(0,0,0,0),"cm") ) +
+  geom_point(data=filter(plotdf, type=="data"), aes(x=ssb,y=rec, group=type, colour=type)) +
+  geom_line (data=filter(plotdf, type=="fitted"), aes(x=ssb,y=rec, group=type, colour=type)) +
+  labs(x="")
+
+
+```
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+
+i    <- "0.25~0~geomean"
+mysr <- ressr[[i]]
+
+ssb2 <- seq(0,300000, by=10000 ) 
+rec2 <- an(params(mysr)[1])
+
+plotdf <-
+  as.data.frame(mysr) %>% 
+  dplyr::select(slot, year, data) %>% 
+  filter(slot %in% c("rec","ssb")) %>% 
+  spread(key=slot, value=data) %>% 
+  mutate(type="data") %>% 
+  bind_rows(., data.frame(rec= rec2, ssb= ssb2, type="fitted", stringsAsFactors = FALSE))
+
+ggplot() +
+  theme_publication() +
+  theme(plot.margin      = unit(c(0,0,0,0),"cm") ) +
+  geom_point(data=filter(plotdf, type=="data"), aes(x=ssb,y=rec, group=type, colour=type)) +
+  geom_line (data=filter(plotdf, type=="fitted"), aes(x=ssb,y=rec, group=type, colour=type)) +
+  expand_limits(y=0) +
+  scale_x_continuous(limits=c(0,300000)) +
+  scale_y_continuous(limits=c(0,5000000))
+
+```
+
+*`r fig_nums("srr1")`*
+
+In the subsequent plots the column facets refer to Blim2 at which F is set to zero (i.e. Blim2=0 is the ICES MSY rule extended down to the origin, Blim2=120000 is the de facto ICES rule with an F=0 if stock is below Blim). The row facets refer to 'Fmsy' or Ftarget (0.20, 0.25 or 0.31). Each series of facets refers to one of the three stock recruiment relationships. For each simulation, the first four individual runs ('worms') are shown in grey. The uncertainty bounds refer to ± 1.96 times the standard deviation. 
+
+##### page break
+
+**SSB**
+
+Trajectories of SSB all indicate a relatively quick recovery of the WBSS herring stock, given the estimated stock recruitment relationships and the alternative harvest control rules. Obviously, the HCR with a closure of the fishery below Blim will lead to the quickest recovery, but other scenarios also lead to a recovery in the next few years. Reducing the target fishing mortality from 0.31 to 0.25 has a marked effect on the SSB trajectory indicating that a lower F target may be a viable alternative to the Blim2 scenarios (or in combination). 
+
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "ssb1", display = FALSE, 
+         caption = "SSB trajectories over different values of Blim2 and Fmsy with SegReg (this page), SegRegBlim (next page - top) and recent geometric mean recruitment (next page - bottom)" )
+
+myvar  <- "ssb"
+myunit <- "tonnes"
+mysrr  <- "segreg"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+  
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  geom_hline(aes(yintercept = Blim), colour="black", linetype ="solid") +
+  geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=5, recmodel==mysrr), 
+            aes(x=year, y=data, group=iter), 
+            colour="gray", size=0.4, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("ssb1")`*
+
+##### page break
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "ssb"
+myunit <- "tonnes"
+mysrr  <- "segregblim"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+  
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  geom_hline(aes(yintercept = Blim), colour="black", linetype ="solid") +
+  geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=5, recmodel==mysrr), 
+            aes(x=year, y=data, group=iter), 
+            colour="gray", size=0.4, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "ssb"
+myunit <- "tonnes"
+mysrr  <- "geomean"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+  
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  geom_hline(aes(yintercept = Blim), colour="black", linetype ="solid") +
+  geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=5, recmodel==mysrr), 
+            aes(x=year, y=data, group=iter), 
+            colour="gray", size=0.4, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("ssb1", display="cite")` - continued*
+
+##### page break
+
+**Catch**
+
+Catch trajectories show that the standard ICES MSY rule (Blim2 = 0) leads to the smallest reduction  during the first year of the HCR. At the same time, the maximum catch at the end of the time-series is achieved using the most drastic HCR (Blim2 = 120 000). Generally what we find is that reducing F below Blim more steeply than the ICES MSY rule, has relatively modest  effects if the initial stock size is above that value of Blim2.  
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "catch1", display = FALSE, 
+         caption = "Catch trajectories over different values of Blim2 and Fmsy with SegReg (this page), SegRegBlim (next page - top) and recent geometric mean recruitment (next page - bottom)" )
+
+myvar  <- "catch"
+myunit <- "tonnes"
+mysrr  <- "segreg"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  # geom_hline(aes(yintercept = Blim), colour="black", linetype ="solid") +
+  # geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=4, recmodel == mysrr), 
+            aes(x=year, y=data, group=iter), colour="gray", size=0.2, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("catch1")`*
+
+##### page break
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "catch"
+myunit <- "tonnes"
+mysrr  <- "segregblim"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  # geom_hline(aes(yintercept = Blim), colour="black", linetype ="solid") +
+  # geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=4, recmodel == mysrr), 
+            aes(x=year, y=data, group=iter), colour="gray", size=0.2, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "catch"
+myunit <- "tonnes"
+mysrr  <- "geomean"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  # geom_hline(aes(yintercept = Blim), colour="black", linetype ="solid") +
+  # geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=4, recmodel == mysrr), 
+            aes(x=year, y=data, group=iter), colour="gray", size=0.2, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("catch1", display="cite")` - continued*
+
+##### page break
+
+**Fishing mortality**
+
+Fishing mortality shows an initial decrease in the first simulation years in all scenario's. This is caused by the harvest control rule that prescribes lower fishing mortality below Blim. Under the SegReg and SegRegBlim scenarios, the stock is expected to rebuild relatively quickly and fishing mortality then stabilises at the target fishing mortality. In the case of the recent geometric mean recruitment, rebuilding of the stock does not fully occur with target fishing mortalities of 0.25 or 0.31. In those cases, the target fishing mortality is not achieved.  
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "fbar1", display = FALSE, 
+         caption = "Fbar trajectories over different values of Blim2 and Fmsy and SegReg (this page), SegRegBlim (next page - top) and recent geometric mean recruitment (next page - bottom)" )
+
+myvar  <- "fbar"
+myunit <- "1/year"
+mysrr  <- "segreg"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  geom_hline(aes(yintercept = an(fmsy)), colour="black", linetype ="solid") +
+  # geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=4, recmodel == mysrr), 
+            aes(x=year, y=data, group=iter), colour="gray", size=0.2, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("fbar1")`*
+
+##### page break
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "fbar"
+myunit <- "1/year"
+mysrr  <- "segregblim"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  geom_hline(aes(yintercept = an(fmsy)), colour="black", linetype ="solid") +
+  # geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=4, recmodel == mysrr), 
+            aes(x=year, y=data, group=iter), colour="gray", size=0.2, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "fbar"
+myunit <- "1/year"
+mysrr  <- "geomean"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  geom_hline(aes(yintercept = an(fmsy)), colour="black", linetype ="solid") +
+  # geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=4, recmodel == mysrr), 
+            aes(x=year, y=data, group=iter), colour="gray", size=0.2, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("fbar1", display="cite")` - continued*
+
+
+##### page break
+
+**Recruitment**
+
+Recruitment is an important driver for the results of the simulations. Generally, generated recruitment patterns are fairly similar for different values of Blims2, although the higher variability in stock size at Blim2=120 000 is also reflected in a higher variability in recruitment. In the SegReg and SegRegBlim scenarios, the stock is rebuilding and therefore also the recruitment is increasing because the stock is on the ascending slope of the stock recruitment curve. Obviously, in the case of recent geometric mean recruitment, the simulated recruitment is at the same level as in the recent years. This has a strong effect on the stock trajectory and potential catches and risks. 
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "rec1", display = FALSE, 
+         caption = "Recruitment trajectories over different values of Blim2 and Fmsy and SegReg (this page), SegRegBlim (next page - top) and recent geometric mean recruitment (next page - bottom)" )
+
+myvar  <- "rec"
+myunit <- "thousands"
+mysrr  <- "segreg"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  # geom_hline(aes(yintercept = an(fmsy)), colour="black", linetype ="solid") +
+  # geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=4, recmodel == mysrr), 
+            aes(x=year, y=data, group=iter), colour="gray", size=0.2, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+```
+
+*`r fig_nums("rec1")`*
+
+##### page break
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "rec"
+myunit <- "thousands"
+mysrr  <- "segregblim"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  # geom_hline(aes(yintercept = an(fmsy)), colour="black", linetype ="solid") +
+  # geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=4, recmodel == mysrr), 
+            aes(x=year, y=data, group=iter), colour="gray", size=0.2, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+```
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "rec"
+myunit <- "thousands"
+mysrr  <- "geomean"
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  # geom_hline(aes(yintercept = an(fmsy)), colour="black", linetype ="solid") +
+  # geom_hline(aes(yintercept = Btrigger), colour="black", linetype ="dashed") +
+  geom_ribbon(aes(ymin=lwr, ymax=upr, fill=blim2), alpha=0.3) +
+  geom_line(data=filter(wormsdf, slot==myvar, iter<=4, recmodel == mysrr), 
+            aes(x=year, y=data, group=iter), colour="gray", size=0.2, inherit.aes = FALSE) +
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+```
+
+*`r fig_nums("rec1", display="cite")` - continued*
+
+##### page break
+
+**Probability of being below Blim**
+
+The probability of being below Blim in any given year is calculated as the proportion of iterations where the stock is below Blim. The horizontal dashed line indicates the 5% probability which is used as the criterion to define the precautionary region (i.e. when the probability of being below Blim is less than 5%, the stock is assumed to be in a safe state). In the SegReg and SegRegBlim scenarios, there is a rapid decrease of the probability of being below Blim, from around 0.8 in the first year of the simulation, to 0.05 in as early as 2020. Different combinations of Blim2 and target fishing mortality lead to slightly different years when the probablity of being below Blim drops between the 5% *`r tab_nums("probBlim", display="cite")`. The geometric mean recruitment scenario shows a very different picture, because especially at higher target fishing mortalities (0.25, 0.31) rebuilding of the stock may not occur, which leads to the probability of being below Blim in excess of 5%. If recruitment would continue at the current level, a strong reduction in target fishing mortality is required in line with the lower productivity of the stock. 
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "probBlim1", display = FALSE, 
+         caption = "Probability of being below Blim at different values of Blim2 and Fmsy and SegReg (this page), SegRegBlim (next page - top) and recent geometric mean recruitment (next page - bottom)" )
+
+myvar  <- "probLessBlim"
+myunit <- "%"
+mysrr  <- "segreg"
+
+t <-
+  summdf %>% 
+  filter(slot %in% "probLessBlim") %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>%
+  filter(mean <= 0.05) %>% 
+  group_by(slot, fmsy, recmodel, blim2, plotvar) %>% 
+  summarize(year = min(year))
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  geom_hline(aes(yintercept = 0.05), colour="gray15", linetype ="dashed") +
+  geom_vline(data=t, aes(xintercept = year), colour="gray15", linetype ="dotted") +
+  
+  geom_line(aes(colour=blim2), size=1) +
+  
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("probBlim1")`*
+
+##### page break
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "probLessBlim"
+myunit <- "%"
+mysrr  <- "segregblim"
+
+t <-
+  summdf %>% 
+  filter(slot %in% "probLessBlim") %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>%
+  filter(mean <= 0.05) %>% 
+  group_by(slot, fmsy, recmodel, blim2, plotvar) %>% 
+  summarize(year = min(year))
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  geom_hline(aes(yintercept = 0.05), colour="gray15", linetype ="dashed") +
+  geom_vline(data=t, aes(xintercept = year), colour="gray15", linetype ="dotted") +
+  
+  geom_line(aes(colour=blim2), size=1) +
+  
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+myvar  <- "probLessBlim"
+myunit <- "%"
+mysrr  <- "geomean"
+
+t <-
+  summdf %>% 
+  filter(slot %in% "probLessBlim") %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>%
+  filter(mean <= 0.05) %>% 
+  group_by(slot, fmsy, recmodel, blim2, plotvar) %>% 
+  summarize(year = min(year))
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  geom_hline(aes(yintercept = 0.05), colour="gray15", linetype ="dashed") +
+  geom_vline(data=t, aes(xintercept = year), colour="gray15", linetype ="dotted") +
+  
+  geom_line(aes(colour=blim2), size=1) +
+  
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("probBlim1", display="cite")` - continued*
+
+##### page break
+
+**First year of achieving probability of being below Blim is less than 5%**
+
+The first year when the probability of the stock being below Blim under the different scenarios is shown in *`r tab_nums("probBlim", display="cite")`. Under the assumptions as used in the benchmark workshop (i.e. a SegReg or SegRegBlim type of stock recruitment relationship) and with a target fishing mortality at Fmsy=0.31, the 5% criterion is expected to be achieved in 2021 or 2022 under most of the Blim2 scenarios. The only exception is the application of the Blim2 = 0 scenario where the criterion would be achieved in 2024. Under the geometric mean recruitment scenario, the 5% criterion can only be achieved in 2020-2021 if the target fishing mortality is reduced to 0.2. With a higher fishing mortality and the low productivity implied by the geometric mean recruitment, the rebuilding of the stock is slower or even not achieved.    
+
+```{r, fig.align="center", fig.asp=1.4, message=FALSE, warning=FALSE}
+
+tab_nums(name    = "probBlim", display = FALSE, 
+         caption = "First year when probability of being below Blim < 0.05 at different values of Blim2 and different combinations of Fmsy and RecModel" )
+
+summdf %>% 
+  filter(slot %in% "probLessBlim") %>% 
+  filter(year >= ImY) %>%
+  filter(mean <= 0.05) %>% 
+  mutate(recmodel = factor(recmodel, levels=c("segreg","segregblim", "geomean"))) %>% 
+  group_by(slot, recmodel, fmsy, blim2, plotvar) %>% 
+  summarize(year = min(year)) %>% 
+  spread(key=blim2, value=year) %>% 
+  ungroup() %>% 
+  dplyr::select(-slot, -plotvar) %>% 
+  pandoc.table(.,
+             style = "simple",
+             split.tables=400, 
+             justify = "left",
+             missing=".",
+             round=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+```
+
+*`r tab_nums("probBlim")`*
+
+**Interannual variation in catch**
+
+The interannual variation in catch shows that higher variability is associated with a higher value of Blim2 (especially at 120 000) and with target fishing mortality (higher target F is associated with somewhat higher variability). Under the geometric mean recruitment scenario, variability is low except for the Blim2=120 000 scenario. This is because the catch is basically maintained around the current level which is just above the Blim2 value of 80 000 tonnes. In the Blim2=120 000 scenario, the catch is more fluctuating because of the closing and reopening the fishery due to transgressing the 120 000 tonnes boundary. 
+
+```{r, fig.align="center", fig.asp=1.4, message=FALSE, warning=FALSE}
+
+tab_nums(name    = "iav", display = FALSE, 
+         caption = "Average Interannual Variation in Catch at different values of Blim2 and different combinations of Fmsy and RecModel" )
+
+summdf %>% 
+  filter(slot %in% "catch") %>% 
+  filter(year >= ImY) %>%
+  mutate(recmodel = factor(recmodel, levels=c("segreg","segregblim", "geomean"))) %>% 
+  group_by(slot, recmodel, fmsy, blim2, plotvar) %>% 
+  mutate(mean2 = lag(mean), 
+         iav   = abs((mean-mean2)/mean)) %>% 
+  summarize(iav = 100*mean(iav, na.rm=TRUE)) %>% 
+  spread(key=blim2, value=iav) %>% 
+  ungroup() %>% 
+  dplyr::select(-slot, -plotvar) %>% 
+  pandoc.table(.,
+             style = "simple",
+             split.tables=400, 
+             justify = "left",
+             missing=".",
+             round=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+```
+
+*`r tab_nums("iav")`*
+
+**Cumulative catch**
+
+The total cumulative catch for each of the scenarios, indicates that cumulative catch is relatively equal over different values of Blim2. Most of the differences are explained by the difference in target fishing mortality.  
+
+```{r, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+tab_nums(name    = "cumCatch", display = FALSE, 
+         caption = "Cumulative average Catch (kT) at different values of Blim2 and different combinations of Fmsy and RecModel" )
+
+summdf %>% 
+  filter(slot %in% "catch") %>% 
+  filter(year >= ImY) %>%
+  mutate(recmodel = factor(recmodel, levels=c("segreg","segregblim", "geomean"))) %>% 
+  group_by(slot, recmodel, fmsy, blim2, plotvar) %>% 
+  summarize(catch = sum(mean, na.rm=TRUE)/1000) %>% 
+  spread(key=blim2, value=catch) %>% 
+  ungroup() %>% 
+  dplyr::select(-slot, -plotvar) %>% 
+  pandoc.table(.,
+             style = "simple",
+             split.tables=400, 
+             justify = "left",
+             missing=".",
+             round=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+```
+
+*`r tab_nums("cumCatch")`*
+
+##### page break
+
+**Probability of stock above MSY Btrigger**
+
+The probability of getting the stock above MSY Btrigger (150 000 tonnes) is shown in the figures below. The horizontal dashed line indicates a 50% probability of achieving the MSY Btrigger, which is being used in ICES as the desired state. In the SegReg and SegRegBlim scenarios, rebuilding to MSY Btrigger is relatively quick and very similar to the descrease in probability of being below Blim. The geometric mean recruitment does not achieve MSY Btrigger under target fishing mortalities of F=0.25 or F=0.31.  
+
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "probBtrigger1", display = FALSE, 
+         caption = "Probability of being above Btrigger at different values of Blim2 and Fmsy and SegReg (this page), SegRegBlim (next page - top) and recent geometric mean recruitment (next page - bottom)" )
+
+myvar  <- "probAboveBtrigger"
+myunit <- "%"
+mysrr  <- "segreg"
+
+t <-
+  summdf %>% 
+  filter(slot %in% "probAboveBtrigger") %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>%
+  filter(mean >= 0.5) %>% 
+  group_by(slot, fmsy, recmodel, blim2, plotvar) %>% 
+  summarize(year = min(year))
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  
+  geom_hline(aes(yintercept = 0.5), colour="gray15", linetype ="dashed") +
+  # geom_vline(data=t, aes(xintercept = year), colour="gray15", linetype ="dotted") +
+  
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("probBtrigger1")`*
+
+##### page break
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "probBtrigger2", display = FALSE, 
+         caption = "Probability of being above Btrigger at different values of Blim2 and Fmsy and SegRegBlim" )
+
+myvar  <- "probAboveBtrigger"
+myunit <- "%"
+mysrr  <- "segregblim"
+
+t <-
+  summdf %>% 
+  filter(slot %in% "probAboveBtrigger") %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>%
+  filter(mean >= 0.5) %>% 
+  group_by(slot, fmsy, recmodel, blim2, plotvar) %>% 
+  summarize(year = min(year))
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  
+  geom_hline(aes(yintercept = 0.5), colour="gray15", linetype ="dashed") +
+  # geom_vline(data=t, aes(xintercept = year), colour="gray15", linetype ="dotted") +
+  
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+```{r, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+fig_nums(name    = "probBtrigger3", display = FALSE, 
+         caption = "Probability of being above Btrigger at different values of Blim2 and Fmsy and recent Geometric mean recruitment" )
+
+myvar  <- "probAboveBtrigger"
+myunit <- "%"
+mysrr  <- "geomean"
+
+t <-
+  summdf %>% 
+  filter(slot %in% "probAboveBtrigger") %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>%
+  filter(mean >= 0.5) %>% 
+  group_by(slot, fmsy, recmodel, blim2, plotvar) %>% 
+  summarize(year = min(year))
+
+summdf %>% 
+  filter(slot %in% myvar) %>% 
+  filter(recmodel == mysrr) %>% 
+  filter(year >= ImY) %>% 
+
+  ggplot(aes(x=year,y = mean, group=blim2)) +
+  theme_publication() +
+  theme(legend.position = "none", 
+        panel.spacing = unit(1, "mm")) +
+  
+  geom_hline(aes(yintercept = 0.5), colour="gray15", linetype ="dashed") +
+  # geom_vline(data=t, aes(xintercept = year), colour="gray15", linetype ="dotted") +
+  
+  geom_line(aes(colour=blim2), size=1) +
+  expand_limits(y=0)+
+  labs(y=paste(myvar,myunit,sep=" "), x="", title=mysrr) +
+  facet_grid(fmsy~blim2, scales="free_y") 
+
+
+```
+
+*`r fig_nums("probBtrigger1", display="cite")`*
+
+##### page break
+
+<!--4. Discussion ------------------------------------------------------ -->
+
+# Discussion
+
+The ICES advice for Western Baltic Spring Spawning herring (WBSS) in 2019 is for a zero TAC. The rationale behind this advice is "There are no catch scenarios that will rebuild the stock above Blim by 2020. ICES advises zero catch under such circumstances". This means that the standard interpretation of the ICES advice rule is that a zero advice will be issued if the stock cannot be rebuilt above Blim within a period of one year. However, this interpretation has not been informed by an analysis of consequences of allowing for longer periods of rebuilding to above Blim. 
+
+In this paper, harvest control rule 'variants' have been explored in which fishing mortality is (strongly) reduced below Blim, but not necessarily set to F=0 below Blim. This is achieved by introducing a third biomass reference point (Blim2) which is the biomass at which fishing mortality will be set to zero. The evaluations are based on the agreed reference points for WBSS herring (i.e. Fmsy, Blim, MSY Btrigger) and evaluated the consequences of different choices for Blim2. The most extreme cases are Blim2 = Blim, which means that F is set to zero when the stock is below Blim and Blim2 = 0 which means a linear reduction of F from F at Blim down to the origin. Different recruitment scenarios and different target fishing mortalities have been explored.
+
+Results of the simulations show that allowing for a (reduced) fishing mortality below Blim does not jeopardize the rebuilding of the stock, although it does slightly extend the year in which the rebuilding is expected to be achieved. In most cases the difference between rebuilding in the most strict scenario (Blim2=120 000) and a more moderate scenario (Blim2=40000) is one or two years. At the same time the interannual variability in catch is lower in the moderate Blim2 scenario, because the initial change in TAC setting at the current level of stock is smaller when there is still some fishery allowed. This means that the HCR could provide a moderating effect on in situations where the stock drops below Blim: strong action needs to be taken in order to reduce fishing mortality and catch, but a closure is not a necessary condition. 
+
+The results are strongly dependent on the stock recruitment relationship and the target fishing mortality. The two segmented regression type of stock recruitment relationships that have been used, both show a relatively rapid recovery of the stock. However, if the recent low recruitment would continue in the future, then a strong reduction in target fishing mortality would be needed in order to achieve rebuilding of the stock. 
+
+
+<!--5. References ------------------------------------------------------ -->
+
+# References
+
+ICES (2018a). Herring (Clupea harengus) in subdivisions 20–24, spring spawners (Skagerrak, Kattegat, and western Baltic).In: ICES Advice on fishing opportunities, catch, and effort, Baltic Sea and Greater North Sea Ecoregions, 2018. Copenhagen, ICES. https://doi.org/10.17895/ices.pub.4390.
+
+ICES (2018). Report of the Benchmark Workshop on Pelagic Stocks (WKPELA 2018), 12-16 February 2018, Copenhagen. ICES C.M. 2018 / ACOM:32.
+
+
+# Annex: source code
+
+
+```{r, eval=FALSE, echo=TRUE}
+
+# =======================================================================================
+# WBSS MSE2.Rmd
+# 
+# 09/07/2018 adapted version eqsim3 with HCR that has steeper slope below Blim. 
+# 15/07/2018 Code is adapted to run for WBSS herring
+#              - changed average recruitment is calculated (only for years used in SR estimation)
+#              - changed calculation of starting population (old code had error in plus group)
+#              - added year to the arrays (instead of numbering from 1 onwards)
+# 13/08/2018 Converted r code to markdown
+# 17/08/2018 Omgezet naar FLSTOCK & FLASHER
+# 21/08/2018 Streamlined the code (faster; less storage); optional reading of results; finished text
+# =======================================================================================
+
+require("knitr")
+knitr::opts_chunk$set(echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE )
+knitr::opts_chunk$set(fig.width=10) 
+
+# packages 
+rm(list=ls())
+
+# Load FLCore packages
+library(FLCore)         # v2.6.9   # install.packages(c("FLCore"), repos="http://flr-project.org/R")
+library(FLEDA)          # v2.5.2   # install.packages(c("FLEDA"), repos="http://flr-project.org/R")
+library(FLasher) #x64   # v.0.0.5  #install.packages(c("FLasher"), repos="http://flr-project.org/R")
+
+#-Load the minimizer libraries needed
+library(MASS)#7.3-47
+library(minpack.lm)# 1.2-1
+
+# Read sam from stock assessment.org
+library(stockassessment) # stock assessment.org
+
+# Load the tidyverse packages
+library(tidyverse)
+library(ggplot2)
+library(captioner)     # captioning of figures and tables
+library(pander)        # tables etc.
+
+# library(readsam)       # tidy sam reader       # devtools::install_github("einarhjorleifsson/readsam")
+
+# Settings for captioner
+fig_nums <- captioner::captioner(prefix = "Figure")
+tab_nums <- captioner::captioner(prefix = "Table")
+
+# Load utils code
+source("D:/GIT/mptools/r/my_utils.r")
+
+source("theme_publication.r")
+
+# -------------------------------------------------------------------------------------------
+# load the WBSS assessment object(s)
+# -------------------------------------------------------------------------------------------
+
+load("D:/HAWG/2018/05. Data/WBSS/WBSS_mf_004/Herring WBSS_2016_EqSim_Workspace.Rdata")
+wbss <- stk
+
+# expand the stock object
+stk2018 <- FLasher::stf(wbss, nyears = 1)
+
+# now try to load the 2018 Single Fleet assessment results and create a new stock object from it
+fit    <- get(load("D:/HAWG/2018/05. Data/WBSS/model.RData"))
+
+minage <- dims(stk2018)$min
+maxage <- dims(stk2018)$max
+minyear<- dims(stk2018)$minyear
+maxyear<- dims(stk2018)$maxyear
+
+stk2018@harvest[ac(minage:(maxage-1)) ,,,,] <- exp(fit$pl$logF)
+stk2018@harvest[ac(maxage) ,,,,]            <- stk2018@harvest[ac(maxage-1) ,,,,]
+stk2018@stock.n[ac(minage:maxage) ,,,,]     <- exp(fit$pl$logN)
+stk2018@catch.n[]                           <- 
+         readVPAFile("D:/HAWG/2018/05. Data/WBSS/cn.dat")
+
+stk2018@catch.wt[]                          <- t(fit$data$catchMeanWeight)
+stk2018@stock.wt[]                          <- t(fit$data$stockMeanWeight)
+stk2018@m[]                                 <- t(fit$data$natMor)
+stk2018@mat[]                               <- t(fit$data$propMat)
+stk2018@catch[]                             <- computeCatch(stk2018)
+
+wbss <- stk2018
+
+# Settings
+
+FaY            <- dims(wbss)$minyear    # First assessment year
+TaY            <- dims(wbss)$maxyear    # Terminal assessment year
+ImY            <- TaY+1                 # Intermediate Year
+AdY            <- TaY+2                 # First Advice year
+FsY            <- 2025                  # Final simulation year
+maA            <- range(wbss)["max"]    # Maximum age
+miA            <- range(wbss)["min"]    # Minimum age
+niters         <- 500
+nages          <- maA - miA + 1 
+nforecastyears <- FsY - ImY + 1
+SSBcv          <- 0.31
+Blim           <- 120000
+Btrigger       <- 150000 
+
+# settings for simulation loops
+Fmsy           <- c(0.2, 0.25, 0.31)                    
+Blim2          <- c(0, 40000, 80000, 120000)       
+RecModel       <- c("segreg", "segregblim","geomean")        
+
+# simulate ?
+sim            <- FALSE
+
+# Simulations loops
+
+if (sim) {
+
+  start <- Sys.time()
+
+  # View settings
+  print          <- TRUE
+  
+  
+  nsim       <- length(Fmsy) * length(Blim2) * length(RecModel)
+  
+  # Define forecast object 
+  wbss_mtf <- FLasher::stf(wbss, nyears = nforecastyears)
+  
+  # expand to multiple iterations
+  wbss_mtf        <- propagate(wbss_mtf, niters)
+  
+  # start with stochastic population (in the terminal assessment year)
+  stockerr <- SSBcv * FLQuant(stats::rnorm(n = nages * niters, mean = 0, sd = 1), 
+                              dimnames = list(age= ac(miA:maA), year=TaY, iter=1:niters))
+  wbss_mtf[,ac(TaY)]@stock.n    <- wbss_mtf[,ac(TaY)]@stock.n * exp(stockerr)
+  
+  # Calculate selection by dividing F at age by Fbar
+  fbar      <- fbar(wbss_mtf)
+  sel       <- sweep(wbss_mtf@harvest, 2, fbar, "/")
+  
+  # create empty lists for simulation and SR results
+  ressim <- list()
+  ressr  <- list()
+  
+  # f <- 1; r <- 1; b <- 1; y <- ImY
+  
+  # start sim counter
+  i <- 0
+  
+  # Loop over different values of Fmsy ---------------------
+  
+  for (f in 1:length(Fmsy) ) {
+    
+    invisible(gc())
+  
+    FatBlim  <- Fmsy[f] * (Blim/Btrigger) 
+    
+    # Loop over recruitment models -------------------------
+    
+    for (r in 1:length(RecModel) ) {
+  
+      invisible(gc())
+    
+      if (RecModel[r] == "segreg")     system.time(wbss_sr <- fmle(as.FLSR(wbss, model="segreg"), 
+                                                       control=list(trace=0)))
+      if (RecModel[r] == "segregblim") system.time(wbss_sr <- fmle(as.FLSR(wbss, model="segreg"), 
+                                                       control=list(trace=0),
+                                                       fixed=list(b=Blim)))
+      if (RecModel[r] == "geomean")    system.time(wbss_sr <- fmle(
+                                                       as.FLSR(FLCore::trim(wbss,year=2005:TaY),
+                                                       model="geomean"),
+                                                       control=list(trace=0)))
+      
+      # Calculate residuals for stock recruitment
+      sample_years    <- sample(dimnames(residuals(wbss_sr))$year, niters * nforecastyears, 
+                                replace = TRUE)
+      wbss_srresid    <- FLQuant(NA, dimnames = list(year=ImY:FsY, iter=1:niters))
+      wbss_srresid[]  <- exp(residuals(wbss_sr)[,sample_years])
+    
+      # Loop over different values of Blim2 -------------------------
+      
+      for (b in 1:length(Blim2) ) {
+    
+        invisible(gc())
+        
+        old <- Sys.time() # get start time
+        
+        i <- i + 1
+        
+        if(print) print(paste("F:", Fmsy[f],
+                              "Recruitment model:", RecModel[r],
+                              "Blim2:", Blim2[b], 
+                              "iter", i, "of", nsim, 
+                              sep=" "))
+        
+      
+        # Loop over years -------------------------
+    
+        for (y in ImY:FsY) {
+          
+          # if(print) print(y)
+          
+          # Calculate SSB from year before
+          ssb <- ssb(wbss_mtf[,as.character(c(y-1))])
+          
+          # Apply HCR on SSB from year before
+          tmpBelow_Blim2    <- c(ssb <  Blim2[b])
+          tmpBlim2_Blim     <- c(ssb >= Blim2[b] & ssb < Blim)
+          tmpBlim_Btrigger  <- c(ssb >= Blim  & ssb < Btrigger); 
+          tmpAbove_Btrigger <- c(ssb >= Btrigger)
+          
+          # Define F
+          Fnext   <- ssb
+          Fnext[] <- NA
+          dimnames(Fnext)$year   <- ac(y)
+          
+        
+          # The HCR application to F   -------------------------------------------
+              
+          # below Blim2
+          Fnext[,,,,,tmpBelow_Blim2] <- 0
+        
+            # between Blim2 and Blim
+          Fnext[,,,,,tmpBlim2_Blim] <- FatBlim * (1 - (Blim - ssb[,,,,,tmpBlim2_Blim]) / 
+                                                      (Blim - Blim2[b]))
+        
+          # between Blim and Btrigger
+          Fnext[,ac(y),,,,tmpBlim_Btrigger] <- Fmsy[f] * (ssb[,,,,,tmpBlim_Btrigger]/Btrigger)
+          
+          # Above Btrigger
+          Fnext[,ac(y),,,,tmpAbove_Btrigger] <- Fmsy[f]
+              
+          # print(Fnext[,ac(y),,,,])
+          # hist(Fnext[,ac(y)])
+          
+          # ----------------------------------------------------------------------
+          
+          # Calculate survivors from previous year
+          wbss_mtf@stock.n[ac((miA+1):(maA-1)),ac(y)] <- 
+            wbss_mtf@stock.n[ac(miA:(maA-2)),ac(y-1)] * 
+            exp(-wbss_mtf@harvest[ac(miA:(maA-2)),ac(y-1)]-wbss_mtf@m[ac(miA:(maA-2)),ac(y-1)])
+          
+          # Calculate plusgroup
+          wbss_mtf@stock.n[ac(maA),ac(y)] <- 
+            wbss_mtf@stock.n[ac(maA-1),ac(y-1)] * 
+            exp(-wbss_mtf@harvest[ac(maA-1),ac(y-1)]-wbss_mtf@m[ac(maA-1),ac(y-1)]) + 
+            wbss_mtf@stock.n[ac(maA),ac(y-1)] * 
+            exp(-wbss_mtf@harvest[ac(maA),ac(y-1)]-wbss_mtf@m[ac(maA),ac(y-1)]) 
+          
+          # Resample SRR residual years from history 
+          sample_years <- 
+            sample(dimnames(residuals(wbss_sr))$year, niters * 1, replace = TRUE)
+          
+          # Calculate SRR residuals per iteration
+          residuals  <- 
+            wbss_mtf@stock.n[ac(miA),ac(y),,,,1:niters]       # Copy from FLQuant
+          residuals[ac(miA),ac(y),,,,1:niters]  <- 
+            an(exp(residuals(wbss_sr)[,sample_years])@.Data)  # Fill with appropriate values
+          
+          wbss_mtf@stock.n[ac(miA),ac(y),,,,] <- 
+            predict(wbss_sr, ssb=ssb) * residuals
+          
+          # Calculate F in year y based on HCR F and selectivity
+          sel[,ac(y),,,,1:niters] <- 
+            sel[,sample_years,,,,1]  # randomly select selectivity years and store them in iters
+          wbss_mtf@harvest[,ac(y),,,,1:niters] <-
+            sweep(sel[,ac(y),,,,1:niters], 2:6, Fnext, "*")
+          
+          # hist(wbss_mtf@harvest[,ac(y-1)])
+          # hist(Fmult)
+          
+          # Calculate catch in year y based on HCR (C = N * F/(F+M) * (1-exp(-F-M)))
+          wbss_mtf@catch.n[,ac(y)] <-
+            wbss_mtf@stock.n[,ac(y)] * 
+            wbss_mtf@harvest[,ac(y)] / (wbss_mtf@harvest[,ac(y)] + wbss_mtf@m[,ac(y)]) *
+            (1-exp(-wbss_mtf@harvest[,ac(y)]- wbss_mtf@m[,ac(y)])) 
+          
+          wbss_mtf@catch[,ac(y)] <-
+            computeCatch(wbss_mtf[,ac(y)])
+          
+          # hist(ssb)
+          # hist(fbar(wbss_mtf[,ac(y-1)]))
+          # iters(wbss_mtf@fbar[,ac(y-1)])
+               
+        } # end of year loop
+        
+        # plot(wbss_mtf)
+        ressr[paste(Fmsy[f], "~", Blim2[b], "~", RecModel[r], sep="")]  <- wbss_sr
+        ressim[paste(Fmsy[f], "~", Blim2[b], "~", RecModel[r], sep="")] <- wbss_mtf
+        
+        print(Sys.time() - old) # print in nice format
+        
+      } # end of Blim2 loop
+      
+    } # end of RecModel loop
+    
+  } # end of Fmsy loop
+  
+  cat("Total simulation time")
+  cat(Sys.time() - start) # print in nice format
+    
+  
+  # Convert to data.frames ------------------------------
+  
+  cat("Now converting to data.frames")
+  
+  start <- Sys.time()
+  
+  wormsdf <- data.frame()
+  summdf  <- data.frame()
+  
+  # print("Converting results to data.frames")
+  
+  i <- 1
+  
+  for (i in 1: length(ressim)) {
+    
+    print(i)
+    
+    old <- Sys.time() # get start time
+    
+    invisible(gc())
+    
+    resdf <- mutate(as.data.frame(ressim[[i]]), sim=names(ressim[i]))
+    resdf <- bind_rows(resdf, mutate(as.data.frame(ssb(ressim[[i]])), 
+                                                 sim=names(ressim[i]) ,slot="ssb"))
+    resdf <- bind_rows(resdf, mutate(as.data.frame(fbar(ressim[[i]])), 
+                                                 sim=names(ressim[i]) ,slot="fbar")) %>% 
+      mutate(slot = ifelse(slot=="stock.n" & age == minage, "rec",slot) )   %>% 
+      separate(sim, into=c("fmsy","blim2","recmodel"), sep="~") 
+  
+    # Creating a worms data.frames
+    wormsdf <-
+        resdf %>% 
+        ungroup() %>% 
+        mutate(blim2   = factor(blim2, levels=ac(sort(an(unique(Blim2))))) ) %>% 
+        mutate(plotvar = paste(recmodel, "F=",fmsy, sep=" ")) %>% 
+        mutate(iter    = an(iter)) %>% 
+        filter(an(iter) <= 5) %>% 
+        bind_rows(., wormsdf)
+  
+    # Creating a summary over all iterations
+      summ1 <-
+      resdf %>% 
+      group_by(recmodel, fmsy, blim2, slot, age, year, unit, season, area) %>% 
+      summarize(mean = mean(data, na.rm=TRUE),
+                sd   = sd(data, na.rm=TRUE)) %>% 
+      mutate(upr = mean + 1.96*sd,
+             lwr = mean - 1.96*sd)
+  
+    # Creating a summary for probability against Blim and Btrigger
+      summ2 <-
+      resdf %>% 
+      filter(slot == "ssb") %>% 
+      group_by(recmodel, fmsy, blim2, slot, age, year, unit, season, area) %>% 
+      mutate(probLessBlim      = ifelse(data < Blim, 1, 0),
+             probAboveBtrigger = ifelse(data >= Btrigger, 1, 0)) %>% 
+      summarize(probLessBlim = sum(probLessBlim, na.rm=TRUE) / n(),
+                probAboveBtrigger = sum(probAboveBtrigger, na.rm=TRUE) / n() ) %>% 
+      ungroup() %>% 
+      dplyr::select(-slot) %>% 
+      gather(key="slot", value="mean", probLessBlim:probAboveBtrigger)
+  
+    # Combine the two summary dataframes
+      summdf <-
+      bind_rows(summ1, summ2) %>% 
+      ungroup() %>% 
+      mutate(blim2   = factor(blim2, levels=ac(sort(an(unique(Blim2)))) )) %>% 
+      mutate(plotvar = paste(recmodel, "F=",fmsy, sep=" ")) %>% 
+      bind_rows(., summdf)
+      
+      print(Sys.time() - old) # print in nice format
+    }
+  
+  cat("Total data conversion time")
+  cat(Sys.time() - start) # print in nice format
+  
+  
+  save(wormsdf, summdf, ressr, file="wbss mse.RData")
+
+  
+} else { # don't simulate, simply load saved files
+
+    load(file="wbss mse.RData")
+  
+}
+
+
+```

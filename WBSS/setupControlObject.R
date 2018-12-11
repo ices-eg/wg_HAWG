@@ -11,7 +11,7 @@ stk.ctrl <- FLSAM.control(stk,wbss.tun)
 slotNames(stk.ctrl)
 
 # point to the same tpl file used in the web-interface assessment
-stk.ctrl@sam.binary <- "model/sam"
+
 
 # set states
 stk.ctrl@states[]["catch",] <- c(1:5,rep(6,4))
