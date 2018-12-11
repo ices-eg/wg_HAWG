@@ -32,7 +32,9 @@ try(setwd("NSAS/refpts"),silent=FALSE)
 
 source("Refpoints functions.R")
 source("../../_Common/eqsr_fit_shift.R")
+
 #load("D:/WKPELA/06. Data/NSAS/SAM/NSH_final.RData")
+# NEED TO OPEN THE SHAREPOINT FOLDER IN EXPLORER FIRST!!
 load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2018/wkherring/2014 Meeting docs/06. Data/NSAS/SAM/NSH_final.RData")
 
 # 1. Get estimate of Blim using the whole time series and calculate Bpa
@@ -57,12 +59,13 @@ SegregBlim  <- function(ab, ssb) log(ifelse(ssb >= blim,
                                             ab$a * ssb))
 
 # 3. truncate the NSH object
-# NSHtrunc <- trim(NSH, year=2000:2016)
 NSHtrunc <- trim(NSH, year=2002:2016)
 
 # 4. fit the stock recruitment model(s)
-FIT <- eqsr_fit_shift(NSHtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"),
-                      rshift=1)
+FIT <- eqsr_fit_shift(NSHtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"), rshift=1)
+
+# Alternative fit, not used
+# FIT <- eqsr_fit_shift(NSH, nsamp = 2000, models = c("Ricker", "SegregBlim", "Bevholt"), rshift=1)
 
 eqsr_plot(FIT,n=2e4, ggPlot=TRUE)
 eqsr_plot(FIT,n=2e4, ggPlot=FALSE)

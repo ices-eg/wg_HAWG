@@ -16,19 +16,20 @@ rm(list=ls())
 
 # library(devtools)
 # install_github("ices-tools-prod/msy")
+# install.packages("FLCore", repos="http://flr-project.org/R")
 
 library(FLCore)
 library(FLSAM)
 library(msy)       
 library(tidyverse)
 
-try(setwd("D:/git/wg_HAWG/NSAS/benchmark/R/7_finalModel/refPoints"),silent=FALSE)
+try(setwd("D:/git/wg_HAWG/NSAS/refpts"),silent=FALSE)
 
 
 source("Refpoints functions.R")
 source("D:/GIT/wg_HAWG/_Common/eqsr_fit_shift.R")
 
-load("D:/WKPELA/06. Data/NSAS/SAM/NSH_final.RData")
+load("E:/WKPELA/2018/06. Data/NSAS/SAM/NSH_final.RData")
 NSHbench <- NSH
 
 
