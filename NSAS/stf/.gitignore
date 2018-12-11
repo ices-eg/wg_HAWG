@@ -8,3 +8,7 @@ stf.table_deterministic.xlsx
 stf.table compare single and multifleet assess.xlsx
 MultiFleetShorttermForecastDeterministic mf - Local Copy.r
 MultiFleetShorttermForecastDeterministic mf - as if 2017 forecast.r
+ShortTermForecast multifleetmode_f01WBSS.RData
+ShortTermForecast multifleetmode_noWBSS.RData
+stf.table_mf_deterministic_f01WBSS.csv
+stf.table_mf_deterministic_noWBSS.csv
