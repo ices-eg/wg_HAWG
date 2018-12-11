@@ -12,3 +12,4 @@ ShortTermForecast multifleetmode_f01WBSS.RData
 ShortTermForecast multifleetmode_noWBSS.RData
 stf.table_mf_deterministic_f01WBSS.csv
 stf.table_mf_deterministic_noWBSS.csv
+.stf_mf.out
