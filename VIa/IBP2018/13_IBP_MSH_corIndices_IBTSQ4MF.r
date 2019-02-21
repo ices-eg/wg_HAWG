@@ -58,6 +58,7 @@ MSHm@catch.n[,,,,"N"]   <- VIaN_canum
 MSHm@catch.wt[,,,,"N"]  <- VIaN_weca
 MSHm@catch.n[,,,,"S"]   <- VIaS_canum
 MSHm@catch.wt[,,,,"S"]  <- VIaS_weca
+MSHm@landings.n         <- MSHm@catch.n
 MSHm@landings.wt        <- MSHm@catch.wt
 MSHm@landings           <- computeLandings(MSHm)
 MSHm@catch              <- computeCatch(MSHm)
@@ -149,14 +150,31 @@ MSH.ctrl                                    <- update(MSH.ctrl)
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
+MSHm.ctrl            <- MSH.ctrl
 MSHm.sam             <- FLSAM(MSHm,MSH.tun,MSH.ctrl)
 MSH.ctrl@residuals   <- FALSE
 MSHm.retro           <- retro(MSHm,MSH.tun,MSH.ctrl,7)
 
 
-run_name            <- "corIBTSQ40123333_mf_bindqHERAS"
+
+
+run_name            <- "finalRun"
 source("./createAssessmentPlotsMF.r")
 save(MSHm,MSHm.sam,MSH.tun,MSH.ctrl,MSHm.retro,file=file.path(output.dir,paste0("IBP_VIaHerring_",run_name,"_MF.Rdata")))
+
+load("D:/Downloads/6a7bcHerring.RData")
+MSH.ctrl@cor.obs["HERAS",]                  <- c(0,0,rep(1,6))
+MSH.ctrl@f.vars[1,]                         <- c(1,2,rep(3,5),rep(4,2))
+MSH.ctrl                                    <- update(MSH.ctrl)
+MSH.ctrl@residuals    <- TRUE
+MSH.sam               <- FLSAM(MSH,MSH.tun,MSH.ctrl)
+MSH.ctrl@residuals    <- FALSE
+MSH.retro            <- retro(MSH,MSH.tun,MSH.ctrl,7)
+
+save(MSH.ctrl,MSH.tun,MSH,MSHm,MSHm.sam,MSHm.retro,MSH.sam,MSH.retro,file=file.path(output.dir,paste0("IBP_VIaHerring_",run_name,"_SF_MF.Rdata")))
+
+
+
 
 MSHm.looi               <- looi(MSHm,MSH.tun,MSH.ctrl,type="full",MSHm.sam)
 save(MSHm.looi,file=file.path(output.dir,paste0("IBP_VIaHerring_",run_name,"_MF_LOOI.RData")))
@@ -206,11 +224,12 @@ conf <- ctrl2conf(MSH.ctrl,data)
 par  <- stockassessment::defpar(data,conf)
 par$logFpar <- log(unique(meanQ$x))
 
-fit <- stockassessment::sam.fit(data,conf,par,map=list(logFpar=as.factor(rep(NA,length(par$logFpar)))))
+fit <- stockassessment::sam.fit(data,conf,par),map=list(logFpar=as.factor(rep(NA,length(par$logFpar)))))
 
 MSH.samfixQ <- SAM2FLR(fit,MSH.ctrl)
 plot(FLSAMs(original=MSHm.retro[[1]],fixQ=MSH.samfixQ))
 
+MSH.samLF <- SAM2FLR(fit,MSH.ctrl)
 
 
 MSHm.retroFixQ <- list()
