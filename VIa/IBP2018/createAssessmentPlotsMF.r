@@ -94,8 +94,8 @@ print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by 
 
 
 # process error in terms of N
-MSH@harvest <- areaSums(MSHm.sam@harvest)[,-which(dimnames(MSHm.sam@harvest)$year==range(MSHm.sam)["maxyear"])]
-MSH@stock.n <- MSHm.sam@stock.n[,-which(dimnames(MSHm.sam@stock.n)$year==range(MSHm.sam)["maxyear"])]
+MSH@harvest <- areaSums(MSHm.sam@harvest[,dimnames(MSH@catch.n)$year])#[,-which(dimnames(MSHm.sam@harvest)$year==range(MSHm.sam)["maxyear"])]
+MSH@stock.n <- MSHm.sam@stock.n[,dimnames(MSH@catch.n)$year]#[,-which(dimnames(MSHm.sam@harvest)$year==range(MSHm.sam)["maxyear"])]
 print(procerr.plot(MSH,weight="stock.wt",type="n",rel=T))
 
 # process error in terms of additional mortality

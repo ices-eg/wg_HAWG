@@ -128,7 +128,7 @@ MSH.ctrl@f.vars["catch N",]            <- c(1,rep(2,8)) + 101
 
 
 #Set the variances. Separate variance for recruitment and plus group
-MSH.ctrl@logN.vars[]                        <- c(1,2,rep(3,7))
+MSH.ctrl@logN.vars[]                        <- c(1,rep(2,8))
 
 #Bind the observation variances
 MSH.ctrl@obs.vars["catch S",]               <- c(001,002,rep(003,4),rep(004,3))
@@ -154,19 +154,123 @@ MSH.ctrl@residuals   <- FALSE
 MSHm.retro           <- retro(MSHm,MSH.tun,MSH.ctrl,7)
 
 
-run_name            <- "corIBTSQ40123333_mf"
+run_name            <- "corIBTSQ40123333_mf_bindqHERAS"
 source("./createAssessmentPlotsMF.r")
 save(MSHm,MSHm.sam,MSH.tun,MSH.ctrl,MSHm.retro,file=file.path(output.dir,paste0("IBP_VIaHerring_",run_name,"_MF.Rdata")))
 
+MSHm.looi               <- looi(MSHm,MSH.tun,MSH.ctrl,type="full",MSHm.sam)
+save(MSHm.looi,file=file.path(output.dir,paste0("IBP_VIaHerring_",run_name,"_MF_LOOI.RData")))
+
+MSH.ctrl@residuals      <- FALSE
+MSHm.all_retro          <- retro(MSHm,MSH.tun,MSH.ctrl,7)
+MSHm.noIBTS_Q1_retro    <- retro(MSHm,MSH.tun[-2],drop.from.control(MSH.ctrl,fleet="IBTS_Q1"),7)
+MSHm.noIBTS_Q4_retro    <- retro(MSHm,MSH.tun[-3],drop.from.control(MSH.ctrl,fleet="IBTS_Q4"),7)
+MSHm.noHERAS_retro      <- retro(MSHm,MSH.tun[-1],drop.from.control(MSH.ctrl,fleet="MS HERAS"),7)
+MSHm.onlyIBTS_Q1_retro  <- retro(MSHm,MSH.tun[c(-1,-3)],drop.from.control(MSH.ctrl,fleet=c("IBTS_Q4","MS HERAS")),7)
+MSHm.onlyIBTS_Q4_retro  <- retro(MSHm,MSH.tun[c(-1,-2)],drop.from.control(MSH.ctrl,fleet=c("IBTS_Q1","MS HERAS")),7)
+MSHm.onlyHERAS_retro    <- retro(MSHm,MSH.tun[c(-2,-3)],drop.from.control(MSH.ctrl,fleet=c("IBTS_Q4","IBTS_Q1")),7)
+save(MSHm.all_retro,MSHm.noIBTS_Q1_retro,MSHm.noIBTS_Q4_retro,MSHm.noHERAS_retro,MSHm.onlyIBTS_Q1_retro,MSHm.onlyIBTS_Q4_retro,MSHm.onlyHERAS_retro,file=file.path(output.dir,paste0("IBP_VIaHerring_",run_name,"_MF_LOOI_retros.RData")))
+
+fileNames   <- c("MSHm.all_retro","MSHm.noIBTS_Q1_retro","MSHm.noIBTS_Q4_retro","MSHm.noHERAS_retro","MSHm.onlyIBTS_Q1_retro","MSHm.onlyIBTS_Q4_retro","MSHm.onlyHERAS_retro")
+indicators  <- matrix(NA,nrow=length(fileNames),ncol=9,dimnames=list(run=substr(fileNames,6,nchar(fileNames)),indicator=c("AIC","MohnsRhoSSB","MohnsRhoF","MohnsRhoR","MohnsRhoSSBAbs","MohnsRhoFAbs","MohnsRhoRAbs","loglik","nparam")))
+for(iFile in fileNames){
+  if(length(get(iFile))==8){
+    indicators[substr(iFile,6,nchar(iFile)),"MohnsRhoSSB"]     <- mean(mohns.rho(get(iFile),ref.year=2017,span=7,type="ssb")[3:7,1])
+    indicators[substr(iFile,6,nchar(iFile)),"MohnsRhoSSBAbs"]  <- mean(abs(mohns.rho(get(iFile),ref.year=2017,span=7,type="ssb")[3:7,1]))
+    indicators[substr(iFile,6,nchar(iFile)),"MohnsRhoF"]   <- mean(mohns.rho(get(iFile),ref.year=2017,span=7,type="fbar")[3:7,1])
+    indicators[substr(iFile,6,nchar(iFile)),"MohnsRhoFAbs"]   <- mean(abs(mohns.rho(get(iFile),ref.year=2017,span=7,type="fbar")[3:7,1]))
+    indicators[substr(iFile,6,nchar(iFile)),"MohnsRhoR"]   <- mean(mohns.rho(get(iFile),ref.year=2017,span=7,type="rec")[3:7,1])
+    indicators[substr(iFile,6,nchar(iFile)),"MohnsRhoRAbs"]   <- mean(abs(mohns.rho(get(iFile),ref.year=2017,span=7,type="rec")[3:7,1]))
+  }
+}
+indicators <- cbind(indicators,sumRho=rowSums(abs(indicators[,2:4])),sumRhoAbs=rowSums(abs(indicators[,5:7])))
+indicators <- cbind(indicators,sumRhos=indicators[,"sumRho"] + indicators[,"sumRhoAbs"])
+indicators
+
+for(iFile in names(MSHm.looi)){
+  run_name             <- paste0("finalQ4corrLOOI_",iFile,"_mf")
+  MSHm.sam             <- MSHm.looi[[iFile]]
+  idx                  <- which(iFile == names(MSHm.looi))
+  MSHm.retro           <- get(fileNames[c(1,3,2,7,4,5,6)][idx])
+  source("./createAssessmentPlotsMF.r")
+}
 
 
 
-#- Additional diagnostics and runs
-xyplot(value ~ an(name) | fleet,group=age,data=catchabilities(MSH.retro),type="b",pch=19,scales=list(y="free"))
+# Fix Qs for IBTS Q4
+res   <- catchabilities(MSHm.retro)
+meanQ <- aggregate(res$value,by=as.list(res[,c("age","fleet")]),FUN=mean)
 
-MSH.loi <- looi(MSH,MSH.tun,MSH.ctrl,type="loo",MSH.sam)
+data <- FLSAM2SAM(FLStocks(residual=MSHm),MSH.tun)
+conf <- ctrl2conf(MSH.ctrl,data)
+par  <- stockassessment::defpar(data,conf)
+par$logFpar <- log(unique(meanQ$x))
 
-MSH.noMSHERAS_retro  <- retro(MSH,MSH.tun[-1],drop.from.control(MSH.ctrl,fleet="MS HERAS"),7)
-MSH.noWoSHERAS_retro <- retro(MSH,MSH.tun[-2],drop.from.control(MSH.ctrl,fleet="WoS HERAS"),7)
-MSH.noIBTS_Q1_retro  <- retro(MSH,MSH.tun[-3],drop.from.control(MSH.ctrl,fleet="IBTS_Q1"),7)
-MSH.noIBTS_Q4_retro  <- retro(MSH,MSH.tun[-4],drop.from.control(MSH.ctrl,fleet="IBTS_Q4"),7)
+fit <- stockassessment::sam.fit(data,conf,par,map=list(logFpar=as.factor(rep(NA,length(par$logFpar)))))
+
+MSH.samfixQ <- SAM2FLR(fit,MSH.ctrl)
+plot(FLSAMs(original=MSHm.retro[[1]],fixQ=MSH.samfixQ))
+
+
+
+MSHm.retroFixQ <- list()
+for(iYr in 2017:2010){
+  print(iYr)
+  data <- FLSAM2SAM(FLStocks(residual=window(MSHm,end=iYr)),FLIndices("MS HERAS"=window(MSH.tun[[1]],end=iYr),
+                                                                      "IBTS_Q1"=window(MSH.tun[[2]],end=iYr+1),
+                                                                      "IBTS_Q4"=window(MSH.tun[[3]],end=iYr)))
+  MSH.ctrl@range[5] <- iYr+1
+  conf <- ctrl2conf(MSH.ctrl,data)
+  par  <- stockassessment::defpar(data,conf)
+  par$logFpar <- log(unique(meanQ$x))
+
+  fit <- stockassessment::sam.fit(data,conf,par,map=list(logFpar=as.factor(rep(NA,length(par$logFpar)))))
+  MSHm.retroFixQ[[ac(iYr)]] <- SAM2FLR(fit,MSH.ctrl)
+}
+
+dat <- ssb(MSHm.retro)
+
+plot(y=ssb(MSHm.retro[[1]])$value / mean(ssb(MSHm.retro[[1]])$value),x=ssb(MSHm.retro[[1]])$year,type="l")
+for(iYr in 2016:2010)
+  lines(y=ssb(MSHm.retro[[ac(iYr)]])$value / mean(ssb(MSHm.retro[[ac(iYr)]])$value),x=ssb(MSHm.retro[[ac(iYr)]])$year,type="l",col=iYr-2008)
+
+#- Change from year to year
+plot(y=diff(ssb(MSHm.retro[[1]])$value / mean(ssb(MSHm.retro[[1]])$value)),x=ssb(MSHm.retro[[1]])$year[-1],type="l",xlab="Year",ylab="Change from year to year",main="SSB rate of change")
+for(iYr in 2016:2010)
+  lines(y=diff(ssb(MSHm.retro[[ac(iYr)]])$value / mean(ssb(MSHm.retro[[ac(iYr)]])$value)),x=ssb(MSHm.retro[[ac(iYr)]])$year[-1],type="l",col=iYr-2008)
+
+plot(y=diff(rev(rev(fbar(MSHm.retro[[1]])$value)[-1]) / mean(fbar(MSHm.retro[[1]])$value)),x=fbar(MSHm.retro[[1]])$year[-c(1:2)]+1,type="l",xlab="Year",ylab="Change from year to year",main="F rate of change")
+for(iYr in 2016:2010)
+  lines(y=diff(rev(rev(fbar(MSHm.retro[[ac(iYr)]])$value)[-1]) / mean(fbar(MSHm.retro[[ac(iYr)]])$value)),x=fbar(MSHm.retro[[ac(iYr)]])$year[-c(1:2)]+1,type="l",col=iYr-2008)
+
+
+
+res <- as.data.frame(sweep(catch.n(MSHm),c(2:6),quantSums(catch.n(MSHm)),"/"))
+surv1 <- as.data.frame(sweep(index(MSH.tun[[1]]),c(2:6),quantSums(index(MSH.tun[[1]])),"/")); surv1$area <- "MS_HERAS"
+surv2 <- as.data.frame(sweep(index(MSH.tun[[2]]),c(2:6),quantSums(index(MSH.tun[[2]])),"/")); surv2$area <- "IBTS_Q1"
+surv3 <- as.data.frame(sweep(index(MSH.tun[[3]]),c(2:6),quantSums(index(MSH.tun[[3]])),"/")); surv3$area <- "IBTS_Q4"
+rescomb <- rbind(res,surv1,surv2,surv3)
+
+xyplot(data ~ age | as.factor(year),data=subset(res,year>=1991),group=area,type="l",auto.key=T)
+xyplot(data ~ age | as.factor(year),data=subset(rescomb,year>=1991),group=area,type="l",auto.key=T)
+
+rescomb <- as.data.frame(sweep(areaSums(catch.n(MSHm)),c(2:6),areaSums(quantSums(catch.n(MSHm))),"/"))
+res <- as.data.frame(sweep(catch.n(MSHm),c(2:6),quantSums(catch.n(MSHm)),"/"))
+rescomb <- rbind(rescomb,res)
+xyplot(data ~ an(age) | as.factor(year),data=subset(rescomb,year>=1991),type="l",group=area,auto.key=T)
+
+catch <- as.data.frame(sweep(areaSums(catch.n(MSHm)),c(2:6),areaSums(quantSums(catch.n(MSHm))),"/"))
+surv1 <- as.data.frame(sweep(index(MSH.tun[[1]]),c(2:6),quantSums(index(MSH.tun[[1]])),"/")); surv1$area <- "MS_HERAS"
+surv2 <- as.data.frame(sweep(index(MSH.tun[[2]]),c(2:6),quantSums(index(MSH.tun[[2]])),"/")); surv2$area <- "IBTS_Q1"
+surv3 <- as.data.frame(sweep(index(MSH.tun[[3]]),c(2:6),quantSums(index(MSH.tun[[3]])),"/")); surv3$area <- "IBTS_Q4"
+
+rescomb <- rbind(catch,surv1)
+xyplot(data ~ an(age) | as.factor(year),data=subset(rescomb,year>=1991),type="l",group=area,auto.key=T)
+
+x11()
+rescomb <- rbind(catch,surv2)
+xyplot(data ~ an(age) | as.factor(year),data=subset(rescomb,year>=1991),type="l",group=area,auto.key=T)
+
+x11()
+rescomb <- rbind(catch,surv3)
+xyplot(data ~ an(age) | as.factor(year),data=subset(rescomb,year>=1991),type="l",group=area,auto.key=T)

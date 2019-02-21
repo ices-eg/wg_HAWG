@@ -8,12 +8,12 @@ for(iFile in fileNames){
   print(iFile)
   indicators[strsplit(iFile,"_")[[1]][3],"AIC"]         <- AIC(MSHm.sam)
   if(length(MSHm.retro)==8){
-    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoSSB"]     <- mean(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="ssb")[1:5,1])
-    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoSSBAbs"]  <- mean(abs(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="ssb")[1:5,1]))
-    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoF"]   <- mean(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="fbar")[1:5,1])
-    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoFAbs"]   <- mean(abs(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="fbar")[1:5,1]))
-    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoR"]   <- mean(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="rec")[1:5,1])
-    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoRAbs"]   <- mean(abs(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="rec")[1:5,1]))
+    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoSSB"]     <- mean(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="ssb")[3:7,1])
+    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoSSBAbs"]  <- mean(abs(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="ssb")[3:7,1]))
+    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoF"]   <- mean(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="fbar")[3:7,1])
+    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoFAbs"]   <- mean(abs(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="fbar")[3:7,1]))
+    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoR"]   <- mean(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="rec")[3:7,1])
+    indicators[strsplit(iFile,"_")[[1]][3],"MohnsRhoRAbs"]   <- mean(abs(mohns.rho(MSHm.retro,ref.year=2017,span=7,type="rec")[3:7,1]))
   }
   indicators[strsplit(iFile,"_")[[1]][3],"loglik"]      <- MSHm.sam@nlogl
   indicators[strsplit(iFile,"_")[[1]][3],"nparam"]      <- MSHm.sam@nopar
