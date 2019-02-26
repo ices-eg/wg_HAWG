@@ -3,8 +3,8 @@
 # 6a7bc herring; final assessment at interbenchmark meeting 2019
 #
 # Uses: R 3.5
-#       FLCore 2.6.10
-#       msy 0.1.18
+#       FLCore 2.6.12
+#       msy 0.1.18:    
 #
 # 22/02/2018 Martin Pastoors
 # 17/03/2018 Checked and updated folders after cleanup of github
@@ -17,26 +17,49 @@ rm(list=ls())
 # ***follow the order of loading (1) FLCore and (2) msy
 # as SR fuctions have same name but different formulation
 
-#library(devtools)  ## install.packages("devtools")
-library(FLCore)
+#library(devtools)  # install.packages("devtools")
+library(FLCore)     #  install.packages("FLCore", repos="http://flr-project.org/R")
 library(FLSAM)
-library(msy)       ## devtools::install_github("ices-tools-prod/msy")
+library(msy)        # devtools::install_github("ices-tools-prod/msy")
+                    # devtools::install_github("ices-tools-prod/msy@development")
 library(tidyverse)
 
 # setwd("D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/")
-try(setwd("VIa/IBP2018/refpts"),silent=FALSE)
-
-# source("../refpts/Refpoints functions.R")
-# source("../../_Common/eqsr_fit_shift.R")
-# load("./results/7_finalModel/NSH_final.RData")
+try(setwd("D:/GIT/wg_HAWG/VIa/IBP2018/refpts"),silent=FALSE)
 
 source("../../../NSAS/refpts/Refpoints functions.R")
 source("../../../_Common/eqsr_fit_shift.R")
+source("../../../_Common/collapseAreas.R")
+source("../../../../mptools/R/my_utils.r")
 
-# NEED TO OPEN THE SHAREPOINT FOLDER IN EXPLORER FIRST!!
-# load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2018/wkherring/2014 Meeting docs/06. Data/NSAS/SAM/NSH_final.RData")
-# load("//community.ices.dk/ExpertGroups/benchmarks/2019/IBPher6a7bc 2019/2019 Meeting docs/06. Data/FLSAM Single Fleet Runs/6a7bcHerring.RData")
+# Smooth hockey function adapted to Mesnil
+Smooth_hockey <- function(a, ssb) smooth_hockey(a, ssb, gamma = sqrt(0.001 * 4))
+
+# WKWEST 2015 data
+
+load("D:/TEMP/MSH WKWEST2015.Rdata")
+WKWEST      <- MSH
+WKWEST.sam  <- MSHm.sam
+WKWEST.ctrl <- MSH.ctrl
+WKWEST.tun  <- MSH.tun
+
+# Convert to data.frames
+WKWEST.df <- 
+  bind_rows(mutate(as.data.frame(ssb(WKWEST)), slot="ssb"),
+            mutate(as.data.frame(rec(WKWEST)), slot="rec", age=as.character(age)),
+            mutate(as.data.frame(fbar(WKWEST)),slot="fbar")) %>% 
+  mutate(assess="WKWEST2015")
+
+# Fit smooth hockeystick similar to WKWEST
+FIT_smoothhockey <- eqsr_fit(WKWEST, nsamp = 1000, models = "Smooth_hockey", rshift = 2)
+eqsr_plot(FIT_smoothhockey,n=2e4, ggPlot=FALSE)
+blim_wkwest <- round(FIT_smoothhockey$sr.det$b/1e4)*1e4  # 796 kT = 800 kT
+
+
+# IBP 2019 data
+
 load("D:/TEMP/IBP_VIaHerring_finalRun_MF.Rdata")
+# save(MSH.tun, file="D:/TEMP/MSH.tun.Rdata")
 
 # rename
 STK       <- MSHm
@@ -44,26 +67,120 @@ STK.retro <- MSHm.retro
 STK.sam   <- MSHm.sam
 STK.ctrl  <- MSH.ctrl
 STK.tun   <- MSH.tun
+units(harvest(STK)) <- "f"
 
-rm(MSH.ctrl, MSH.tun, MSHm, MSHm.retro, MSHm.sam)
 
-# 0. Deal with multifleet aspects
-STK@stock.n           <- STK.sam@stock.n[,ac(range(STK)["minyear"]:range(STK)["maxyear"])]
-STK@harvest           <- areaSums(STK.sam@harvest[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@harvest.spwn      <- areaMeans(STK@harvest.spwn[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@m                 <- areaMeans(STK@m[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@m.spwn            <- areaMeans(STK@m.spwn[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@stock.wt          <- areaMeans(STK@stock.wt[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@mat               <- areaMeans(STK@mat[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
+# add in results; for stck.n - split across areas
+stock.n(STK)[] <- stock.n(window(MSHm.sam, end = 2017)) / dims(STK)$area
+harvest(STK)   <- harvest(window(MSHm.sam, end = 2017))
+stock(STK)     <- computeStock(STK)
 
-summary(STK)
+# collapse areas (=fleets)
+STK            <- collapseAreas(STK)
+# plot(STK)
+# STK@harvest[year=ac(2010:2017)] 
+
+# Convert to data.frames
+STK.df <- 
+  bind_rows(mutate(as.data.frame(ssb(STK)), slot="ssb"),
+            mutate(as.data.frame(rec(STK)), slot="rec", age=as.character(age)),
+            mutate(as.data.frame(fbar(STK)),slot="fbar")) %>% 
+  mutate(assess="IBP2019")
+
+# Several overview plotting routines
+
+# plot SSB
+bind_rows(WKWEST.df, STK.df) %>% 
+  filter(slot=="ssb") %>% 
+  ggplot(aes(x=year, y=data)) +
+  theme_bw() +
+  geom_point(aes(colour=assess)) + 
+  geom_line(aes(colour=assess)) 
+
+# plot recruitment
+bind_rows(WKWEST.df, STK.df) %>% 
+  filter(slot=="rec") %>% 
+  ggplot(aes(x=year, y=data)) +
+  theme_bw() +
+  geom_point(aes(colour=assess)) + 
+  geom_line(aes(colour=assess)) 
+
+# plot ssb and recruitment and F
+bind_rows(WKWEST.df, STK.df) %>% 
+  ggplot(aes(x=year, y=data)) +
+  theme_publication() +
+  geom_point(aes(colour=assess)) + 
+  geom_line(aes(colour=assess)) +
+  labs(x="",y="") +
+  facet_wrap(~slot, scales="free_y")
+
+# Plot stock and recruitment in total or by decade
+t <-
+  bind_rows(WKWEST.df, STK.df) %>% 
+  mutate(wr   = as.numeric(age),
+         year = ifelse(is.na(wr), year, year - wr - 1)) %>% 
+  dplyr::select(-age, -wr) %>% 
+  spread(key=slot, value=data)
+
+# in total
+
+t %>% 
+  ggplot(aes(x=ssb, y=rec, group=assess)) +
+  theme_bw() +
+  geom_point(aes(colour=assess)) + 
+  geom_path(aes(colour=assess)) +
+  expand_limits(x=0) +
+  facet_wrap(~assess)
+
+# by decade
+
+t %>%
+  mutate(decade = 10*floor(year/10)) %>%  
+  filter( (assess=="IBP2019"    & year <= 2013)|
+          (assess=="WKWEST2015" & year <= 2010) ) %>% 
+  ggplot(aes(x=ssb, y=rec, group=assess)) +
+  theme_bw() +
+  geom_point(aes(colour=factor(decade))) + 
+  geom_path(aes(colour=factor(decade))) +
+  expand_limits(x=0) +
+  facet_wrap(~assess)
+
+# COmpare recruitment from model to recruitment from acoustic survey
+HERAS.rec <-
+  STK.tun[[1]] %>% 
+  as.data.frame() %>% 
+  bind_rows(as.data.frame(STK.tun[[2]])) %>% 
+  filter(age==2, slot=="index") %>% 
+  mutate(year = year - an(age) - 1, 
+         assess="IBP2019")
+
+STK.df %>% 
+  filter(slot=="rec") %>% 
+  mutate(wr   = as.numeric(age),
+         year = ifelse(is.na(wr), year, year - wr - 1)) %>%
+  bind_rows(HERAS.rec) %>% 
+  filter(slot %in% c("rec","index")) %>% 
+  filter(year >= 1988) %>%
+  dplyr::select(-age, -wr) %>% 
+  spread(key=slot, value=data) %>% 
+  
+  ggplot(aes(x=rec, y=index)) +
+  theme_bw() +
+  geom_point() +
+  geom_smooth(method=lm) 
+
+
+# Now the reference points for the IBP assessment
 
 # 1. Get estimate of Blim using the whole time series and calculate Bpa
 
-FIT_segregBlim <- 
-  eqsr_fit_shift(STK,nsamp=2000, models = "Segreg", rshift=1)
-# eqsr_plot(FIT_segregBlim,n=2e4, ggPlot=FALSE)
+FIT_segregBlim <- eqsr_fit(STK,nsamp=2000, models = "Segreg", rshift=2)
+eqsr_plot(FIT_segregBlim,n=2e4, ggPlot=FALSE)
+blim2 <- round(FIT_smoothhockeyIBP$sr.det$b/1e4)*1e4  # 796 kT = 800 kT
 
+# Smooth hockeystick 
+FIT_smoothhockeyIBP <- eqsr_fit(STK,nsamp=2000, models = "smooth_hockey", rshift=2)
+eqsr_plot(FIT_smoothhockeyIBP,n=2e4, ggPlot=FALSE)
 blim <- round(FIT_segregBlim$sr.det$b/1e4)*1e4  # 796 kT = 800 kT
 # blim <- 220000
 
@@ -74,7 +191,7 @@ sdmin     <- function(sdestim){
   return(abs(0.025 - dnorm(log(logssb$lbnd),log(logssb$value),sdestim)))}
 sdSSB     <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
 Bpa       <- blim * exp(1.645*sdSSB)  # MP 878 kT
-Bpa       <- ceiling(Bpa/1e5)*1e5  # rounding up
+Bpa       <- ceiling(Bpa/1e4)*1e4  # rounding up
 
 
 # 2. parameterize the segreg model with Blim breakpoint and (roughly) geomean rec above this
@@ -87,11 +204,9 @@ SegregBlim  <- function(ab, ssb) log(ifelse(ssb >= blim,
 STKtrunc <- STK
 
 # 4. fit the stock recruitment model(s)
-FIT <- eqsr_fit_shift(STKtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"), rshift=1)
+FIT <- eqsr_fit(STKtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"), rshift=1)
 # FIT <- eqsr_fit_shift(STK, nsamp = 2000, models = c("Ricker", "SegregBlim", "Bevholt"), rshift=1)
 # FIT <- eqsr_fit_shift(STK, nsamp = 2000, models = c("Ricker", "Segreg", "Bevholt"), rshift=1)
-
-eqsr_plot(FIT,n=2e4, ggPlot=TRUE)
 eqsr_plot(FIT,n=2e4, ggPlot=FALSE)
 
 
@@ -110,7 +225,6 @@ SIM <- eqsim_run(FIT,
                  Fscan     = seq(0,0.80,len=40),
                  verbose   = TRUE,
                  extreme.trim=c(0.01,0.99))
-
 
 Flim      <- SIM$Refs2["catF","F50"]   # MP: 0.341
 
