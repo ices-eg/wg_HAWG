@@ -169,19 +169,26 @@ STK.df %>%
   geom_point() +
   geom_smooth(method=lm) 
 
+hist(STK@stock.n[age=1])
+STK@stock.n[age=1] > 8000000
+STK@stock.n[age=1, year=ac(1965) ] <- an(NA)
+STK@stock.n[age=1, year=ac(1971) ] <- NA
 
-# Now the reference points for the IBP assessment
+
+
+# Now the reference points for the IBP assessment; first length of time series
+STK <-  trim(STK, year=1975:2017)
 
 # 1. Get estimate of Blim using the whole time series and calculate Bpa
-
 FIT_segregBlim <- eqsr_fit(STK,nsamp=2000, models = "Segreg", rshift=2)
 eqsr_plot(FIT_segregBlim,n=2e4, ggPlot=FALSE)
-blim2 <- round(FIT_smoothhockeyIBP$sr.det$b/1e4)*1e4  # 796 kT = 800 kT
+blim <- round(FIT_segregBlim$sr.det$b/1e4)*1e4  # 796 kT = 800 kT
 
 # Smooth hockeystick 
+
 FIT_smoothhockeyIBP <- eqsr_fit(STK,nsamp=2000, models = "smooth_hockey", rshift=2)
 eqsr_plot(FIT_smoothhockeyIBP,n=2e4, ggPlot=FALSE)
-blim <- round(FIT_segregBlim$sr.det$b/1e4)*1e4  # 796 kT = 800 kT
+blim2 <- round(FIT_smoothhockeyIBP$sr.det$b/1e4)*1e4  # 796 kT = 800 kT
 # blim <- 220000
 
 # Now calculate the uncertainty in SSB in terminal year. 
@@ -201,14 +208,14 @@ SegregBlim  <- function(ab, ssb) log(ifelse(ssb >= blim,
 
 # 3. truncate the STK object
 # STKtrunc <- trim(STK, year=2002:2016)
-STKtrunc <- STK
 
 # 4. fit the stock recruitment model(s)
-FIT <- eqsr_fit(STKtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"), rshift=1)
+FIT <- eqsr_fit(STK, nsamp = 2000, models = c("Ricker", "SegregBlim"), rshift=2)
 # FIT <- eqsr_fit_shift(STK, nsamp = 2000, models = c("Ricker", "SegregBlim", "Bevholt"), rshift=1)
 # FIT <- eqsr_fit_shift(STK, nsamp = 2000, models = c("Ricker", "Segreg", "Bevholt"), rshift=1)
 eqsr_plot(FIT,n=2e4, ggPlot=FALSE)
 
+SIM$rbp
 
 # 5. Get Flim and thereby Fpa. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0), and Fcv=Fphi=0
 SIM <- eqsim_run(FIT,
@@ -219,12 +226,15 @@ SIM <- eqsim_run(FIT,
                  recruitment.trim = c(3, -3),
                  Fcv       = 0,
                  Fphi      = 0,
-                 Blim      = blim,
+                 Blim      = 10000,
                  Bpa       = Bpa,
                  Btrigger  = 0,
-                 Fscan     = seq(0,0.80,len=40),
+                 # Fscan     = seq(0,0.30,len=400),
+                 Fscan     = seq(0, 0.80,len=40),
                  verbose   = TRUE,
-                 extreme.trim=c(0.01,0.99))
+                 extreme.trim=c(0.01,0.99), 
+                 Nrun      = 200)
+
 
 Flim      <- SIM$Refs2["catF","F50"]   # MP: 0.341
 
@@ -243,8 +253,8 @@ SIM <- eqsim_run(FIT,
                  sel.years = c(2008:2017),
                  sel.const = FALSE,
                  recruitment.trim = c(3, -3),
-                 Fcv       = 0.27,            #Need to check the derivation
-                 Fphi      = 0.51,            #Need to check the derivation
+                 Fcv       = 0.30,            #see: HER 6a7bc Fcv and phi.xlsx
+                 Fphi      = 0.37,            #see: HER 6a7bc Fcv and phi.xlsx
                  Blim      = blim,
                  Bpa       = Bpa,
                  Btrigger  = 0,
@@ -254,6 +264,8 @@ SIM <- eqsim_run(FIT,
 
 Fmsy      <- SIM$Refs2["lanF","medianMSY"] #0.275
 Fmsy      <- ifelse(Fmsy>Fpa,Fpa,Fmsy)
+
+as.data.frame(fbar(STK)) %>% View()
 
 
 # Select MSY Btrigger   (from schematic guidelines: yes, yes, no -> 5th percentile of MSYBtrigger
