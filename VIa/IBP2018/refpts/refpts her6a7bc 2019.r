@@ -4,11 +4,12 @@
 #
 # Uses: R 3.5
 #       FLCore 2.6.12
-#       msy 0.1.18:    
+#       msy 0.1.18:   development version from Colin 27/02/2019 
 #
 # 22/02/2018 Martin Pastoors
 # 17/03/2018 Checked and updated folders after cleanup of github
 # 21/02/2019 Adapted from North Sea herring code 2018
+# 27/02/2019 Including new msy development package; standardized collapsefleet 
 # ==============================================================================
 
 # install package devtools first
@@ -29,7 +30,7 @@ try(setwd("D:/GIT/wg_HAWG/VIa/IBP2018/refpts"),silent=FALSE)
 
 source("../../../NSAS/refpts/Refpoints functions.R")
 source("../../../_Common/eqsr_fit_shift.R")
-source("../../../_Common/collapseAreas.R")
+source("../../../_Common/collapseFleets.R")
 source("../../../../mptools/R/my_utils.r")
 
 # Smooth hockey function adapted to Mesnil
@@ -58,7 +59,7 @@ harvest(STK)   <- harvest(window(MSHm.sam, end = 2017))
 stock(STK)     <- computeStock(STK)
 
 # collapse areas (=fleets)
-STK            <- collapseAreas(STK)
+STK            <- collapseFleets(STK)
 # plot(STK)
 # STK@harvest[year=ac(2010:2017)] 
 
@@ -70,15 +71,14 @@ Fphi <- 0.37            #see: HER 6a7bc Fcv and phi.xlsx
 # Now the reference points for the IBP assessment; first length of time series
 # ----------------------------------------------------------------
 
-STK <-  trim(STK, year=1975:2017)
-
+# 0. Use shorter time series?
+# STK <-  trim(STK, year=1975:2017)
 
 # 1. Get estimate of Blim using the whole time series and calculate Bpa
 FIT_segregBlim <- eqsr_fit(STK,nsamp=2000, models = "Segreg", rshift=1)
 Blim           <- round(FIT_segregBlim$sr.det$b/1e4)*1e4  # 796 kT = 800 kT
 
 eqsr_plot(FIT_segregBlim,n=2e4, ggPlot=FALSE)
-
 
 # Now calculate the uncertainty in SSB in terminal year. 
 # We need the sd that belongs to log(ssb) to calculate Bpa
@@ -188,7 +188,8 @@ refpts <- data.frame(Flim       = Flim,
 print(refpts)
 
 
-# save(STK, STKtrunc, FIT, SIM, refpts, file="refpoints.RData")
+# save(STK, FIT, SIM, refpts, file="refpoints.RData")
+
 
 # ----------------------------------------------------------------
 # WKWEST 2015 data
