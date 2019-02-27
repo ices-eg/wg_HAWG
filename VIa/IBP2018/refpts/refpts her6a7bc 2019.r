@@ -34,7 +34,7 @@ source("../../../_Common/collapseFleets.R")
 source("../../../../mptools/R/my_utils.r")
 
 # Smooth hockey function adapted to Mesnil
-Smooth_hockey <- function(a, ssb) smooth_hockey(a, ssb, gamma = sqrt(0.001 * 4))
+Smooth_hockey <- function(a, ssb) Smooth_hockey(a, ssb, gamma = sqrt(0.001 * 4))
 
 
 # ----------------------------------------------------------------
@@ -54,13 +54,13 @@ units(harvest(STK)) <- "f"
 
 
 # add in results; for stck.n - split across areas
-stock.n(STK)[] <- stock.n(window(MSHm.sam, end = 2017)) / dims(STK)$area
+stock.n(STK)[] <- stock.n(window(MSHm.sam, end = 2017))
 harvest(STK)   <- harvest(window(MSHm.sam, end = 2017))
 stock(STK)     <- computeStock(STK)
 
 # collapse areas (=fleets)
 STK            <- collapseFleets(STK)
-# plot(STK)
+# FLCore::plot(STK)
 # STK@harvest[year=ac(2010:2017)] 
 
 # set Fcv and Fphi
@@ -102,9 +102,9 @@ eqsr_plot(FIT,n=2e4, ggPlot=FALSE)
 
 # 5. Get Flim and thereby Fpa. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0), and Fcv=Fphi=0
 SIM <- eqsim_run(FIT,
-                 bio.years = c(2008:2017),
+                 bio.years = c(2008,2017),
                  bio.const = FALSE,
-                 sel.years = c(2008:2017),
+                 sel.years = c(2008,2017),
                  sel.const = FALSE,
                  recruitment.trim = c(3, -3),
                  Fcv       = 0,
@@ -131,9 +131,9 @@ Fpa       <- Flim * exp(-1.645*sdF) #0.294  MP: 0.298
 # 6. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0),
 #    to get initial FMSY ; if this initial FMSY value is > Fpa, reduce it to Fpa
 SIM <- eqsim_run(FIT,
-                 bio.years = c(2008:2017),
+                 bio.years = c(2008,2017),
                  bio.const = FALSE,
-                 sel.years = c(2008:2017),
+                 sel.years = c(2008,2017),
                  sel.const = FALSE,
                  recruitment.trim = c(3, -3),
                  Fcv       = Fcv,             
@@ -154,9 +154,9 @@ MSYBtrigger <- round((2*MSYBtrigger)/1e5)*1e5/2 # rounding
 
 # 7. Check if FMSY is precautionary, so do a scan
 checkFmsy <- eqsim_run(FIT,
-           bio.years = c(2008:2017),
+           bio.years = c(2008,2017),
            bio.const = FALSE,
-           sel.years = c(2008:2017),
+           sel.years = c(2008,2017),
            sel.const = FALSE,
            recruitment.trim = c(3, -3),
            Fcv       = Fcv,             
