@@ -10,6 +10,21 @@
 
 rm(list=ls());
 
+# R.version
+# find_rtools()
+
+# library(devtools)
+# library(pkgbuild)
+
+# Installing the stockassessment package is tricky. Better done in R directly than in RStudio 
+# (because there the RTools cannot be found)
+# install.packages("Matrix")
+# install.packages("ellipse")
+# install.packages("TMB")
+# devtools::install_github("fishfollower/SAM/stockassessment", ref="components", dependencies=FALSE)
+
+library(stockassessment)
+
 # libraries
 library(FLSAM); 
 library(FLEDA)
@@ -19,9 +34,6 @@ library(lubridate)
 library(RColorBrewer)
 library(directlabels)
 library(ggmisc) # e.g. for crayola
-
-#devtools::install_github("fishfollower/SAM/stockassessment", ref="multi")
-library(stockassessment)
 
 source("_Common/crayola.r")
 
@@ -48,6 +60,13 @@ NSH.weca <-
   filter(weight != -1) %>% 
   mutate(stock = "NSH")
 
+NSH.HERAS <-
+  slot(NSH.tun[[1]],"index") %>% 
+  as.data.frame() %>% 
+  dplyr::select(year, age, index = data) %>%
+  filter(index != -1) %>% 
+  mutate(stock = "NSH",
+         survey = "HERAS")
 
 # Load CSAH data ------------------------------------
 
@@ -115,6 +134,27 @@ MSH.weca <-
   dplyr::select(year, age, weight = data) %>%
   filter(weight != -1) %>% 
   mutate(stock = "MSH")
+
+MSH.MSHAS <-
+  slot(MSH.tun[[1]],"index") %>% 
+  as.data.frame() %>% 
+  dplyr::select(year, age, index = data) %>%
+  filter(index != -1) %>% 
+  mutate(stock = "MSH",
+         survey = "MSHAS")
+
+MSH.WOS <-
+  slot(MSH.tun[[2]],"index") %>% 
+  as.data.frame() %>% 
+  dplyr::select(year, age, index = data) %>%
+  filter(index != -1) %>% 
+  mutate(stock = "MSH",
+         survey = "WOS")
+
+MSH.MSHAS2 <-
+  bind_rows(MSH.WOS, MSH.MSHAS) %>% 
+  mutate(survey = "MSHASfull")
+
 
 
 # Herring 6a north (WoS)
@@ -259,6 +299,65 @@ canum %>%
   labs(x = NULL, y = NULL, title="Herring relative catch at age") +
   facet_grid(age ~ stock, scale = "free_y", switch = "y")
 
+
+# ===================================================================================
+# Plot the crayola of acoustic survey
+# ===================================================================================
+
+bind_rows(NSH.HERAS, MSH.MSHAS2) %>% 
+  group_by(stock, survey, year, age) %>% 
+  
+  filter(year >= 1990) %>% 
+  filter(age %in% 1:8) %>% 
+  
+  summarise(value = sum(index, na.rm=TRUE)) %>% 
+  group_by(stock, survey, age) %>% 
+  mutate(value = value/mean(value, na.rm=TRUE)) %>% 
+  mutate(yc = year - age) %>% 
+  data.frame() %>% 
+  
+  ggplot() +
+  
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.text.y = element_blank()) +
+  theme(panel.border     = element_rect(colour="black" , size=0.1)) +
+  theme(axis.ticks.y     = element_blank() ) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=10)) +
+  theme(panel.spacing = unit(0.2, "lines")) +
+  
+  geom_col(aes(year, value, fill = factor(yc))) + 
+  scale_fill_crayola() +
+  labs(x = NULL, y = NULL, title="Herring acoustic survey relative index at age") +
+  facet_grid(age ~ survey, scale = "free_y", switch = "y")
+
+# integrated plots
+bind_rows(NSH.HERAS, MSH.MSHAS2) %>% 
+  group_by(stock, survey, year, age) %>% 
+  
+  filter(year >= 2000) %>% 
+  filter(age %in% 1:8) %>% 
+  
+  summarise(value = sum(index, na.rm=TRUE)) %>% 
+  group_by(stock, survey, age) %>% 
+  mutate(value = value/mean(value, na.rm=TRUE)) %>% 
+  mutate(yc = year - age) %>% 
+  data.frame() %>% 
+  
+  ggplot() +
+  
+  theme_bw() +
+  # theme(legend.position = "none") +
+  theme(axis.text.y = element_blank()) +
+  theme(panel.border     = element_rect(colour="black" , size=0.1)) +
+  theme(axis.ticks.y     = element_blank() ) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=10)) +
+  theme(panel.spacing = unit(0.2, "lines")) +
+
+  geom_bar(aes(year, value, fill = factor(survey)), stat="identity", position=position_dodge()) + 
+  scale_fill_crayola() +
+  labs(x = NULL, y = NULL, title="Herring acoustic survey relative index at age") +
+  facet_grid(age ~ ., scale = "free_y", switch = "y")
 
 
 # ===================================================================================
