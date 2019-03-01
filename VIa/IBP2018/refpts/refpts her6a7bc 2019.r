@@ -34,7 +34,7 @@ source("../../../_Common/collapseFleets.R")
 source("../../../../mptools/R/my_utils.r")
 
 # Smooth hockey function adapted to Mesnil
-Smooth_hockey <- function(a, ssb) smooth_hockey(a, ssb, gamma = sqrt(0.001 * 4))
+Smooth_hockey <- function(a, ssb) Smooth_hockey(a, ssb, gamma = sqrt(0.001 * 4))
 
 
 # ----------------------------------------------------------------
@@ -58,6 +58,7 @@ STK.tun   <- MSH.tun
 units(harvest(STK)) <- "f"
 
 # add in results; for stck.n - split across areas
+<<<<<<< HEAD
 stock.n(STK)[] <- stock.n(window(STK.sam, end = 2017))
 harvest(STK)   <- harvest(window(STK.sam, end = 2017))
 
@@ -65,6 +66,16 @@ harvest(STK)   <- harvest(window(STK.sam, end = 2017))
 STK            <- collapseFleets(STK)
 stock(STK)     <- computeStock(STK)
 # plot(STK)
+=======
+stock.n(STK)[] <- stock.n(window(MSHm.sam, end = 2017))
+harvest(STK)   <- harvest(window(MSHm.sam, end = 2017))
+stock(STK)     <- computeStock(STK)
+
+# collapse areas (=fleets)
+STK            <- collapseFleets(STK)
+# FLCore::plot(STK)
+# STK@harvest[year=ac(2010:2017)] 
+>>>>>>> f493d568a761bce31c10c9dd996b2084e2c09bff
 
 # set Fcv and Fphi
 Fcv  <- 0.30            #see: HER 6a7bc Fcv and phi.xlsx
