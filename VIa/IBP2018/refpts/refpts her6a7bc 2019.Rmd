@@ -1,0 +1,345 @@
+---
+output: 
+  word_document:
+    reference_docx: ../../../_Common/report_template_v1.5.dotx
+---
+
+```{r setup, include=FALSE}
+# ==============================================================================
+# Reference points estimation
+# 6a7bc herring; final assessment at interbenchmark meeting 2019
+#
+# Uses: R 3.5
+#       FLCore 2.6.12
+#       msy 0.1.18:   development version from Colin 27/02/2019 
+#
+# 22/02/2018 Martin Pastoors
+# 17/03/2018 Checked and updated folders after cleanup of github
+# 21/02/2019 Adapted from North Sea herring code 2018
+# 27/02/2019 Including new msy development package; standardized collapsefleet 
+# ==============================================================================
+
+require("knitr")
+knitr::opts_chunk$set(echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE )
+knitr::opts_chunk$set(fig.width=10) 
+
+# install package devtools first
+rm(list=ls())
+
+# ***follow the order of loading (1) FLCore and (2) msy
+# as SR fuctions have same name but different formulation
+
+#library(devtools)  # install.packages("devtools")
+library(FLCore)     #  install.packages("FLCore", repos="http://flr-project.org/R")
+library(FLSAM)
+library(msy)        # devtools::install_github("ices-tools-prod/msy")
+                    # devtools::install_github("ices-tools-prod/msy@development")
+library(tidyverse)
+
+library(pander)        # tables etc.
+library(captioner)     # captioning of figures and tables
+
+# Settings for captioner
+fig_nums <- captioner::captioner(prefix = "Figure")
+tab_nums <- captioner::captioner(prefix = "Table")
+
+# setwd("D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/")
+try(setwd("D:/GIT/wg_HAWG/VIa/IBP2018/refpts"),silent=FALSE)
+
+source("../../../NSAS/refpts/Refpoints functions.R")
+source("../../../_Common/eqsr_fit_shift.R")
+source("../../../_Common/collapseFleets.R")
+source("../../../../mptools/R/my_utils.r")
+
+# Smooth hockey function adapted to Mesnil
+Smooth_hockey <- function(a, ssb) smooth_hockey(a, ssb, gamma = sqrt(0.001 * 4))
+
+# Segreg model with Blim breakpoint and (roughly) geomean rec above this
+SegregBlim  <- function(ab, ssb) log(ifelse(ssb >= Blim, ab$a * Blim, ab$a * ssb))
+
+# ----------------------------------------------------------------
+# IBP 2019 data
+# ----------------------------------------------------------------
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2019/IBPher6a7bc 2019/2019 Meeting docs/06. Data/Final assessment IBP/IBP_VIaHerring_finalRun_MF.Rdata")
+# rename
+STK       <- MSHm
+STK.retro <- MSHm.retro
+STK.sam   <- MSHm.sam
+STK.ctrl  <- MSH.ctrl
+STK.tun   <- MSH.tun
+units(harvest(STK)) <- "f"
+
+# single fleet
+# load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2019/IBPher6a7bc 2019/2019 Meeting docs/06. Data/FLSAM Single Fleet Runs/6a7bcHerring.Rdata")
+# STK       <- MSH
+# STK.retro <- MSH.retro
+# STK.sam   <- MSH.sam
+# STK.ctrl  <- MSH.ctrl
+# STK.tun   <- MSH.tun
+# units(harvest(STK)) <- "f"
+
+
+# add in results; for stck.n - split across areas
+stock.n(STK)[] <- stock.n(window(STK.sam, end = 2017))
+harvest(STK)   <- harvest(window(STK.sam, end = 2017))
+
+# collapse areas (=fleets)
+STK            <- collapseFleets(STK)
+stock(STK)     <- computeStock(STK)
+# plot(STK)
+
+# Use shorter time series?
+# STK <-  trim(STK, year=1975:2017)
+
+# settings
+nsamp            <- 2000 # 2000
+bio.years        <- c(2008,2017)
+bio.const        <- FALSE
+sel.years        <- c(2008,2017)
+sel.const        <- FALSE
+recruitment.trim <- c(3, -3)
+Fcv              <- 0.30            #see: HER 6a7bc Fcv and phi.xlsx
+Fphi             <- 0.37            #see: HER 6a7bc Fcv and phi.xlsx
+verbose          <- FALSE
+extreme.trim     <- c(0.01,0.99) 
+Nrun             <- 200  #200
+rshift           <- 1               #for WR =1, for other = 0
+
+```
+
+**Reference points for 6a, 7bc herring**
+
+**Martin Pastoors^1^**
+
+`r format(Sys.time(), '%d/%m/%Y %H:%M')`
+
+^1^ mpastoors@pelagicfish.eu
+
+&nbsp;  
+
+&nbsp;  
+
+**Introduction**
+
+Estimating biological reference points using development version of ICES MSY package (v.0.1.18) and EQSIM method, applied to the Interbenchmark 2019 for Herring in 6a, 7bc. 
+
+Final assessment is a multifleet assessment. 
+
+The method collapseFleets has been applied to collapse the multifleet object into a single fleet object. 
+
+Estimation can be done on a long timeseries (1957-2017) or a shortened timeseries (1975-2017). 
+
+&nbsp;  
+
+**Stock summary**
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+plot(STK)
+
+```
+
+&nbsp;  
+
+**Settings**
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+settings <- data.frame(
+  nsamp            = nsamp, 
+  bio.years        = paste(bio.years, collapse="-"),
+  bio.const        = bio.const,
+  sel.years        = paste(sel.years, collapse="-"),
+  sel.const        = sel.const,
+  recruitment.trim = paste(recruitment.trim, collapse="-"),
+  Fcv              = Fcv,            #see: HER 6a7bc Fcv and phi.xlsx
+  Fphi             = Fphi,            #see: HER 6a7bc Fcv and phi.xlsx
+  verbose          = verbose,
+  extreme.trim     = paste(extreme.trim, collapse="-"), 
+  Nrun             = Nrun,
+  rshift           = rshift )               #for WR =1, for other = 0
+
+t(settings) %>% 
+  pandoc.table(.,
+             style = "simple",
+             split.tables=400, 
+             justify = "left",
+             missing=".",
+             round=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+
+```
+
+&nbsp;  
+
+**Get estimate of Blim and calculate Bpa**
+
+```{r echo=TRUE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# 1. Get estimate of Blim and calculate Bpa
+
+FIT1      <- eqsr_fit(STK,nsamp=nsamp, models = "Segreg", rshift=rshift)
+Blim      <- round(FIT1$sr.det$b/1e4)*1e4  
+
+# plot
+eqsr_plot(FIT1,n=2e4, ggPlot=FALSE)
+
+# Now calculate the uncertainty in SSB in terminal year. 
+# We need the sd that belongs to log(ssb) to calculate Bpa
+logssb    <- subset(ssb(STK.sam),year==range(STK)["maxyear"])
+sdmin     <- function(sdestim){
+  return(abs(0.025 - dnorm(log(logssb$lbnd),log(logssb$value),sdestim)))}
+sdSSB     <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
+Bpa       <- Blim * exp(1.645*sdSSB)  
+Bpa       <- ceiling(Bpa/1e4)*1e4  # rounding up
+
+```
+
+
+
+&nbsp;  
+
+**Fit the stock recruitment model(s) and estimate Flim and Fpa**
+
+```{r echo=TRUE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# 2. fit the stock recruitment model(s) and estimate Flim and Fpa
+
+FIT2 <- eqsr_fit(STK, nsamp = nsamp, models = c("Ricker", "Segreg"), rshift=rshift)
+eqsr_plot(FIT2,n=2e4, ggPlot=FALSE)
+
+# Get Flim and thereby Fpa. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0), and Fcv=Fphi=0
+SIM1 <- eqsim_run(FIT2,
+                 bio.years   = bio.years,
+                 bio.const   = bio.const,
+                 sel.years   = sel.years,
+                 sel.const   = sel.const,
+                 recruitment.trim = recruitment.trim,
+                 Fcv         = 0,
+                 Fphi        = 0,
+                 Blim        = Blim,
+                 Bpa         = Bpa,
+                 Btrigger    = 0,
+                 Fscan       = seq(0, 0.80,len=40),
+                 verbose     = verbose,
+                 extreme.trim= extreme.trim, 
+                 Nrun        = Nrun)
+
+
+Flim      <- SIM1$Refs2["catF","F50"]   # MP: 0.341
+
+# Now calculate the uncertainty in F in terminal year. We need the sd that belongs to log(F) to calculate Fpa
+logfbar   <- subset(fbar(STK.sam),year==range(STK)["maxyear"])
+sdmin     <- function(sdestim){
+             return(abs(0.025 - dnorm(log(logfbar$lbnd),log(logfbar$value),sdestim)))}
+sdF       <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
+Fpa       <- Flim * exp(-1.645*sdF) #0.294  MP: 0.298     
+
+```
+
+
+&nbsp;  
+
+**Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0) to get initial FMSY**
+
+```{r echo=TRUE, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+
+# 3. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0),
+#    to get initial FMSY ; if this initial FMSY value is > Fpa, reduce it to Fpa
+
+SIM2 <- eqsim_run(FIT2,
+                 bio.years   = bio.years,
+                 bio.const   = bio.const,
+                 sel.years   = sel.years,
+                 sel.const   = sel.const,
+                 recruitment.trim = recruitment.trim,
+                 Fcv       = Fcv,             
+                 Fphi      = Fphi,            
+                 Blim      = Blim,
+                 Bpa       = Bpa,
+                 Btrigger  = 0,
+                 Fscan     = seq(0,0.80,len=40),
+                 verbose   = verbose,
+                 extreme.trim=extreme.trim)
+
+Fmsy      <- SIM2$Refs2["lanF","medianMSY"] #0.275
+Fmsy      <- ifelse(Fmsy>Fpa,Fpa,Fmsy)
+
+# Select MSY Btrigger   (from schematic guidelines: yes, yes, no -> 5th percentile of MSYBtrigger
+MSYBtrigger <- SIM2$Refs2["catB","F05"]  # MP 1396 kT
+MSYBtrigger <- round((2*MSYBtrigger)/1e5)*1e5/2 # rounding
+
+# check for NA on MSYBtrigger; if so, use Bpa instead 
+if(is.na(MSYBtrigger)) {
+  cat("Warning: MSY Btrigger not defined; using Bpa as MSY Btrigger")
+  MSYBtrigger <- Bpa
+}
+
+```
+
+Fmsy         = `r print(Fmsy)`
+
+MSY Btrigger = `r print(MSYBtrigger)`
+
+&nbsp;  
+
+**Check if FMSY is precautionary**
+
+```{r echo=TRUE, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+
+# 4. Check if FMSY is precautionary, so do a scan
+SIM3    <- eqsim_run(FIT2,
+           bio.years   = bio.years,
+           bio.const   = bio.const,
+           sel.years   = sel.years,
+           sel.const   = sel.const,
+           recruitment.trim = recruitment.trim,
+           Fcv       = Fcv,             
+           Fphi      = Fphi,            
+           Blim      = Blim,
+           Bpa       = Bpa,
+           Btrigger  = MSYBtrigger,
+           Fscan     = seq(0.01,0.25,0.01),
+           verbose   = verbose,
+           extreme.trim=extreme.trim)
+
+
+# If the precautionary criterion (FMSY < Fp.05) evaluated is not met, then FMSY should be reduced to  Fp.05. 
+Fp05      <- SIM3$Refs2["catF","F05"] # MP: 0.256
+propFmsy  <- subset(SIM3$pProfile,Ftarget==round(Fmsy,2) & variable=="Blim")$value
+if(!is.na(Fp05)) {
+  if (Fmsy > Fp05) {Fmsy <- Fp05}
+} else {
+  cat("Warning: Fp05 not defined")
+}
+
+```
+
+Fp05  = `r print(Fp05)`
+Fmsy  = `r print(Fmsy)`
+
+&nbsp;  
+
+**Final set of reference points**
+
+```{r echo=TRUE, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+
+# 5. final set of reference points
+
+Flim       <- round(Flim,2)
+Fpa        <- round(Fpa,2)
+Fmsy       <- round(Fmsy, 2)
+Fp05       <- round(Fp05, 2)
+
+refpts <- data.frame(Flim       = Flim,
+                     Fpa        = Fpa,
+                     Fmsy       = Fmsy,
+                     Fp05       = Fp05,
+                     Blim       = Blim,
+                     Bpa        = Bpa,
+                     MSYBtrigger= MSYBtrigger)
+
+print(refpts)
+
+save(STK, FIT1, FIT2, SIM1, SIM2, SIM3, refpts, file="refpoints.RData")
+
+```
