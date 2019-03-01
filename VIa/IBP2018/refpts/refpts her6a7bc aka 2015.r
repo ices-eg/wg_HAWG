@@ -50,20 +50,21 @@ STK.tun   <- MSH.tun
 # rm(MSH.ctrl, MSH.tun, MSHm, MSHm.retro, MSHm.sam)
 
 # 0. Deal with multifleet aspects
-STK@stock.n           <- STK.sam@stock.n[,ac(range(STK)["minyear"]:range(STK)["maxyear"])]
-STK@harvest           <- areaSums(STK.sam@harvest[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@harvest.spwn      <- areaMeans(STK@harvest.spwn[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@m                 <- areaMeans(STK@m[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@m.spwn            <- areaMeans(STK@m.spwn[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@stock.wt          <- areaMeans(STK@stock.wt[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
-STK@mat               <- areaMeans(STK@mat[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
+# STK@stock.n           <- STK.sam@stock.n[,ac(range(STK)["minyear"]:range(STK)["maxyear"])]
+# STK@harvest           <- areaSums(STK.sam@harvest[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
+# STK@harvest.spwn      <- areaMeans(STK@harvest.spwn[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
+# STK@m                 <- areaMeans(STK@m[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
+# STK@m.spwn            <- areaMeans(STK@m.spwn[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
+# STK@stock.wt          <- areaMeans(STK@stock.wt[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
+# STK@mat               <- areaMeans(STK@mat[,ac(range(STK)["minyear"]:range(STK)["maxyear"])])
 
 # summary(STK)
 
 # 1. Get estimate of Blim using the whole time series and calculate Bpa
+Smooth_hockey <- function(a, ssb) smooth_hockey(a, ssb, gamma = sqrt(0.001 * 4))
 
-FIT_segregBlim <- 
-  eqsr_fit_shift(STK,nsamp=2000, models = "Segreg", rshift=1)
+FIT_Smoothhockey <- eqsr_fit_shift(STK,nsamp=2000, models = "smooth_hockey", rshift=2)
+FIT_segregBlim <- eqsr_fit_shift(STK,nsamp=2000, models = "Segreg", rshift=2)
 # eqsr_plot(FIT_segregBlim,n=2e4, ggPlot=FALSE)
 
 blim <- round(FIT_segregBlim$sr.det$b/1e4)*1e4  # 390 kT instead of 220 kT estimated by plotMSY!!
