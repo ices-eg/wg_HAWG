@@ -17,6 +17,7 @@ output:
 # 17/03/2018 Checked and updated folders after cleanup of github
 # 21/02/2019 Adapted from North Sea herring code 2018
 # 27/02/2019 Including new msy development package; standardized collapsefleet 
+# 08/03/2019 Version for inclusion in the workshop report
 # ==============================================================================
 
 require("knitr")
@@ -38,6 +39,9 @@ library(tidyverse)
 
 library(pander)        # tables etc.
 library(captioner)     # captioning of figures and tables
+library(cowplot)       # for cowplot  
+
+library(stockassessment)
 
 # Settings for captioner
 fig_nums <- captioner::captioner(prefix = "Figure")
@@ -89,7 +93,7 @@ stock(STK)     <- computeStock(STK)
 # plot(STK)
 
 # Use shorter time series?
-# STK <-  trim(STK, year=1975:2017)
+STKs <-  trim(STK, year=1975:2017)
 
 # settings
 nsamp            <- 2000 # 2000
@@ -105,6 +109,7 @@ extreme.trim     <- c(0.01,0.99)
 Nrun             <- 200  #200
 rshift           <- 1               #for WR =1, for other = 0
 
+
 ```
 
 **Reference points for 6a, 7bc herring**
@@ -113,25 +118,21 @@ rshift           <- 1               #for WR =1, for other = 0
 
 `r format(Sys.time(), '%d/%m/%Y %H:%M')`
 
-^1^ mpastoors@pelagicfish.eu
+[ All the codes to generate this section of the report are in _refpts her6a7bc.Rmd_ on the wgHAWG github page]
 
-&nbsp;  
+Biological reference points using the development version of ICES MSY package (v.0.1.18) and EQSIM method, applied to the final assessment of the Interbenchmark 2019. The new assessment provides a very different perception of stock trends and the stock recruitment relationship compared to the most recent accepted assessment (HAWG 2018), notably because the most recent years have now been estimated to have been with low SSB and low recruitment, whereas before the low recruitments where thought to be with higher SSB.
 
-&nbsp;  
+Because the final assessment is a multifleet assessment, the methode _collapseFleets_ has been applied to collapse the multifleet object into a single fleet object that can be used in EQSIM. 
 
-**Introduction**
+The reference points as estimated in WKWEST 2015, and used by ACOM since then, are as follows
 
-Estimating biological reference points using development version of ICES MSY package (v.0.1.18) and EQSIM method, applied to the Interbenchmark 2019 for Herring in 6a, 7bc. 
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
 
-Final assessment is a multifleet assessment. 
+include_graphics("refpts2018.jpg")
 
-The method collapseFleets has been applied to collapse the multifleet object into a single fleet object. 
+```
 
-Estimation can be done on a long timeseries (1957-2017) or a shortened timeseries (1975-2017). 
-
-&nbsp;  
-
-**Stock summary**
+The stock trends of the IBP assessment show that the recruitment and stock have been very high in the period 1960-1970. At the same time there is substantial uncertainty about the data for the period. Given that these high SSB-high recruitment period has a large impact on the estimated stock and recruitment pairs, two separate analysis have been carried out: one using the whole time-series and one using a time-series from 1975 onwards. 
 
 ```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
 
@@ -139,9 +140,60 @@ plot(STK)
 
 ```
 
-&nbsp;  
+[ I will put in a figure comparing this assessment with the last accepted assessment ]
 
-**Settings**
+This change in perception of SSB and recruitment had a profound effect on the breakpoints estimated by the segmented regression analysis. Below is the (smoothed) segmented regression from the WKWEST report and below that is the segmented regression from the IBP final assessment using the whole time series and using the shortened time series (1975 onwards). The estimated breakpoints in the IBP assessment have experienced a strong shift to the right (i.e. at higher SSB). 
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+include_graphics("srrwkwest2015.jpg")
+
+```
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# 1. Get estimate of Blim and calculate Bpa for the full time series
+
+FIT1      <- eqsr_fit(STK,nsamp=nsamp, models = "Segreg", rshift=rshift)
+Blim      <- round(FIT1$sr.det$b/1e4)*1e4  
+
+# plot
+eqsr_plot(FIT1,n=2e4, ggPlot=FALSE)
+
+# Now calculate the uncertainty in SSB in terminal year. 
+# We need the sd that belongs to log(ssb) to calculate Bpa
+logssb    <- subset(ssb(STK.sam),year==range(STK)["maxyear"])
+sdmin     <- function(sdestim){
+  return(abs(0.025 - dnorm(log(logssb$lbnd),log(logssb$value),sdestim)))}
+sdSSB     <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
+Bpa       <- Blim * exp(1.645*sdSSB)  
+Bpa       <- ceiling(Bpa/1e4)*1e4  # rounding up
+
+
+```
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# 1. Get estimate of Blim and calculate Bpa for the short time series
+
+FIT1s      <- eqsr_fit(STKs,nsamp=nsamp, models = "Segreg", rshift=rshift)
+Blims      <- round(FIT1s$sr.det$b/1e4)*1e4  
+
+# plot
+eqsr_plot(FIT1s,n=2e4, ggPlot=FALSE)
+
+# Now calculate the uncertainty in SSB in terminal year. 
+# We need the sd that belongs to log(ssb) to calculate Bpa
+logssb    <- subset(ssb(STK.sam),year==range(STK)["maxyear"])
+sdmin     <- function(sdestim){
+  return(abs(0.025 - dnorm(log(logssb$lbnd),log(logssb$value),sdestim)))}
+sdSSB     <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
+Bpas       <- Blims * exp(1.645*sdSSB)  
+Bpas       <- ceiling(Bpas/1e4)*1e4  # rounding up
+
+```
+
+Settings used for the EQSIM analysis. Fcv and Fphi were derived from _HER 6a7bc Fcv and phi.xlsx_. 
 
 ```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
 
@@ -169,43 +221,15 @@ t(settings) %>%
 
 ```
 
-&nbsp;  
 
-**Get estimate of Blim and calculate Bpa**
+Following the accepted procedure for estimating reference points, several reference points could not be estimated (Fp05, MSY Btrigger) because of lack of convergence. This is probably due to the current low stock size and the high Blim. An overview of the calculated reference points (absolute and relative) are in the text tables below. 
 
-```{r echo=TRUE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
-
-# 1. Get estimate of Blim and calculate Bpa
-
-FIT1      <- eqsr_fit(STK,nsamp=nsamp, models = "Segreg", rshift=rshift)
-Blim      <- round(FIT1$sr.det$b/1e4)*1e4  
-
-# plot
-eqsr_plot(FIT1,n=2e4, ggPlot=FALSE)
-
-# Now calculate the uncertainty in SSB in terminal year. 
-# We need the sd that belongs to log(ssb) to calculate Bpa
-logssb    <- subset(ssb(STK.sam),year==range(STK)["maxyear"])
-sdmin     <- function(sdestim){
-  return(abs(0.025 - dnorm(log(logssb$lbnd),log(logssb$value),sdestim)))}
-sdSSB     <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
-Bpa       <- Blim * exp(1.645*sdSSB)  
-Bpa       <- ceiling(Bpa/1e4)*1e4  # rounding up
-
-```
-
-
-
-&nbsp;  
-
-**Fit the stock recruitment model(s) and estimate Flim and Fpa**
-
-```{r echo=TRUE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
 
 # 2. fit the stock recruitment model(s) and estimate Flim and Fpa
 
 FIT2 <- eqsr_fit(STK, nsamp = nsamp, models = c("Ricker", "Segreg"), rshift=rshift)
-eqsr_plot(FIT2,n=2e4, ggPlot=FALSE)
+# eqsr_plot(FIT2,n=2e4, ggPlot=FALSE)
 
 # Get Flim and thereby Fpa. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0), and Fcv=Fphi=0
 SIM1 <- eqsim_run(FIT2,
@@ -225,23 +249,14 @@ SIM1 <- eqsim_run(FIT2,
                  Nrun        = Nrun)
 
 
-Flim      <- SIM1$Refs2["catF","F50"]   # MP: 0.341
+Flim      <- SIM1$Refs2["catF","F50"]   
 
 # Now calculate the uncertainty in F in terminal year. We need the sd that belongs to log(F) to calculate Fpa
 logfbar   <- subset(fbar(STK.sam),year==range(STK)["maxyear"])
 sdmin     <- function(sdestim){
              return(abs(0.025 - dnorm(log(logfbar$lbnd),log(logfbar$value),sdestim)))}
 sdF       <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
-Fpa       <- Flim * exp(-1.645*sdF) #0.294  MP: 0.298     
-
-```
-
-
-&nbsp;  
-
-**Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0) to get initial FMSY**
-
-```{r echo=TRUE, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
+Fpa       <- Flim * exp(-1.645*sdF)     
 
 # 3. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0),
 #    to get initial FMSY ; if this initial FMSY value is > Fpa, reduce it to Fpa
@@ -261,30 +276,18 @@ SIM2 <- eqsim_run(FIT2,
                  verbose   = verbose,
                  extreme.trim=extreme.trim)
 
-Fmsy      <- SIM2$Refs2["lanF","medianMSY"] #0.275
+Fmsy      <- SIM2$Refs2["lanF","medianMSY"] 
 Fmsy      <- ifelse(Fmsy>Fpa,Fpa,Fmsy)
 
 # Select MSY Btrigger   (from schematic guidelines: yes, yes, no -> 5th percentile of MSYBtrigger
-MSYBtrigger <- SIM2$Refs2["catB","F05"]  # MP 1396 kT
+MSYBtrigger <- SIM2$Refs2["catB","F05"]  
 MSYBtrigger <- round((2*MSYBtrigger)/1e5)*1e5/2 # rounding
 
 # check for NA on MSYBtrigger; if so, use Bpa instead 
 if(is.na(MSYBtrigger)) {
-  cat("Warning: MSY Btrigger not defined; using Bpa as MSY Btrigger")
+  print("Warning: MSY Btrigger not defined; using Bpa as MSY Btrigger")
   MSYBtrigger <- Bpa
 }
-
-```
-
-Fmsy         = `r print(Fmsy)`
-
-MSY Btrigger = `r print(MSYBtrigger)`
-
-&nbsp;  
-
-**Check if FMSY is precautionary**
-
-```{r echo=TRUE, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
 
 # 4. Check if FMSY is precautionary, so do a scan
 SIM3    <- eqsim_run(FIT2,
@@ -309,19 +312,8 @@ propFmsy  <- subset(SIM3$pProfile,Ftarget==round(Fmsy,2) & variable=="Blim")$val
 if(!is.na(Fp05)) {
   if (Fmsy > Fp05) {Fmsy <- Fp05}
 } else {
-  cat("Warning: Fp05 not defined")
+  print("Warning: Fp05 not defined")
 }
-
-```
-
-Fp05  = `r print(Fp05)`
-Fmsy  = `r print(Fmsy)`
-
-&nbsp;  
-
-**Final set of reference points**
-
-```{r echo=TRUE, fig.align="center", fig.asp=0.4, message=FALSE, warning=FALSE}
 
 # 5. final set of reference points
 
@@ -340,6 +332,167 @@ refpts <- data.frame(Flim       = Flim,
 
 print(refpts)
 
-save(STK, FIT1, FIT2, SIM1, SIM2, SIM3, refpts, file="refpoints.RData")
+# 6. final set of relative reference points
+
+ssbmean    = mean(stock(STK))
+fmean      = mean(fbar(STK))
+
+relrefpts <- data.frame(Flim    = round(Flim / fmean,2),
+                     Fpa        = round(Fpa / fmean, 2),
+                     Fmsy       = round(Fmsy / fmean, 2),
+                     Fp05       = round(Fp05 / fmean, 2),
+                     Blim       = round(Blim / ssbmean, 2),
+                     Bpa        = round(Bpa / ssbmean, 2),
+                     MSYBtrigger= round(MSYBtrigger / ssbmean, 2))
+
+print(relrefpts)
+
+# save(STK, FIT1, FIT2, SIM1, SIM2, SIM3, refpts, relrefpts, 
+#      STKs, FIT1s, FIT2s, SIM1s, SIM2s, SIM3s, refptss, relrefptss, 
+#      file="refpoints.RData")
 
 ```
+
+Shortening the time series to 1975 made significant differences to the reference points so they are highly dependent on the length of the time series. An overview of the calculated reference points (absolute and relative) for the short time series are in the text tables below. 
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# NOW FOR THE SHORT TIME SERIES
+
+# 2. fit the stock recruitment model(s) and estimate Flim and Fpa
+
+FIT2s <- eqsr_fit(STKs, nsamp = nsamp, models = c("Ricker", "Segreg"), rshift=rshift)
+# eqsr_plot(FIT2s,n=2e4, ggPlot=FALSE)
+
+# Get Flim and thereby Fpa. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0), and Fcv=Fphi=0
+SIM1s <- eqsim_run(FIT2s,
+                 bio.years   = bio.years,
+                 bio.const   = bio.const,
+                 sel.years   = sel.years,
+                 sel.const   = sel.const,
+                 recruitment.trim = recruitment.trim,
+                 Fcv         = 0,
+                 Fphi        = 0,
+                 Blim        = Blims,
+                 Bpa         = Bpas,
+                 Btrigger    = 0,
+                 Fscan       = seq(0, 0.80,len=40),
+                 verbose     = verbose,
+                 extreme.trim= extreme.trim, 
+                 Nrun        = Nrun)
+
+
+Flim      <- SIM1s$Refs2["catF","F50"]   
+
+# Now calculate the uncertainty in F in terminal year. We need the sd that belongs to log(F) to calculate Fpa
+logfbar   <- subset(fbar(STK.sam),year==range(STK)["maxyear"])
+sdmin     <- function(sdestim){
+             return(abs(0.025 - dnorm(log(logfbar$lbnd),log(logfbar$value),sdestim)))}
+sdF       <- optimize(sdmin,interval=c(1e-4,0.2))$minimum
+Fpa       <- Flim * exp(-1.645*sdF)     
+
+# 3. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0),
+#    to get initial FMSY ; if this initial FMSY value is > Fpa, reduce it to Fpa
+
+SIM2s <- eqsim_run(FIT2s,
+                 bio.years   = bio.years,
+                 bio.const   = bio.const,
+                 sel.years   = sel.years,
+                 sel.const   = sel.const,
+                 recruitment.trim = recruitment.trim,
+                 Fcv       = Fcv,             
+                 Fphi      = Fphi,            
+                 Blim      = Blims,
+                 Bpa       = Bpas,
+                 Btrigger  = 0,
+                 Fscan     = seq(0,0.80,len=40),
+                 verbose   = verbose,
+                 extreme.trim=extreme.trim)
+
+Fmsy      <- SIM2s$Refs2["lanF","medianMSY"] 
+Fmsy      <- ifelse(Fmsy>Fpa,Fpa,Fmsy)
+
+# Select MSY Btrigger   (from schematic guidelines: yes, yes, no -> 5th percentile of MSYBtrigger
+MSYBtrigger <- SIM2s$Refs2["catB","F05"]  
+MSYBtrigger <- round((2*MSYBtrigger)/1e5)*1e5/2 # rounding
+
+# check for NA on MSYBtrigger; if so, use Bpa instead 
+if(is.na(MSYBtrigger)) {
+  print("Warning: MSY Btrigger not defined; using Bpa as MSY Btrigger")
+  MSYBtrigger <- Bpas
+}
+
+# 4. Check if FMSY is precautionary, so do a scan
+SIM3s    <- eqsim_run(FIT2s,
+           bio.years   = bio.years,
+           bio.const   = bio.const,
+           sel.years   = sel.years,
+           sel.const   = sel.const,
+           recruitment.trim = recruitment.trim,
+           Fcv       = Fcv,             
+           Fphi      = Fphi,            
+           Blim      = Blims,
+           Bpa       = Bpas,
+           Btrigger  = MSYBtrigger,
+           Fscan     = seq(0.01,0.25,0.01),
+           verbose   = verbose,
+           extreme.trim=extreme.trim)
+
+
+# If the precautionary criterion (FMSY < Fp.05) evaluated is not met, then FMSY should be reduced to  Fp.05. 
+Fp05      <- SIM3s$Refs2["catF","F05"] # MP: 0.256
+propFmsy  <- subset(SIM3s$pProfile,Ftarget==round(Fmsy,2) & variable=="Blim")$value
+if(!is.na(Fp05)) {
+  if (Fmsy > Fp05) {Fmsy <- Fp05}
+} else {
+  print("Warning: Fp05 not defined")
+}
+
+# 5. final set of reference points
+
+Flim       <- round(Flim,2)
+Fpa        <- round(Fpa,2)
+Fmsy       <- round(Fmsy, 2)
+Fp05       <- round(Fp05, 2)
+
+refptss <- data.frame(Flim       = Flim,
+                     Fpa        = Fpa,
+                     Fmsy       = Fmsy,
+                     Fp05       = Fp05,
+                     Blim       = Blims,
+                     Bpa        = Bpas,
+                     MSYBtrigger= MSYBtrigger)
+
+print(refptss)
+
+# 6. final set of relative reference points
+
+ssbmean    = mean(stock(STKs))
+fmean      = mean(fbar(STKs))
+
+relrefptss <- data.frame(Flim    = round(Flim / fmean,2),
+                     Fpa        = round(Fpa / fmean, 2),
+                     Fmsy       = round(Fmsy / fmean, 2),
+                     Fp05       = round(Fp05 / fmean, 2),
+                     Blim       = round(Blims / ssbmean, 2),
+                     Bpa        = round(Bpas / ssbmean, 2),
+                     MSYBtrigger= round(MSYBtrigger / ssbmean, 2))
+
+print(relrefptss)
+
+# save(STK, FIT1, FIT2, SIM1, SIM2, SIM3, refpts, relrefpts, 
+#      STKs, FIT1s, FIT2s, SIM1s, SIM2s, SIM3s, refptss, relrefptss, 
+#      file="refpoints.RData")
+
+```
+
+**Conclusion**
+
+IBPHer6a7bc concluded that after a considerable amount of work being carried out within the interbenchmark and given all the uncertainties and the inability to estimate several reference point, we propose not to present any reference points for 6a, 7bc herring. It is anticipated that a full benchmark will be carried out within a few years which will be able to split the two stocks into separate assessments. That would also be the time to revisit the estimation of reference points. 
+
+
+
+
+
+
+
