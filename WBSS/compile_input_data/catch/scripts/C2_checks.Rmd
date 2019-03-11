@@ -10,11 +10,15 @@ library(sqldf)
 library(dplyr)
 library(knitr)
 library(ggplot2)
+library(RColorBrewer)
 
 options("scipen"=1000, digits=4)
 
 dataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/results/"
 
+knitr::opts_chunk$set(echo = TRUE, dpi = 900, dev = 'jpeg', results = 'asis', fig.width = 7, fig.height = 7)
+
+#, fig.path = output_path
 ```
 
 ```{r import data, include=F}
@@ -25,12 +29,120 @@ canum <-
     sep = ""
   ))
 catch <- filter(readRDS(paste(dataPath, "C1_her2024_catch_2018.rds", sep = "")), area %in% c("27.3.a.20", "27.3.a.21", "27.3.c.22", "27.3.b.23", "27.3.d.24"))
+
+swe_before <- 
+    readRDS(paste(
+    dataPath,
+    "C1_SWE_her2024_fleet_C_D_before_merge_2018.rds",
+    sep = ""
+  ))
 ```
 
-#Catch
-##Figures from catch vs. canums sheets
+```{r set_col, include = F}
 
-Minor differrences are expected, since some countries fill in the sheets with different number of digits - or it is read in differenly i R? I think it is the latter - read_excel don't always reads figures correct - don't know how to solve it.
+ddc <- levels(as.factor(canum$ctry))
+ddc.col <- brewer.pal(length(ddc), "Paired")
+names(ddc.col)  <- ddc
+
+```
+
+
+# Overviews
+## Catch per fleet
+
+*Note the Swedish catches from fleet D are combined with C - as always*
+
+Swedish notes:
+
+The industrial fishery for herring in 3A is almost disappeared in Sweden. The few vessels operating in this segment are single and pair trawlers operating with a mesh size <32 mm. Their catches are counted against the D-fleet quota and they are calculated accordingly in this spreadsheet.
+
+The Swedish pelagic fishery in the west coast includes also a number of purse seiners with mesh size <32 mm that target both herring and sprat for human consumption. Regardless of their mesh size, these human consumption catches are counted against the C-fleet quota and this is reflected in the calculations here.
+
+Previous analyses found no significant differences in length and age composition or characteristics between samples labelled as industrial or human consumption and this has in the past justified pulling of samples from these two fleets. In 2018, no herring samples labelled as industrial fishery was available.
+
+### Before combining the Swedish fleet C & D
+
+```{r, echo = F}
+swe_fleet_plot <- summarise(group_by(swe_before, ctry, fleet, area), catch_ton = sum(catch_t, na.rm = T)/9)
+
+ggplot(swe_fleet_plot, aes(
+  x = paste(area, fleet, sep = " - "),
+  y = catch_ton,
+  fill = ctry
+)) +
+  geom_bar(stat = "identity") +
+  theme(legend.position = "bottom") + 
+  scale_fill_manual(values = ddc.col, drop=FALSE) +
+  labs(title = "Swedish landings per fleet and area, before combining C & D, 2018")
+
+```
+
+
+### After combining the Swedish fleet C & D
+
+```{r, echo = F}
+lan_fleet_plot <- summarise(group_by(canum, ctry, fleet, area), catch_ton = sum(catch_t, na.rm = T)/9)
+
+ggplot(lan_fleet_plot, aes(x = paste(area, fleet, sep = " - "), y = catch_ton, fill = ctry)) +
+  geom_bar(stat = "identity") +
+    theme(legend.position="bottom") + 
+  scale_fill_manual(values = ddc.col, drop=FALSE) +
+  labs(title = "Landings per fleet and area, after combining Swedish C & D, 2018")
+
+```
+
+# Biology
+
+*Note*
+
+Denmark
+
+27.3.c.22, qurter 1, fleet F - All samples from by-catch. Nearly all landings from by-catch as well
+
+Sweden
+
+2018 estimates may suffer of small sample size in some areas and quarters (i.e. SD20_Q4). In those case, we find few ages covered (SD20_Q4) and/or few number of fishes for some age groups which result in inaccurate estimates of weight-at-age. The issue is more pronounced in some cases by the occurrence of herring of different origins that in small samples become highly influential such as:
+
+- age6 in SD21_Q4 has very low weight because it comes from an individual fish of central Baltic origin
+
+- age2 in SD21_Q3 is from one fish of North Sea origin
+
+- age6-7 in SD20_Q1 are also from individual fish of North Sea origin
+
+The data suggest that mixing with herring of central Baltic origin remains an issue in SD24 and SD25. This has an influence on the weight-at-age in SD24 presented here.
+
+
+## Mean weight per age
+
+```{r, echo = F}
+
+ggplot(filter(canum, weca_g != 0), aes(x = wr, y = weca_g, group = ctry, col = ctry)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(quarter~area+fleet) + 
+  scale_color_manual(values = ddc.col) +
+    theme(legend.position="bottom")
+
+```
+
+## Mean length per age
+
+```{r, echo = F}
+
+ggplot(filter(canum, leca_cm != 0), aes(x = wr, y = leca_cm, group = ctry, col = ctry)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(quarter~area+fleet) + 
+  scale_color_manual(values = ddc.col) +
+    theme(legend.position="bottom")
+
+```
+
+# Tabulated overviews
+## Catch
+### Figures from catch vs. canums sheets
+
+Minor differences are expected, since some countries fill in the sheets with different number of digits - or it is read in differently i R? I think it is the latter - read_excel don't always reads figures correct - don't know how to solve it.
 
 Catch from the canum sheets are used in all the following calculations.
 
@@ -46,45 +158,10 @@ quarter$diff<-quarter$catch_canum-quarter$catch_catch
 kable(quarter)
 ```
 
-## Catch per fleet
+## Catch per fleet - after combining
 
-Figures from CANUM sheets
-
-*Note Swedish catches from fleet D are combined with C - as always*
-
-```{r, echo = F}
-lan_fleet_plot <- summarise(group_by(canum, ctry, fleet, area), catch_ton = sum(catch_t, na.rm = T)/9)
-
-ggplot(lan_fleet_plot, aes(x = paste(area, fleet, sep = " - "), y = catch_ton, fill = ctry)) +
-  geom_bar(stat = "identity") +
-    theme(legend.position="bottom")
-
-
+```{r, echo=F, warning=F, results='asis'}
 kable(lan_fleet <- summarise(group_by(canum, ctry, fleet, area, quarter), catch_canum = sum(catch_t)/9))
-
-```
-
-## Mean weight per age
-
-```{r, echo = F}
-
-ggplot(filter(canum, weca_g != 0), aes(x = wr, y = weca_g, group = ctry, col = ctry)) +
-  geom_point() +
-  geom_line() +
-  facet_grid(quarter~area+fleet) +
-    theme(legend.position="bottom")
-
-```
-
-## Mean length per age
-
-```{r, echo = F}
-
-ggplot(filter(canum, leca_cm != 0), aes(x = wr, y = leca_cm, group = ctry, col = ctry)) +
-  geom_point() +
-  geom_line() +
-  facet_grid(quarter~area+fleet) +
-    theme(legend.position="bottom")
 
 ```
 
