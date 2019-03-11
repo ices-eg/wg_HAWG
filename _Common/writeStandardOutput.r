@@ -243,3 +243,40 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,recImY=NULL,output.
                           dev.off()
 
                       }
+
+# stck.       <- STK
+# output.base <- "./"
+
+writeSummaryTable <- function(stck.,output.base="./"){
+  an                                <- function(x){return(as.numeric(x))}
+  
+  # Calculate the spawners in number
+  spawners                          <- colSums(stck.@stock.n * sweep(exp(sweep(-sweep(stck.@harvest,c(1,3:6),stck.@harvest.spwn,"*"),
+                                                                                  c(1,3:6),stck.@m*stck.@m.spwn,"-")), c(1,3:6),stck.@mat,"*"))
+  # Put all the standard input in a dataframe in columns
+  standardGraphTable                <- cbind(fbar(stck.),
+                                             landings(stck.),
+                                             ssb(stck.),
+                                             rec(stck.),
+                                             landings(stck.)/rec(stck.),
+                                             ssb(stck.)/rec(stck.),
+                                             spawners)
+  standardGraphTable                <- data.frame(standardGraphTable)
+  colnames(standardGraphTable)      <- c("Fbar","Landings","SSB","Recruits","Yield.Recruit","SSB.Recruit","Spawners")
+  # Round some values
+  standardGraphTable$Fbar           <- round(an(ac(standardGraphTable$Fbar)),3)
+  standardGraphTable$Landings       <- round(an(ac(standardGraphTable$Landings)))
+  standardGraphTable$SSB            <- round(an(ac(standardGraphTable$SSB)))
+  standardGraphTable$Recruits       <- round(an(ac(standardGraphTable$Recruits)))
+  standardGraphTable$Yield.Recruit  <- round(an(ac(standardGraphTable$Yield.Recruit)),4)
+  standardGraphTable$SSB.Recruit    <- round(an(ac(standardGraphTable$SSB.Recruit)),3)
+  standardGraphTable$Spawners       <- round(an(ac(standardGraphTable$Spawners)))
+  
+  # Give it the right units
+  standardGraphTable                <- rbind(c(paste("Ages ",range(stck.)["minfbar"],"-",range(stck.)["maxfbar"],sep=""),
+                                               "Tonnes","Tonnes","Number","","","Number","Tonnes"),standardGraphTable)
+  
+  # Write the standard graph to file and the reference points as well
+  write.table(standardGraphTable,file=paste(output.base,"summaryTable.csv",sep=""),col.names=T,row.names=F,append=F,sep=",")
+
+}
