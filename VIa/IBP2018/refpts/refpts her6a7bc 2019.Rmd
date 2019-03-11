@@ -53,6 +53,7 @@ try(setwd("D:/GIT/wg_HAWG/VIa/IBP2018/refpts"),silent=FALSE)
 source("../../../NSAS/refpts/Refpoints functions.R")
 source("../../../_Common/eqsr_fit_shift.R")
 source("../../../_Common/collapseFleets.R")
+source("../../../_Common/writeStandardOutput.R")
 source("../../../../mptools/R/my_utils.r")
 
 # Smooth hockey function adapted to Mesnil
@@ -65,6 +66,7 @@ SegregBlim  <- function(ab, ssb) log(ifelse(ssb >= Blim, ab$a * Blim, ab$a * ssb
 # IBP 2019 data
 # ----------------------------------------------------------------
 load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2019/IBPher6a7bc 2019/2019 Meeting docs/06. Data/Final assessment IBP/IBP_VIaHerring_finalRun_MF.Rdata")
+
 # rename
 STK       <- MSHm
 STK.retro <- MSHm.retro
@@ -72,6 +74,8 @@ STK.sam   <- MSHm.sam
 STK.ctrl  <- MSH.ctrl
 STK.tun   <- MSH.tun
 units(harvest(STK)) <- "f"
+
+# writeSummaryTable(stck.=STK,output.base="./")
 
 # single fleet
 # load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2019/IBPher6a7bc 2019/2019 Meeting docs/06. Data/FLSAM Single Fleet Runs/6a7bcHerring.Rdata")
