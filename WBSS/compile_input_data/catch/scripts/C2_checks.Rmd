@@ -1,0 +1,90 @@
+---
+title: "C2 -  checks'"
+author: "Kirsten Birch Håkansson, DTU Aqua"
+date: \today
+output: pdf_document
+---
+
+```{r setup, include=F}
+library(sqldf)
+library(dplyr)
+library(knitr)
+library(ggplot2)
+
+options("scipen"=1000, digits=4)
+
+dataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/results/"
+
+```
+
+```{r import data, include=F}
+canum <-
+  readRDS(paste(
+    dataPath,
+    "C1_her2024_canum_without_imputations_2018.rds",
+    sep = ""
+  ))
+catch <- filter(readRDS(paste(dataPath, "C1_her2024_catch_2018.rds", sep = "")), area %in% c("27.3.a.20", "27.3.a.21", "27.3.c.22", "27.3.b.23", "27.3.d.24"))
+```
+
+#Catch
+##Figures from catch vs. canums sheets
+
+Minor differrences are expected, since some countries fill in the sheets with different number of digits - or it is read in differenly i R? I think it is the latter - read_excel don't always reads figures correct - don't know how to solve it.
+
+Catch from the canum sheets are used in all the following calculations.
+
+*The catch figurs are accepted*
+
+```{r catch, echo=F, warning=F, results='asis'}
+#Total
+kable(merge(summarise(canum, catch_canum=sum(catch_t)/9), summarise(catch, catch_catch=sum(catch))))
+
+#quarter country area
+quarter<-merge(summarise(group_by(canum, ctry, quarter, area), catch_canum=sum(catch_t)/9), summarise(group_by(catch, ctry, quarter, area), catch_catch=sum(catch)))
+quarter$diff<-quarter$catch_canum-quarter$catch_catch
+kable(quarter)
+```
+
+## Catch per fleet
+
+Figures from CANUM sheets
+
+*Note Swedish catches from fleet D are combined with C - as always*
+
+```{r, echo = F}
+lan_fleet_plot <- summarise(group_by(canum, ctry, fleet, area), catch_ton = sum(catch_t, na.rm = T)/9)
+
+ggplot(lan_fleet_plot, aes(x = paste(area, fleet, sep = " - "), y = catch_ton, fill = ctry)) +
+  geom_bar(stat = "identity") +
+    theme(legend.position="bottom")
+
+
+kable(lan_fleet <- summarise(group_by(canum, ctry, fleet, area, quarter), catch_canum = sum(catch_t)/9))
+
+```
+
+## Mean weight per age
+
+```{r, echo = F}
+
+ggplot(filter(canum, weca_g != 0), aes(x = wr, y = weca_g, group = ctry, col = ctry)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(quarter~area+fleet) +
+    theme(legend.position="bottom")
+
+```
+
+## Mean length per age
+
+```{r, echo = F}
+
+ggplot(filter(canum, leca_cm != 0), aes(x = wr, y = leca_cm, group = ctry, col = ctry)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(quarter~area+fleet) +
+    theme(legend.position="bottom")
+
+```
+

@@ -1,0 +1,107 @@
+---
+title: "C4 - Imputations - overview missing"
+author: "Kirsten Birch H?kansson, DTU Aqua"
+date: \today
+output: pdf_document
+---
+
+#Documentation
+This program reads in the canum, make an overview of landings with and without samples
+
+What to do;
+
+1.  run this program
+2.  manually fill landings without samples in the file outputted - rename the file to _filled
+3.  run C5_imputations
+
+
+General method for filling in (Lotte's method): 
+In general samples from the same country are used. Only borrow  between 1st and 2nd quarter, and 3rd and 4th....
+
+
+2017 - special concerns - not borrowing Norwegian samples, since there figure are model with a model that include - only one sample in 
+
+```{r setup, include=F}
+library(dplyr)
+library(sqldf)
+
+options("scipen" = 1000)
+dataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/results/"
+```
+
+##Read in data and trim number of variables
+```{r input, include=F}
+canum <- readRDS(paste(dataPath,"C1_her2024_canum_without_imputations_2018.rds", sep=""))
+
+names(canum)
+
+canum1<-canum[, c("ctry","year","area","fleet","quarter","sppName","wr","canum_1000","weca_g","leca_cm","catch_t","noSample","noLength","noAge")]
+
+#Check if figures are unique
+
+test<-distinct(canum1, ctry, year, area, fleet, quarter, sppName, wr, noSample, noLength, noAge)
+
+length(unique(canum1$ctry))
+6*1*7*4*9
+
+6*1*7*4
+
+#The canum looks fine
+
+```
+
+##Overview of sampling and strat with missing 
+Output table where the imputation should be recorded
+```{r output, include=F}
+
+canum1$canum_1000 <-
+  ifelse(is.na(canum1$canum_1000), 0, canum1$canum_1000)
+canumSum <-
+  aggregate(
+    canum_1000 ~ ctry + year + area + fleet + quarter + sppName + catch_t +
+      noSample + noLength + noAge,
+    data = canum1,
+    FUN = sum
+  )
+canumSum <- rename(canumSum, canumTotal = canum_1000)
+
+canumSum$comment <-
+  ifelse(
+    canumSum$canumTotal > 0 &
+      canumSum$noSample == 0,
+    "National imputation",
+    ifelse(
+      canumSum$catch_t == 0,
+      "No landings",
+      ifelse(canumSum$noSample > 0, "Sampling", "")
+    )
+  )
+
+canumSum$useCtry <-
+  ifelse(canumSum$noSample > 0 |
+           canumSum$comment == "National imputation",
+         canumSum$ctry,
+         "")
+canumSum$useArea <-
+  ifelse(canumSum$noSample > 0 |
+           canumSum$comment == "National imputation",
+         canumSum$area,
+         "")
+canumSum$useFleet <-
+  ifelse(canumSum$noSample > 0 |
+           canumSum$comment == "National imputation",
+         canumSum$fleet,
+         "")
+canumSum$useQuarter <-
+  ifelse(canumSum$noSample > 0 |
+           canumSum$comment == "National imputation",
+         canumSum$quarter,
+         "")
+
+write.table(
+  canumSum,
+  paste(dataPath, "C4_her2024_missing_bio_2018.csv", sep = ""),
+  sep = ",",
+  row.names = F
+)
+```
