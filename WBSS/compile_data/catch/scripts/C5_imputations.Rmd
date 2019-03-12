@@ -11,18 +11,20 @@ This program reads in the manual imputations and outout the results
 library(dplyr)
 library(sqldf)
 
-options("scipen"=1000)
-dataPath<-"Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/results/"
+year <- 2017
+out_year <- 2018
+
+dataPath <- paste("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/", out_year, "/results/", sep = "")
 ```
 
 ```{r}
-filled<-read.table(paste(dataPath, "C4_her2024_missing_bio_2018_filled.csv", sep=""), sep=";", header=T)
+filled<-read.table(paste(dataPath, "C4_her2024_missing_bio_", year, "_filled.csv", sep=""), sep=",", header=T)
 filled$comment1<-paste(filled$useCtry," Q",filled$useQuarter," ",filled$useArea," fleet-", filled$useFleet, sep="")
 filled$comment1<-ifelse(filled$comment=="No landings", "No landings",
                         ifelse(filled$comment=="National imputation", "National imputation", filled$comment1))
 
 #write.table(filled,"X:/Assessement_discard_and_the_like/WG/HAWG/2017/WBSS_SC/Data/outputData/canum2016_missing_t_3_2_4_t_3_2_5_final.csv", sep=",", row.names=F)
-canum<-readRDS(paste(dataPath,"C1_her2024_canum_without_imputations_2018.rds", sep=""))
+canum<-readRDS(paste(dataPath,"C1_her2024_canum_without_imputations_", year, ".rds", sep=""))
 names(canum)
 canum1<-canum[, c("ctry","year","area","fleet","quarter","sppName","wr","canum_1000","weca_g","leca_cm","catch_t","noSample","noLength","noAge")]
 canum1$canum_1000<-ifelse(is.na(canum1$canum_1000),0, canum1$canum_1000)
@@ -87,8 +89,8 @@ write.table(testHm,paste(dataPath,"C5_her2024_canum_with_imputations_for_split_2
 final<-filled4[, c("ctry","year","area","fleet","quarter","wr","canumNew_1000","weca_g","leca_cm", "catch_t","noSamples","noLength","noAge","comment","comment1")]
 final<-rename(final,canum_1000=canumNew_1000)
 
-saveRDS(final, paste(dataPath, "C5_her2024_canum_with_imputations_2018.rds", sep=""))
-write.table(final, paste(dataPath, "C5_her2024_canum_with_imputations_2018.csv", sep=""), sep=",", row.names=F)
+saveRDS(final, paste(dataPath, "C5_her2024_canum_with_imputations_", year, ".rds", sep=""))
+write.table(final, paste(dataPath, "C5_her2024_canum_with_imputations_", year, ".csv", sep=""), sep=",", row.names=F)
 
 ```
 
