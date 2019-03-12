@@ -1,0 +1,649 @@
+
+---
+title: "6 - WBSS - Output report"
+author: "Kirsten Birch Håkansson"
+date: "16 March 2017"
+output: word_document
+---
+
+#Set-up
+```{r, message=F, results='hide'}
+
+library(sqldf)
+library(dplyr)
+library(openxlsx)
+library(reshape2)
+library(pander)
+library(lubridate)
+
+options("scipen"=1000, digits=6)
+
+Sys.setenv(R_ZIPCMD= "C:/Rtools/bin/zip") 
+
+dataPath<-"Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/results/"
+
+```
+
+#Cleaned raw data
+##Read in
+Canum without hole filling 
+```{r}
+canum<-readRDS(paste(dataPath,"C1_her2024_canum_without_imputations_2018.rds", sep=""))
+samples<-readRDS(paste(dataPath,"C1_her2024_samples_2018.rds", sep=""))
+```
+
+##Output cleaned raw data
+```{r}
+wb <- createWorkbook("HAWG WBSS")
+addWorksheet(wb, "rawCanum")
+writeData(wb, sheet="rawCanum", canum)
+addWorksheet(wb, "samples")
+writeData(wb, sheet="samples", samples)
+
+#Catch_t is not unique in the canumSheet, so output separate
+catch<-distinct(canum, year, ctry, area, fleet, quarter, catch_t)
+addWorksheet(wb, "rawCatch")
+writeData(wb, sheet="rawCatch", catch)
+```
+
+##Table_3.1.1
+```{r}
+catch1<-subset(catch, area %in% c("27.3.a.20") & ctry %in% c("Denmark","Faroe Islands","Germany","Norway","Sweden")|
+               area %in% c("27.3.a.21") & ctry %in% c("Denmark","Germany","Sweden") |
+               area %in% c("27.3.c.22","27.3.d.24") & ctry %in% c("Denmark","Germany","Poland","Sweden", "Finland") |
+               area %in% c("27.3.b.23")  & ctry %in% c("Denmark","Sweden"))
+
+data_311<-aggregate((catch_t/1000)~year+area+ctry, data=catch1, FUN=sum)
+data_311<-arrange(data_311,year,area,ctry)
+
+addWorksheet(wb, "t_3.1.1")
+writeData(wb, sheet="t_3.1.1", data_311)
+
+```
+
+#Output based on data with hole filling - no split
+##Read in
+```{r}
+canumF<-readRDS(paste(dataPath,"C5_her2024_canum_with_imputations_2018.rds", sep=""))
+
+canumF$caton_t<-canumF$canum_1000*(canumF$weca_g/1000)
+canumF$caton_t[is.na(canumF$caton_t)]<-0
+canumF$weca_g[is.na(canumF$weca_g)]<-0
+canumF$canum_mill<-canumF$canum_1000/1000
+
+addWorksheet(wb, "filledCanum")
+writeData(wb, sheet="filledCanum", canumF)
+```
+
+##Table_3.1.2
+```{r}
+data_312<-aggregate(((canum_1000*weca_g)/1000000)~year+quarter+area+fleet, data=canumF, FUN=sum)
+data_312$SOP_1000t<-data_312$'((canum_1000 * weca_g)/1000000)'
+data_312$'((canum_1000 * weca_g)/1000000)'<-NULL
+
+addWorksheet(wb, "t_3.1.2")
+writeData(wb, sheet="t_3.1.2", data_312)
+```
+
+##Table_3.2.1, table_3.2.2 and table_3.2.3
+
+```{r}
+
+data_32<-aggregate(cbind(caton_t,canum_mill)~area+year+quarter+fleet+wr, data=canumF, FUN=sum)
+data_32$weca_g<-data_32$caton_t/data_32$canum_mill
+data_32$weca_g[is.na(data_32$weca_g)]<-0
+
+total<-aggregate(cbind(caton_t,canum_mill)~area+year+fleet+wr, data=canumF, FUN=sum)
+total$weca_g<-total$caton_t/total$canum_mill
+total$weca_g[is.na(total$weca_g)]<-0
+total$quarter<-"Total"
+
+data_32<-rbind(data_32,total)
+
+totalq<-aggregate(cbind(caton_t,canum_mill)~area+year+quarter+fleet, data=data_32, FUN=sum)
+totalq$weca_g<-totalq$caton_t/totalq$canum_mill
+totalq$weca_g[is.na(totalq$weca_g)]<-0
+totalq$wr<-"Total"
+
+data_32<-rbind(data_32,totalq)
+data_32$weca_g[data_32$weca_g=="NaN"]<-""
+data_32$weca_g<-as.numeric(data_32$weca_g)
+
+data_32<-arrange(data_32, area, year, quarter, fleet, wr)
+
+data_321<-subset(data_32,area=="27.3.a.20")
+
+data_321tn<-dcast(data_321, area+year+quarter+wr~fleet, value.var=c("canum_mill"))
+colnames(data_321tn)[c(5,6)] <- paste0(colnames(data_321tn)[c(5,6)],"_canum_mill")
+data_321tw<-dcast(data_321, area+year+quarter+wr~fleet, value.var=c("weca_g"))
+colnames(data_321tw)[c(5,6)] <- paste0(colnames(data_321tw)[c(5,6)],"_weca_g")
+
+data_321t<-merge(data_321tn,data_321tw)
+data_321t$Total_canum_mill<-data_321t$'C_canum_mill'+data_321t$'D_canum_mill'
+data_321t$Total_weca_g<-((data_321t$'C_canum_mill'*data_321t$'C_weca_g')+
+                           (data_321t$'D_canum_mill'*data_321t$'D_weca_g'))/                                                                                                     (data_321t$'C_canum_mill'+data_321t$'D_canum_mill')
+
+sop<-subset(data_321t, wr=="Total" )
+sop$'C_weca_g'<-sop$'C_weca_g'*sop$'C_canum_mill'
+sop$'D_weca_g'<-sop$'D_weca_g'*sop$'D_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_canum_mill'
+sop$'C_canum_mill'<-0
+sop$'D_canum_mill'<-0
+sop$'Total_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_321f<-rbind(data_321t,sop)
+data_321f<-arrange(data_321f, area, year, quarter, wr)
+data_321f[,c(5:10)][data_321f[,c(5:10)]==0]<-NA
+data_321f[,c(5:10)][data_321f[,c(5:10)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.1")
+writeData(wb, sheet="t_3.2.1", data_321f[,c("area","year","quarter","wr","C_canum_mill","C_weca_g","D_canum_mill","D_weca_g","Total_canum_mill", "Total_weca_g")])
+
+data_322<-subset(data_32,area=="27.3.a.21")
+
+data_322tn<-dcast(data_322, area+year+quarter+wr~fleet, value.var=c("canum_mill"))
+colnames(data_322tn)[c(5,6)] <- paste0(colnames(data_322tn)[c(5,6)],"_canum_mill")
+data_322tw<-dcast(data_322, area+year+quarter+wr~fleet, value.var=c("weca_g"))
+colnames(data_322tw)[c(5,6)] <- paste0(colnames(data_322tw)[c(5,6)],"_weca_g")
+
+data_322t<-merge(data_322tn,data_322tw)
+data_322t$Total_canum_mill<-data_322t$'C_canum_mill'+data_322t$'D_canum_mill'
+data_322t$Total_weca_g<-((data_322t$'C_canum_mill'*data_322t$'C_weca_g')+
+                           (data_322t$'D_canum_mill'*data_322t$'D_weca_g'))/                                                                                                     (data_322t$'C_canum_mill'+data_322t$'D_canum_mill')
+
+sop<-subset(data_322t, wr=="Total" )
+sop$'C_weca_g'<-sop$'C_weca_g'*sop$'C_canum_mill'
+sop$'D_weca_g'<-sop$'D_weca_g'*sop$'D_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_canum_mill'
+sop$'C_canum_mill'<-0
+sop$'D_canum_mill'<-0
+sop$'Total_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_322f<-rbind(data_322t,sop)
+data_322f<-arrange(data_322f, area, year, quarter, wr)
+data_322f[,c(5:10)][data_322f[,c(5:10)]==0]<-NA
+data_322f[,c(5:10)][data_322f[,c(5:10)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.2")
+writeData(wb, sheet="t_3.2.2", data_322f[,c("area","year","quarter","wr","C_canum_mill","C_weca_g","D_canum_mill","D_weca_g","Total_canum_mill", "Total_weca_g")])
+
+
+data_323<-subset(data_32,area %in% c("27.3.c.22","27.3.b.23","27.3.d.24"))
+data_323tn<-dcast(data_323, fleet+year+quarter+wr~area, value.var=c("canum_mill"))
+colnames(data_323tn)[c(5:7)] <- paste0(colnames(data_323tn)[c(5:7)],"_canum_mill")
+data_323tw<-dcast(data_323, fleet+year+quarter+wr~area, value.var=c("weca_g"))
+colnames(data_323tw)[c(5:7)] <- paste0(colnames(data_323tw)[c(5:7)],"_weca_g")
+
+data_323t<-merge(data_323tn,data_323tw)
+data_323t$Total_canum_mill<-data_323t$'27.3.b.23_canum_mill'+data_323t$'27.3.c.22_canum_mill'+data_323t$'27.3.d.24_canum_mill'
+data_323t$Total_weca_g<-((data_323t$'27.3.b.23_canum_mill'*data_323t$'27.3.b.23_weca_g')+
+                           (data_323t$'27.3.c.22_canum_mill'*data_323t$'27.3.c.22_weca_g')+
+                           (data_323t$'27.3.d.24_canum_mill'*data_323t$'27.3.d.24_weca_g'))/                                                                                     (data_323t$'27.3.b.23_canum_mill'+data_323t$'27.3.c.22_canum_mill'+data_323t$'27.3.d.24_canum_mill')
+
+sop<-subset(data_323t, wr=="Total" )
+sop$'27.3.b.23_weca_g'<-sop$'27.3.b.23_weca_g'*sop$'27.3.b.23_canum_mill'
+sop$'27.3.c.22_weca_g'<-sop$'27.3.c.22_weca_g'*sop$'27.3.c.22_canum_mill'
+sop$'27.3.d.24_weca_g'<-sop$'27.3.d.24_weca_g'*sop$'27.3.d.24_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_canum_mill'
+sop$'27.3.b.23_canum_mill'<-0
+sop$'27.3.c.22_canum_mill'<-0
+sop$'27.3.d.24_canum_mill'<-0
+sop$'Total_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_323f<-rbind(data_323t,sop)
+data_323f<-arrange(data_323f, fleet, year, quarter, wr)
+data_323f[,c(5:12)][data_323f[,c(5:12)]==0]<-NA
+data_323f[,c(5:12)][data_323f[,c(5:12)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.3")
+writeData(wb, sheet="t_3.2.3", data_323f[,c("fleet","year","quarter","wr","27.3.c.22_canum_mill","27.3.c.22_weca_g","27.3.b.23_canum_mill",
+                                            "27.3.b.23_weca_g","27.3.d.24_canum_mill","27.3.d.24_weca_g","Total_canum_mill", "Total_weca_g")])
+```
+
+##Table_3.2.4
+```{r}
+
+canumF1<-subset(canumF, area %in% c("27.3.a.20") & ctry %in% c("Denmark","Faroe Islands","Germany","Norway","Sweden")|
+               area %in% c("27.3.a.21") & ctry %in% c("Denmark","Germany","Sweden") |
+               area %in% c("27.3.c.22","27.3.d.24") & ctry %in% c("Denmark","Germany","Poland","Sweden", "Finland") |
+               area %in% c("27.3.b.23")  & ctry %in% c("Denmark","Sweden"))
+
+data_324<-aggregate(cbind((caton_t/1000))~year+area+quarter+ctry+noSamples+noLength+noAge+fleet, data=canumF1, FUN=sum)
+data_324<-rename(data_324, "SOP_1000t"=V1, "noSample"=noSamples)
+data_324<-aggregate(cbind(SOP_1000t,noSample,noLength,noAge)~year+area+quarter+ctry+fleet, data=data_324, FUN=sum)
+data_324<-arrange(data_324, year, area, fleet, ctry, quarter)
+
+addWorksheet(wb, "t_3.2.4")
+writeData(wb, sheet="t_3.2.4", data_324)
+```
+
+##Pct landings with and without samples
+```{r}
+
+```
+
+
+##Table_3.2.5
+```{r}
+
+canumF1<-subset(canumF, area %in% c("27.3.a.20") & ctry %in% c("Denmark","Faroe Islands","Germany","Norway","Sweden")|
+               area %in% c("27.3.a.21") & ctry %in% c("Denmark","Germany","Sweden") |
+               area %in% c("27.3.c.22","27.3.d.24") & ctry %in% c("Denmark","Germany","Poland","Sweden", "Finland") |
+               area %in% c("27.3.b.23")  & ctry %in% c("Denmark","Sweden"))
+
+data_325<-distinct(canumF1,year,area,ctry,quarter,fleet,comment1)
+data_325<-arrange(data_325, year, area, ctry,fleet, quarter)
+
+addWorksheet(wb, "t_3.2.5")
+writeData(wb, sheet="t_3.2.5", data_325)
+```
+
+#Tables based on splitted data
+```{r, eval = F}
+canumFS<-readRDS(paste(dataPath,"C6_wbss_nsas_canum_2018.rds", sep=""))
+
+canumFS$nsas_caton_t<-canumFS$nsas_canum_1000*(canumFS$weca_g/1000)
+canumFS$nsas_caton_t[is.na(canumFS$nsas_caton_t)]<-0
+
+canumFS$wbss_caton_t<-canumFS$wbss_canum_1000*(canumFS$weca_g/1000)
+canumFS$wbss_caton_t[is.na(canumFS$wbss_caton_t)]<-0
+
+canumFS$nsas_canum_mill<-canumFS$nsas_canum_1000/1000
+canumFS$wbss_canum_mill<-canumFS$wbss_canum_1000/1000
+```
+
+##Table_3.2.6
+```{r, eval = F}
+canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
+
+data_326<-distinct(canumFS1, year, area, quarter, wr, nsas, wbss, n)
+
+addWorksheet(wb, "t_3.2.6")
+writeData(wb, sheet="t_3.2.6", data_326)
+```
+
+##Table_3.2.7 and table_3.2.8
+nsas
+```{r, eval = F}
+canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
+
+data_32n<-aggregate(cbind(nsas_caton_t,nsas_canum_mill)~area+year+quarter+fleet+wr, data=canumFS1, FUN=sum)
+data_32n$weca_g<-data_32n$nsas_caton_t/data_32n$nsas_canum_mill
+data_32n$weca_g[is.na(data_32n$weca_g)]<-0
+
+totaln<-aggregate(cbind(nsas_caton_t,nsas_canum_mill)~area+year+fleet+wr, data=canumFS1, FUN=sum)
+totaln$weca_g<-totaln$nsas_caton_t/totaln$nsas_canum_mill
+totaln$weca_g[is.na(totaln$weca_g)]<-0
+totaln$quarter<-"Total"
+
+data_32n<-rbind(data_32n,totaln)
+
+totalqn<-aggregate(cbind(nsas_caton_t,nsas_canum_mill)~area+year+quarter+fleet, data=data_32n, FUN=sum)
+totalqn$weca_g<-totalqn$nsas_caton_t/totalqn$nsas_canum_mill
+totalqn$weca_g[is.na(totalqn$weca_g)]<-0
+totalqn$wr<-"Total"
+
+data_32n<-rbind(data_32n,totalqn)
+data_32n$weca_g[data_32n$weca_g=="NaN"]<-""
+data_32n$weca_g<-as.numeric(data_32n$weca_g)
+
+data_32n<-arrange(data_32n, area, year, quarter, fleet, wr)
+
+################################################################################
+data_327<-subset(data_32n,area=="27.3.a.21")
+
+data_327tn<-dcast(data_327, area+year+quarter+wr~fleet, value.var=c("nsas_canum_mill"))
+colnames(data_327tn)[c(5,6)] <- paste0(colnames(data_327tn)[c(5,6)],"_nsas_canum_mill")
+data_327tw<-dcast(data_327, area+year+quarter+wr~fleet, value.var=c("weca_g"))
+colnames(data_327tw)[c(5,6)] <- paste0(colnames(data_327tw)[c(5,6)],"_weca_g")
+
+data_327t<-merge(data_327tn,data_327tw)
+data_327t$Total_nsas_canum_mill<-data_327t$'C_nsas_canum_mill'+data_327t$'D_nsas_canum_mill'
+data_327t$Total_weca_g<-((data_327t$'C_nsas_canum_mill'*data_327t$'C_weca_g')+
+                           (data_327t$'D_nsas_canum_mill'*data_327t$'D_weca_g'))/                                                                                                                       (data_327t$'C_nsas_canum_mill'+data_327t$'D_nsas_canum_mill')
+
+sop<-subset(data_327t, wr=="Total")
+sop$'C_weca_g'<-sop$'C_weca_g'*sop$'C_nsas_canum_mill'
+sop$'D_weca_g'<-sop$'D_weca_g'*sop$'D_nsas_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_nsas_canum_mill'
+sop$'C_nsas_canum_mill'<-0
+sop$'D_nsas_canum_mill'<-0
+sop$'Total_nsas_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_327f<-rbind(data_327t,sop)
+data_327f<-arrange(data_327f, area, year, quarter, wr)
+data_327f[,c(5:10)][data_327f[,c(5:10)]==0]<-NA
+data_327f[,c(5:10)][data_327f[,c(5:10)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.7")
+writeData(wb, sheet="t_3.2.7", data_327f[,c("area","year","quarter","wr","C_nsas_canum_mill","C_weca_g","D_nsas_canum_mill","D_weca_g","Total_nsas_canum_mill", "Total_weca_g")])
+
+#####################################################
+data_328<-subset(data_32n,area=="27.3.a.20")
+
+data_328tn<-dcast(data_328, area+year+quarter+wr~fleet, value.var=c("nsas_canum_mill"))
+colnames(data_328tn)[c(5,6)] <- paste0(colnames(data_328tn)[c(5,6)],"_nsas_canum_mill")
+data_328tw<-dcast(data_328, area+year+quarter+wr~fleet, value.var=c("weca_g"))
+colnames(data_328tw)[c(5,6)] <- paste0(colnames(data_328tw)[c(5,6)],"_weca_g")
+
+data_328t<-merge(data_328tn,data_328tw)
+data_328t$Total_nsas_canum_mill<-data_328t$'C_nsas_canum_mill'+data_328t$'D_nsas_canum_mill'
+data_328t$Total_weca_g<-((data_328t$'C_nsas_canum_mill'*data_328t$'C_weca_g')+
+                           (data_328t$'D_nsas_canum_mill'*data_328t$'D_weca_g'))/                                                                                                                       (data_328t$'C_nsas_canum_mill'+data_328t$'D_nsas_canum_mill')
+
+sop<-subset(data_328t, wr=="Total")
+sop$'C_weca_g'<-sop$'C_weca_g'*sop$'C_nsas_canum_mill'
+sop$'D_weca_g'<-sop$'D_weca_g'*sop$'D_nsas_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_nsas_canum_mill'
+sop$'C_nsas_canum_mill'<-0
+sop$'D_nsas_canum_mill'<-0
+sop$'Total_nsas_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_328f<-rbind(data_328t,sop)
+data_328f<-arrange(data_328f, area, year, quarter, wr)
+data_328f[,c(5:10)][data_328f[,c(5:10)]==0]<-NA
+data_328f[,c(5:10)][data_328f[,c(5:10)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.8")
+writeData(wb, sheet="t_3.2.8", data_328f[,c("area","year","quarter","wr","C_nsas_canum_mill","C_weca_g","D_nsas_canum_mill","D_weca_g","Total_nsas_canum_mill", "Total_weca_g")])
+```
+
+##Table_3.2.9 and table_3.2.10
+wbss
+```{r, eval = F}
+canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
+
+data_32w<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+quarter+fleet+wr, data=canumFS1, FUN=sum)
+data_32w$weca_g<-data_32w$wbss_caton_t/data_32w$wbss_canum_mill
+data_32w$weca_g[is.na(data_32w$weca_g)]<-0
+
+totaln<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+fleet+wr, data=canumFS1, FUN=sum)
+totaln$weca_g<-totaln$wbss_caton_t/totaln$wbss_canum_mill
+totaln$weca_g[is.na(totaln$weca_g)]<-0
+totaln$quarter<-"Total"
+
+data_32w<-rbind(data_32w,totaln)
+
+totalqn<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+quarter+fleet, data=data_32w, FUN=sum)
+totalqn$weca_g<-totalqn$wbss_caton_t/totalqn$wbss_canum_mill
+totalqn$weca_g[is.na(totalqn$weca_g)]<-0
+totalqn$wr<-"Total"
+
+data_32w<-rbind(data_32w,totalqn)
+data_32w$weca_g[data_32w$weca_g=="NaN"]<-""
+data_32w$weca_g<-as.numeric(data_32w$weca_g)
+
+data_32w<-arrange(data_32w, area, year, quarter, fleet, wr)
+
+################################################################################
+data_329<-subset(data_32w,area=="27.3.a.21")
+
+data_329tn<-dcast(data_329, area+year+quarter+wr~fleet, value.var=c("wbss_canum_mill"))
+colnames(data_329tn)[c(5,6)] <- paste0(colnames(data_329tn)[c(5,6)],"_wbss_canum_mill")
+data_329tw<-dcast(data_329, area+year+quarter+wr~fleet, value.var=c("weca_g"))
+colnames(data_329tw)[c(5,6)] <- paste0(colnames(data_329tw)[c(5,6)],"_weca_g")
+
+data_329t<-merge(data_329tn,data_329tw)
+data_329t$Total_wbss_canum_mill<-data_329t$'C_wbss_canum_mill'+data_329t$'D_wbss_canum_mill'
+data_329t$Total_weca_g<-((data_329t$'C_wbss_canum_mill'*data_329t$'C_weca_g')+
+                           (data_329t$'D_wbss_canum_mill'*data_329t$'D_weca_g'))/                                                                                                                       (data_329t$'C_wbss_canum_mill'+data_329t$'D_wbss_canum_mill')
+
+sop<-subset(data_329t, wr=="Total")
+sop$'C_weca_g'<-sop$'C_weca_g'*sop$'C_wbss_canum_mill'
+sop$'D_weca_g'<-sop$'D_weca_g'*sop$'D_wbss_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_wbss_canum_mill'
+sop$'C_wbss_canum_mill'<-0
+sop$'D_wbss_canum_mill'<-0
+sop$'Total_wbss_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_329f<-rbind(data_329t,sop)
+data_329f<-arrange(data_329f, area, year, quarter, wr)
+data_329f[,c(5:10)][data_329f[,c(5:10)]==0]<-NA
+data_329f[,c(5:10)][data_329f[,c(5:10)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.9")
+writeData(wb, sheet="t_3.2.9", data_329f[,c("area","year","quarter","wr","C_wbss_canum_mill","C_weca_g","D_wbss_canum_mill","D_weca_g","Total_wbss_canum_mill", "Total_weca_g")])
+
+################################################################################
+data_3210<-subset(data_32w,area=="27.3.a.20")
+
+data_3210tn<-dcast(data_3210, area+year+quarter+wr~fleet, value.var=c("wbss_canum_mill"))
+colnames(data_3210tn)[c(5,6)] <- paste0(colnames(data_3210tn)[c(5,6)],"_wbss_canum_mill")
+data_3210tw<-dcast(data_3210, area+year+quarter+wr~fleet, value.var=c("weca_g"))
+colnames(data_3210tw)[c(5,6)] <- paste0(colnames(data_3210tw)[c(5,6)],"_weca_g")
+
+data_3210t<-merge(data_3210tn,data_3210tw)
+data_3210t$Total_wbss_canum_mill<-data_3210t$'C_wbss_canum_mill'+data_3210t$'D_wbss_canum_mill'
+data_3210t$Total_weca_g<-((data_3210t$'C_wbss_canum_mill'*data_3210t$'C_weca_g')+
+                           (data_3210t$'D_wbss_canum_mill'*data_3210t$'D_weca_g'))/                                                                                                                       (data_3210t$'C_wbss_canum_mill'+data_3210t$'D_wbss_canum_mill')
+
+sop<-subset(data_3210t, wr=="Total")
+sop$'C_weca_g'<-sop$'C_weca_g'*sop$'C_wbss_canum_mill'
+sop$'D_weca_g'<-sop$'D_weca_g'*sop$'D_wbss_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_wbss_canum_mill'
+sop$'C_wbss_canum_mill'<-0
+sop$'D_wbss_canum_mill'<-0
+sop$'Total_wbss_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_3210f<-rbind(data_3210t,sop)
+data_3210f<-arrange(data_3210f, area, year, quarter, wr)
+data_3210f[,c(5:10)][data_3210f[,c(5:10)]==0]<-NA
+data_3210f[,c(5:10)][data_3210f[,c(5:10)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.10")
+writeData(wb, sheet="t_3.2.10", data_3210f[,c("area","year","quarter","wr","C_wbss_canum_mill","C_weca_g","D_wbss_canum_mill","D_weca_g","Total_wbss_canum_mill", "Total_weca_g")])
+
+```
+
+##Table_3.2.11
+nsas
+```{r, eval = F}
+
+canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
+canumFS1$area<-substr(canumFS1$area,1,6)
+
+data_3211n<-aggregate(cbind(nsas_caton_t,nsas_canum_mill)~area+year+quarter+fleet+wr, data=canumFS1, FUN=sum)
+data_3211n$weca_g<-data_3211n$nsas_caton_t/data_3211n$nsas_canum_mill
+data_3211n$weca_g[is.na(data_3211n$weca_g)]<-0
+
+totaln<-aggregate(cbind(nsas_caton_t,nsas_canum_mill)~area+year+fleet+wr, data=canumFS1, FUN=sum)
+totaln$weca_g<-totaln$nsas_caton_t/totaln$nsas_canum_mill
+totaln$weca_g[is.na(totaln$weca_g)]<-0
+totaln$quarter<-"Total"
+
+data_3211n<-rbind(data_3211n,totaln)
+
+totalqn<-aggregate(cbind(nsas_caton_t,nsas_canum_mill)~area+year+quarter+fleet, data=data_3211n, FUN=sum)
+totalqn$weca_g<-totalqn$nsas_caton_t/totalqn$nsas_canum_mill
+totalqn$weca_g[is.na(totalqn$weca_g)]<-0
+totalqn$wr<-"Total"
+
+data_3211n<-rbind(data_3211n,totalqn)
+data_3211n$weca_g[data_3211n$weca_g=="NaN"]<-""
+data_3211n$weca_g<-as.numeric(data_3211n$weca_g)
+
+data_3211n<-arrange(data_3211n, area, year, quarter, fleet, wr)
+
+################################################################################
+
+data_3211tn<-dcast(data_3211n, area+year+quarter+wr~fleet, value.var=c("nsas_canum_mill"))
+colnames(data_3211tn)[c(5,6)] <- paste0(colnames(data_3211tn)[c(5,6)],"_nsas_canum_mill")
+data_3211tw<-dcast(data_3211n, area+year+quarter+wr~fleet, value.var=c("weca_g"))
+colnames(data_3211tw)[c(5,6)] <- paste0(colnames(data_3211tw)[c(5,6)],"_weca_g")
+
+data_3211t<-merge(data_3211tn,data_3211tw)
+data_3211t$Total_nsas_canum_mill<-data_3211t$'C_nsas_canum_mill'+data_3211t$'D_nsas_canum_mill'
+data_3211t$Total_weca_g<-((data_3211t$'C_nsas_canum_mill'*data_3211t$'C_weca_g')+
+                           (data_3211t$'D_nsas_canum_mill'*data_3211t$'D_weca_g'))/                                                                                                                       (data_3211t$'C_nsas_canum_mill'+data_3211t$'D_nsas_canum_mill')
+
+sop<-subset(data_3211t, wr=="Total")
+sop$'C_weca_g'<-sop$'C_weca_g'*sop$'C_nsas_canum_mill'
+sop$'D_weca_g'<-sop$'D_weca_g'*sop$'D_nsas_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_nsas_canum_mill'
+sop$'C_nsas_canum_mill'<-0
+sop$'D_nsas_canum_mill'<-0
+sop$'Total_nsas_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_3211f<-rbind(data_3211t,sop)
+data_3211f<-arrange(data_3211f, area, year, quarter, wr)
+data_3211f[,c(5:10)][data_3211f[,c(5:10)]==0]<-NA
+data_3211f[,c(5:10)][data_3211f[,c(5:10)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.11")
+writeData(wb, sheet="t_3.2.11", data_3211f[,c("area","year","quarter","wr","C_nsas_canum_mill","C_weca_g","D_nsas_canum_mill","D_weca_g","Total_nsas_canum_mill", "Total_weca_g")])
+
+```
+
+##Table_3.2.12
+wbss
+```{r, eval = F}
+canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
+canumFS1$area<-substr(canumFS1$area,1,6)
+
+data_3212n<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+quarter+fleet+wr, data=canumFS1, FUN=sum)
+data_3212n$weca_g<-data_3212n$wbss_caton_t/data_3212n$wbss_canum_mill
+data_3212n$weca_g[is.na(data_3212n$weca_g)]<-0
+
+totaln<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+fleet+wr, data=canumFS1, FUN=sum)
+totaln$weca_g<-totaln$wbss_caton_t/totaln$wbss_canum_mill
+totaln$weca_g[is.na(totaln$weca_g)]<-0
+totaln$quarter<-"Total"
+
+data_3212n<-rbind(data_3212n,totaln)
+
+totalqn<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+quarter+fleet, data=data_3212n, FUN=sum)
+totalqn$weca_g<-totalqn$wbss_caton_t/totalqn$wbss_canum_mill
+totalqn$weca_g[is.na(totalqn$weca_g)]<-0
+totalqn$wr<-"Total"
+
+data_3212n<-rbind(data_3212n,totalqn)
+data_3212n$weca_g[data_3212n$weca_g=="NaN"]<-""
+data_3212n$weca_g<-as.numeric(data_3212n$weca_g)
+
+data_3212n<-arrange(data_3212n, area, year, quarter, fleet, wr)
+
+################################################################################
+
+data_3212tn<-dcast(data_3212n, area+year+quarter+wr~fleet, value.var=c("wbss_canum_mill"))
+colnames(data_3212tn)[c(5,6)] <- paste0(colnames(data_3212tn)[c(5,6)],"_wbss_canum_mill")
+data_3212tw<-dcast(data_3212n, area+year+quarter+wr~fleet, value.var=c("weca_g"))
+colnames(data_3212tw)[c(5,6)] <- paste0(colnames(data_3212tw)[c(5,6)],"_weca_g")
+
+data_3212t<-merge(data_3212tn,data_3212tw)
+data_3212t$Total_wbss_canum_mill<-data_3212t$'C_wbss_canum_mill'+data_3212t$'D_wbss_canum_mill'
+data_3212t$Total_weca_g<-((data_3212t$'C_wbss_canum_mill'*data_3212t$'C_weca_g')+
+                           (data_3212t$'D_wbss_canum_mill'*data_3212t$'D_weca_g'))/                                                                                                                       (data_3212t$'C_wbss_canum_mill'+data_3212t$'D_wbss_canum_mill')
+
+sop<-subset(data_3212t, wr=="Total")
+sop$'C_weca_g'<-sop$'C_weca_g'*sop$'C_wbss_canum_mill'
+sop$'D_weca_g'<-sop$'D_weca_g'*sop$'D_wbss_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_wbss_canum_mill'
+sop$'C_wbss_canum_mill'<-0
+sop$'D_wbss_canum_mill'<-0
+sop$'Total_wbss_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_3212f<-rbind(data_3212t,sop)
+data_3212f<-arrange(data_3212f, area, year, quarter, wr)
+data_3212f[,c(5:10)][data_3212f[,c(5:10)]==0]<-NA
+data_3212f[,c(5:10)][data_3212f[,c(5:10)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.12")
+writeData(wb, sheet="t_3.2.12", data_3212f[,c("area","year","quarter","wr","C_wbss_canum_mill","C_weca_g","D_wbss_canum_mill","D_weca_g","Total_wbss_canum_mill", "Total_weca_g")])
+```
+
+##Table_3.2.14
+wbss all areas
+```{r, eval = F}
+wbss3<-readRDS(paste(dataPath,"C6_wbss_nsas_canum_2018.rds", sep=""))
+wbss3$weca_kg<-wbss3$weca_g/1000
+wbss3<-wbss3[,c("year","area","quarter","wr","wbss_canum_1000","weca_kg","weca_g")]
+
+wbss4<-read.table(paste(dataPath,"canum_weca_2018_27.4.a.e.csv", sep=""), sep=",", header=T)
+wbss4<-rename(wbss4, wbss_canum_1000=canum_000)
+wbss4$weca_g<-wbss4$weca_kg*1000
+
+wbss4$wr<-ifelse(wbss4$wr %in% c("8","9"), "8+", wbss4$wr)
+
+wbss<-rbind(wbss3,wbss4)
+
+wbss$area<-ifelse(wbss$area %in% c("27.4.a.e"),"27.4.a.e",
+                  ifelse(wbss$area %in% c("27.3.a.20","27.3.a.21"), substr(wbss$area,1,6),
+                         ifelse( wbss$area %in% c("27.3.b.23","27.3.c.22","27.3.d.24"), "22-24", "")))
+
+wbss$wbss_caton_t<-wbss$wbss_canum_1000*(wbss$weca_g/1000)
+wbss$wbss_caton_t[is.na(wbss$wbss_caton_t)]<-0
+
+wbss$wbss_canum_mill<-wbss$wbss_canum_1000/1000
+
+#################################
+
+data_3214<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+quarter+wr, data=wbss, FUN=sum)
+data_3214$weca_g<-data_3214$wbss_caton_t/data_3214$wbss_canum_mill
+data_3214$weca_g[is.na(data_3214$weca_g)]<-0
+
+totaln<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+wr, data=wbss, FUN=sum)
+totaln$weca_g<-totaln$wbss_caton_t/totaln$wbss_canum_mill
+totaln$weca_g[is.na(totaln$weca_g)]<-0
+totaln$quarter<-"Total"
+
+data_3214<-rbind(data_3214,totaln)
+
+totalqn<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+quarter, data=data_3214, FUN=sum)
+totalqn$weca_g<-totalqn$wbss_caton_t/totalqn$wbss_canum_mill
+totalqn$weca_g[is.na(totalqn$weca_g)]<-0
+totalqn$wr<-"Total"
+
+data_3214<-rbind(data_3214,totalqn)
+data_3214$weca_g[data_3214$weca_g=="NaN"]<-""
+data_3214$weca_g<-as.numeric(data_3214$weca_g)
+
+data_3214<-arrange(data_3214, area, year, quarter, wr)
+
+data_3214tn<-dcast(data_3214, year+quarter+wr~area, value.var=c("wbss_canum_mill"))
+colnames(data_3214tn)[c(4,5,6)] <- paste0(colnames(data_3214tn)[c(4,5,6)],"_wbss_canum_mill")
+data_3214tw<-dcast(data_3214, year+quarter+wr~area, value.var=c("weca_g"))
+colnames(data_3214tw)[c(4,5,6)] <- paste0(colnames(data_3214tw)[c(4,5,6)],"_weca_g")
+
+data_3214t<-merge(data_3214tn,data_3214tw)
+data_3214t$Total_wbss_canum_mill<-data_3214t$'22-24_wbss_canum_mill'+data_3214t$'27.4.a.e_wbss_canum_mill'+data_3214t$'27.3.a_wbss_canum_mill'
+
+data_3214t$Total_weca_g<-((data_3214t$'22-24_wbss_canum_mill'*data_3214t$'22-24_weca_g')+
+                           (data_3214t$'27.4.a.e_wbss_canum_mill'*data_3214t$'27.4.a.e_weca_g')+
+                            (data_3214t$'27.3.a_wbss_canum_mill'*data_3214t$'27.3.a_weca_g'))/                                                                                                       (data_3214t$'22-24_wbss_canum_mill'+data_3214t$'27.4.a.e_wbss_canum_mill'+data_3214t$'27.3.a_wbss_canum_mill')
+
+sop<-subset(data_3214t, wr=="Total")
+sop$'22-24_weca_g'<-sop$'22-24_weca_g'*sop$'22-24_wbss_canum_mill'
+sop$'27.4.a.e_weca_g'<-sop$'27.4.a.e_weca_g'*sop$'27.4.a.e_wbss_canum_mill'
+sop$'27.3.a_weca_g'<-sop$'27.3.a_weca_g'*sop$'27.3.a_wbss_canum_mill'
+sop$'Total_weca_g'<-sop$'Total_weca_g'*sop$'Total_wbss_canum_mill'
+sop$'22-24_wbss_canum_mill'<-0
+sop$'27.4.a.e_wbss_canum_mill'<-
+sop$'27.3.a_wbss_canum_mill'<-0
+sop$'Total_wbss_canum_mill'<-0
+sop$wr<-"SOP"
+
+data_3214f<-rbind(data_3214t,sop)
+data_3214f<-arrange(data_3214f, year, quarter, wr)
+data_3214f[,c(4:11)][data_3214f[,c(4:11)]==0]<-NA
+data_3214f[,c(4:11)][data_3214f[,c(4:11)]=="NaN"]<-NA
+
+addWorksheet(wb, "t_3.2.14")
+writeData(wb, sheet="t_3.2.14", data_3214f[,c("year","quarter","wr","27.4.a.e_wbss_canum_mill","27.4.a.e_weca_g","27.3.a_wbss_canum_mill","27.3.a_weca_g",
+                                              "22-24_wbss_canum_mill","22-24_weca_g","Total_wbss_canum_mill", "Total_weca_g")])
+```
+
+
+#Output workbook
+```{r}
+saveWorkbook(wb, file=paste(dataPath,"Cx_output_report_2018_", today(),".xlsx", sep=""), overwrite = TRUE)
+```
+
