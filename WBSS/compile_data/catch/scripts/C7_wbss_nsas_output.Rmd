@@ -1,6 +1,6 @@
 ---
 title: "8 - Compile WBSS"
-author: "Kirsten Birch Håkansson"
+author: "Kirsten Birch H?kansson"
 date: "15 March 2017"
 output: word_document
 ---
@@ -9,16 +9,20 @@ output: word_document
 ```{r}
 options("scipen"=1000, digits=6)
 library(dplyr)
-dataPath<-"C:/HAWG/2018/WBSS/data/catch/resultsCatch/"
+
+year <- 2017
+out_year <- 2018
+
+dataPath <- paste("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/", out_year, "/results/", sep = "")
 ```
 
 #Read-in
 ```{r}
 
-canum3<-readRDS(paste(dataPath,"C6_wbss_nsas_canum_2017.rds", sep=""))
+canum3<-readRDS(paste(dataPath,"C6_her2024_canum_wbss_nsas_", year, ".rds", sep=""))
 canum3$weca_kg<-canum3$weca_g/1000
 
-canum4<-read.table(paste(dataPath,"canum_weca_2017_27.4.a.e.csv", sep=""), sep=",", header=T)
+canum4<-read.table(paste(dataPath,"canum_weca_", year, "_27.4.a.e.csv", sep=""), sep=",", header=T)
 canum4<-rename(canum4, wbss_canum_1000=canum_000)
 canum4$weca_g<-canum4$weca_kg*1000
 canum4$fleet<-"A"
@@ -43,7 +47,18 @@ canum$nsas_caton[is.na(canum$nsas_caton)]<-0
 wbssFinal<-aggregate(cbind(wbss_canum_1000,wbss_caton)~year+wr+fleet, data=canum, FUN=sum)
 wbssFinal$weca_kg<-(wbssFinal$wbss_caton/wbssFinal$wbss_canum_1000)
 
-write.table(wbssFinal, paste(dataPath,"C7_wbss_input_fleet_2017.csv", sep=""), sep=",", row.names=F)
+write.table(wbssFinal, paste(dataPath,"C7_wbss_multi_fleet_", year, ".csv", sep=""), sep=",", row.names=F)
+
+```
+
+#Output per fleet
+##WBSS
+```{r}
+
+wbssFinal<-aggregate(cbind(wbss_canum_1000,wbss_caton)~year+wr, data=canum, FUN=sum)
+wbssFinal$weca_kg<-(wbssFinal$wbss_caton/wbssFinal$wbss_canum_1000)
+
+write.table(wbssFinal, paste(dataPath,"C7_wbss_single_fleet_", year, ".csv", sep=""), sep=",", row.names=F)
 
 ```
 
@@ -55,7 +70,7 @@ write.table(wbssFinal, paste(dataPath,"C7_wbss_input_fleet_2017.csv", sep=""), s
 nsasFinal<-aggregate(cbind(nsas_canum_1000,nsas_caton)~year+wr+fleet, data=canum, FUN=sum)
 nsasFinal$weca_kg<-(nsasFinal$nsas_caton/nsasFinal$nsas_canum_1000)
 
-write.table(subset(nsasFinal,fleet %in% c("C","D")), paste(dataPath,"C7_nsas_input_fleet_2017.csv", sep=""), sep=",", row.names=F)
+write.table(subset(nsasFinal,fleet %in% c("C","D")), paste(dataPath,"C7_nsas_input_fleet_", year, ".csv", sep=""), sep=",", row.names=F)
 
 ```
 
@@ -66,7 +81,7 @@ write.table(subset(nsasFinal,fleet %in% c("C","D")), paste(dataPath,"C7_nsas_inp
 wbssFinalq<-aggregate(cbind(wbss_canum_1000,wbss_caton)~year+wr+quarter, data=canum, FUN=sum)
 wbssFinalq$weca_kg<-(wbssFinalq$wbss_caton/wbssFinalq$wbss_canum_1000)
 
-write.table(wbssFinalq, paste(dataPath,"C7_wbss_input_quarter_2017.csv", sep=""), sep=",", row.names=F)
+write.table(wbssFinalq, paste(dataPath,"C7_wbss_input_quarter_", year, ".csv", sep=""), sep=",", row.names=F)
 
 
 ```
@@ -75,37 +90,37 @@ write.table(wbssFinalq, paste(dataPath,"C7_wbss_input_quarter_2017.csv", sep="")
 
 
 
-```{r}
+```{r, eval = F}
 
-write.table(wbssFinal, paste(dataPath,"wbbs_catch_input_model_2016.csv", sep=""), sep=",", row.names=F)
+write.table(wbssFinal, paste(dataPath,"wbbs_catch_input_model_", year, ".csv", sep=""), sep=",", row.names=F)
 
 ```
 
 #WEST
-```{r}
+```{r, eval = F}
 wbssWEST<-aggregate(cbind(wbss_canum_1000,caton)~year+wr+quarter, data=wbss, FUN=sum)
 wbssWEST$weca_kg<-(wbssWEST$caton/wbssWEST$wbss_canum_1000)
 
-write.table(wbssWEST, paste(dataPath,"wbbs_catch_west_input_model_2016.csv", sep=""), sep=",", row.names=F)
+write.table(wbssWEST, paste(dataPath,"wbbs_catch_west_input_model_", year, ".csv", sep=""), sep=",", row.names=F)
 ```
 
 #Cacth WBSS and NSAS
-```{r}
-wbss3<-readRDS(paste(dataPath,"3a_splitted_2016.rsd", sep=""))
+```{r, eval = F}
+wbss3<-readRDS(paste(dataPath,"3a_splitted_", year, ".rsd", sep=""))
 wbss3a<-subset(wbss3, area %in% c("27.3.a.20","27.3.a.21"))
 
 wbss3a$wbss_caton_t<-wbss3a$wbss_canum_1000*(wbss3a$weca_g/1000)
 wbss3a$nsas_caton_t<-wbss3a$nsas_canum_1000*(wbss3a$weca_g/1000)
 
 prop<-aggregate(cbind(wbss_caton_t,nsas_caton_t)~year+fleet, data=wbss3a, FUN=sum)
-write.table(prop, paste(dataPath,"wbbs_nsas_prop_catch_input_model_2016.csv", sep=""), sep=",", row.names=F)
+write.table(prop, paste(dataPath,"wbbs_nsas_prop_catch_input_model_", year, ".csv", sep=""), sep=",", row.names=F)
 ```
 
-```{r}
+```{r, eval = F}
 
 wbss3$wbss_caton_t<-wbss3$wbss_canum_1000*(wbss3$weca_g/1000)
 wbss3$nsas_caton_t<-wbss3$nsas_canum_1000*(wbss3$weca_g/1000)
 
 prop<-aggregate(cbind(wbss_caton_t,nsas_caton_t)~year+area+fleet, data=wbss3, FUN=sum)
-write.table(prop, paste(dataPath,"wbbs_nsas_prop_catch_input_model_2016.csv", sep=""), sep=",", row.names=F)
+write.table(prop, paste(dataPath,"wbbs_nsas_prop_catch_input_model_", year, ".csv", sep=""), sep=",", row.names=F)
 ```
