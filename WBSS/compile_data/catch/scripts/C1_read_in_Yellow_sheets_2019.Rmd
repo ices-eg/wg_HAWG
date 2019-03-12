@@ -1,5 +1,5 @@
 ---
-title: "C1 -  read in 'Yellow sheets' from 2018 in 2019"
+title: "C1 -  read in 'Yellow sheets'"
 author: "Kirsten Birch Håkansson, DTU Aqua"
 date: \today
 output:
@@ -42,7 +42,7 @@ firstLineLength - 1st line with length in the excel sheet
 
 2018/03/15 - File names are now only in the beginning
 
-```{r setup, include=F}
+```{r setup, include = F}
 
 library(sqldf)
 library(dplyr)
@@ -51,9 +51,11 @@ library(knitr)
 options("scipen" = 1000, digits = 4)
 
 year <- 2018
+out_year <- 2019
 
-rawDataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/2019/yellow_sheets/"
-dataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/2019/results/"
+rawDataPath <- paste("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/", out_year, 
+                     "/yellow_sheets/", sep = "")
+dataPath <- paste("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/", out_year, "/results/", sep = "")
 
 source("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/scripts/WBSS_functions_data.R")
 
