@@ -1,0 +1,72 @@
+---
+title: "C6 - apply split in 3.a"
+author: "Kirsten Birch Håkansson, DTU Aqua"
+date: \today
+output: pdf_document
+---
+
+This program reads in the manual imputations and outout the results
+
+```{r setup, include=F}
+library(dplyr)
+library(sqldf)
+
+options("scipen"=1000)
+dataPath<-"C:/HAWG/2018/WBSS/data/catch/resultsCatch/"
+```
+
+#Read in and recode split proportions from Henrik
+#Read-in
+```{r}
+
+split<-read.table(paste(dataPath,"input_C_split_proportions_3a_2017.csv", sep=""), sep=",", header=T)
+str(split)
+
+unique(split$area)
+
+split$area<-ifelse(split$area=="20","27.3.a.20","27.3.a.21")
+
+unique(split$area)
+
+unique(split$wr)
+
+split$wr<-ifelse(split$wr=="8", "8+",split$wr)
+
+```
+
+#Read in CANUM
+
+```{r}
+canum<-readRDS(paste(dataPath, "C5_her2024_canum_with_imputations_2017.rds", sep=""))
+
+```
+
+#Apply split proportions
+
+```{r}
+
+splitted<-merge(canum,split, all.x=T)
+
+splitted$wbss<-ifelse(splitted$area %in% c("27.3.b.23","27.3.c.22","27.3.d.24"), 1, splitted$wbss)
+splitted$nsas<-ifelse(splitted$area %in% c("27.3.b.23","27.3.c.22","27.3.d.24"), 0, splitted$nsas)
+
+splitted$nsas_canum_1000<-splitted$canum_1000*splitted$nsas
+
+splitted$wbss_canum_1000<-splitted$canum_1000*splitted$wbss
+
+splitted<-arrange(splitted, year, quarter, area, ctry, fleet, wr)
+
+splitted$nsas_canum_1000[is.na(splitted$nsas_canum_1000)]<-0
+
+splitted$wbss_canum_1000[is.na(splitted$wbss_canum_1000)]<-0
+
+```
+
+#Output
+```{r}
+#WBSS and NSAS
+write.table(splitted, paste(dataPath,"C6_her2024_canum_wbss_nsas_2017.csv", sep=""), sep=",", row.names=F)
+saveRDS(splitted, paste(dataPath,"C6_her2024_canum_wbss_nsas_2017.rds", sep=""))
+```
+
+
