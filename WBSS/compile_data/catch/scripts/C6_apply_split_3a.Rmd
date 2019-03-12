@@ -1,6 +1,6 @@
 ---
 title: "C6 - apply split in 3.a"
-author: "Kirsten Birch Håkansson, DTU Aqua"
+author: "Kirsten Birch H?kansson, DTU Aqua"
 date: \today
 output: pdf_document
 ---
@@ -12,14 +12,19 @@ library(dplyr)
 library(sqldf)
 
 options("scipen"=1000)
-dataPath<-"C:/HAWG/2018/WBSS/data/catch/resultsCatch/"
+
+
+year <- 2017
+out_year <- 2018
+
+dataPath <- paste("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/", out_year, "/results/", sep = "")
 ```
 
 #Read in and recode split proportions from Henrik
 #Read-in
 ```{r}
 
-split<-read.table(paste(dataPath,"input_C_split_proportions_3a_2017.csv", sep=""), sep=",", header=T)
+split<-read.table(paste(dataPath,"input_C_split_proportions_3a_", year, ".csv", sep=""), sep=",", header=T)
 str(split)
 
 unique(split$area)
@@ -37,7 +42,7 @@ split$wr<-ifelse(split$wr=="8", "8+",split$wr)
 #Read in CANUM
 
 ```{r}
-canum<-readRDS(paste(dataPath, "C5_her2024_canum_with_imputations_2017.rds", sep=""))
+canum<-readRDS(paste(dataPath, "C5_her2024_canum_with_imputations_", year, ".rds", sep=""))
 
 ```
 
@@ -65,8 +70,8 @@ splitted$wbss_canum_1000[is.na(splitted$wbss_canum_1000)]<-0
 #Output
 ```{r}
 #WBSS and NSAS
-write.table(splitted, paste(dataPath,"C6_her2024_canum_wbss_nsas_2017.csv", sep=""), sep=",", row.names=F)
-saveRDS(splitted, paste(dataPath,"C6_her2024_canum_wbss_nsas_2017.rds", sep=""))
+write.table(splitted, paste(dataPath,"C6_her2024_canum_wbss_nsas_", year, ".csv", sep=""), sep=",", row.names=F)
+saveRDS(splitted, paste(dataPath,"C6_her2024_canum_wbss_nsas_", year, ".rds", sep=""))
 ```
 
 
