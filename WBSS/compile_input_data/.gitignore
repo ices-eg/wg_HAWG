@@ -5,6 +5,6 @@
 
 *.pdf
 *.xls
-
+*.docx
 
 */data/*
