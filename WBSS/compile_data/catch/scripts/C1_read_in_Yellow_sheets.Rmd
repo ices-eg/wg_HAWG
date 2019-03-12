@@ -52,10 +52,10 @@ options("scipen" = 1000, digits = 4)
 
 year <- 2018
 
-rawDataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/yellow_sheets/"
-dataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/results/"
+rawDataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/2019/yellow_sheets/"
+dataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/2019/results/"
 
-source("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/scripts/WBSS_functions_data.R")
+source("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/scripts/WBSS_functions_data.R")
 
 knitr::opts_chunk$set(echo = F, warning = F, message = F, results = 'asis')
 
@@ -64,7 +64,8 @@ knitr::opts_chunk$set(echo = F, warning = F, message = F, results = 'asis')
 
 ```{r}
 
-# File names
+
+# File names 2019
 dnkFile <- "DC_Annex 7.1.3. HAWG Template_her_2024_DNK_2018.xls"
 gerFile <- "2_2019 DC HAWG her.27.2024 DE AC4_small revision_v2.xls"
 polFile <- "DC_Annex 7.1.3. HAWG Template_her_2024_poland.xls"

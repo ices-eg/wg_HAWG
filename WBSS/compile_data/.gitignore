@@ -6,5 +6,7 @@
 *.pdf
 *.xls
 *.docx
+*.dat
+*.txt
 
 */data/*
