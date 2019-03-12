@@ -41,7 +41,7 @@ swe_before <-
 ```{r set_col, include = F}
 
 ddc <- levels(as.factor(canum$ctry))
-ddc.col <- brewer.pal(length(ddc), "Paired")
+ddc.col <- brewer.pal(length(ddc), "Dark2")
 names(ddc.col)  <- ddc
 
 ```
@@ -97,7 +97,9 @@ ggplot(lan_fleet_plot, aes(x = paste(area, fleet, sep = " - "), y = catch_ton, f
 
 Denmark
 
-27.3.c.22, qurter 1, fleet F - All samples from by-catch. Nearly all landings from by-catch as well
+27.3.c.22, quarter 1, fleet F - All samples from by-catch. Nearly all landings from by-catch as well
+
+27.3.a.21, quarter 3 (IN-LYNG 703): A single sample from HUC - don't know why they are so small
 
 Sweden
 
@@ -137,6 +139,47 @@ ggplot(filter(canum, leca_cm != 0), aes(x = wr, y = leca_cm, group = ctry, col =
     theme(legend.position="bottom")
 
 ```
+
+## CANUM, relative
+
+```{r, echo = F}
+
+canum_sum <- summarise(group_by(canum, year, quarter, area, fleet, ctry), canum_total = sum(canum))
+
+canum_1 <- mutate(left_join(canum, canum_sum), canum_pct = canum/canum_total)
+
+ggplot(canum_1, aes(x = wr, y = canum_pct, group = ctry, col = ctry)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(quarter~area+fleet, scales = "free") + 
+  scale_color_manual(values = ddc.col) +
+    theme(legend.position="bottom")
+```
+
+## CANUM
+
+```{r, echo = F}
+
+ggplot(canum_1, aes(x = wr, y = canum, group = ctry, fill = ctry)) +
+  geom_bar(stat = "identity") +
+  facet_grid(quarter~area+fleet, scales = "free") + 
+  scale_fill_manual(values = ddc.col) +
+  theme(legend.position="bottom")
+
+```
+
+## Landings and sampling
+
+```{r, echo = F, fig.height = 10}
+
+ggplot(canum, aes(y = paste(quarter, ctry, sep = " - "), x = paste(area, fleet, sep = " - "), fill = catch_t)) +
+  geom_tile() +
+  geom_text(aes(label = paste(round(catch_t, digits = 0), " / ", noSample, sep = ""))) + 
+  scale_fill_distiller(palette = "Blues", direction = 1)
+
+```
+
+
 
 # Tabulated overviews
 ## Catch
