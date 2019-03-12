@@ -71,6 +71,7 @@ polFile <- "DC_Annex 7.1.3. HAWG Template_her_2024_poland.xls"
 sweFile <- "DC_Annex_7.1.3_HAWG_SWE_her.27.20-24_2018.xls"
 norFile <- "DC_Annex 5_Template_her.27.2024_Norway_2018.xls"
 froFile <- "DC_Annex 7.1.3. HAWG Template_her_2024_FO_2018.xls"
+finFile <- "DC_Annex 7.1.3. HAWG Template_her_2024_FIN_2018.xls"
 ```
 
 
@@ -122,6 +123,13 @@ fro <-
     noAgeClasses = 9
     )
 
+fin <-
+  read_in_canum(
+    paste(rawDataPath, finFile, sep = ""),
+    sheets = c(12),
+    noAgeClasses = 9
+    )
+
 ```
 
 ## Read in samples
@@ -170,6 +178,13 @@ froS <-
     sheets = c(7),
     firstLineSamples = 27
   )
+
+finS <-
+  read_in_samples(
+    paste(rawDataPath, finFile, sep = ""),
+    sheets = c(7),
+    firstLineSamples = 27
+  )
 ```
 
 ## Read in catch
@@ -204,6 +219,12 @@ froC <-
   read_in_catch(paste(rawDataPath, froFile, sep = ""),
                 sheets = c(3),
                 noAreas = 29)
+
+finC <-
+  read_in_catch(paste(rawDataPath, finFile, sep = ""),
+                sheets = c(3),
+                noAreas = 29)
+
 ```
 
 ## Read in length
@@ -301,7 +322,7 @@ froR <-
 
 # Combine and recode canum
 ```{r, include=F}
-canum <- rbind(dnk, ger, pol, swe, nor, fro)
+canum <- rbind(dnk, ger, pol, swe, nor, fro, fin)
 
 unique(canum$ctry)
 
@@ -419,7 +440,7 @@ canum1$catch_t <- ifelse(is.na(canum1$catch_t), 0, canum1$catch_t)
 
 # Combine and recode sample
 ```{r, include=F}
-samp <- rbind(dnkS, gerS, polS, sweS, norS, froS)
+samp <- rbind(dnkS, gerS, polS, sweS, norS, froS, finS)
 
 unique(samp$noSample)
 
@@ -543,7 +564,7 @@ distinct(samp, area, fleet)
 # Combine and recode catch
 
 ```{r, include=F}
-catch <- rbind(dnkC, polC, gerC, sweC, norC, froC)
+catch <- rbind(dnkC, polC, gerC, sweC, norC, froC, finC)
 
 str(catch)
 
@@ -714,7 +735,12 @@ kable(summarise(group_by(sw, ctry, year, fleet, area, quarter), ton = sum(catch)
 
 
 # SOP correction
-Note the Swedish SOP correction cab be big due to the fact that not all fleet D had biology from fleet C, which I assumed
+
+Correcting canum_1000
+
+Note the Swedish SOP correction cab be big due to the fact that not all fleet D had biology from fleet C, which I assumed. 
+
+
 
 ```{r, include=F}
 
