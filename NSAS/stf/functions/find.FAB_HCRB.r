@@ -1,7 +1,5 @@
-#-------------------------------------------------------------------------------
-#- compute difference between Ftar and F01 and selectivities with scalor
-#-------------------------------------------------------------------------------
-find.FAB_HCRA  <- function(mult,stk.=stk,mpPoints.=mpPoints){
+find.FAB_HCRB  <- function(mult,stk.=stk,f01.=f01,f26.=f26,TACS.=TACS,mpPoints.=mpPoints){
+  
   f01 <- ac(0:1)
   f26 <- ac(2:6)
   
@@ -16,11 +14,16 @@ find.FAB_HCRA  <- function(mult,stk.=stk,mpPoints.=mpPoints){
   
   bigF              <- apply(Fs,1,sum)
   ssb               <- sum(Ns * Swghts * exp(-bigF*Hspwns - Ms*Mspwns) * Mats)
-  if(ssb <= mpPoints.$Btrigger){
+  
+  if(ssb < mpPoints.$Btrigger & ssb > mpPoints.$Blim){
     Ftarget <- mpPoints.$Ftarget*ssb/mpPoints.$Btrigger
     F01Tar  <- mpPoints.$F01*ssb/mpPoints.$Btrigger
   }
-  if(ssb > mpPoints.$Btrigger){
+  if(ssb <= mpPoints.$Blim){
+    Ftarget <- 0.1
+    F01Tar  <- 0.04
+  }
+  if(ssb >= mpPoints.$Btrigger){
     Ftarget <- mpPoints.$Ftarget
     F01Tar  <- mpPoints.$F01
   }

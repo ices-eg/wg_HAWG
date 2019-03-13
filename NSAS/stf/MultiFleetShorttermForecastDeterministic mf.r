@@ -25,7 +25,8 @@ require(msm)         # install.packages("msm")
 # path <- "D:/Repository/HAWG/wg_HAWG.git/trunk/NSAS/"
 # path <- "C:/DATA/GIT/HAWG/NSAS/"
 # path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
-path <- "D:/git/wg_HAWG/NSAS/"
+#path <- "D:/git/wg_HAWG/NSAS/"
+path <- "C:/git/wg_HAWG/NSAS/"
 
 try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
