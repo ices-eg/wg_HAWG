@@ -1,0 +1,95 @@
+---
+title: "C5 - Imputations"
+author: "Kirsten Birch Håkansson, DTU Aqua"
+date: \today
+output: pdf_document
+---
+
+This program reads in the manual imputations and outout the results
+
+```{r setup, include=F}
+library(dplyr)
+library(sqldf)
+
+options("scipen"=1000)
+dataPath<-"Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/results/"
+```
+
+```{r}
+filled<-read.table(paste(dataPath, "C4_her2024_missing_bio_2018_filled.csv", sep=""), sep=";", header=T)
+filled$comment1<-paste(filled$useCtry," Q",filled$useQuarter," ",filled$useArea," fleet-", filled$useFleet, sep="")
+filled$comment1<-ifelse(filled$comment=="No landings", "No landings",
+                        ifelse(filled$comment=="National imputation", "National imputation", filled$comment1))
+
+#write.table(filled,"X:/Assessement_discard_and_the_like/WG/HAWG/2017/WBSS_SC/Data/outputData/canum2016_missing_t_3_2_4_t_3_2_5_final.csv", sep=",", row.names=F)
+canum<-readRDS(paste(dataPath,"C1_her2024_canum_without_imputations_2018.rds", sep=""))
+names(canum)
+canum1<-canum[, c("ctry","year","area","fleet","quarter","sppName","wr","canum_1000","weca_g","leca_cm","catch_t","noSample","noLength","noAge")]
+canum1$canum_1000<-ifelse(is.na(canum1$canum_1000),0, canum1$canum_1000)
+
+wr<-distinct(canum, wr)
+filled1<-sqldf("select * from filled, wr")
+
+canum1<-rename(canum1,catch_t_canum=catch_t)
+
+filled2<-merge(filled1, canum1, by.x=c("useCtry","useArea","useFleet","useQuarter","wr"), by.y=c("ctry","area","fleet","quarter","wr"), all.x=T)
+
+#clean up variables
+
+filled3<-filled2[, c("ctry","year.x","area","fleet","quarter","sppName.x","catch_t","noSample.x","noLength.x","noAge.x","canumTotal","comment","comment1","wr","canum_1000",
+                     "weca_g","leca_cm","catch_t_canum")]
+
+filled4<-rename(filled3, year=year.x, sppName=sppName.x, noSamples=noSample.x, noLength=noLength.x, noAge=noAge.x)
+filled4<-arrange(filled4, year, quarter, ctry, area, fleet, wr)
+
+filled4$canumNew_1000<-(filled4$canum_1000/filled4$catch_t_canum)*filled4$catch_t
+```
+
+```{r}
+
+filled4$canumSop<-filled4$canumNew_1000*(filled4$weca_g/1000)
+
+sop<-aggregate(canumSop~ctry+sppName+area+fleet+quarter+catch_t+comment, data=filled4, FUN=sum)
+
+sop$diff<-round(((sop$catch_t-sop$canumSop)/sop$catch_t)*100,digits=0)
+
+sop$catch_t<-round(sop$catch_t, digits=0)
+sop$sop<-round(sop$canumSop, digits=0)
+
+sop
+```
+```{r}
+
+#final<-filled1[,c("ctry","year.x","quarter","fleet","area", "sppName.x","wr","canumNew","weca_g","leca_cm","catch_t")]
+
+#final$sop<-final$canumNew*(final$weca_g/1000)
+
+filled4$canumNew_1000[is.na(filled4$canumNew_1000)]<-0
+filled4$canumSop[is.na(filled4$canumSop)]<-0
+
+finalHm<-aggregate(cbind(canumNew_1000,canumSop)~year+ctry+area+quarter+wr, data=filled4, FUN=sum)
+finalHm$weca_g<-(finalHm$canumSop/finalHm$canumNew)*1000
+finalHm$weca_kg<-(finalHm$canumSop/finalHm$canumNew)
+finalHm$canumNew_1000000<-finalHm$canumNew_1000/1000
+#testHm<-subset(finalHm, ctry %in% c("Denmark","Sweden") & area %in% c("27.3.a.20","27.3.a.21"))
+testHm<-arrange(finalHm, year, quarter, area, ctry, wr)
+
+write.table(testHm,paste(dataPath,"C5_her2024_canum_with_imputations_for_split_2018.csv", sep=""), sep=",", row.names=F)
+
+#write.table(final,"X:/Assessement_discard_and_the_like/WG/HAWG/2017/WBSS_SC/Data/outputData/test.csv", sep=",", row.names=F)
+  
+```
+
+
+#Output new canum with hole fill
+```{r}
+
+final<-filled4[, c("ctry","year","area","fleet","quarter","wr","canumNew_1000","weca_g","leca_cm", "catch_t","noSamples","noLength","noAge","comment","comment1")]
+final<-rename(final,canum_1000=canumNew_1000)
+
+saveRDS(final, paste(dataPath, "C5_her2024_canum_with_imputations_2018.rds", sep=""))
+write.table(final, paste(dataPath, "C5_her2024_canum_with_imputations_2018.csv", sep=""), sep=",", row.names=F)
+
+```
+
+
