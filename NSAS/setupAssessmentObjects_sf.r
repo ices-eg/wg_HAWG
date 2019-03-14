@@ -71,19 +71,26 @@ yrs             <- dimnames(NSHM2@m)$year
 yrs             <- yrs[which(yrs %in% colnames(M2))]
 NSHM2@m[,yrs][] <- as.matrix(M2)
 
-#- Apply 5 year running average
+#- M extension to previous and future years (relative to vector given by WGSAM). 
+# One uses a 5 year running average for that
+
+# year discrepency between assessment and M from WGSAM
 extryrs         <- dimnames(NSHM2@m)$year[which(!dimnames(NSHM2@m)$year %in% yrs)]
+# year after those avaible for M from WGSAM
 extryrsfw       <- extryrs[which(extryrs > max(an(yrs)))]
+# years prior to those available for M from WGSAM
 extryrsbw       <- extryrs[which(extryrs <= max(an(yrs)))]
 ages            <- dimnames(NSHM2@m)$age
 extrags         <- names(which(apply(M2,1,function(x){all(is.na(x))==T})==T))
-yrAver          <- 1
+yrAver          <- 2
 for(iYr in as.numeric(rev(extryrs))){
   for(iAge in ages[!ages%in%extrags]){
-    if(iYr %in% extryrsbw) NSHM2@m[ac(iAge),ac(iYr)] <- 
-        yearMeans(NSHM2@m[ac(iAge),ac((iYr+1):(iYr+yrAver)),],na.rm=T)
-    if(iYr %in% extryrsfw) NSHM2@m[ac(iAge),ac(iYr)] <- 
-        yearMeans(NSHM2@m[ac(iAge),ac((iYr-1):(iYr-yrAver)),],na.rm=T)
+    if(iYr %in% extryrsbw){ 
+      NSHM2@m[ac(iAge),ac(iYr)] <- yearMeans(NSHM2@m[ac(iAge),ac((iYr+1):(iYr+yrAver)),],na.rm=T)
+    }
+    if(iYr %in% extryrsfw){
+      NSHM2@m[ac(iAge),ac(iYr)] <- yearMeans(NSHM2@m[ac(iAge),ac((iYr-1):(iYr-yrAver)),],na.rm=T)
+    }
   }
 }
 if(length(extrags)>0){

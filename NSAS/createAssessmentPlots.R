@@ -740,7 +740,7 @@ plot(NSH.tun[["HERAS"]],type="internal")
 savePlot(paste(output.dir,assessment_name,"_HERAS_consistency.png",sep = ""),type="png")
 
 # figure - internal consistency IBTSQ3
-plot(NSH.tun[["IBTS-Q3"]],type="internal")
+plot(NSH.tun[["IBTS-Q1"]],type="internal")
 
 savePlot(paste(output.dir,assessment_name,"_IBTSQ3_consistency.png",sep = ""),type="png")
 
