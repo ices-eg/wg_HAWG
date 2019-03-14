@@ -12,7 +12,7 @@ library(lattice)
 library(grid)
 library(gridExtra)
 
-setwd("D:/git/wg_HAWG/NSAS/data/IBTS index/")
+setwd("C:/git/wg_HAWG/NSAS/data/IBTS index/")
 #source("D:/UserData/Work/2017_course/spatial_temporal_model/01_Monday/Data/HighstatLibV10.R")
 
 ## function
@@ -35,8 +35,8 @@ Mypairs <- function(Z, mytitle, MyVarx) {
 
 # IBTS-Q3: 1998-2018
 
-year_last          <- 2017
-yearlist              <- 1998:year_last   
+year_last   <- 2018
+yearlist    <- 1998:year_last   
 
 cmSize      <- 1
 spectrumMax <- 40

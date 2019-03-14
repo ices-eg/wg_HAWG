@@ -354,3 +354,7 @@ Year  LAIUnit Area  Fortnight        L<=9
 117   D2      CNS    16-30Sep        3965
 117   E6      SNS    16-31Dec       10553
 117   E7      SNS    01-15Jan        5880
+118   B2	  Or/Sh  16-30Sep         102 
+118	  C2	  Buchan 16-30Sep        1740
+118	  D2	  CNS    16-30Sep        1509
+118	  E6	  SNS    16-31Dec        1140

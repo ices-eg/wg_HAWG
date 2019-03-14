@@ -1,0 +1,829 @@
+
+
+Summary of Sampling by Country
+------------------------------
+
+AREA : 3a                                                                                                                           
+---------
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Transf NSAS fro IIIa     3373.00        0.00           4           4           4      100.32
+     Total 3a             3373.00        0.00           4           4           4      100.32
+
+      Sum of Offical Catches :           0.00
+      Unallocated Catch :             3373.00
+      Working Group Catch :           3373.00
+
+
+AREA : 4a(E)                                                                                                                        
+------------
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Denmark (A)                 0.00      751.00           0           0           0        0.00
+ Norway                  71183.00    73452.00          26        2600        1247      100.15
+ Sweden                      0.00      377.00           0           0           0        0.00
+ Transf WBSS to IIIa     -2165.00        0.00           4           4           4        0.00
+     Total 4a(E)         69018.00    74580.00          30        2604        1251      100.15
+
+      Sum of Offical Catches :       74580.00
+      Unallocated Catch :            -2165.00
+      Working Group Catch :          72415.00
+
+
+AREA : 4a(W)                                                                                                                        
+------------
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Denmark (A)             90076.00    90076.00          52        6031        1419      100.03
+ Denmark (B)                 0.00      687.00           0           0           0        0.00
+ England and Wales       11763.00    12313.00          22        3273         550      100.01
+ Faroese                     0.00      496.00           0           0           0        0.00
+ France                      0.00    14745.00           0           0           0        0.00
+ Germany                 30243.00    35884.00          21       15505         200       99.69
+ Ireland                     0.00      515.00           0           0           0        0.00
+ Netherlands             55720.00    56990.00          54        6803        1350       99.95
+ Northern Ireland            0.00     5582.00           0           0           0        0.00
+ Norway                  78092.00    78647.00          19        1900         580      100.33
+ Scotland                62267.00    64424.00          30        4731        1315      101.72
+ Sweden                   7797.00    14132.00           3         198         198      100.06
+     Total 4a(W)        335958.00   374491.00         201       38441        5612      100.37
+
+      Sum of Offical Catches :      374491.00
+      Unallocated Catch :                0.00
+      Working Group Catch :         374491.00
+
+
+AREA : 4b                                                                                                                           
+---------
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Denmark (A)             32487.00    32927.00          21        2354         590      100.06
+ Denmark (B)              7750.00     7750.00          65         952         505       98.16
+ England and Wales        3262.00     3262.00           3         341          75       99.99
+ Faroese                     0.00        1.00           0           0           0        0.00
+ France                      0.00     6090.00           0           0           0        0.00
+ France Discard              0.00        1.00           0           0           0        0.00
+ Germany                     0.00     4964.00           0           0           0        0.00
+ Netherlands             26668.00    34491.00           6         632         150      100.06
+ Northern Ireland            0.00     1334.00           0           0           0        0.00
+ Norway                   8286.00    10495.00           1          30         100      101.05
+ Scotland                 1581.00     1581.00           1         124          35       98.72
+ Sweden                      0.00     4899.00           0           0           0        0.00
+     Total 4b            80034.00   107795.00          97        4433        1455       99.95
+
+      Sum of Offical Catches :      107795.00
+      Unallocated Catch :                0.00
+      Working Group Catch :         107795.00
+
+
+AREA : 4c                                                                                                                           
+---------
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Belgium                     0.00        9.00           0           0           0        0.00
+ Denmark (B)                12.00       40.00           3           9           9       97.16
+ England and Wales         449.00      513.00           3         701          75      100.01
+ France                      0.00     1408.00           0           0           0        0.00
+ Germany                     0.00        8.00           0           0           0        0.00
+ Netherlands               210.00      210.00           1         147          25      100.06
+     Total 4c              671.00     2188.00           7         857         109       99.97
+
+      Sum of Offical Catches :        2188.00
+      Unallocated Catch :                0.00
+      Working Group Catch :           2188.00
+
+
+AREA : 7d                                                                                                                           
+---------
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Belgium                     0.00       23.00           0           0           0        0.00
+ England and Wales        3503.00     3503.00          10        2101         250       99.91
+ France                      0.00     9262.00           0           0           0        0.00
+ France Discard              0.00       95.00           0           0           0        0.00
+ Germany                 10780.00    10780.00          53       15559         195       98.75
+ Netherlands                 0.00    19611.00           0           0           0        0.00
+     Total 7d            14283.00    43274.00          63       17660         445       99.04
+
+      Sum of Offical Catches :       43274.00
+      Unallocated Catch :                0.00
+      Working Group Catch :          43274.00
+
+
+
+
+
+ PERIOD :   1
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Belgium                     0.00       17.00           0           0           0        0.00
+ Denmark (A)              6172.00     6335.00           7         888         184      100.17
+ Denmark (B)               194.00      215.00           7          17          17      102.06
+ England and Wales         736.00      736.00           7        1430         175      100.01
+ France                      0.00     4486.00           0           0           0        0.00
+ France Discard              0.00       54.00           0           0           0        0.00
+ Netherlands                 0.00     1721.00           0           0           0        0.00
+ Northern Ireland            0.00      453.00           0           0           0        0.00
+ Norway                      0.00      763.00           0           0           0        0.00
+ Scotland                    0.00     1269.00           0           0           0        0.00
+ Transf NSAS fro IIIa     1378.00        0.00           1           1           1      100.60
+ Transf WBSS to IIIa        -1.00        0.00           1           1           1        0.00
+         Period Total     8479.00    16049.00          23        2337         378      100.27
+
+      Sum of Offical Catches :       16049.00
+      Unallocated Catch :             1377.00
+      Working Group Catch :          17426.00
+
+
+
+ PERIOD :   2
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Belgium                     0.00        3.00           0           0           0        0.00
+ Denmark (A)              1538.00     1892.00           1         138          29      100.13
+ Denmark (B)               768.00      768.00           3          47          23       97.39
+ England and Wales        3462.00     3478.00          10        1870         250      100.21
+ France                      0.00     3411.00           0           0           0        0.00
+ France Discard              0.00       42.00           0           0           0        0.00
+ Germany                     0.00     2221.00           0           0           0        0.00
+ Netherlands                 0.00     1270.00           0           0           0        0.00
+ Norway                  83302.00    83313.00          33        3300        1438      100.18
+ Scotland                 2882.00     2882.00           5         781         187      101.59
+ Sweden                      0.00     4378.00           0           0           0        0.00
+ Transf NSAS fro IIIa       44.00        0.00           1           1           1      100.18
+ Transf WBSS to IIIa      -271.00        0.00           1           1           1        0.00
+         Period Total    91725.00   103658.00          54        6138        1929      100.20
+
+      Sum of Offical Catches :      103658.00
+      Unallocated Catch :             -227.00
+      Working Group Catch :         103431.00
+
+
+
+ PERIOD :   3
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Belgium                     0.00        1.00           0           0           0        0.00
+ Denmark (A)             76474.00    77148.00          43        4859        1184      100.04
+ Denmark (B)              5115.00     5126.00          42         798         382       97.29
+ England and Wales       11563.00    11563.00          15        1744         375       99.95
+ Faroese                     0.00      401.00           0           0           0        0.00
+ France                      0.00    15536.00           0           0           0        0.00
+ Germany                 30243.00    33936.00          21       15505         200       99.69
+ Netherlands             81019.00    81019.00          59        7321        1475       99.98
+ Northern Ireland            0.00     5411.00           0           0           0        0.00
+ Norway                  44931.00    47129.00           8         800         269      100.23
+ Scotland                60966.00    60966.00          26        4074        1163      101.65
+ Sweden                   7797.00    11983.00           3         198         198      100.06
+ Transf NSAS fro IIIa     1274.00        0.00           1           1           1       99.86
+ Transf WBSS to IIIa     -1849.00        0.00           1           1           1        0.00
+         Period Total   317533.00   350219.00         219       35301        5248      100.28
+
+      Sum of Offical Catches :      350219.00
+      Unallocated Catch :             -575.00
+      Working Group Catch :         349644.00
+
+
+
+ PERIOD :   4
+
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Belgium                     0.00       11.00           0           0           0        0.00
+ Denmark (A)             38379.00    38379.00          22        2500         612      100.02
+ Denmark (B)              1685.00     2368.00          16          99          92      100.71
+ England and Wales        3216.00     3814.00           6        1372         150       99.90
+ Faroese                     0.00       96.00           0           0           0        0.00
+ France                      0.00     8072.00           0           0           0        0.00
+ Germany                 10780.00    15479.00          53       15559         195       98.75
+ Ireland                     0.00      515.00           0           0           0        0.00
+ Netherlands              1579.00    27292.00           2         261          50      100.06
+ Northern Ireland            0.00     1052.00           0           0           0        0.00
+ Norway                  29328.00    31389.00           5         430         220      100.68
+ Scotland                    0.00      888.00           0           0           0        0.00
+ Sweden                      0.00     3047.00           0           0           0        0.00
+ Transf NSAS fro IIIa      677.00        0.00           1           1           1      100.61
+ Transf WBSS to IIIa       -44.00        0.00           1           1           1        0.00
+         Period Total    85600.00   132402.00         106       20223        1321      100.10
+
+      Sum of Offical Catches :      132402.00
+      Unallocated Catch :              633.00
+      Working Group Catch :         133035.00
+
+
+
+Total over all Areas and Periods
+--------------------------------
+      Country             Sampled     Official      No. of        No.         No.             SOP  
+                           Catch        Catch       samples     measured       aged            %   
+ Belgium                     0.00       32.00           0           0           0        0.00
+ Denmark (A)            122563.00   123754.00          73        8385        2009      100.04
+ Denmark (B)              7762.00     8477.00          68         961         514       98.16
+ England and Wales       18977.00    19591.00          38        6416         950       99.99
+ Faroese                     0.00      497.00           0           0           0        0.00
+ France                      0.00    31505.00           0           0           0        0.00
+ France Discard              0.00       96.00           0           0           0        0.00
+ Germany                 41023.00    51636.00          74       31064         395       99.44
+ Ireland                     0.00      515.00           0           0           0        0.00
+ Netherlands             82598.00   111302.00          61        7582        1525       99.99
+ Northern Ireland            0.00     6916.00           0           0           0        0.00
+ Norway                 157561.00   162594.00          46        4530        1927      100.29
+ Scotland                63848.00    66005.00          31        4855        1350      101.65
+ Sweden                   7797.00    19408.00           3         198         198      100.06
+ Transf NSAS fro IIIa     3373.00        0.00           4           4           4      100.32
+ Transf WBSS to IIIa     -2165.00        0.00           4           4           4        0.00
+      Total for Stock   503337.00   602328.00         402       63999        8876      100.23
+
+      Sum of Offical Catches :      602328.00
+      Unallocated Catch :             1208.00
+      Working Group Catch :         603536.00
+
+
+
+
+DETAILS OF DATA FILLING-IN
+--------------------------
+
+  Filling-in for record : (  1)   Denmark (A)            1 4a(E)      
+Using Only                                                                      
+  >>  (  3)  Denmark (A)            1 4a(W)      
+
+  Filling-in for record : (  2)   Denmark (A)            3 4a(E)      
+Using Only                                                                      
+  >>  (  5)  Denmark (A)            3 4a(W)      
+
+  Filling-in for record : (  7)   Denmark (A)            1 4b         
+Using Only                                                                      
+  >>  (  3)  Denmark (A)            1 4a(W)      
+
+  Filling-in for record : (  8)   Denmark (A)            2 4b         
+Using Only                                                                      
+  >>  (  9)  Denmark (A)            3 4b         
+
+  Filling-in for record : ( 11)   Denmark (B)            1 4a(W)      
+Using Only                                                                      
+  >>  ( 14)  Denmark (B)            1 4b         
+
+  Filling-in for record : ( 12)   Denmark (B)            3 4a(W)      
+Using Only                                                                      
+  >>  ( 16)  Denmark (B)            3 4b         
+
+  Filling-in for record : ( 13)   Denmark (B)            4 4a(W)      
+Using Only                                                                      
+  >>  ( 17)  Denmark (B)            4 4b         
+
+  Filling-in for record : ( 19)   Denmark (B)            2 4c         
+Using Only                                                                      
+  >>  ( 18)  Denmark (B)            1 4c         
+
+  Filling-in for record : ( 20)   Denmark (B)            3 4c         
+Using Only                                                                      
+  >>  ( 16)  Denmark (B)            3 4b         
+
+  Filling-in for record : ( 21)   Denmark (B)            4 4c         
+Using Only                                                                      
+  >>  ( 17)  Denmark (B)            4 4b         
+
+  Filling-in for record : ( 24)   England and Wales      4 4a(W)      
+Using Only                                                                      
+  >>  ( 23)  England and Wales      3 4a(W)      
+
+  Filling-in for record : ( 25)   England and Wales      1 4b         
+Using Only                                                                      
+  >>  ( 28)  England and Wales      1 4c         
+
+  Filling-in for record : ( 26)   England and Wales      2 4b         
+Using Only                                                                      
+  >>  ( 27)  England and Wales      3 4b         
+
+  Filling-in for record : ( 29)   England and Wales      2 4c         
+Using Only                                                                      
+  >>  ( 28)  England and Wales      1 4c         
+
+  Filling-in for record : ( 30)   England and Wales      3 4c         
+Using Only                                                                      
+  >>  ( 27)  England and Wales      3 4b         
+
+  Filling-in for record : ( 31)   England and Wales      4 4c         
+Using Only                                                                      
+  >>  ( 35)  England and Wales      4 7d         
+
+  Filling-in for record : ( 33)   England and Wales      2 7d         
+Using Only                                                                      
+  >>  ( 32)  England and Wales      1 7d         
+
+  Filling-in for record : ( 34)   England and Wales      3 7d         
+Using Only                                                                      
+  >>  ( 35)  England and Wales      4 7d         
+
+  Filling-in for record : ( 36)   Germany                2 4a(W)      
+Using Only                                                                      
+  >>  ( 37)  Germany                3 4a(W)      
+
+  Filling-in for record : ( 38)   Germany                4 4a(W)      
+Using Only                                                                      
+  >>  ( 37)  Germany                3 4a(W)      
+
+  Filling-in for record : ( 39)   Germany                3 4b         
+Unweighted Mean of :                                                            
+  >>  ( 27)  England and Wales      3 4b         
+  >>  ( 46)  Netherlands            3 4b         
+
+  Filling-in for record : ( 40)   Germany                4 4b         
+Unweighted Mean of :                                                            
+  >>  ( 27)  England and Wales      3 4b         
+  >>  ( 10)  Denmark (A)            4 4b         
+
+  Filling-in for record : ( 41)   Germany                3 4c         
+Using Only                                                                      
+  >>  ( 48)  Netherlands            4 4c         
+
+  Filling-in for record : ( 43)   Netherlands            2 4a(W)      
+Using Only                                                                      
+  >>  ( 22)  England and Wales      2 4a(W)      
+
+  Filling-in for record : ( 47)   Netherlands            4 4b         
+Using Only                                                                      
+  >>  ( 46)  Netherlands            3 4b         
+
+  Filling-in for record : ( 49)   Netherlands            1 7d         
+Using Only                                                                      
+  >>  ( 32)  England and Wales      1 7d         
+
+  Filling-in for record : ( 50)   Netherlands            2 7d         
+Using Only                                                                      
+  >>  ( 32)  England and Wales      1 7d         
+
+  Filling-in for record : ( 51)   Netherlands            4 7d         
+Using Only                                                                      
+  >>  ( 42)  Germany                4 7d         
+
+  Filling-in for record : ( 52)   Norway                 1 4a(E)      
+Using Only                                                                      
+  >>  ( 53)  Norway                 2 4a(E)      
+
+  Filling-in for record : ( 55)   Norway                 4 4a(E)      
+Using Only                                                                      
+  >>  ( 54)  Norway                 3 4a(E)      
+
+  Filling-in for record : ( 56)   Norway                 1 4a(W)      
+Using Only                                                                      
+  >>  ( 57)  Norway                 2 4a(W)      
+
+  Filling-in for record : ( 60)   Norway                 2 4b         
+Using Only                                                                      
+  >>  ( 57)  Norway                 2 4a(W)      
+
+  Filling-in for record : ( 61)   Norway                 3 4b         
+Unweighted Mean of :                                                            
+  >>  ( 67)  Scotland               3 4b         
+  >>  ( 62)  Norway                 4 4b         
+
+  Filling-in for record : ( 63)   Scotland               1 4a(W)      
+Using Only                                                                      
+  >>  ( 64)  Scotland               2 4a(W)      
+
+  Filling-in for record : ( 66)   Scotland               4 4a(W)      
+Using Only                                                                      
+  >>  ( 65)  Scotland               3 4a(W)      
+
+  Filling-in for record : ( 68)   Sweden                 3 4a(E)      
+Using Only                                                                      
+  >>  ( 54)  Norway                 3 4a(E)      
+
+  Filling-in for record : ( 69)   Sweden                 2 4a(W)      
+Using Only                                                                      
+  >>  ( 57)  Norway                 2 4a(W)      
+
+  Filling-in for record : ( 71)   Sweden                 4 4a(W)      
+Using Only                                                                      
+  >>  ( 59)  Norway                 4 4a(W)      
+
+  Filling-in for record : ( 72)   Sweden                 2 4b         
+Using Only                                                                      
+  >>  (  9)  Denmark (A)            3 4b         
+
+  Filling-in for record : ( 73)   Sweden                 3 4b         
+Using Only                                                                      
+  >>  (  9)  Denmark (A)            3 4b         
+
+  Filling-in for record : ( 74)   Sweden                 4 4b         
+Unweighted Mean of :                                                            
+  >>  ( 10)  Denmark (A)            4 4b         
+  >>  ( 62)  Norway                 4 4b         
+
+  Filling-in for record : ( 75)   Belgium                1 4c         
+Using Only                                                                      
+  >>  ( 28)  England and Wales      1 4c         
+
+  Filling-in for record : ( 76)   Belgium                2 4c         
+Using Only                                                                      
+  >>  ( 28)  England and Wales      1 4c         
+
+  Filling-in for record : ( 77)   Belgium                3 4c         
+Using Only                                                                      
+  >>  ( 48)  Netherlands            4 4c         
+
+  Filling-in for record : ( 78)   Belgium                4 4c         
+Using Only                                                                      
+  >>  ( 48)  Netherlands            4 4c         
+
+  Filling-in for record : ( 79)   Belgium                1 7d         
+Using Only                                                                      
+  >>  ( 32)  England and Wales      1 7d         
+
+  Filling-in for record : ( 80)   Belgium                2 7d         
+Using Only                                                                      
+  >>  ( 32)  England and Wales      1 7d         
+
+  Filling-in for record : ( 81)   Belgium                4 7d         
+Using Only                                                                      
+  >>  ( 42)  Germany                4 7d         
+
+  Filling-in for record : ( 82)   Ireland                4 4a(W)      
+Unweighted Mean of :                                                            
+  >>  ( 23)  England and Wales      3 4a(W)      
+  >>  (  6)  Denmark (A)            4 4a(W)      
+
+  Filling-in for record : ( 83)   Faroese                3 4a(W)      
+Unweighted Mean of :                                                            
+  >>  ( 58)  Norway                 3 4a(W)      
+  >>  ( 65)  Scotland               3 4a(W)      
+
+  Filling-in for record : ( 84)   Faroese                4 4a(W)      
+Using Only                                                                      
+  >>  ( 59)  Norway                 4 4a(W)      
+
+  Filling-in for record : ( 85)   Faroese                3 4b         
+Unweighted Mean of :                                                            
+  >>  ( 67)  Scotland               3 4b         
+  >>  ( 62)  Norway                 4 4b         
+
+  Filling-in for record : ( 86)   Northern Ireland       1 4a(W)      
+Using Only                                                                      
+  >>  ( 22)  England and Wales      2 4a(W)      
+
+  Filling-in for record : ( 87)   Northern Ireland       3 4a(W)      
+Using Only                                                                      
+  >>  ( 23)  England and Wales      3 4a(W)      
+
+  Filling-in for record : ( 88)   Northern Ireland       4 4a(W)      
+Using Only                                                                      
+  >>  ( 45)  Netherlands            4 4a(W)      
+
+  Filling-in for record : ( 89)   Northern Ireland       3 4b         
+Using Only                                                                      
+  >>  ( 27)  England and Wales      3 4b         
+
+  Filling-in for record : ( 90)   France                 2 4a(W)      
+Using Only                                                                      
+  >>  ( 22)  England and Wales      2 4a(W)      
+
+  Filling-in for record : ( 91)   France                 3 4a(W)      
+Using Only                                                                      
+  >>  ( 37)  Germany                3 4a(W)      
+
+  Filling-in for record : ( 92)   France                 4 4a(W)      
+Using Only                                                                      
+  >>  ( 37)  Germany                3 4a(W)      
+
+  Filling-in for record : ( 93)   France                 2 4b         
+Using Only                                                                      
+  >>  ( 46)  Netherlands            3 4b         
+
+  Filling-in for record : ( 94)   France                 3 4b         
+Using Only                                                                      
+  >>  ( 46)  Netherlands            3 4b         
+
+  Filling-in for record : ( 95)   France                 4 4b         
+Using Only                                                                      
+  >>  ( 46)  Netherlands            3 4b         
+
+  Filling-in for record : ( 96)   France                 1 4c         
+Using Only                                                                      
+  >>  ( 28)  England and Wales      1 4c         
+
+  Filling-in for record : ( 97)   France                 2 4c         
+Using Only                                                                      
+  >>  ( 28)  England and Wales      1 4c         
+
+  Filling-in for record : ( 98)   France                 3 4c         
+Using Only                                                                      
+  >>  ( 48)  Netherlands            4 4c         
+
+  Filling-in for record : ( 99)   France                 4 4c         
+Using Only                                                                      
+  >>  ( 48)  Netherlands            4 4c         
+
+  Filling-in for record : (100)   France                 1 7d         
+Using Only                                                                      
+  >>  ( 32)  England and Wales      1 7d         
+
+  Filling-in for record : (101)   France                 2 7d         
+Using Only                                                                      
+  >>  ( 32)  England and Wales      1 7d         
+
+  Filling-in for record : (102)   France                 3 7d         
+Using Only                                                                      
+  >>  ( 42)  Germany                4 7d         
+
+  Filling-in for record : (103)   France                 4 7d         
+Using Only                                                                      
+  >>  ( 42)  Germany                4 7d         
+
+  Filling-in for record : (104)   France Discard         2 4b         
+Using Only                                                                      
+  >>  ( 46)  Netherlands            3 4b         
+
+  Filling-in for record : (105)   France Discard         1 7d         
+Using Only                                                                      
+  >>  ( 32)  England and Wales      1 7d         
+
+  Filling-in for record : (106)   France Discard         2 7d         
+Using Only                                                                      
+  >>  ( 32)  England and Wales      1 7d         
+
+
+
+Catch Numbers at Age by Area 
+---------------------------- 
+
+ For Periods  1  to  4
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0     14510.00         0.00     54102.01   1266562.00      2230.03         0.00   1337404.00 
+     1     19170.00      1393.30     10998.70     40506.46      1191.87         0.00     73260.35 
+     2     28488.00     35157.69     94452.95     25790.09       339.52     22004.59    206232.84 
+     3      1126.00     22427.80    111749.87     26811.30      3979.85     34432.48    200527.30 
+     4      1794.00    107846.91    798905.44    179501.81      7475.58     83081.41   1178604.75 
+     5      1042.00    132450.27    476614.81    154426.13      4558.86     79869.09    848961.25 
+     6       184.00     38371.23    128833.49     37489.23       328.20     18431.32    223637.45 
+     7       118.00     18931.17     91892.01     23421.17       505.16     10131.86    144999.38 
+     8        86.00     18191.46     95796.62     19768.63       354.28      9990.30    144187.30 
+     9         0.00     23950.82    115119.47     26901.00         3.90     22319.94    188295.11 
+
+
+
+Mean Weight at Age by Area (Kg) 
+-------------------------------
+
+ For Periods  1  to  4
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       0.0102       0.0000       0.0098       0.0052       0.0100       0.0000       0.0054 
+     1       0.0486       0.0911       0.0647       0.0273       0.0111       0.0000       0.0394 
+     2       0.0578       0.1247       0.1142       0.1174       0.0608       0.1143       0.1085 
+     3       0.1031       0.1517       0.1557       0.1380       0.1037       0.1178       0.1451 
+     4       0.1555       0.1725       0.1882       0.1916       0.1208       0.1462       0.1838 
+     5       0.1793       0.1874       0.1927       0.2105       0.1316       0.1573       0.1914 
+     6       0.1897       0.2008       0.2204       0.2372       0.1701       0.1637       0.2151 
+     7       0.1868       0.2110       0.2407       0.2482       0.1635       0.1900       0.2342 
+     8       0.2026       0.2188       0.2499       0.2456       0.2180       0.1953       0.2415 
+     9       0.0000       0.2301       0.2581       0.2578       0.2590       0.2092       0.2487 
+
+
+Mean Length at Age by Area (cm) 
+-------------------------------
+
+ For Periods  1  to  4
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       1.0000       0.0000      11.0177       8.8234      11.1000       0.0000       8.8311 
+     1       1.0000      21.0100      18.9676      14.7397      11.4691       0.0000      11.8452 
+     2       1.0000      23.2988      23.2446      23.2631      20.0535      23.8957      20.2476 
+     3       1.0000      25.7803      25.6703      24.7446      23.6754      24.2370      25.1346 
+     4       1.0000      26.5734      27.1464      27.1108      24.9094      25.8510      26.9433 
+     5       1.0000      27.7245      27.4853      27.9660      25.9174      26.5130      27.4776 
+     6       1.0000      28.7963      28.6114      28.9848      27.3558      26.9129      28.5412 
+     7       1.0000      29.3243      29.4726      29.5228      27.3620      28.5532      29.3666 
+     8       1.0000      28.8621      29.7413      29.6495      30.2763      28.6827      29.5286 
+     9       0.0000      29.4156      29.9323      30.0880      30.5000      29.3262      29.8170 
+
+
+Catch Numbers at Age by Area 
+---------------------------- 
+
+ For Period  1
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0         0.00         0.00         0.00         0.00         0.00         0.00         0.00 
+     1      5190.00         4.02      1312.43     11054.00      1048.00         0.00     18608.45 
+     2     23591.00       151.47      6438.87      1624.56       309.62       937.76     33053.27 
+     3       526.00       104.45      5420.00        43.77      2278.15      4356.66     12729.01 
+     4       130.00       528.76     25365.96       254.28      6110.58     11878.24     44267.83 
+     5        24.00       559.36     16641.72       184.68      3616.21     10725.59     31751.55 
+     6         6.00       153.37      3688.42        47.75       156.68      1230.80      5283.03 
+     7         6.00        72.65      1659.89        20.41       313.36      3457.98      5530.29 
+     8         0.00        53.21       248.64         0.00       178.62      2715.59      3196.05 
+     9         0.00        92.41      2130.72        26.63         0.00      6134.49      8384.24 
+
+
+
+Mean Weight at Age by Area (Kg) 
+-------------------------------
+
+ For Period  1
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 
+     1       0.0290       0.0880       0.0148       0.0130       0.0070       0.0000       0.0173 
+     2       0.0500       0.1095       0.0851       0.0283       0.0549       0.0750       0.0568 
+     3       0.0740       0.1250       0.1018       0.0850       0.0840       0.0920       0.0942 
+     4       0.0960       0.1544       0.1367       0.1350       0.1110       0.1130       0.1268 
+     5       0.1180       0.1741       0.1497       0.1480       0.1190       0.1360       0.1420 
+     6       0.1430       0.1902       0.1703       0.1700       0.1130       0.1490       0.1642 
+     7       0.1750       0.1999       0.1769       0.1760       0.1350       0.1530       0.1599 
+     8       0.0000       0.2160       0.1961       0.0000       0.1930       0.1750       0.1783 
+     9       0.0000       0.2239       0.2140       0.2150       0.0000       0.1870       0.1944 
+
+
+Mean Length at Age by Area (cm) 
+-------------------------------
+
+ For Period  1
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 
+     1       1.0000      20.4000      12.3169      12.1000      10.6000       0.0000       8.9368 
+     2       1.0000      22.5960      21.8720      16.1543      19.6153      21.7000       6.6714 
+     3       1.0000      23.9121      23.2914      22.6000      23.0000      23.3000      22.3237 
+     4       1.0000      26.0332      25.8454      26.1000      24.6000      24.5000      25.2432 
+     5       1.0000      26.9218      26.7388      26.9000      25.6000      26.1000      26.3780 
+     6       1.0000      27.5558      27.6306      27.7000      25.8000      27.6000      27.5374 
+     7       1.0000      28.0252      28.0231      28.1000      27.0000      27.9000      27.8591 
+     8       0.0000      28.4000      28.1665       0.0000      29.8000      28.7000      28.7150 
+     9       0.0000      29.0290      29.3088      29.4000       0.0000      29.6000      29.5191 
+
+
+Catch Numbers at Age by Area 
+---------------------------- 
+
+ For Period  2
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0         0.00         0.00         0.00    232473.00         0.00         0.00    232473.00 
+     1       480.00      1117.00      1948.40      5055.66         0.00         0.00      8601.06 
+     2       639.00     30891.00     36181.66        82.56         2.92         9.20     67806.33 
+     3        27.00     18247.00     20336.67        11.55        37.24        42.74     38702.20 
+     4         6.00     84513.00    117623.73       740.15        99.89       116.52    203099.33 
+     5         1.00    110547.00     80152.39       535.47        59.11       105.21    191400.19 
+     6         0.00     31105.00     11758.98       176.64         2.56        12.07     43055.25 
+     7         0.00     15267.00      6359.44       122.53         5.12        33.92     21788.01 
+     8         0.00     14961.00      8662.51        78.97         2.92        26.64     23732.05 
+     9         0.00     19281.00      8697.09        75.88         0.00        60.17     28114.14 
+
+
+
+Mean Weight at Age by Area (Kg) 
+-------------------------------
+
+ For Period  2
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       0.0000       0.0000       0.0000       0.0030       0.0000       0.0000       0.0030 
+     1       0.0230       0.0880       0.0781       0.0100       0.0000       0.0000       0.0363 
+     2       0.0480       0.1230       0.1035       0.1361       0.0710       0.0750       0.1119 
+     3       0.0630       0.1490       0.1275       0.1424       0.0840       0.0920       0.1375 
+     4       0.0910       0.1690       0.1487       0.2008       0.1110       0.1130       0.1573 
+     5       0.1190       0.1850       0.1633       0.2145       0.1190       0.1360       0.1760 
+     6       0.0000       0.1980       0.1804       0.2292       0.1130       0.1490       0.1933 
+     7       0.0000       0.2080       0.1904       0.2461       0.1350       0.1530       0.2030 
+     8       0.0000       0.2160       0.2035       0.2592       0.1930       0.1750       0.2115 
+     9       0.0000       0.2270       0.2200       0.2703       0.0000       0.1870       0.2249 
+
+
+Mean Length at Age by Area (cm) 
+-------------------------------
+
+ For Period  2
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       0.0000       0.0000       0.0000       7.6000       0.0000       0.0000       7.6000 
+     1       1.0000      20.6432      19.8061      11.0031       0.0000       0.0000      13.6909 
+     2       1.0000      23.1631      22.3067      24.2153      20.8000      21.7000      22.4982 
+     3       1.0000      24.8338      23.9256      24.6395      23.0000      23.3000      24.3364 
+     4       1.0000      26.0270      25.1365      27.4066      24.6000      24.5000      25.5140 
+     5       1.0000      26.9876      26.0276      28.0409      25.6000      26.1000      26.5875 
+     6       0.0000      27.5000      26.8402      28.6990      25.8000      27.6000      27.3246 
+     7       0.0000      28.0371      27.3532      29.4971      27.0000      27.9000      27.8453 
+     8       0.0000      28.4000      28.0000      30.1330      29.8000      28.7000      28.2603 
+     9       0.0000      28.9000      28.5913      30.5633       0.0000      29.6000      28.8105 
+
+
+Catch Numbers at Age by Area 
+---------------------------- 
+
+ For Period  3
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0      4028.00         0.00      1935.25    899889.00         0.00         0.00    905852.25 
+     1      4762.00       233.16      2061.91     15051.50         0.00         0.00     22108.56 
+     2      3691.00      3547.70     35847.52      9975.57         0.00         0.00     53061.80 
+     3       522.00      3428.32     74702.54     14570.55       146.57         0.00     93369.97 
+     4      1581.00     19676.75    533762.38    127275.39       102.57         0.00    682398.06 
+     5       967.00     18059.39    283511.81     98076.73        73.14         0.00    400688.09 
+     6       167.00      6009.08     93869.35     26294.91        14.57         0.00    126354.91 
+     7       106.00      3010.04     68103.33     15862.84        14.57         0.00     87096.78 
+     8        84.00      2773.54     71793.34     11250.99        14.57         0.00     85916.44 
+     9         0.00      3989.89     83703.24     11447.08         0.00         0.00     99140.21 
+
+
+
+Mean Weight at Age by Area (Kg) 
+-------------------------------
+
+ For Period  3
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       0.0080       0.0000       0.0050       0.0050       0.0000       0.0000       0.0050 
+     1       0.0590       0.1040       0.0939       0.0326       0.0000       0.0000       0.0447 
+     2       0.1060       0.1378       0.1266       0.1274       0.0000       0.0000       0.1261 
+     3       0.1330       0.1645       0.1680       0.1372       0.1310       0.0000       0.1628 
+     4       0.1610       0.1860       0.2029       0.1989       0.1700       0.0000       0.2016 
+     5       0.1810       0.2003       0.2072       0.2227       0.1840       0.0000       0.2106 
+     6       0.1920       0.2135       0.2333       0.2461       0.2250       0.0000       0.2350 
+     7       0.1870       0.2240       0.2539       0.2614       0.2120       0.0000       0.2541 
+     8       0.2020       0.2324       0.2622       0.2670       0.2450       0.0000       0.2618 
+     9       0.0000       0.2434       0.2699       0.2844       0.0000       0.0000       0.2705 
+
+
+Mean Length at Age by Area (cm) 
+-------------------------------
+
+ For Period  3
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       1.0000       0.0000       8.8000       8.8000       0.0000       0.0000       8.7653 
+     1       1.0000      22.7124      21.1733      15.8553       0.0000       0.0000      13.2239 
+     2       1.0000      24.4305      24.0306      24.0285       0.0000       0.0000      22.4549 
+     3       1.0000      30.9659      26.2666      24.7375      24.6000       0.0000      26.0566 
+     4       1.0000      28.8923      27.6304      27.4110      26.4000       0.0000      27.5640 
+     5       1.0000      32.3370      27.8089      28.4054      27.2000       0.0000      28.0942 
+     6       1.0000      35.4072      28.9187      29.2341      28.8000       0.0000      29.2560 
+     7       1.0000      36.0625      29.7327      29.9370      27.8000       0.0000      29.9534 
+     8       1.0000      30.9919      30.0054      30.4764      30.8000       0.0000      30.0707 
+     9       0.0000      31.5429      30.0933      31.0089       0.0000       0.0000      30.2574 
+
+
+Catch Numbers at Age by Area 
+---------------------------- 
+
+ For Period  4
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0     10482.00         0.00     52166.76    134200.00      2230.03         0.00    199078.80 
+     1      8738.00        39.12      5675.97      9345.31       143.87         0.00     23942.27 
+     2       567.00       567.52     15984.88     14107.39        26.99     21057.63     52311.42 
+     3        51.00       648.04     11290.66     12185.43      1517.89     30033.09     55726.11 
+     4        77.00      3128.39    122153.36     51231.97      1162.54     71086.66    248839.94 
+     5        50.00      3284.52     96308.91     55629.23       810.40     69038.30    225121.36 
+     6        11.00      1103.78     19516.74     10969.93       154.38     17188.44     48944.28 
+     7         6.00       581.48     15769.35      7415.39       172.10      6639.96     30584.28 
+     8         2.00       403.71     15092.11      8438.67       158.17      7248.08     31342.74 
+     9         0.00       587.52     20588.41     15351.42         3.90     16125.28     52656.52 
+
+
+
+Mean Weight at Age by Area (Kg) 
+-------------------------------
+
+ For Period  4
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       0.0110       0.0000       0.0100       0.0100       0.0100       0.0000       0.0101 
+     1       0.0560       0.1040       0.0611       0.0451       0.0410       0.0000       0.0530 
+     2       0.0820       0.1380       0.1224       0.1206       0.1270       0.1160       0.1191 
+     3       0.1190       0.1640       0.1517       0.1390       0.1310       0.1216       0.1323 
+     4       0.1480       0.1840       0.1726       0.1736       0.1688       0.1518       0.1670 
+     5       0.1780       0.2000       0.1817       0.1892       0.1840       0.1606       0.1774 
+     6       0.1810       0.2130       0.1918       0.2164       0.2238       0.1648       0.1884 
+     7       0.1960       0.2230       0.2106       0.2201       0.2123       0.2095       0.2129 
+     8       0.2260       0.2310       0.2192       0.2170       0.2442       0.2030       0.2151 
+     9       0.0000       0.2420       0.2305       0.2380       0.2590       0.2177       0.2289 
+
+
+Mean Length at Age by Area (cm) 
+-------------------------------
+
+ For Period  4
+
+   Ages  3a           4a(E)        4a(W)        4b           4c           7d                Total 
+     0       1.0000       0.0000      11.1000      11.1000      11.1000       0.0000      10.5682 
+     1       1.0000      21.4000      19.4163      18.0868      17.8000       0.0000      12.1697 
+     2       1.0000      23.8000      24.1578      23.5350      25.0000      23.9944      23.6696 
+     3       1.0000      25.3000      26.0096      24.7607      24.6164      24.3743      24.7861 
+     4       1.0000      26.8423      27.2371      26.3658      26.4309      26.0790      26.7100 
+     5       1.0000      27.3000      27.8748      27.1940      27.2412      26.5778      27.2922 
+     6       1.0000      29.5085      28.3860      28.3974      28.8242      26.8632      27.8743 
+     7       1.0000      28.4000      29.3562      28.6412      27.9949      28.8967      29.0517 
+     8       1.0000      31.4167      29.5104      28.5424      30.7746      28.6762      29.0860 
+     9       0.0000      31.9493      29.9088      29.4001      30.5000      29.2210      29.5727 
