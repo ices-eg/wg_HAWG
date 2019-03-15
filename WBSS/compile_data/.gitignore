@@ -8,5 +8,6 @@
 *.docx
 *.dat
 *.txt
+*.RData
 
 */data/*
