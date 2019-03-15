@@ -14,8 +14,8 @@ library(sqldf)
 options("scipen"=1000)
 
 
-year <- 2017
-out_year <- 2018
+year <- 2018
+out_year <- 2019
 
 dataPath <- paste("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/", out_year, "/results/", sep = "")
 ```
@@ -24,7 +24,7 @@ dataPath <- paste("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_H
 #Read-in
 ```{r}
 
-split<-read.table(paste(dataPath,"input_C_split_proportions_3a_", year, ".csv", sep=""), sep=",", header=T)
+split<-read.table(paste(dataPath,"Split_IIIa_", year, ".csv", sep=""), sep=",", header=T)
 str(split)
 
 unique(split$area)
