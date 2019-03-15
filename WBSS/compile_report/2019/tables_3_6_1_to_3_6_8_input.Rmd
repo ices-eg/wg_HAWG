@@ -1,0 +1,267 @@
+---
+date: "15. Marts 2019"
+output:
+  word_document:
+    reference_docx: input_tables_SAM_word_style.docx
+---
+
+```{r info, include=F}
+
+#This script reads in data and tables directly from www.stockassessment.org
+
+#Remember to save the reference docx for styles the same place at the rmd script - input_tables_SAM_word_style.docx
+
+#To insure that each table starts on a new pages Page Break are inserted - these need to be deleted from the final document
+
+```
+
+
+```{r setup, include=FALSE}
+library(pander)
+library(stockassessment)
+library(htmltab)
+library(dplyr)
+library(reshape2)
+
+options(scipen = 999)
+
+#Multi fleet 
+dir_dat<-"https://www.stockassessment.org/datadisk/stockassessment/userdirs/user278/WBSS_HAWG_2019_draft/data/" #input data directly from www.stockassessment.org
+
+
+#single fleet
+dir_dat_single<-"https://www.stockassessment.org/datadisk/stockassessment/userdirs/user278/WBSS_HAWG_2019_sf_draft/data/" #input data directly from www.stockassessment.org
+
+panderOptions("table.style", "rmarkdown")
+panderOptions("table.alignment.default", "right")
+panderOptions('table.split.table', Inf)
+
+knitr::opts_chunk$set(echo=F, warning=F, message=F)
+
+```
+
+
+**TABLE 3.6.1.a    -    WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Single fleet*\
+Catch in number (CANUM, thousands)
+
+```{r, echo=F}
+cn<-read.ices(paste(dir_dat_single,"cn.dat", sep=""))
+pander(cn)
+```
+
+##### Page Break
+
+**TABLE 3.6.1.b - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet - Fleet A*\
+Catch in number (CANUM, thousands)
+
+```{r, echo=F}
+cn_A<-read.ices(paste(dir_dat,"cn_A.dat", sep=""))
+pander(cn_A)
+```
+
+##### Page Break
+
+**TABLE 3.6.1.c - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet - Fleet C*\
+Catch in number (CANUM, thousands)
+
+```{r, echo=F}
+cn_C<-read.ices(paste(dir_dat,"cn_C.dat", sep=""))
+pander(cn_C)
+```
+
+##### Page Break
+
+**TABLE 3.6.1.d - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet - Fleet D*\
+Catch in number (CANUM, thousands)
+
+```{r, echo=F}
+cn_D<-read.ices(paste(dir_dat,"cn_D.dat", sep=""))
+pander(cn_D)
+```
+
+##### Page Break
+
+**TABLE 3.6.1.e - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet - Fleet F*\
+Catch in number (CANUM, thousands)
+
+```{r, echo=F}
+cn_F<-read.ices(paste(dir_dat,"cn_F.dat", sep=""))
+pander(cn_F)
+```
+
+##### Page Break
+
+**TABLE 3.6.2.a    -    WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Single fleet*\
+Weight at age as W-ringers in the catch (WECA, kg)
+
+```{r, echo=F}
+cw<-round(read.ices(paste(dir_dat_single,"cw.dat", sep="")), digits=4)
+cw<-format(cw, digits=4, nsmall=4)
+pander(cw)
+```
+
+##### Page Break
+
+**TABLE 3.6.2.b - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet - Fleet A*\
+Weight at age as W-ringers in the catch (WECA, kg)
+
+```{r, echo=F}
+cw_A<-round(read.ices(paste(dir_dat,"cw_A.dat", sep="")), digits=4)
+cw_A<-format(cw_A, digits=4, nsmall=4)
+pander(cw_A)
+```
+
+##### Page Break
+
+**TABLE 3.6.2.c - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet - Fleet C*\
+Weight at age as W-ringers in the catch (WECA, kg)
+
+```{r, echo=F}
+cw_C<-round(read.ices(paste(dir_dat,"cw_C.dat", sep="")), digits=4)
+cw_C<-format(cw_C, digits=4, nsmall=4)
+pander(cw_C)
+```
+
+##### Page Break
+
+**TABLE 3.6.2.d - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet - Fleet D*\
+Weight at age as W-ringers in the catch (WECA, kg)
+
+```{r, echo=F}
+cw_D<-round(read.ices(paste(dir_dat,"cw_D.dat", sep="")), digits=4)
+cw_D<-format(cw_D, digits=4, nsmall=4)
+pander(cw_D)
+```
+
+##### Page Break
+
+**TABLE 3.6.2.e - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet - Fleet F*\
+Weight at age as W-ringers in the catch (WECA, kg)
+
+```{r, echo=F}
+cw_F<-round(read.ices(paste(dir_dat,"cw_F.dat", sep="")), digits=4)
+cw_F<-format(cw_F, digits=4, nsmall=4)
+pander(cw_F)
+```
+
+##### Page Break
+
+**TABLE 3.6.3 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet & single fleet*\
+Weight at age as W-ringers in the stock (WEST, kg)
+
+```{r, echo=F}
+sw<-round(read.ices(paste(dir_dat,"sw.dat", sep="")), digits=4)
+sw<-format(sw, digits=4, nsmall=4)
+pander(sw)
+```
+
+##### Page Break
+
+**TABLE 3.6.4 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet & single fleet*\
+Natural mortality (NATMOR)
+
+```{r, echo=F}
+nm<-read.ices(paste(dir_dat,"nm.dat", sep=""))
+pander(nm)
+```
+
+##### Page Break
+
+**TABLE 3.6.5 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet & single fleet*\
+Proportion mature (MATPROP)
+
+```{r, echo=F}
+mo<-read.ices(paste(dir_dat,"mo.dat", sep=""))
+pander(mo)
+```
+
+##### Page Break
+
+**TABLE 3.6.6 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet & single fleet*\
+Fraction of harvest before spawning (FPROP)
+
+```{r, echo=F}
+pf<-read.ices(paste(dir_dat,"pf.dat", sep=""))
+pander(pf)
+```
+
+##### Page Break
+
+**TABLE 3.6.7 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet & single fleet*\
+Fraction of natural mortality before spawning (MPROP)
+
+```{r, echo=F}
+pm<-read.ices(paste(dir_dat,"pm.dat", sep=""))
+pander(pm)
+```
+
+##### Page Break
+
+**TABLE 3.6.8 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet & single fleet*\
+Survey indices: HERAS (number)
+
+```{r, echo=F}
+survey<-read.ices(paste(dir_dat,"survey.dat", sep=""))
+pander(survey$HERAS)
+```
+
+##### Page Break
+
+**TABLE 3.6.8 - WESTERN BALTIC SPRING SPAWNING HERRING, continued**\
+*Multi fleet & single fleet*\
+Survey indices: GerAS (number in thousands)
+
+```{r, echo=F}
+survey<-read.ices(paste(dir_dat,"survey.dat", sep=""))
+pander(survey$GerAS)
+```
+
+##### Page Break
+
+**TABLE 3.6.8 - WESTERN BALTIC SPRING SPAWNING HERRING, continued**\
+*Multi fleet & single fleet*\
+Survey indices: N20 (number in millions)
+
+```{r, echo=F}
+survey<-read.ices(paste(dir_dat,"survey.dat", sep=""))
+pander(survey$N20)
+```
+
+##### Page Break
+
+**TABLE 3.6.8 - WESTERN BALTIC SPRING SPAWNING HERRING, continued**\
+*Multi fleet & single fleet*\
+Survey indices: IBTS+BITS-Q1 (number per hour)
+
+```{r, echo=F}
+survey<-read.ices(paste(dir_dat,"survey.dat", sep=""))
+pander(survey$`IBTS+BITS-Q1`)
+```
+
+##### Page Break
+
+**TABLE 3.6.8 - WESTERN BALTIC SPRING SPAWNING HERRING, continued**\
+*Multi fleet & single fleet*\
+Survey indices: IBTS+BITS-Q3.4 (number per hour)
+
+```{r, echo=F}
+survey<-read.ices(paste(dir_dat,"survey.dat", sep=""))
+pander(survey$`IBTS+BITS-Q3.4`)
+```
+
