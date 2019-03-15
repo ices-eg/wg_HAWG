@@ -9,9 +9,10 @@ output: word_document
 ```{r}
 options("scipen"=1000, digits=6)
 library(dplyr)
+library(tidyverse)
 
-year <- 2017
-out_year <- 2018
+year <- 2018
+out_year <- 2019
 
 dataPath <- paste("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/", out_year, "/results/", sep = "")
 ```
@@ -22,7 +23,7 @@ dataPath <- paste("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_H
 canum3<-readRDS(paste(dataPath,"C6_her2024_canum_wbss_nsas_", year, ".rds", sep=""))
 canum3$weca_kg<-canum3$weca_g/1000
 
-canum4<-read.table(paste(dataPath,"canum_weca_", year, "_27.4.a.e.csv", sep=""), sep=",", header=T)
+canum4<-read.table(paste(dataPath,"canum_weca_WBSS_in_NS.csv", sep=""), sep=",", header=T)
 canum4<-rename(canum4, wbss_canum_1000=canum_000)
 canum4$weca_g<-canum4$weca_kg*1000
 canum4$fleet<-"A"
@@ -48,6 +49,14 @@ wbssFinal<-aggregate(cbind(wbss_canum_1000,wbss_caton)~year+wr+fleet, data=canum
 wbssFinal$weca_kg<-(wbssFinal$wbss_caton/wbssFinal$wbss_canum_1000)
 
 write.table(wbssFinal, paste(dataPath,"C7_wbss_multi_fleet_", year, ".csv", sep=""), sep=",", row.names=F)
+
+# wbssFinal_t_canum <- mutate(spread(select(wbssFinal, year, wr, fleet, wbss_canum_1000), key = wr, value = wbss_canum_1000), value = "wbss_canum_1000")
+# wbssFinal_t_caton <- mutate(spread(select(wbssFinal, year, wr, fleet, wbss_caton), key = wr, value = wbss_caton), value = "wbss_caton")
+# wbssFinal_t_weca <- mutate(spread(select(wbssFinal, year, wr, fleet, weca_kg), key = wr, value = weca_kg), value = "weca_kg")
+# 
+# wbssFinal_t <- bind_rows(bind_rows(wbssFinal_t_canum, wbssFinal_t_caton), wbssFinal_t_weca)
+# 
+# write.table(wbssFinal, paste(dataPath,"C7_wbss_multi_fleet_canum", year, ".csv", sep=""), sep=",", row.names=F)
 
 ```
 
@@ -85,10 +94,6 @@ write.table(wbssFinalq, paste(dataPath,"C7_wbss_input_quarter_", year, ".csv", s
 
 
 ```
-
-
-
-
 
 ```{r, eval = F}
 
