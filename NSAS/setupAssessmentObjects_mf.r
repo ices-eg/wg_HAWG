@@ -76,7 +76,7 @@ extryrsfw       <- extryrs[which(extryrs > max(an(yrs)))]
 extryrsbw       <- extryrs[which(extryrs <= max(an(yrs)))]
 ages            <- dimnames(NSHM2@m)$age
 extrags         <- names(which(apply(M2,1,function(x){all(is.na(x))==T})==T))
-yrAver          <- 1
+yrAver          <- 2
 for(iYr in as.numeric(rev(extryrs))){
   for(iAge in ages[!ages%in%extrags]){
     if(iYr %in% extryrsbw) NSHM2@m[ac(iAge),ac(iYr)] <-
@@ -158,14 +158,14 @@ pg <- 8
 NSH <- setPlusGroup(NSH,pg)
 
 caaF  <- read.table("./data/canum_mf.txt",stringsAsFactors=F,header=T)
-caA   <- matrix(subset(caaF,Fleet=="A")[,"numbers"],nrow=length(0:9),ncol=length(1997:2017),dimnames=list(age=0:9,year=1997:2017))*1000
-caB   <- matrix(subset(caaF,Fleet=="B")[,"numbers"],nrow=length(0:9),ncol=length(1997:2017),dimnames=list(age=0:9,year=1997:2017))*1000
-caC   <- matrix(subset(caaF,Fleet=="C")[,"numbers"],nrow=length(0:9),ncol=length(1997:2017),dimnames=list(age=0:9,year=1997:2017))*1000
-caD   <- matrix(subset(caaF,Fleet=="D")[,"numbers"],nrow=length(0:9),ncol=length(1997:2017),dimnames=list(age=0:9,year=1997:2017))*1000
-cwA   <- matrix(subset(caaF,Fleet=="A")[,"weight"],nrow=length(0:9),ncol=length(1997:2017),dimnames=list(age=0:9,year=1997:2017))
-cwB   <- matrix(subset(caaF,Fleet=="B")[,"weight"],nrow=length(0:9),ncol=length(1997:2017),dimnames=list(age=0:9,year=1997:2017))
-cwC   <- matrix(subset(caaF,Fleet=="C")[,"weight"],nrow=length(0:9),ncol=length(1997:2017),dimnames=list(age=0:9,year=1997:2017))
-cwD   <- matrix(subset(caaF,Fleet=="D")[,"weight"],nrow=length(0:9),ncol=length(1997:2017),dimnames=list(age=0:9,year=1997:2017))
+caA   <- matrix(subset(caaF,Fleet=="A")[,"numbers"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))*1000
+caB   <- matrix(subset(caaF,Fleet=="B")[,"numbers"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))*1000
+caC   <- matrix(subset(caaF,Fleet=="C")[,"numbers"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))*1000
+caD   <- matrix(subset(caaF,Fleet=="D")[,"numbers"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))*1000
+cwA   <- matrix(subset(caaF,Fleet=="A")[,"weight"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))
+cwB   <- matrix(subset(caaF,Fleet=="B")[,"weight"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))
+cwC   <- matrix(subset(caaF,Fleet=="C")[,"weight"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))
+cwD   <- matrix(subset(caaF,Fleet=="D")[,"weight"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))
 
 #- Functions to set the plusgroups
 setMatrixPlusGroupN <- function(x){
