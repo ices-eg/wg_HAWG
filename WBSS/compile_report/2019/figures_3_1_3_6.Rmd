@@ -1,0 +1,98 @@
+---
+date: "15 Marts 2019"
+output:
+  word_document:
+    reference_docx: input_tables_SAM_word_style.docx
+---
+
+```{r setup, include=F}
+
+#Please note that the figure numbering on www.stockassessment.org can change due to new figures being added on www.stockassessment.org - figures from both the single and multi fleet model are imported
+
+dir_fig_sam<-"https://www.stockassessment.org/datadisk/stockassessment/userdirs/user278/WBSS_HAWG_2019_draft/res/" #figures directly from www.stockassessment.org
+
+dir_fig_sam_single<-"https://www.stockassessment.org/datadisk/stockassessment/userdirs/user278/WBSS_HAWG_2019_sf_draft/res/" #figures directly from www.stockassessment.org
+
+dir_fig_add<-"Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_report/2019/additional_plots/" #Folder where plots made with the script additional_figures.rmd are saved
+
+fig_prefix<-"big_xxx-00-00.00.00_" #Prefix for figures at www.stockassessment.org
+
+fig_prefix_single<-"big_xxx-00-00.00.00_" #Prefix for figures at www.stockassessment.org
+
+```
+
+![Figure 3.1.1 Western Baltic Spring Spawning Herring. CATCH and TACs (1000 t) by area.](`r paste(dir_fig_add,"TAC_catch.png",sep="")`)
+
+
+![Figure 3.5.1	WESTERN BALTIC SPRING SPAWNING HERRING.	Correlation of 1 wr herring from GERAS with the N20 larvae index. Note the year lag between surveys. Labels show the year of the N20.](`r paste(dir_fig_add,"GerAS N20-1.png",sep="")`)
+
+![Figure 3.5.2	WESTERN BALTIC SPRING SPAWNING HERRING. Map showing the hauls used in the calculation of the  IBTS+BITS-Q1 and IBTS+BITS-Q3.3 indices. Hauls colored by gear type.](`r paste(dir_fig_add,"BITS_IBTS_combined_index_map.png",sep="")`)
+
+
+![Figure 3.6.1.1 WESTERN BALTIC SPRING SPAWNING HERRING. Weight (kg) at age as W-ringers (wr) in the catch (WECA).](`r paste(dir_fig_add,"weigth at age catch-1.png",sep="")`)
+
+![Figure 3.6.1.2 WESTERN BALTIC SPRING SPAWNING HERRING. Catch in weight. Upper panel: Catch in weight (1000 tons) at age as W-ringers (wr).  Lower panel: Proportion (by weight) of a given age as W-ringers (wr) in the catch.](`r paste(dir_fig_add,"catch weigth by age-1.png",sep="")`)
+
+![Figure 3.6.1.3 WESTERN BALTIC SPRING SPAWNING HERRING. Catch in Numbers. Upper panel: Catch in numbers (millions) at age as W-ringers (wr).  Lower panel: Proportion (by number) of a given age as W-ringers (wr) in the catch.](`r paste(dir_fig_add,"catch number by age-1.png",sep="")`)
+
+![Figure 3.6.1.4 WESTERN BALTIC SPRING SPAWNING HERRING. Weight (kg) at age as W-ringers (wr) in the catch (WEST).](`r paste(dir_fig_add,"weigth at age stock-1.png",sep="")`)
+
+
+![Figure 3.6.4.1 WESTERN BALTIC SPRING SPAWNING HERRING. Stock summary plot. Spawning stock biomass (SSB). Estimates from the WBSS multi fleet (current) and the WBSS single fleet (single) assessment runs and point wise 95% confidence intervals are shown by line and shaded area.](`r paste(dir_fig_sam,fig_prefix,"001.png",sep="")`)
+
+![Figure 3.6.4.2 WESTERN BALTIC SPRING SPAWNING HERRING. Stock summary plot. Average fishing mortality (F) for the shown age range. Estimates from the WBSS multi fleet (current) and the WBSS single fleet (single) assessment runs and point wise 95% confidence intervals are shown by line and shaded area.](`r paste(dir_fig_sam,fig_prefix,"002.png",sep="")`)
+
+![Figure 3.6.4.3 WESTERN BALTIC SPRING SPAWNING HERRING. Stock summary plot. Yearly recruitment (age 0 equal 0 W-ringers). Estimates from the WBSS multi fleet (current) and the WBSS single fleet (single) assessment runs and point wise 95% confidence intervals are shown by line and shaded area.](`r paste(dir_fig_sam,fig_prefix,"003.png",sep="")`)
+
+![Figure 3.6.4.4 WESTERN BALTIC SPRING SPAWNING HERRING. Total catch in weight (tons). Prediction from the WBSS multi fleet (current) and the WBSS single fleet (single) assessment runs and point wise 95% confidence intervals are shown by line and shaded area. The yearly observed total catch weight (crosses) are calculated sum of catch per fleet.](`r paste(dir_fig_sam,fig_prefix,"004.png",sep="")`)
+
+![Figure 3.6.4.5 WESTERN BALTIC SPRING SPAWNING HERRING. Total catch in weight (tons) by fleet. Prediction from the WBSS multi fleet assessment run and point wise 95% confidence intervals are shown by line and shaded area. The plot also show the oobserved total catch weight per fleet (crosses)](`r paste(dir_fig_sam,fig_prefix,"005.png",sep="")`)
+
+![Figure 3.6.4.6 WESTERN BALTIC SPRING SPAWNING HERRING. Estimated selection pattern at age as W-ringers (wr) per fleet and year. Order: 1 equal 1st year in the respective time span.](`r paste(dir_fig_add,"Selection commercial per fleet-1.png",sep="")`)
+
+![Figure 3.6.4.7 Western Baltic Spring Spawning Herring. Time-series of estimated fishing mortality-at-age as W-ringers (wr)](`r paste(dir_fig_add,"f at age-1.png",sep="")`)
+
+![Figure 3.6.4.8 Western Baltic Spring Spawning Herring. Estimated survey catchabilities.](`r paste(dir_fig_sam,fig_prefix,"025.png",sep="")`)
+
+![Figure 3.6.4.9 WESTERN BALTIC SPRING SPAWNING HERRING. Recruitment at age 0-wr (in thousands) is plotted against spawning stock biomass (tonnes) as estimated by the assessment.](`r paste(dir_fig_sam,fig_prefix,"012.png",sep="")`)
+
+![Figure 3.6.4.10 WESTERN BALTIC SPRING SPAWNING HERRING. Estimates correlations between age groups for each fleet.](`r paste(dir_fig_sam,fig_prefix,"014.png",sep="")`)
+
+![Figure 3.6.4.11 WESTERN BALTIC SPRING SPAWNING HERRING. Estimated age distribution in the stock. Colours represent a cohort](`r paste(dir_fig_add,"Estimated cohort-1.png",sep="")`)
+
+![Figure 3.6.4.12a WESTERN BALTIC SPRING SPAWNING HERRING. Estimated observation variance in the WBSS single fleet assessment run.](`r paste(dir_fig_sam,fig_prefix,"011.png",sep="")`)
+
+![Figure 3.6.4.12b WESTERN BALTIC SPRING SPAWNING HERRING. Estimated observation variance in the WBSS multi fleet assessment run.](`r paste(dir_fig_sam,fig_prefix,"010.png",sep="")`)
+
+![Figure 3.6.4.13 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of commercial catches fit per fleet. Fleet A. Plot of predicted (line) and observed (points) catches (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"015.png",sep="")`)
+
+![Figure 3.6.4.14 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of commercial catches fit per fleet. Fleet C. Plot of predicted (line) and observed (points) catches (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"016.png",sep="")`)
+
+![Figure 3.6.4.15 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of commercial catches fit per fleet. Fleet D. Plot of predicted (line) and observed (points) catches (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"017.png",sep="")`)
+
+![Figure 3.6.4.16 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of commercial catches fit per fleet. Fleet F. Plot of predicted (line) and observed (points) catches (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"018.png",sep="")`)
+
+![Figure 3.6.4.17 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of commercial catches fit per fleet. sum of fleets Plot of predicted (line) and observed (points) catches (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"024.png",sep="")`)
+
+![Figure 3.6.4.18 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of the HERAS index. Plot of predicted (line) and observed (points) index (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"019.png",sep="")`)
+
+![Figure 3.6.4.19 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of the GerAs index. Plot of predicted (line) and observed (points) index (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"020.png",sep="")`)
+
+![Figure 3.6.4.20 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of the N20 index. Plot of predicted (line) and observed (points) index (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"021.png",sep="")`)
+
+![Figure 3.6.4.21 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of the IBTS+BITS-Q1 index. Plot of predicted (line) and observed (points) index (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"022.png",sep="")`)
+
+![Figure 3.6.4.22 WESTERN BALTIC SPRING SPAWNING HERRING. Diagnostics of the IBTS+BITS-Q3.4 index. Plot of predicted (line) and observed (points) index (log scale) per W-ringers (a) and year.](`r paste(dir_fig_sam,fig_prefix,"023.png",sep="")`)
+
+![Figure 3.6.4.23 WESTERN BALTIC SPRING SPAWNING HERRING. BUBBLE PLOT. Standardized one-observation-ahead residuals from single fleet run.](`r paste(dir_fig_sam_single,fig_prefix_single,"014.png",sep="")`)
+
+![Figure 3.6.4.24 WESTERN BALTIC SPRING SPAWNING HERRING. BUBBLE PLOT. Process residuals from single fleet run.](`r paste(dir_fig_sam_single,fig_prefix_single,"015.png",sep="")`)
+
+![Figure 3.6.4.25 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years. Spawning stock biomass.](`r paste(dir_fig_sam,fig_prefix,"026.png",sep="")`)
+
+![Figure 3.6.4.26 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years. Average fishing mortality for the shown age range.](`r paste(dir_fig_sam,fig_prefix,"027.png",sep="")`)
+
+![Figure 3.6.4.27 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years. Recruitment.](`r paste(dir_fig_sam,fig_prefix,"028.png",sep="")`)
+
+![Figure 3.6.4.28 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years. Catch.](`r paste(dir_fig_sam,fig_prefix,"029.png",sep="")`)
+
