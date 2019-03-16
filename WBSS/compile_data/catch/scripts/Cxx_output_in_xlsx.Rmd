@@ -20,7 +20,7 @@ options("scipen"=1000, digits=6)
 
 Sys.setenv(R_ZIPCMD= "C:/Rtools/bin/zip") 
 
-dataPath<-"Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/results/"
+dataPath<-"Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/2019/results/"
 
 ```
 
@@ -242,8 +242,8 @@ writeData(wb, sheet="t_3.2.5", data_325)
 ```
 
 #Tables based on splitted data
-```{r, eval = F}
-canumFS<-readRDS(paste(dataPath,"C6_wbss_nsas_canum_2018.rds", sep=""))
+```{r, evel = T}
+canumFS<-readRDS(paste(dataPath,"C6_her2024_canum_wbss_nsas_2018.rds", sep=""))
 
 canumFS$nsas_caton_t<-canumFS$nsas_canum_1000*(canumFS$weca_g/1000)
 canumFS$nsas_caton_t[is.na(canumFS$nsas_caton_t)]<-0
@@ -256,7 +256,7 @@ canumFS$wbss_canum_mill<-canumFS$wbss_canum_1000/1000
 ```
 
 ##Table_3.2.6
-```{r, eval = F}
+```{r, evel = T}
 canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
 
 data_326<-distinct(canumFS1, year, area, quarter, wr, nsas, wbss, n)
@@ -267,7 +267,7 @@ writeData(wb, sheet="t_3.2.6", data_326)
 
 ##Table_3.2.7 and table_3.2.8
 nsas
-```{r, eval = F}
+```{r, evel = T}
 canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
 
 data_32n<-aggregate(cbind(nsas_caton_t,nsas_canum_mill)~area+year+quarter+fleet+wr, data=canumFS1, FUN=sum)
@@ -355,7 +355,7 @@ writeData(wb, sheet="t_3.2.8", data_328f[,c("area","year","quarter","wr","C_nsas
 
 ##Table_3.2.9 and table_3.2.10
 wbss
-```{r, eval = F}
+```{r, evel = T}
 canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
 
 data_32w<-aggregate(cbind(wbss_caton_t,wbss_canum_mill)~area+year+quarter+fleet+wr, data=canumFS1, FUN=sum)
@@ -444,7 +444,7 @@ writeData(wb, sheet="t_3.2.10", data_3210f[,c("area","year","quarter","wr","C_wb
 
 ##Table_3.2.11
 nsas
-```{r, eval = F}
+```{r, evel = T}
 
 canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
 canumFS1$area<-substr(canumFS1$area,1,6)
@@ -504,7 +504,7 @@ writeData(wb, sheet="t_3.2.11", data_3211f[,c("area","year","quarter","wr","C_ns
 
 ##Table_3.2.12
 wbss
-```{r, eval = F}
+```{r, evel = T}
 canumFS1<-subset(canumFS, area %in% c("27.3.a.20","27.3.a.21"))
 canumFS1$area<-substr(canumFS1$area,1,6)
 
@@ -562,12 +562,12 @@ writeData(wb, sheet="t_3.2.12", data_3212f[,c("area","year","quarter","wr","C_wb
 
 ##Table_3.2.14
 wbss all areas
-```{r, eval = F}
-wbss3<-readRDS(paste(dataPath,"C6_wbss_nsas_canum_2018.rds", sep=""))
+```{r, evel = T}
+wbss3<-readRDS(paste(dataPath,"C6_her2024_canum_wbss_nsas_2018.rds", sep=""))
 wbss3$weca_kg<-wbss3$weca_g/1000
 wbss3<-wbss3[,c("year","area","quarter","wr","wbss_canum_1000","weca_kg","weca_g")]
 
-wbss4<-read.table(paste(dataPath,"canum_weca_2018_27.4.a.e.csv", sep=""), sep=",", header=T)
+wbss4<-read.table(paste(dataPath,"canum_weca_WBSS_in_NS.csv", sep=""), sep=",", header=T)
 wbss4<-rename(wbss4, wbss_canum_1000=canum_000)
 wbss4$weca_g<-wbss4$weca_kg*1000
 
