@@ -1,10 +1,10 @@
 #-------------------------------------------------------------------------------
-#- Convert TACs from forecast to realised F by the fishing fleet
+#- Convert CATCHs from forecast to realised F by the fishing fleet
 #-------------------------------------------------------------------------------
 
-TAC2sel <- function(mult,
+CATCH2sel <- function(mult,
                     stk,
-                    TAC,
+                    CATCH,
                     iTer){
   
   Ns  <- iter(stk@stock.n,iTer)
@@ -19,10 +19,10 @@ TAC2sel <- function(mult,
   Cs          <- colSums(catchNFleet)
 
   # setup catch targets
-  Atarget <- iter(TAC[,,"A"],iTer)
-  Btarget <- iter(TAC[,,"B"],iTer)
-  Ctarget <- iter(TAC[,,"C"],iTer)
-  Dtarget <- iter(TAC[,,"D"],iTer)
+  Atarget <- iter(CATCH[,,"A"],iTer)
+  Btarget <- iter(CATCH[,,"B"],iTer)
+  Ctarget <- iter(CATCH[,,"C"],iTer)
+  Dtarget <- iter(CATCH[,,"D"],iTer)
 
   resA <- sqrt(((Atarget-Cs[1])/Atarget)^2)
   resB <- sqrt(((Btarget-Cs[2])/Btarget)^2)
