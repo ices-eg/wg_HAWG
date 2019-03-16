@@ -11,12 +11,39 @@ library(dplyr)
 library(knitr)
 library(ggplot2)
 library(RColorBrewer)
+library(mapplots)
+library(shapefiles)
 
-options("scipen"=1000, digits=4)
+geo_data_path <- "Q:/mynd/kibi/EverythingInOnePlace/shapeFiles"
 
-dataPath <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_input_data/catch/data/2019/results/"
+  country_shape <- read.shapefile(paste(geo_data_path, "/country", sep = ""))
+  
+  rect_dec <- select(readRDS(paste(geo_data_path, "/ICESsquares_points.RDS", sep = "")), statisticalRectangle, latitudeDecMid, longitudeDecMid)
+  rect_dec <- rename(rect_dec, rect = statisticalRectangle, lat = latitudeDecMid, lon = longitudeDecMid)
 
-knitr::opts_chunk$set(echo = TRUE, dpi = 900, dev = 'jpeg', results = 'asis', fig.width = 7, fig.height = 7)
+output_path <- "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/scripts/output/C2/"
+
+options(scipen = 999)
+
+knitr::opts_chunk$set(echo = TRUE, dpi = 900, dev = 'jpeg', results = 'asis', fig.path = output_path, fig.width = 8, fig.height = 8)
+
+options("scipen" = 1000, digits = 4)
+
+dataPath <-
+  "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/2019/results/"
+dataPath_2017 <-
+  "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/2018/results/"
+dataPath_2016 <-
+  "Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/catch/data/2017/results/"
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  dpi = 900,
+  dev = 'jpeg',
+  results = 'asis',
+  fig.width = 7,
+  fig.height = 7
+)
 
 #, fig.path = output_path
 ```
@@ -90,6 +117,238 @@ ggplot(lan_fleet_plot, aes(x = paste(area, fleet, sep = " - "), y = catch_ton, f
   labs(title = "Landings per fleet and area, after combining Swedish C & D, 2018")
 
 ```
+
+### The last couple of years
+
+```{r, echo = F}
+
+canum_2017 <-
+  readRDS(paste(
+    dataPath_2017,
+    "C1_her2024_canum_without_imputations_2017.rds",
+    sep = ""
+  ))
+
+canum_2016 <-
+  readRDS(paste(
+    dataPath_2016,
+    "1_canum_2016.rsd",
+    sep = ""
+  ))
+
+canum_3 <- bind_rows(canum, canum_2016, canum_2017)
+
+lan_fleet_plot <- summarise(group_by(canum_3, year, fleet, area), catch_ton = sum(catch_t, na.rm = T)/9)
+
+ggplot(lan_fleet_plot, aes(x = paste(area, fleet, sep = " - "), y = catch_ton, fill = year)) +
+  geom_bar(stat = "identity", position = "dodge") +
+    theme(legend.position="bottom") + 
+  scale_fill_manual(values = brewer.pal(3, "Dark2")) +
+  labs(title = "Landings per fleet and area and year, 2016-2018")
+
+```
+
+# Landings per rectangle
+
+```{r, echo = F}
+
+rect <-
+  readRDS(paste(
+    dataPath,
+    "C1_her2024_rect_2018.rds",
+    sep = ""
+  ))
+
+rect <- left_join(rect, rect_dec)
+
+rect_year <- summarise(group_by(rect, year, lon, lat), ton = sum(catch_t))
+
+fac_year <- factor(rect_year$year)
+
+for (i in levels(fac_year)) {
+  
+  dat_0 <- rect_year[fac_year == i, ]
+  
+  
+    #Setting lim
+    ylim_min <- min(dat_0$lat, na.rm = T)
+    ylim_max <- max(dat_0$lat, na.rm = T)
+    
+    xlim_min <- min(dat_0$lon, na.rm = T)
+    xlim_max <- max(dat_0$lon, na.rm = T)
+    
+    xlim <- c(xlim_min - 2, xlim_max + 2)
+    ylim <- c(ylim_min - 1, ylim_max + 1)
+    
+    if ((ylim_max - ylim_min) < 1 | (xlim_max - xlim_min < 2)) {
+      
+      xlim <- c(xlim_min - 4, xlim_max + 4)
+      ylim <- c(ylim_min - 2, ylim_max + 2)
+    }
+    
+    #Setting by
+    byx = 1
+    byy = 0.5
+    
+    #Radius for legend
+    
+    
+    
+    #legend
+    # 
+    # lengend_select <- 1
+    # legend_text <- "  Area equal to 1 sample"
+    # 
+    # 
+    # radius_max <- 0.2
+    # area_max <- pi*(radius_max)^2
+    # area_frac <- area_max / max_overall
+    # 
+    # area_select <- area_frac * lengend_select
+    # 
+    # radius_legend <- sqrt(area_select / pi)
+    # 
+    #prep data
+    
+        
+    xlim <- c(7, 15)
+    ylim <- c(54, 59)
+    
+    dat_0 <- filter(dat_0, ton != 0)
+    grd <- make.grid(dat_0$lon, dat_0$lat, dat_0$ton, byx, byy, xlim, ylim, fun = sum)
+    breaks <- breaks.grid(grd, ncol = 9, zero = FALSE, quantile = 1)
+
+    
+    #xyz <- make.xyz(dat_0$lon, dat_0$lat, dat_0$no_samples, dat_0$cruise)
+    
+    title <- unique(paste("Landings of her.27.20-24, ", dat_0$year, sep = ""))
+    
+    par(mfrow = c(1,1), oma = c(0,0,0,0), mar = c(2,2,1.5,2))
+    basemap(xlim = xlim, ylim = ylim, main = title, bg = "white", xlab = "", ylab = "")
+    draw.grid(grd, breaks, col = brewer.pal(n = 9, name = "Blues"))
+    draw.shape(country_shape, col = "white", xlim = xlim, ylim = ylim)
+    legend.grid("topright", breaks = breaks, type = 2, col = brewer.pal(n = 9, name = "Blues"), bg = "white", bty = "n", cex = 0.7, 
+                ncol = 1, title = "Landings, ton")
+    #draw.pie(xyz$x, xyz$y, xyz$z, radius = 0.2, col = ddc.col)
+    #legend.pie(x = 8, y = 52, z = 1, label = legend_text, bty = "n", radius = radius_legend, col = "black", cex = 0.7)
+    # 
+    # par(fig = c(0, 1, 0, 1), oma = c(4, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+    # plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+    # 
+    # legend.grid("bottom", breaks = breaks, type = 2, col = brewer.pal(n = 5, name = "Blues"), bg = "white", bty = "n", cex = 0.7, 
+    #             ncol = 5, title = "Landings, ton")
+    # 
+    # par(fig = c(0, 1, 0, 1), oma = c(2, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+    # plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+    # 
+    # legend("bottom", legend = levels(dat_0$cruise), fill = ddc.col,
+    #      bty = "n", cex = 0.7, ncol = length(levels(dat_0$cruise)),  xpd = TRUE, inset = c(0,0), title = "Cruise") 
+    
+}
+
+```
+
+# Landings per rectangle and ctry
+
+```{r, echo = F}
+
+rect <-
+  readRDS(paste(
+    dataPath,
+    "C1_her2024_rect_2018.rds",
+    sep = ""
+  ))
+
+rect <- left_join(rect, rect_dec)
+
+rect_ctry <- summarise(group_by(rect, ctry, rect, year, lon, lat), ton = sum(catch_t))
+
+rect_ctry$ctry <- factor(rect_ctry$ctry, levels = ddc)
+
+fac_year <- factor(rect_ctry$year)
+
+for (i in levels(fac_year)) {
+  
+  dat_0 <- rect_ctry[fac_year == i, ]
+  
+  
+    #Setting lim
+    ylim_min <- min(dat_0$lat, na.rm = T)
+    ylim_max <- max(dat_0$lat, na.rm = T)
+    
+    xlim_min <- min(dat_0$lon, na.rm = T)
+    xlim_max <- max(dat_0$lon, na.rm = T)
+    
+    xlim <- c(xlim_min - 2, xlim_max + 2)
+    ylim <- c(ylim_min - 1, ylim_max + 1)
+    
+    if ((ylim_max - ylim_min) < 1 | (xlim_max - xlim_min < 2)) {
+      
+      xlim <- c(xlim_min - 4, xlim_max + 4)
+      ylim <- c(ylim_min - 2, ylim_max + 2)
+    }
+    
+    #Setting by
+    byx = 1
+    byy = 0.5
+    
+    #Radius for legend
+    
+    
+    
+    #legend
+    # 
+    # lengend_select <- 1
+    # legend_text <- "  Area equal to 1 sample"
+    # 
+    # 
+    # radius_max <- 0.2
+    # area_max <- pi*(radius_max)^2
+    # area_frac <- area_max / max_overall
+    # 
+    # area_select <- area_frac * lengend_select
+    # 
+    # radius_legend <- sqrt(area_select / pi)
+    # 
+    #prep data
+    
+        
+    xlim <- c(7.5, 15)
+    ylim <- c(54.25, 59)
+    
+    dat_0 <- filter(dat_0, ton != 0)
+    grd <- make.grid(dat_0$lon, dat_0$lat, dat_0$ton, byx, byy, xlim, ylim, fun = sum)
+    breaks <- breaks.grid(grd, ncol = 9, zero = FALSE, quantile = 1)
+
+    xyz <- make.xyz(dat_0$lon, dat_0$lat, dat_0$ton, dat_0$ctry)
+    
+    title <- unique(paste("Landings of her.27.20-24, ", dat_0$year, sep = ""))
+    
+    par(mfrow = c(1,1), oma = c(0,0,0,0), mar = c(2,2,1.5,2))
+    basemap(xlim = xlim, ylim = ylim, main = title, bg = "white", xlab = "", ylab = "")
+    draw.grid(grd, breaks, col = brewer.pal(n = 9, name = "Blues"))
+    draw.shape(country_shape, col = "white", xlim = xlim, ylim = ylim)
+    legend.grid("topright", breaks = breaks, type = 2, col = brewer.pal(n = 9, name = "Blues"), bg = "white", bty = "n", cex = 0.7, 
+                ncol = 1, title = "Landings, ton")
+    draw.pie(xyz$x, xyz$y, xyz$z, radius = 0.3, col = ddc.col)
+    legend.pie(x = 14, y = 57, z = c(1, 1, 1, 1, 1, 1, 1), label = paste("   ", ddc), bty = "n", radius = 0.2, col = ddc.col, cex = 0.7)
+    # 
+    # par(fig = c(0, 1, 0, 1), oma = c(4, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+    # plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+    # 
+    # legend.grid("bottom", breaks = breaks, type = 2, col = brewer.pal(n = 5, name = "Blues"), bg = "white", bty = "n", cex = 0.7, 
+    #             ncol = 5, title = "Landings, ton")
+    # 
+    # par(fig = c(0, 1, 0, 1), oma = c(2, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+    # plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+    # 
+    # legend("bottom", legend = levels(dat_0$cruise), fill = ddc.col,
+    #      bty = "n", cex = 0.7, ncol = length(levels(dat_0$cruise)),  xpd = TRUE, inset = c(0,0), title = "Cruise") 
+    
+}
+
+```
+
 
 # Biology
 
@@ -177,9 +436,34 @@ ggplot(canum, aes(y = paste(quarter, ctry, sep = " - "), x = paste(area, fleet, 
   geom_text(aes(label = paste(round(catch_t, digits = 0), " / ", noSample, sep = ""))) + 
   scale_fill_distiller(palette = "Blues", direction = 1)
 
+
+
+```
+
+```{r, echo = F}
+lan_samp <- distinct(canum, catch_t, fleet, area, ctry, quarter, noSample)
+
+ggplot(lan_samp, aes(x = noSample, y = catch_t, col = paste(fleet, area))) +
+  geom_point(size = 3) + 
+  geom_vline(xintercept = 3) +
+  scale_color_manual(values = brewer.pal(7, "Dark2")) +
+  labs(title = "Her.27.20-27. Landed tons per number of samples, 2018", x = "Number of sample", y = "Tons") + 
+  theme(legend.position="bottom")
 ```
 
 
+
+```{r, echo = F, fig.width = 16}
+lan_samp <- distinct(canum, catch_t, fleet, area, ctry, quarter, noSample)
+
+ggplot(lan_samp, aes(x = noSample, y = catch_t, col = paste(fleet, area))) +
+  geom_point(size = 3) + 
+  geom_vline(xintercept = 3) +
+  facet_grid(~ctry) +
+  scale_color_manual(values = brewer.pal(7, "Dark2")) +
+  labs(title = "Her.27.20-27. Landed tons per number of samples, 2018", x = "Number of sample", y = "Tons") + 
+  theme(legend.position="bottom")
+```
 
 # Tabulated overviews
 ## Catch
