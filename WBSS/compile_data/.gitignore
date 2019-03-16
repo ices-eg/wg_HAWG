@@ -9,5 +9,6 @@
 *.dat
 *.txt
 *.RData
+*.csv
 
 */data/*
