@@ -150,7 +150,7 @@ rownames(splitTab)  <- splitTab[,1]
 TAC_var$Csplit      <- mean(1-splitTab[ac((an(DtY)-2):an(DtY)),'C'])    # Proportion NSAS in C fleet catch; 3 year average 
 TAC_var$Dsplit      <- mean(1-splitTab[ac((an(DtY)-2):an(DtY)),'D'])    # Proportion NSAS in C fleet catch; 3 year average 
 # proportion WBSS caught in North Sea. use hard value from HAWG2018. Need to ask Norbert for historical values
-TAC_var$WBSS_NSAS   <- splitTab[ImY,'WBSS_NSAS']
+TAC_var$WBSS_NSAS   <- splitTab[DtY,'WBSS_NSAS']
 
 # Ctransfer. Transfer of TAC from IIIa to IVa for C fleet in assessment year
 # Note: C transfer in table is the percentage transferred to NSAS from WBSS
@@ -162,8 +162,8 @@ TAC_var$Ctransfer       <- CtransferTab[ImY,2]
 # What should we assume for the uptake?
 uptakeTab               <- read.table(file.path(dataPath,'TAC_var','NSAS_uptake.csv'),sep = ",",header=T)
 rownames(uptakeTab)     <- uptakeTab[,1]
-TAC_var$Buptake         <- uptakeTab[DtY,'B']   # Uptake of Bfleet TAC in the terminal year
-TAC_var$Duptake         <- uptakeTab[DtY,'D']   # Uptake of the Dfleet TAC in the terminal year
+TAC_var$Buptake         <- mean(uptakeTab[ac((an(DtY)-2):an(DtY)),'B'])   # Uptake of Bfleet as 3 year average
+TAC_var$Duptake         <- mean(uptakeTab[ac((an(DtY)-2):an(DtY)),'D'])   # Uptake of the Dfleet as 3 year average
 
 ############## TAC for the different fleets in the intermediate year ##############
 # TAC A is TACNSA
@@ -206,6 +206,9 @@ CATCH[,ImY,'A'] <- TACS[,ImY,'A'] + TAC_var$Ctransfer*TACS[,ImY,'C'] - (TACS[,Im
 CATCH[,ImY,'B'] <- TACS[,ImY,'B']*TAC_var$Buptake
 CATCH[,ImY,'C'] <- TACS[,ImY,'C']*(1-TAC_var$Ctransfer)*TAC_var$Csplit
 CATCH[,ImY,'D'] <- TACS[,ImY,'D']*TAC_var$Dsplit*TAC_var$Duptake
+
+# assume same catch as ImY
+CATCH[,c(FcY,CtY),'B'] <- CATCH[,ImY,'B']
 
 # 0 catch in FcY and CtY
 if(TACTab[FcY,'C'] == 0){
@@ -373,7 +376,7 @@ if("mpA" %in% stf.options){
 # 
 #-------------------------------------------------------------------------------
 
-CATCH[,c(FcY,CtY),'B'] <- res$stf@catch[,FcY,'B']
+#CATCH[,c(FcY,CtY),'B'] <- res$stf@catch[,FcY,'B']
 
 #-------------------------------------------------------------------------------
 # 7b) Management plan HCR B
@@ -490,9 +493,6 @@ if("mpAD" %in% stf.options){
 if("fmsyAR" %in% stf.options){
   
   caseName <- "fmsyAR"
-  
-  source(file.path(functionPath,"fmsyAR_fun.r"))
-  source(file.path(functionPath,"find.FCAR.r"))
   
   res <- fmsyAR_fun(stf,
                     FuY,

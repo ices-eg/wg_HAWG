@@ -31,7 +31,7 @@ MP_fun <- function( stf,
                                         stk=stf[,FcY,c("A","B"),,,iTer],
                                         mpPoints=referencePoints,
                                         jac=NULL,
-                                        lower=rep(1e-15,2),
+                                        lower=rep(1e-8,2),
                                         upper=NULL,
                                         control=nls.lm.control(maxiter=1000))$par
     }
@@ -43,7 +43,7 @@ MP_fun <- function( stf,
                                         stk=stf[,FcY,c("A","B"),,,iTer],
                                         mpPoints=referencePoints,
                                         jac=NULL,
-                                        lower=rep(1e-15,2),
+                                        lower=rep(1e-8,2),
                                         upper=NULL,
                                         control=nls.lm.control(maxiter=1000))$par
     }

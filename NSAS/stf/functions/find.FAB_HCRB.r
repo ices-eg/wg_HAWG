@@ -30,6 +30,9 @@ find.FAB_HCRB  <- function(mult,stk.=stk,f01.=f01,f26.=f26,TACS.=TACS,mpPoints.=
   fbarB     <- mean(bigF[f01])
   fbarA     <- mean(bigF[f26])
   
+  #print(Ftarget)
+  #print(F01Tar)
+  
   resA <- sqrt(((fbarA - Ftarget)/Ftarget)^2)
   resB <- sqrt(((fbarB - F01Tar)/F01Tar)^2)
   

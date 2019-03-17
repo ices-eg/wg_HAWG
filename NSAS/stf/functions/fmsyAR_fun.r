@@ -22,7 +22,7 @@ fmsyAR_fun <- function( stf,
   
   for(iTer in 1:dims(stf)$iter)      #stf.=stf,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
     res[,iTer]                  <- nls.lm(par=rep(1,4), # A scalor = B scalor, therefore 3 scalors
-                                          lower=rep(1e-15,4),
+                                          lower=rep(1e-8,4),
                                           upper=NULL,
                                           find.FCAR,
                                           stk=iter(stf[,FcY],iTer),
