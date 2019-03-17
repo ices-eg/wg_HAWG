@@ -83,15 +83,36 @@ stf.table.option <- function(option, stf.table.=stf.table, stf.=stf, ssb. = ssb.
 }
 
 # stf.calculate.catch
-stf.calculate.catch <- function(dms.=dms, stf.=stf, RECS.=RECS, y=CtY){
+stf.calculate.catch <- function(dms.=dms, stf.=stf, y=FcY){
+  for(i in dms.$unit){
+    # catch.n = N * (1 - exp(-F-M)) * (F / F + M)
+    stf.@catch.n[,y,i]         <- 
+      stf.@stock.n[,y,i]*(1-exp(-unitSums(stf.@harvest[,y])-stf.@m[,y,i]))*
+      (stf.@harvest[,y,i]/(unitSums(stf.@harvest[,y])+stf.@m[,y,i]))
+    stf.@catch[,y,i]           <- computeCatch(stf.[,y,i])
+    stf.@landings.n[,y,i]      <- stf.@catch.n[,y,i]
+    stf.@landings[,y,i]        <- computeLandings(stf.[,y,i])
+  }
+  return(stf.)
+}
+
+# stf.  <- stf
+# dms.  <- dim
+# RECS. <- RECS
+# i     <- 1
+
+# stf.calculate.cty
+stf.calculate.cty <- function(dms.=dms, stf.=stf, RECS.=RECS, y=CtY){
   
+  # Recruitment taken from RECS
   for(i in dms.$unit) stf.@stock.n[1,y,i]                     <- 
-      RECS$CtY
+      RECS.$CtY
   
+  # Calculate survivors (ages '2' to 'max-1'): N = N(y-1) * exp(-f - m). Using ages '1' to 'max-2'
   for(i in dms.$unit) stf.@stock.n[2:(dims(stf.)$age-1),y,i]   <- 
       (stf.@stock.n[,FcY,1]*exp(-unitSums(stf.@harvest[,FcY])-stf.@m[,FcY,1]))[ac(range(stf.)["min"]:(range(stf.)["max"]-2)),]
   
-  # N = N(y-1) * exp(-f - m)
+  # Calculate plusgroup: N = N(y-1) * exp(-f - m). Using ages max and max-1
   for(i in dms.$unit) stf.@stock.n[dims(stf.)$age,y,i]         <- 
       apply((stf.@stock.n[,FcY,1]*exp(-unitSums(stf.@harvest[,FcY])-stf.@m[,FcY,1]))[ac((range(stf.)["max"]-1):range(stf.)["max"]),],2:6,sum,na.rm=T)
   
@@ -105,19 +126,7 @@ stf.calculate.catch <- function(dms.=dms, stf.=stf, RECS.=RECS, y=CtY){
 }
 
 
-# stf.calculate.cty
-stf.calculate.cty <- function(dms.=dms, stf.=stf, y=FcY){
-  for(i in dms.$unit){
-    # catch.n = N * (1 - exp(-F-M)) * (F / F + M)
-    stf.@catch.n[,y,i]         <- 
-      stf.@stock.n[,y,i]*(1-exp(-unitSums(stf.@harvest[,y])-stf.@m[,y,i]))*
-      (stf.@harvest[,y,i]/(unitSums(stf.@harvest[,y])+stf.@m[,y,i]))
-    stf.@catch[,y,i]           <- computeCatch(stf.[,y,i])
-    stf.@landings.n[,y,i]      <- stf.@catch.n[,y,i]
-    stf.@landings[,y,i]        <- computeLandings(stf.[,y,i])
-  }
-  return(stf.)
-}
+
 
 #-------------------------------------------------------------------------------
 # Setup control file
@@ -420,6 +429,7 @@ if("fmsyAR" %in% stf.options){
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   
   # Calculate F MSY Advice rule using find.FCAR method in stfFunctions.r
+  # Calculation over 4 parameters; this gives a warning and ends up with 1 for each fleet. 
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
     res[,iTer]  <- 
        nls.lm(par=rep(1,dims(stf)$unit),
@@ -440,8 +450,10 @@ if("fmsyAR" %in% stf.options){
   #-2018 situation with no MP ------------
   TACS[,c(FcY,ImY),"C"]         <- TACS2018[,FcY,"C"] * Csplit
   TACS[,c(FcY,ImY),"D"]         <- TACS2018[,FcY,"D"] * Dsplit
+  
+  # Calculation over 3 parameters
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- 
+    res[,iTer]   <- 
        nls.lm(par=rep(1,3),
               lower=rep(1e-08,3), 
               upper=NULL,
@@ -470,10 +482,14 @@ if("fmsyAR" %in% stf.options){
   # }
 
   #Update to continuation year
-  for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
-  for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
-  for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
-  ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
+  tl <- stf.calculate.cty (dms.=dms, stf.=stf, RECS.=RECS, y=CtY)
+  stf     <- tl[[1]]
+  ssb.CtY <- tl[[2]]
+  
+  # for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
+  # for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
+  # for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
+  # ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
 
   # Calculate the values to be included in the stf.table
   stf.table <- stf.table.option (option="fmsyAR", stf.table.=stf.table, stf.=stf, ssb. = ssb.Cty)
