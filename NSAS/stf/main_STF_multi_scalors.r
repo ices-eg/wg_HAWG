@@ -70,6 +70,8 @@ CtY   <- ac(an(DtY)+3)             #Continuation year
 CtY1  <- ac(an(DtY)+4)
 FuY   <- c(ImY,FcY,CtY)            #Future years
 
+stfFileName <- paste0('NSAS_stf_multi_scalor_',ImY)
+
 # slots copied from last year of assessment
 yrs1        <- list("m.spwn","harvest.spwn","stock.wt")
 # slots copied as mean of last 3 years of assessment
@@ -180,22 +182,42 @@ TACS[,ImY,'A'] <- TACTab[ImY,'A']
 TACS[,ImY,'B'] <- TACTab[ImY,'B']
 # assume 0 TAC for FcY and CtY for C and D fleet
 TACS[,ImY,'C'] <- TACTab[ImY,'C']
-TACS[,c(FcY,CtY),'C'] <- 0.1
 TACS[,ImY,'D'] <- TACTab[ImY,'D']
-TACS[,c(FcY,CtY),'D'] <- 0.1
+
+# TAC C and D fleet in FcY and CtY
+# set TAC to 0.1 if 0 catch (for optimizers)
+if(TACTab[FcY,'C'] == 0){
+  TACS[,c(FcY,CtY),'C'] <- 0.1
+}else{
+  TACS[,c(FcY,CtY),'C'] <- TACTab[FcY,'C']
+}
+# D fleet
+if(TACTab[FcY,'D'] == 0){
+  TACS[,c(FcY,CtY),'D'] <- 0.1
+}else{
+  TACS[,c(FcY,CtY),'D'] <- TACTab[FcY,'D']
+}
 
 ############## realised catches ##############
 CATCH        <- FLQuant(NA,dimnames=list( age="all",year=FuY,unit=c("A","B","C","D"),
                                           season="all",area=1,iter=1:dims(NSH)$iter))
 
 CATCH[,ImY,'A'] <- TACS[,ImY,'A'] + TAC_var$Ctransfer*TACS[,ImY,'C'] - (TACS[,ImY,'A'] + TAC_var$Ctransfer*TACS[,ImY,'C'])*TAC_var$WBSS_NSAS
-CATCH[,ImY,'B'] <- TACS[,ImY,'B']#*TAC_var$Buptake
-CATCH[,ImY,'C'] <- TACS[,ImY,'C']*(1-TAC_var$Ctransfer)*0.3#TAC_var$Csplit
-CATCH[,ImY,'D'] <- TACS[,ImY,'D']*0.46*0.6#*TAC_var$Dsplit*TAC_var$Duptake
+CATCH[,ImY,'B'] <- TACS[,ImY,'B']*TAC_var$Buptake
+CATCH[,ImY,'C'] <- TACS[,ImY,'C']*(1-TAC_var$Ctransfer)*TAC_var$Csplit
+CATCH[,ImY,'D'] <- TACS[,ImY,'D']*TAC_var$Dsplit*TAC_var$Duptake
 
 # 0 catch in FcY and CtY
-CATCH[,c(FcY,CtY),'C'] <- 0.1#TACS[,ImY,'C']*(1-TAC_var$Ctransfer)*TAC_var$Csplit
-CATCH[,c(FcY,CtY),'D'] <- 0.1#TACS[,ImY,'D']*TAC_var$Dsplit*TAC_var$Duptake
+if(TACTab[FcY,'C'] == 0){
+  CATCH[,c(FcY,CtY),'C'] <- 0.1
+}else{
+  CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*(1-TAC_var$Ctransfer)*TAC_var$Csplit
+}
+if(TACTab[FcY,'D'] == 0){
+  CATCH[,c(FcY,CtY),'D'] <- 0.1
+}else{
+  CATCH[,c(FcY,CtY),'D'] <- TACS[,FcY,'D']*TAC_var$Dsplit*TAC_var$Duptake
+}
 
 #-------------------------------------------------------------------------------
 # 4) Recruitment for intermediate, forecast and continuation years
@@ -514,8 +536,6 @@ if("nf" %in% stf.options){
 # 7d) 15% increase in TAC for the A-fleet
 #-------------------------------------------------------------------------------
 
-CATCH[,c(FcY,CtY),'B'] <- 20522.38
-
 if("+15%" %in% stf.options){
   
   caseName <- "+15%"
@@ -765,7 +785,7 @@ if("MSYBtrigger" %in% stf.options){
 
 
 # Save the output to an RData file
-save(stf, stf.table, file=file.path(outPath,"ShortTermForecast multifleetmode_f01WBSS.RData"))
+save(stf, stf.table, file=file.path(outPath,paste0(stfFileName,'.Rdata')))
 # save(stf, stf.table, file="ShortTermForecast multifleetmode.RData")
 
 #- Writing the STF to file
@@ -776,12 +796,11 @@ for(i in c("catch","catch.n","stock.n","harvest")){
 
 options("width"=80,"scipen"=1000)
 stf.out.file <- stf.out(stf,RECS,format="TABLE 2.7.%i NORTH SEA HERRING.")
-write(stf.out.file,file=paste("./","stf_mf.out",sep="."))
-write(stf.out.file,file=file.path(outPath,"stf_mf.out"))
+write(stf.out.file,file=file.path(outPath,paste0(stfFileName,'.out')))
 
 #- Write the stf.table to file
 write.csv(stf.table[,,2],
-          file=file.path(outPath,"stf.table_mf_deterministic_old_way.csv"))
+          file=file.path(outPath,paste0(stfFileName,'.csv')))
 #           file=paste0("stf.table_mf_","deterministic.csv"))
 
 

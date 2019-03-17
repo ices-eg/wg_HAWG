@@ -54,6 +54,14 @@ MP_fun <- function( stf,
   # resulting F for A and B fleets
   stf@harvest[,FcY,c("A","B")]         <- sweep(stf@harvest[,FcY,c("A","B")],c(3,6),res,"*")
   
+  # case of 0 catch, set F of C and D fleet to 0
+  if(CATCH[,FcY,'C'] < 1){
+    stf@harvest[,FcY,'C'] <- 0
+  }
+  if(CATCH[,FcY,'D'] < 1){
+    stf@harvest[,FcY,'D'] <- 0
+  }
+  
   #- Calculate TACs in FcY
   # assume F from ImY for fleet C and D
   for(i in dms$unit){
