@@ -17,7 +17,7 @@ find.FAB_HCRB  <- function(mult,stk.=stk,f01.=f01,f26.=f26,TACS.=TACS,mpPoints.=
   
   if(ssb < mpPoints.$Btrigger & ssb > mpPoints.$Blim){
     Ftarget <- mpPoints.$Ftarget*ssb/mpPoints.$Btrigger
-    F01Tar  <- mpPoints.$F01*ssb/mpPoints.$Btrigger
+    F01Tar  <- 0.05#mpPoints.$F01*ssb/mpPoints.$Btrigger
   }
   if(ssb <= mpPoints.$Blim){
     Ftarget <- 0.1
