@@ -1,16 +1,23 @@
 ### ======================================================================================================
 ### Setting up
 ### ======================================================================================================
-library(FLSAM); library(FLEDA)
-path <- "D:/git/wg_HAWG/NSAS/"
+rm(list=ls())
+graphics.off()
+
+library(FLSAM)
+library(FLEDA)
+path <- "C:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
-output.dir          <-  file.path(".","results/")        # figures directory
-assessment_name_multifleet <- "HAWG2018_multifleet"
-assessment_name_singlefleet <- "HAWG2018_singlefleet"
+dataDir           <-  file.path(".","data/")        # figures directory
+output.dir        <-  file.path(".","results/")        # figures directory
+assessment_name_multifleet <- "HAWG2019_multifleet"
+assessment_name_singlefleet <- "HAWG2019_singlefleet"
 
 
-load(paste(output.dir,"/NSH_HAWG2018_sf_retro.RData",sep=""))
+load(paste(output.dir,"/NSH_HAWG2019_sf_retro.RData",sep=""))
+
+#load(paste(output.dir,"/NSH_HAWG2019_sf.RData",sep=""))
 
 PDF <- F
 PNG <- ifelse(PDF,F,T)
@@ -23,8 +30,8 @@ PNG <- ifelse(PDF,F,T)
 ### ============================================================================
 
 # figure - residual plots at each age for each time series
-if(PDF) pdf(file.path(output.dir,paste(assessment_name_singlefleet,".pdf",sep="")))
-if(PNG) png(file.path(output.dir,paste(assessment_name_singlefleet,"_1_fit_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
+if(PDF) pdf(file.path(output.dir,'plots_diagnostics',paste(assessment_name_singlefleet,".pdf",sep="")))
+if(PNG) png(file.path(output.dir,'plots_diagnostics',paste(assessment_name_singlefleet,"_1_fit_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
 residual.diagnostics(NSH.sam)
 
 # figure - assessment result, spawning stock biomass, fishing mortality, recruitment
@@ -57,7 +64,7 @@ sel.pat <- merge(f(NSH.sam),fbar(NSH.sam),
                  by="year",suffixes=c(".f",".fbar"))
 sel.pat$sel <- sel.pat$value.f/sel.pat$value.fbar
 sel.pat$age <- as.numeric(as.character(sel.pat$age))
-xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
+xyplot(sel ~ age|sprintf("%i's",floor((year)/5)*5),sel.pat,
        groups=year,type="l",as.table=TRUE,
        scale=list(alternating=FALSE),
        main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar")
@@ -70,7 +77,7 @@ dat <- subset(residuals(NSH.sam),fleet=="catch unique")
 print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch",
        panel=function(...){
          lst <- list(...)
-         panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=3*abs(lst$cex))
+         panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=1*abs(lst$cex))
        }))
 
 # figure - acosutic index residuals per year per age
@@ -78,7 +85,7 @@ dat <- subset(residuals(NSH.sam),fleet=="IBTS-Q1")
 print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year IBTSQ1",
        panel=function(...){
          lst <- list(...)
-         panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=3*abs(lst$cex))
+         panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=1*abs(lst$cex))
        }))
 
 # figure - acosutic index residuals per year per age
@@ -86,7 +93,15 @@ dat <- subset(residuals(NSH.sam),fleet=="HERAS")
 print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year HERAS",
              panel=function(...){
                lst <- list(...)
-               panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=3*abs(lst$cex))
+               panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=1*abs(lst$cex))
+             }))
+
+# figure - acosutic index residuals per year per age
+dat <- subset(residuals(NSH.sam),fleet=="IBTS-Q3")
+print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year IBTS-Q3",
+             panel=function(...){
+               lst <- list(...)
+               panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=1*abs(lst$cex))
              }))
 
 # process error in terms of N
@@ -127,7 +142,7 @@ print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[["HERAS"]]@in
 #figure - TACs and catches - !!!!!!!!!!!!!Need to update historic table !!!!!!!!!!!!!!!!!!!!!!
 TACs          <- read.csv(file.path(".","data","historic data","TAC-historic.csv"))
 TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("Agreed_A","Bycatch_B")],na.rm=T),each=2))
-catch         <- as.data.frame(NSH@catch[,ac(TACs$year)]/1e3)
+catch         <- as.data.frame(NSH@catch[,ac(TACs$year[1:(length(TACs$year)-1)])]/1e3)
 plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=1.2,cex.axis=1.1,font=2)
 rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
 lines(TAC.plot.dat,lwd=3)
@@ -204,7 +219,7 @@ for(iAge in range(NSH)["min"]:range(NSH)["max"]){
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.n)),groups="age",main="Proportion of Catch numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
 # IBTS0/IBTSQ1 relationship
-IBTSQ1 <- read.table(paste(output.dir,"/Indices_2018-03-18 17_09_31.csv",sep=""), sep=",", header = TRUE) # read raw indices instead of standardized ones
+IBTSQ1 <- read.table(paste(dataDir,"/IBTS index/IBTSQ1/Indices_2019-03-15 11_48_12.csv",sep=""), sep=",", header = TRUE) # read raw indices instead of standardized ones
 IBTSQ1 <- IBTSQ1[IBTSQ1$IndexArea == "NS_Her",]
 IBTSQ1$Year <- IBTSQ1$Year-1
 
@@ -301,13 +316,16 @@ dev.off()
 ### ============================================================================
 ################################################################################
 
-load("D:/git/wg_HAWG/NSAS/results/NSH_HAWG2018_mf.RData")
+#load("C:/git/wg_HAWG/NSAS/results/NSH_HAWG2018_mf.RData")
+load(paste(output.dir,"/NSH_HAWG2019_mf_retro.RData",sep=""))
 
-if(PDF) pdf(file.path(output.dir,paste(assessment_name_multifleet,"_diagnostics.pdf",sep="")))
-if(PNG) png(file.path(output.dir,paste(assessment_name_multifleet,"_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
+if(PDF) pdf(file.path(output.dir,paste(assessment_name_multifleet,"_multifleet_diagnostics.pdf",sep="")))
+if(PNG) png(file.path(output.dir,paste(assessment_name_multifleet,"_multifleet_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
+
+#residual.diagnostics(NSH3f.sam)
 
 # figure - residual plots at each age for each time series
-residual.diagnostics(NSH3f.sam)
+#residual.diagnostics(NSH3f.sam)
 
 
 windows()
@@ -344,9 +362,11 @@ text(obv$value,obv$CV,obv$str,pos=4,cex=0.75,xpd=NA)
 
 savePlot(paste(output.dir,"/",assessment_name_multifleet,"_5_CV_vs_var.png",sep = ""),type="png")
 
-# figure - fishing age selectivity per year
+# figure - fishing age selectivity per year for A fleet
 sel.pat <- merge(f(NSH3f.sam),fbar(NSH3f.sam),
                  by="year",suffixes=c(".f",".fbar"))
+
+sel.pat <- subset(sel.pat,fleet=='catch A')
 sel.pat$sel <- sel.pat$value.f/sel.pat$value.fbar
 sel.pat$age <- as.numeric(as.character(sel.pat$age))
 xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
@@ -354,7 +374,35 @@ xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
        scale=list(alternating=FALSE),
        main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar")
 
-savePlot(paste(output.dir,"/",assessment_name_multifleet,"_6_fishing_selectivity.png",sep = ""),type="png")
+savePlot(paste(output.dir,"/",assessment_name_multifleet,"_6_fishing_selectivity_A.png",sep = ""),type="png")
+
+# figure - fishing age selectivity per year for C fleet
+sel.pat <- merge(f(NSH3f.sam),fbar(NSH3f.sam),
+                 by="year",suffixes=c(".f",".fbar"))
+
+sel.pat <- subset(sel.pat,fleet=='catch C')
+sel.pat$sel <- sel.pat$value.f/sel.pat$value.fbar
+sel.pat$age <- as.numeric(as.character(sel.pat$age))
+xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
+       groups=year,type="l",as.table=TRUE,
+       scale=list(alternating=FALSE),
+       main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar")
+
+savePlot(paste(output.dir,"/",assessment_name_multifleet,"_6_fishing_selectivity_C.png",sep = ""),type="png")
+
+# figure - fishing age selectivity per year for BD fleet
+sel.pat <- merge(f(NSH3f.sam),fbar(NSH3f.sam),
+                 by="year",suffixes=c(".f",".fbar"))
+
+sel.pat <- subset(sel.pat,fleet=='catch BD')
+sel.pat$sel <- sel.pat$value.f/sel.pat$value.fbar
+sel.pat$age <- as.numeric(as.character(sel.pat$age))
+xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
+       groups=year,type="l",as.table=TRUE,
+       scale=list(alternating=FALSE),
+       main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar")
+
+savePlot(paste(output.dir,"/",assessment_name_multifleet,"_6_fishing_selectivity_BD.png",sep = ""),type="png")
 
 # figure - correlation matrix of model parameters
 cor.plot(NSH3f.sam)
@@ -589,6 +637,86 @@ for(idxYear in 1:length(selC$year)){selC$year[idxYear] <- toString(selC$year[idx
 ggplot(selC, aes(x = age, y = sel, colour = year)) + geom_line() + xlab("age") + ylab("F/Fbar") + ggtitle("fleet C")
 
 savePlot(paste(output.dir,"/",assessment_name,"_selectivity_fleetC.png",sep = ""),type="png")
+
+### ============================================================================
+### single fleet vs multi-fleet
+### ============================================================================
+
+load(paste(output.dir,"/NSH_HAWG2019_mf.RData",sep=""))
+load(paste(output.dir,"/NSH_HAWG2019_sf.RData",sep=""))
+
+if(PDF) pdf(file.path(output.dir,paste(assessment_name_multifleet,"_diagnostics.pdf",sep="")))
+if(PNG) png(file.path(output.dir,paste(assessment_name_multifleet,"_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
+
+residual.diagnostics(NSH.sam)
+
+# figure - residual plots at each age for each time series
+#residual.diagnostics(NSH3f.sam)
+
+
+windows()
+
+par(mfrow=c(3,1))
+# SSB
+plotQuant <- ssb(NSH.sam)
+plotQuant2 <- ssb(NSH3f.sam)
+years <- plotQuant$year
+
+plot(c(years,rev(years)),c(plotQuant$lbnd,rev(plotQuant$ubnd)),xlab='year',pch = ".",ylab='SSB')
+lines(years, plotQuant$value, type="l",lwd=2,col=rgb(0,0,1))
+polygon(c(years,rev(years)),c(plotQuant$lbnd,rev(plotQuant$ubnd)),col=rgb(0,0,1,0.5),lty=0)
+
+lines(years, plotQuant2$value, type="l",lwd=2,col=rgb(1,0,0))
+polygon(c(years,rev(years)),c(plotQuant2$lbnd,rev(plotQuant2$ubnd)),col=rgb(1,0,0,0.5),lty=0)
+
+legend("topright",legend=c("single fleet","multi-fleet"),col=c(rgb(0,0,1),rgb(1,0,0)),lty=1,lwd=2)
+
+#savePlot(paste(output.dir,"/",assessment_name_multifleet,"_single_fleet_SSB.png",sep = ""),type="png")
+
+# fbar
+plotQuant <- fbar(NSH.sam)
+plotQuant2 <- fbar(NSH3f.sam)
+years <- plotQuant$year
+
+plot(c(years,rev(years)),c(plotQuant$lbnd,rev(plotQuant$ubnd)),xlab='year',pch = ".",ylab='fbar')
+lines(years, plotQuant$value, type="l",lwd=2,col=rgb(0,0,1))
+polygon(c(years,rev(years)),c(plotQuant$lbnd,rev(plotQuant$ubnd)),col=rgb(0,0,1,0.5),lty=0)
+
+lines(years, plotQuant2$value, type="l",lwd=2,col=rgb(1,0,0))
+polygon(c(years,rev(years)),c(plotQuant2$lbnd,rev(plotQuant2$ubnd)),col=rgb(1,0,0,0.5),lty=0)
+
+#savePlot(paste(output.dir,"/",assessment_name_multifleet,"_single_fleet_fbar.png",sep = ""),type="png")
+
+# recruitment
+plotQuant <- rec(NSH.sam)
+plotQuant2 <- rec(NSH3f.sam)
+years <- plotQuant$year
+
+plot(c(years,rev(years)),c(plotQuant$lbnd,rev(plotQuant$ubnd)),xlab='year',pch = ".",ylab='recruitment')
+lines(years, plotQuant$value, type="l",lwd=2,col=rgb(0,0,1))
+polygon(c(years,rev(years)),c(plotQuant$lbnd,rev(plotQuant$ubnd)),col=rgb(0,0,1,0.5),lty=0)
+
+lines(years, plotQuant2$value, type="l",lwd=2,col=rgb(1,0,0))
+polygon(c(years,rev(years)),c(plotQuant2$lbnd,rev(plotQuant2$ubnd)),col=rgb(1,0,0,0.5),lty=0)
+
+savePlot(paste(output.dir,"/",assessment_name_multifleet,"_single_fleet.png",sep = ""),type="png")
+
+par(mfrow=c(1,1))
+# fbar
+plotQuant <- fbar(NSH.sam)
+plotQuant2 <- fbar(NSH3f.sam)
+years <- plotQuant$year
+
+plot(c(years,rev(years)),c(plotQuant$lbnd,rev(plotQuant$ubnd)),xlab='year',pch = ".",ylab='fbar')
+lines(years, plotQuant$value, type="l",lwd=2,col=rgb(0,0,1))
+polygon(c(years,rev(years)),c(plotQuant$lbnd,rev(plotQuant$ubnd)),col=rgb(0,0,1,0.5),lty=0)
+
+lines(years, plotQuant2$value, type="l",lwd=2,col=rgb(1,0,0))
+polygon(c(years,rev(years)),c(plotQuant2$lbnd,rev(plotQuant2$ubnd)),col=rgb(1,0,0,0.5),lty=0)
+
+legend("topright",legend=c("single fleet","multi-fleet"),col=c(rgb(0,0,1),rgb(1,0,0)),lty=1,lwd=2)
+
+savePlot(paste(output.dir,"/",assessment_name_multifleet,"_single_fleet_fbar.png",sep = ""),type="png")
 
 
 ### ============================================================================
