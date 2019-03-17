@@ -158,14 +158,14 @@ pg <- 8
 NSH <- setPlusGroup(NSH,pg)
 
 caaF  <- read.table("./data/canum_mf.txt",stringsAsFactors=F,header=T)
-caA   <- matrix(subset(caaF,Fleet=="A")[,"numbers"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))*1000
-caB   <- matrix(subset(caaF,Fleet=="B")[,"numbers"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))*1000
-caC   <- matrix(subset(caaF,Fleet=="C")[,"numbers"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))*1000
-caD   <- matrix(subset(caaF,Fleet=="D")[,"numbers"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))*1000
-cwA   <- matrix(subset(caaF,Fleet=="A")[,"weight"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))
-cwB   <- matrix(subset(caaF,Fleet=="B")[,"weight"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))
-cwC   <- matrix(subset(caaF,Fleet=="C")[,"weight"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))
-cwD   <- matrix(subset(caaF,Fleet=="D")[,"weight"],nrow=length(0:9),ncol=length(1997:2018),dimnames=list(age=0:9,year=1997:2018))
+caA   <- matrix(subset(caaF,Fleet=="A")[,"numbers"],nrow=length(0:9),ncol=length(1997:range(NSH)["maxyear"]),dimnames=list(age=0:9,year=1997:range(NSH)["maxyear"]))*1000
+caB   <- matrix(subset(caaF,Fleet=="B")[,"numbers"],nrow=length(0:9),ncol=length(1997:range(NSH)["maxyear"]),dimnames=list(age=0:9,year=1997:range(NSH)["maxyear"]))*1000
+caC   <- matrix(subset(caaF,Fleet=="C")[,"numbers"],nrow=length(0:9),ncol=length(1997:range(NSH)["maxyear"]),dimnames=list(age=0:9,year=1997:range(NSH)["maxyear"]))*1000
+caD   <- matrix(subset(caaF,Fleet=="D")[,"numbers"],nrow=length(0:9),ncol=length(1997:range(NSH)["maxyear"]),dimnames=list(age=0:9,year=1997:range(NSH)["maxyear"]))*1000
+cwA   <- matrix(subset(caaF,Fleet=="A")[,"weight"],nrow=length(0:9),ncol=length(1997:range(NSH)["maxyear"]),dimnames=list(age=0:9,year=1997:range(NSH)["maxyear"]))
+cwB   <- matrix(subset(caaF,Fleet=="B")[,"weight"],nrow=length(0:9),ncol=length(1997:range(NSH)["maxyear"]),dimnames=list(age=0:9,year=1997:range(NSH)["maxyear"]))
+cwC   <- matrix(subset(caaF,Fleet=="C")[,"weight"],nrow=length(0:9),ncol=length(1997:range(NSH)["maxyear"]),dimnames=list(age=0:9,year=1997:range(NSH)["maxyear"]))
+cwD   <- matrix(subset(caaF,Fleet=="D")[,"weight"],nrow=length(0:9),ncol=length(1997:range(NSH)["maxyear"]),dimnames=list(age=0:9,year=1997:range(NSH)["maxyear"]))
 
 #- Functions to set the plusgroups
 setMatrixPlusGroupN <- function(x){
@@ -191,7 +191,7 @@ NSH3f@catch.wt[,ac(1947:1996),,,-1]   <- NA
 #We don't believe the closure catch data, so put it to NA
 NSH@catch.n[,ac(1978:1979)]           <- NA
 NSHsum <- NSH[,ac(1947:1996)]
-NSHres3 <- NSH3f[,ac(1997:2017)]; NSHres3@landings.n[] <- NSHres3@catch.n
+NSHres3 <- NSH3f[,ac(1997:range(NSH)["maxyear"])]; NSHres3@landings.n[] <- NSHres3@catch.n
 NSHs3        <- FLStocks(residual=NSHres3,sum=NSHsum)
 
 NSH.tun[["HERAS"]]@index[ac(pg),]     <- quantSums(NSH.tun[["HERAS"]]@index[ac(pg:dims(NSH.tun[["HERAS"]]@index)$max),])

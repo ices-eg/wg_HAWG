@@ -12,13 +12,13 @@
 #-------------------------------------------------------------------------------
 find.FCAR <- function(mult,
                       stk.=stk,
-                      TACS.=TACS,
+                      CATCH=CATCH,
                       refs.){
   
   f26 <- ac(2:6)
   
   # same multiplier for A and B fleet
-  mult                <- c(mult[1],mult[1],mult[2],mult[3])
+  #mult                <- c(mult[1],mult[1],mult[2],mult[3])
   
   # compute harvest
   stk.@harvest        <- sweep(stk.@harvest,3,mult,"*")
@@ -48,8 +48,9 @@ find.FCAR <- function(mult,
   
   # compute residual between ftar and F26 (on total F)
   resA <- sqrt(((F26_bar-F26tar)/F26tar)^2)
-  resC <- sqrt(((stk.@catch[,,'C']-TACS.[,,'C'])/TACS.[,,'C'])^2)
-  resD <- sqrt(((stk.@catch[,,'D']-TACS.[,,'D'])/TACS.[,,'D'])^2)
+  resB <- sqrt(((stk.@catch[,,'B']-CATCH[,,'B'])/CATCH[,,'B'])^2)
+  resC <- sqrt(((stk.@catch[,,'C']-CATCH[,,'C'])/CATCH[,,'C'])^2)
+  resD <- sqrt(((stk.@catch[,,'D']-CATCH[,,'D'])/CATCH[,,'D'])^2)
 
-  res                 <- c(resA,resC,resD)
+  res                 <- c(resA,resB,resC,resD)
   return(res)}

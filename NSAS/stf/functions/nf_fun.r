@@ -12,6 +12,9 @@ nf_fun <- function(stf,
   stf@harvest[,FcY] <- 0
   stf@harvest[,CtY] <- stf@harvest[,FcY]
   
+  stkZ      <- unitSums(stf@harvest[,FcY]) + stf@m[,FcY,1]
+  stf@catch <- apply(sweep(stf@stock.n[,FcY] * stf@catch.wt[,FcY] * sweep(stf@harvest[,FcY],c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)
+
   ssb.FcY <- quantSums( stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
                           exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
                           stf@mat[,FcY,1])

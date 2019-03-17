@@ -16,7 +16,7 @@ TAC_scaling_fun <- function(  stf,
   
   # 15% increase only for the A fleet
   CATCH[,FcY,"A"]       <- TACS[,ImY,"A"]*rat + TAC_var$Ctransfer*TACS[,FcY,'C']
-  CATCH[,FcY,"B"]       <- CATCH[,ImY,"B"]
+  #CATCH[,FcY,"B"]       <- CATCH[,ImY,"B"]
   
   stf@harvest[,FcY]         <- fleet.harvest(stk=stf,
                                              iYr=FcY,

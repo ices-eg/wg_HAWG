@@ -16,15 +16,15 @@ B_scaling_fun <- function(  stf,
   
   # optimize F scalors against FA and true TAC C and D
   res <- matrix(NA,
-                nrow=3,
+                nrow=4,
                 ncol=dims(stf)$iter,
-                dimnames=list(dimnames(stf@stock.n)$unit[c(1,3,4)],
+                dimnames=list(dimnames(stf@stock.n)$unit,
                               dimnames(stf@stock.n)$iter))
   
   # assume same F in FcY for the B fleet
   for(iTer in 1:dims(stf)$iter)
-    res[,iTer]                  <- nls.lm(par=rep(1,3),
-                                          lower=rep(1e-08,3),
+    res[,iTer]                  <- nls.lm(par=rep(1,4),
+                                          lower=rep(1e-08,4),
                                           upper=NULL,
                                           find.BC,
                                           stk=iter(stf[,FcY],iTer),
@@ -34,7 +34,7 @@ B_scaling_fun <- function(  stf,
                                           nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
   
   # create 4 element vector. Scalor A fleet = scalor B fleet
-  res <- cbind(res[1,],res[1,],res[2,],res[3,])
+  #res <- cbind(res[1,],res[1,],res[2,],res[3,])
   
   # update F with scalors
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")

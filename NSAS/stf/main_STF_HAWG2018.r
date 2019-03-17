@@ -135,6 +135,7 @@ referencePoints <- list(Fmsy = 0.26,
 TAC_var                   <- list(Ctransfer = NA,
                                   Csplit = NA,
                                   Dsplit = NA,
+                                  WBSS_NSAS = NA,
                                   Buptake = NA,
                                   Duptake = NA)
 
@@ -146,6 +147,8 @@ rownames(splitTab)  <- splitTab[,1]
 # C split as average over the last 3 years
 TAC_var$Csplit      <- mean(1-splitTab[ac((an(DtY)-2):an(DtY)),'C'])    # Proportion NSAS in C fleet catch; 3 year average 
 TAC_var$Dsplit      <- mean(1-splitTab[ac((an(DtY)-2):an(DtY)),'D'])    # Proportion NSAS in C fleet catch; 3 year average 
+# proportion WBSS caught in North Sea. use hard value from HAWG2018. Need to ask Norbert for historical values
+TAC_var$WBSS_NSAS   <- splitTab[ImY,'WBSS_NSAS']
 
 # Ctransfer. Transfer of TAC from IIIa to IVa for C fleet in assessment year
 # Note: C transfer in table is the percentage transferred to NSAS from WBSS
@@ -175,18 +178,25 @@ TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D
 
 TACS[,ImY,'A'] <- TACTab[ImY,'A']
 TACS[,ImY,'B'] <- TACTab[ImY,'B']
-# assume same TAC for FcY and ImY for C and D fleet
-TACS[,FuY,'C'] <- TACTab[ImY,'C']
-TACS[,FuY,'D'] <- TACTab[ImY,'D']
+20522.38
+# assume 0 TAC for FcY and CtY for C and D fleet
+TACS[,ImY,'C'] <- TACTab[ImY,'C']
+TACS[,c(FcY,CtY),'C'] <- 0.1
+TACS[,ImY,'D'] <- TACTab[ImY,'D']
+TACS[,c(FcY,CtY),'D'] <- 0.1
 
 ############## realised catches ##############
 CATCH        <- FLQuant(NA,dimnames=list( age="all",year=FuY,unit=c("A","B","C","D"),
                                           season="all",area=1,iter=1:dims(NSH)$iter))
 
-CATCH[,FuY,'A'] <- TACS[,,'A'] + TAC_var$Ctransfer*TACS[,,'C'] # - (TACNSA + Ctransfer*TAC3aC)*WBSSsplit?
-CATCH[,FuY,'B'] <- TACS[,,'B']*TAC_var$Buptake
-CATCH[,FuY,'C'] <- TACS[,,'C']*(1-TAC_var$Ctransfer)*TAC_var$Csplit
-CATCH[,FuY,'D'] <- TACS[,,'D']*TAC_var$Dsplit*TAC_var$Duptake
+CATCH[,ImY,'A'] <- TACS[,ImY,'A'] + TAC_var$Ctransfer*TACS[,ImY,'C'] - (TACS[,ImY,'A'] + TAC_var$Ctransfer*TACS[,ImY,'C'])*TAC_var$WBSS_NSAS
+CATCH[,ImY,'B'] <- TACS[,ImY,'B']#*TAC_var$Buptake
+CATCH[,ImY,'C'] <- TACS[,ImY,'C']*(1-TAC_var$Ctransfer)*0.3#TAC_var$Csplit
+CATCH[,ImY,'D'] <- TACS[,ImY,'D']*0.46*0.6#*TAC_var$Dsplit*TAC_var$Duptake
+
+# 0 catch in FcY and CtY
+CATCH[,c(FcY,CtY),'C'] <- 0.1#TACS[,ImY,'C']*(1-TAC_var$Ctransfer)*TAC_var$Csplit
+CATCH[,c(FcY,CtY),'D'] <- 0.1#TACS[,ImY,'D']*TAC_var$Dsplit*TAC_var$Duptake
 
 #-------------------------------------------------------------------------------
 # 4) Recruitment for intermediate, forecast and continuation years
@@ -296,29 +306,8 @@ for(i in dms$unit) stf@stock.n[1,FcY,i]                     <- RECS$FcY
 for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),FcY,i]   <- (stf@stock.n[,ImY,1]*exp(-unitSums(stf@harvest[,ImY])-stf@m[,ImY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
 for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.n[,ImY,1]*exp(-unitSums(stf@harvest[,ImY])-stf@m[,ImY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
 
-#-------------------------------------------------------------------------------
-# 7a) Fmsy Advice rule
-#-------------------------------------------------------------------------------
 
-if("fmsyAR" %in% stf.options){
-  
-  caseName <- "fmsyAR"
-  
-  res <- fmsyAR_fun(stf,
-                    FuY,
-                    CATCH,
-                    RECS,
-                    referencePoints)
-  
-  # update stf table
-  stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
-  stf.table[caseName,"Fbar 2-6",]                                    <- quantMeans(unitSums(res$stf@harvest[f26,FcY,]))
-  stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
-  stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
-  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- res$ssb.FcY
-  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
-}
+CATCH[,c(FcY,CtY),'B'] <- 20522.38
 
 #-------------------------------------------------------------------------------
 # 7b) Management plan HCR A
@@ -466,6 +455,33 @@ if("mpAD" %in% stf.options){
 }
 
 #-------------------------------------------------------------------------------
+# 7a) Fmsy Advice rule
+#-------------------------------------------------------------------------------
+
+if("fmsyAR" %in% stf.options){
+  
+  caseName <- "fmsyAR"
+  
+  source(file.path(functionPath,"fmsyAR_fun.r"))
+  source(file.path(functionPath,"find.FCAR.r"))
+  
+  res <- fmsyAR_fun(stf,
+                    FuY,
+                    CATCH,
+                    RECS,
+                    referencePoints)
+  
+  # update stf table
+  stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
+  stf.table[caseName,"Fbar 2-6",]                                    <- quantMeans(unitSums(res$stf@harvest[f26,FcY,]))
+  stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
+  stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- res$ssb.FcY
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
+}
+
+#-------------------------------------------------------------------------------
 # 7c) No fishing
 #-------------------------------------------------------------------------------
 
@@ -491,6 +507,8 @@ if("nf" %in% stf.options){
 #-------------------------------------------------------------------------------
 # 7d) 15% increase in TAC for the A-fleet
 #-------------------------------------------------------------------------------
+
+CATCH[,c(FcY,CtY),'B'] <- 20522.38
 
 if("+15%" %in% stf.options){
   
@@ -568,6 +586,7 @@ if("tacro" %in% stf.options){
 
 #-------------------------------------------------------------------------------
 # 7g) Fmsy option
+# Note: it is important to have a catch assumption for the B fleet in FcY and CtY
 #-------------------------------------------------------------------------------
 
 if("fmsy" %in% stf.options){
