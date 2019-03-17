@@ -18,6 +18,7 @@ output:
 # 21/02/2019 Adapted from North Sea herring code 2018
 # 27/02/2019 Including new msy development package; standardized collapsefleet 
 # 08/03/2019 Version for inclusion in the workshop report
+# 16/03/2019 HAWG 2019; use old reference point for Blim
 # ==============================================================================
 
 require("knitr")
@@ -158,11 +159,12 @@ include_graphics("srrwkwest2015.jpg")
 
 # 1. Get estimate of Blim and calculate Bpa for the full time series
 
-FIT1      <- eqsr_fit(STK,nsamp=nsamp, models = "Segreg", rshift=rshift)
-Blim      <- round(FIT1$sr.det$b/1e4)*1e4  
+# FIT1      <- eqsr_fit(STK,nsamp=nsamp, models = "Segreg", rshift=rshift)
+# Blim      <- round(FIT1$sr.det$b/1e4)*1e4  
+Blim      <- 250000  
 
 # plot
-eqsr_plot(FIT1,n=2e4, ggPlot=FALSE)
+# eqsr_plot(FIT1,n=2e4, ggPlot=FALSE)
 
 # Now calculate the uncertainty in SSB in terminal year. 
 # We need the sd that belongs to log(ssb) to calculate Bpa
@@ -180,11 +182,12 @@ Bpa       <- ceiling(Bpa/1e4)*1e4  # rounding up
 
 # 1. Get estimate of Blim and calculate Bpa for the short time series
 
-FIT1s      <- eqsr_fit(STKs,nsamp=nsamp, models = "Segreg", rshift=rshift)
-Blims      <- round(FIT1s$sr.det$b/1e4)*1e4  
+# FIT1s      <- eqsr_fit(STKs,nsamp=nsamp, models = "Segreg", rshift=rshift)
+# Blims      <- round(FIT1s$sr.det$b/1e4)*1e4  
+Blims      <- 250000  
 
 # plot
-eqsr_plot(FIT1s,n=2e4, ggPlot=FALSE)
+# eqsr_plot(FIT1s,n=2e4, ggPlot=FALSE)
 
 # Now calculate the uncertainty in SSB in terminal year. 
 # We need the sd that belongs to log(ssb) to calculate Bpa
