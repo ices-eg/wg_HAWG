@@ -1,10 +1,11 @@
 #-------------------------------------------------------------------------------
 # Code to do the multifleet short term forecast for North Sea Herring
 #
-# By: Benoit Berges
-# WMR
-# 12/03/2019
-# 
+# By: Benoit Berges (WMR)
+#
+# 12/03/2019 Rearranging previous code (Benoit Berges)
+# 17/03/2019 Small modifications to calculating uptake and split (3 year averages)
+# 18/03/2019 Checking code and adding additional comments (Martin Pastoors) 
 # 
 #-------------------------------------------------------------------------------
 
@@ -21,7 +22,8 @@ require(msm)         # install.packages("msm")
 #   load mf and sf objects and stf functions
 #-------------------------------------------------------------------------------
 
-path <- "C:/git/wg_HAWG/NSAS/"
+#path <- "C:/git/wg_HAWG/NSAS/"
+path <- "D:/GIT/wg_HAWG/NSAS/"
 
 try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
@@ -31,30 +33,39 @@ outPath       <- file.path(".","stf/results/")
 functionPath  <- file.path(".","stf/functions/")
 scriptPath    <- file.path(".","stf/side_script/")
 
-load(file=file.path(output.dir,"NSH_HAWG2019_sf.RData"))
-load(file=file.path(output.dir,"NSH_HAWG2019_mf.RData"))
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_mf.Rdata")
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
+# load(file=file.path(output.dir,"NSH_HAWG2019_sf.RData"))
+# load(file=file.path(output.dir,"NSH_HAWG2019_mf.RData"))
 
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))
 source(file.path(functionPath,"rescaleF.r"))
+
 # fmsyAR function
 source(file.path(functionPath,"fmsyAR_fun.r"))
 source(file.path(functionPath,"find.FCAR.r"))
+
 # MP functions
 source(file.path(functionPath,"find.FAB_HCRA.r"))
 source(file.path(functionPath,"find.FAB_HCRB.r"))
-source(file.path(functionPath,"CATCH2sel.r"))
-source(file.path(functionPath,"MP_fun.r"))
+source(file.path(functionPath,"CATCH2sel.r"))     # Find F that matches a certain catch
+source(file.path(functionPath,"MP_fun.r"))        # Management plan function
+
 # no fishing function
 source(file.path(functionPath,"nf_fun.r"))
+
 # TAC scaling functions
 source(file.path(functionPath,"TAC_scaling_fun.r"))
+
 # F scaling functions
 source(file.path(functionPath,"F_scaling_fun.r"))
 source(file.path(functionPath,"find.FC.r"))
+
 # B scaling function
 source(file.path(functionPath,"B_scaling_fun.r"))
 source(file.path(functionPath,"find.BC.r"))
+
 # auxiliary
 source(file.path(functionPath,"harvestCatch.r"))
 source(file.path(functionPath,"writeSTF.out.r"))
@@ -74,8 +85,10 @@ stfFileName <- paste0('NSAS_stf_multi_scalor_',ImY)
 
 # slots copied from last year of assessment
 yrs1        <- list("m.spwn","harvest.spwn","stock.wt")
+
 # slots copied as mean of last 3 years of assessment
 yrs3        <- list("mat")
+
 # slots copied as mean of last 5 years of assessment
 yrs5        <- list("m")
 
@@ -146,9 +159,11 @@ TAC_var                   <- list(Ctransfer = NA,
 # Note: split in table are the percentage of WBSS in the total catch. Split for NSAS is 1-split
 splitTab            <- read.table(file.path(dataPath,'TAC_var','NSAS_split.csv'),sep = ",",header=T) # historical C fleet WBSS/NSAS split (Henrik Mosegaard)
 rownames(splitTab)  <- splitTab[,1]
+
 # C split as average over the last 3 years
 TAC_var$Csplit      <- mean(1-splitTab[ac((an(DtY)-2):an(DtY)),'C'])    # Proportion NSAS in C fleet catch; 3 year average 
 TAC_var$Dsplit      <- mean(1-splitTab[ac((an(DtY)-2):an(DtY)),'D'])    # Proportion NSAS in C fleet catch; 3 year average 
+
 # proportion WBSS caught in North Sea. use hard value from HAWG2018. Need to ask Norbert for historical values
 TAC_var$WBSS_NSAS   <- splitTab[DtY,'WBSS_NSAS']
 
@@ -166,10 +181,11 @@ TAC_var$Buptake         <- mean(uptakeTab[ac((an(DtY)-2):an(DtY)),'B'])   # Upta
 TAC_var$Duptake         <- mean(uptakeTab[ac((an(DtY)-2):an(DtY)),'D'])   # Uptake of the Dfleet as 3 year average
 
 ############## TAC for the different fleets in the intermediate year ##############
-# TAC A is TACNSA
-# TAC B is TACNSB
-# TAC C is TAC3aC
-# TAC D is TAC3aD
+# TAC A is TACNSA; HER/4AB. + HER/4CXB7D 
+# TAC B is TACNSB; HER/2A47DX 
+# TAC C is TAC3aC; HER/03A.
+# TAC D is TAC3aD; HER/03A-BC
+
 # TAC information for 2018
 TACTab            <- read.table(file.path(dataPath,'TAC_var','NSAS_TAC.csv'),sep = ",",header=T)
 rownames(TACTab)  <- TACTab[,1]
@@ -208,9 +224,10 @@ CATCH[,ImY,'C'] <- TACS[,ImY,'C']*(1-TAC_var$Ctransfer)*TAC_var$Csplit
 CATCH[,ImY,'D'] <- TACS[,ImY,'D']*TAC_var$Dsplit*TAC_var$Duptake
 
 # assume same catch as ImY
+# This is an alternative to the previous procedure of estimating the B-fleet catch from the Management plan
 CATCH[,c(FcY,CtY),'B'] <- CATCH[,ImY,'B']
 
-# 0 catch in FcY and CtY
+# zero catch in FcY and CtY for C and D fleet, because of zero catch advice for WBSS herring
 if(TACTab[FcY,'C'] == 0){
   CATCH[,c(FcY,CtY),'C'] <- 0.1
 }else{
