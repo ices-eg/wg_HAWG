@@ -492,10 +492,11 @@ if("fmsyAR" %in% stf.options){
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
   stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- res$ssb.FcY
   stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
+  
+  # Save the stf object to an RData file for later comparison
+  save(res, file=file.path(outPath, paste0("STF",ImY," FmsyAR.RData")))
 }
 
-# Save the stf object to an RData file for later comparison
-save(res, file=file.path(outPath, paste0("STF",ImY," FmsyAR.RData")))
 
 #-------------------------------------------------------------------------------
 # 7c) No fishing
