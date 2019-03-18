@@ -21,7 +21,8 @@ require(msm)         # install.packages("msm")
 #   load mf and sf objects and stf functions
 #-------------------------------------------------------------------------------
 
-path <- "C:/git/wg_HAWG/NSAS/"
+#path <- "C:/git/wg_HAWG/NSAS/"
+path <- "D:/GIT/wg_HAWG/NSAS/"
 
 try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
@@ -37,24 +38,31 @@ load(file=file.path(output.dir,"NSH_HAWG2018_mf.RData"))
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))
 source(file.path(functionPath,"rescaleF.r"))
+
 # fmsyAR function
 source(file.path(functionPath,"fmsyAR_fun.r"))
 source(file.path(functionPath,"find.FCAR.r"))
+
 # MP functions
 source(file.path(functionPath,"find.FAB_HCRA.r"))
 source(file.path(functionPath,"find.FAB_HCRB.r"))
-source(file.path(functionPath,"CATCH2sel.r"))
-source(file.path(functionPath,"MP_fun.r"))
+source(file.path(functionPath,"CATCH2sel.r"))     # Find F that matches a certain catch
+source(file.path(functionPath,"MP_fun.r"))        # Management plan function
+
 # no fishing function
 source(file.path(functionPath,"nf_fun.r"))
+
 # TAC scaling functions
 source(file.path(functionPath,"TAC_scaling_fun.r"))
+
 # F scaling functions
 source(file.path(functionPath,"F_scaling_fun.r"))
 source(file.path(functionPath,"find.FC.r"))
+
 # B scaling function
 source(file.path(functionPath,"B_scaling_fun.r"))
 source(file.path(functionPath,"find.BC.r"))
+
 # auxiliary
 source(file.path(functionPath,"harvestCatch.r"))
 source(file.path(functionPath,"writeSTF.out.r"))
@@ -86,11 +94,11 @@ dms$unit    <- c("A","B","C","D")
 f01         <- ac(0:1)
 f26         <- ac(2:6)
 
-stf.options <- c("mpA",
-                 "mpAC",
-                 "mpAD",
-                 "mpB",
-                 "tacro",
+stf.options <- c("mpA",      # HCR A (F declines linearly to zero below Btrigger)
+                 "mpAC",     # HCR A with TAC constraint
+                 "mpAD",     # HCR A with TAC constraint and banking and borrowing
+                 "mpB",      # HCR B (F declines below Btrigger and is kept at fixed value below Blim)
+                 "tacro",    # TAC Roll Over (same as in ImY)
                  "-15%",
                  "+15%",
                  "fmsy",
@@ -127,7 +135,7 @@ referencePoints <- list(Fmsy = 0.26,
                         Bpa  = 900000,
                         MSYBtrigger = 1400000,
                         Ftarget  = 0, # set this for individual cases
-                        F01   = 0.05,
+                        F01   = 0.05, # target F for juveniles ages 0 and 1 WR
                         Btrigger = 0) # set this for individual cases
 
 ############## TAC variables in the ImY ##############
@@ -144,9 +152,11 @@ TAC_var                   <- list(Ctransfer = NA,
 # Note: split in table are the percentage of WBSS in the total catch. Split for NSAS is 1-split
 splitTab            <- read.table(file.path(dataPath,'TAC_var','NSAS_split.csv'),sep = ",",header=T) # historical C fleet WBSS/NSAS split (Henrik Mosegaard)
 rownames(splitTab)  <- splitTab[,1]
+
 # C split as average over the last 3 years
 TAC_var$Csplit      <- mean(1-splitTab[ac((an(DtY)-2):an(DtY)),'C'])    # Proportion NSAS in C fleet catch; 3 year average 
 TAC_var$Dsplit      <- mean(1-splitTab[ac((an(DtY)-2):an(DtY)),'D'])    # Proportion NSAS in C fleet catch; 3 year average 
+
 # proportion WBSS caught in North Sea. use hard value from HAWG2018. Need to ask Norbert for historical values
 TAC_var$WBSS_NSAS   <- splitTab[ImY,'WBSS_NSAS']
 
@@ -164,10 +174,11 @@ TAC_var$Buptake         <- uptakeTab[DtY,'B']   # Uptake of Bfleet TAC in the te
 TAC_var$Duptake         <- uptakeTab[DtY,'D']   # Uptake of the Dfleet TAC in the terminal year
 
 ############## TAC for the different fleets in the intermediate year ##############
-# TAC A is TACNSA
-# TAC B is TACNSB
-# TAC C is TAC3aC
-# TAC D is TAC3aD
+# TAC A is TACNSA; HER/4AB. + HER/4CXB7D 
+# TAC B is TACNSB; HER/2A47DX 
+# TAC C is TAC3aC; HER/03A.
+# TAC D is TAC3aD; HER/03A-BC
+
 # TAC information for 2018
 TACTab            <- read.table(file.path(dataPath,'TAC_var','NSAS_TAC.csv'),sep = ",",header=T)
 rownames(TACTab)  <- TACTab[,1]
@@ -178,7 +189,8 @@ TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D
 
 TACS[,ImY,'A'] <- TACTab[ImY,'A']
 TACS[,ImY,'B'] <- TACTab[ImY,'B']
-20522.38
+# 20522.38
+
 # assume 0 TAC for FcY and CtY for C and D fleet
 TACS[,ImY,'C'] <- TACTab[ImY,'C']
 TACS[,c(FcY,CtY),'C'] <- 0.1
@@ -307,6 +319,7 @@ for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),FcY,i]   <- (stf@stock.n[,ImY
 for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.n[,ImY,1]*exp(-unitSums(stf@harvest[,ImY])-stf@m[,ImY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
 
 
+# Temporary fix to set the B fleet CATCH; This was previously derived from the management plan option. 
 CATCH[,c(FcY,CtY),'B'] <- 20522.38
 
 #-------------------------------------------------------------------------------
@@ -777,6 +790,5 @@ write(stf.out.file,file=file.path(outPath,"stf_mf.out"))
 write.csv(stf.table[,,2],
           file=file.path(outPath,"stf.table_mf_deterministic_old_way.csv"))
 #           file=paste0("stf.table_mf_","deterministic.csv"))
-
 
 
