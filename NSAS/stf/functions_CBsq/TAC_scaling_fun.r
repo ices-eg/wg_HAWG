@@ -18,10 +18,10 @@ TAC_scaling_fun <- function(  stf,
   CATCH[,FcY,"A"]       <- TACS[,ImY,"A"]*rat + TAC_var$Ctransfer*TACS[,FcY,'C']
   #CATCH[,FcY,"B"]       <- CATCH[,ImY,"B"]
   
-  stf@harvest[,FcY]         <- fleet.harvest2(stk=stf,
-                                              iYr=FcY,
-                                              CATCH=CATCH[,FcY])
-  
+  stf@harvest[,FcY]         <- fleet.harvest(stk=stf,
+                                             iYr=FcY,
+                                             CATCH=CATCH[,FcY])
+
     # compute catches
   for(i in dms$unit){
     stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
@@ -30,7 +30,6 @@ TAC_scaling_fun <- function(  stf,
     stf@landings[,FcY,i]    <- computeLandings(stf[,FcY,i])
   }
   
-
   # compute SSB
   ssb.FcY           <- quantSums( stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
                                     exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]) *
@@ -44,7 +43,7 @@ TAC_scaling_fun <- function(  stf,
   CATCH[,CtY,"A"]            <- TACS[,ImY,"A"]*rat*rat + TAC_var$Ctransfer*TACS[,FcY,'C']
   CATCH[,CtY,"B"]            <- CATCH[,ImY,"B"]
 
-  stf@harvest[,CtY]                                           <- fleet.harvest2(stk=stf,
+  stf@harvest[,CtY]                                           <- fleet.harvest(stk=stf,
                                                                                iYr=CtY,
                                                                                CATCH=CATCH[,CtY])
   ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*

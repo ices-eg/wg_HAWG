@@ -59,6 +59,8 @@ MP_fun <- function( stf,
   
   # resulting F for A and B fleets
   stf@harvest[,FcY,c("A","B")]         <- sweep(stf@harvest[,FcY,c("A","B")],c(3,6),res,"*")
+  #print(stf@harvest[,FcY,c("A","B")])
+  
   
   # case of 0 catch, set F of C and D fleet to 0
   if(CATCH[,FcY,'C'] < 1){

@@ -1,43 +1,47 @@
-fmsyAR_fun <- function( stf,
-                        FuY,
-                        CATCH,
-                        RECS,
-                        referencePoints,
-                        f01,
-                        f26){
+F_scaling_fun <- function(  stf,
+                            FuY,
+                            CATCH,
+                            RECS,
+                            referencePoints,
+                            Ftar,
+                            f01,
+                            f26){
   
   ImY <- FuY[1]
   FcY <- FuY[2]
   CtY <- FuY[3]
   
-  dms <- dimnames(stf@m)
+  #reset harvest for all fleets
+  stf@harvest[,FcY]           <- stf@harvest[,ImY]
   
-  # Set selectivity as in ImY
-  stf@harvest[,FcY]   <- stf@harvest[,ImY]
+  dms <- dimnames(stf@m)
   
   # optimize F scalors against FA and true TAC C and D
   res <- matrix(NA,
-                nrow=3,
+                nrow=4,
                 ncol=dims(stf)$iter,
-                dimnames=list(c('A','C','D'),
+                dimnames=list(dimnames(stf@stock.n)$unit,
                               dimnames(stf@stock.n)$iter))
   
-  for(iTer in 1:dims(stf)$iter)      #stf.=stf,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,3), # A scalor = B scalor, therefore 3 scalors
-                                          lower=rep(1e-8,3),
+  # assume same F in FcY for the B fleet
+  for(iTer in 1:dims(stf)$iter)
+    res[,iTer]                  <- nls.lm(par=rep(1,4),
+                                          lower=rep(1e-08,4),
                                           upper=NULL,
-                                          find.FCAR,
+                                          find.FC,
                                           stk=iter(stf[,FcY],iTer),
+                                          F26tar=Ftar,
                                           CATCH=iter(CATCH[,FcY],iTer),
-                                          refs.=referencePoints,
-                                          f01,
-                                          f26,
-                                          jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),
-                                                                  maxiter = 1000))$par
+                                          f26=f26,
+                                          f01=f01,
+                                          jac=NULL,
+                                          nls.lm.control(ftol = (.Machine$double.eps),maxiter = 1000))$par
+  
+  # create 4 element vector. Scalor A fleet = scalor B fleet
+  #res <- cbind(res[1,],res[1,],res[2,],res[3,])
   
   # update F with scalors
-  stf@harvest[,FcY,c('A','C','D')]  <- sweep(stf@harvest[,FcY,c('A','C','D')],
-                                             c(3,6),res,"*")
+  stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   
   # update catch and landings for each fleet in Forecast year
   for(i in dms$unit){

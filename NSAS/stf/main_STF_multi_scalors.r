@@ -22,8 +22,8 @@ require(msm)         # install.packages("msm")
 #   load mf and sf objects and stf functions
 #-------------------------------------------------------------------------------
 
-#path <- "C:/git/wg_HAWG/NSAS/"
-path <- "D:/GIT/wg_HAWG/NSAS/"
+path <- "C:/git/wg_HAWG/NSAS/"
+#path <- "D:/GIT/wg_HAWG/NSAS/"
 
 try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
@@ -33,10 +33,10 @@ outPath       <- file.path(".","stf/results/")
 functionPath  <- file.path(".","stf/functions/")
 scriptPath    <- file.path(".","stf/side_script/")
 
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_mf.Rdata")
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
-# load(file=file.path(output.dir,"NSH_HAWG2019_sf.RData"))
-# load(file=file.path(output.dir,"NSH_HAWG2019_mf.RData"))
+#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_mf.Rdata")
+#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
+load(file=file.path(output.dir,"NSH_HAWG2019_sf.RData"))
+load(file=file.path(output.dir,"NSH_HAWG2019_mf.RData"))
 
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))
@@ -57,6 +57,8 @@ source(file.path(functionPath,"nf_fun.r"))
 
 # TAC scaling functions
 source(file.path(functionPath,"TAC_scaling_fun.r"))
+source(file.path(functionPath,"fleet.harvest2.r")) # only used for having FBsq
+source(file.path(functionPath,"rescaleF_FBsq.r")) # only used for having FBsq
 
 # F scaling functions
 source(file.path(functionPath,"F_scaling_fun.r"))
@@ -81,7 +83,7 @@ CtY   <- ac(an(DtY)+3)             #Continuation year
 CtY1  <- ac(an(DtY)+4)
 FuY   <- c(ImY,FcY,CtY)            #Future years
 
-stfFileName <- paste0('NSAS_stf_multi_scalor_',ImY)
+stfFileName <- paste0('NSAS_stf_',ImY)
 
 # slots copied from last year of assessment
 yrs1        <- list("m.spwn","harvest.spwn","stock.wt")
@@ -371,7 +373,9 @@ if("mpA" %in% stf.options){
                 referencePoints,
                 managementRule,
                 TAC_var,
-                TACS)
+                TACS,
+                f01,
+                f26)
   
   ##fill stf.table
   stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
@@ -419,7 +423,9 @@ if("mpB" %in% stf.options){
                 referencePoints,
                 managementRule,
                 TAC_var,
-                TACS)
+                TACS,
+                f01,
+                f26)
   
   ##fill stf.table
   stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
@@ -455,7 +461,9 @@ if("mpAC" %in% stf.options){
                 referencePoints,
                 managementRule,
                 TAC_var,
-                TACS)
+                TACS,
+                f01,
+                f26)
   
   ##fill stf.table
   stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
@@ -491,7 +499,9 @@ if("mpAD" %in% stf.options){
                 referencePoints,
                 managementRule,
                 TAC_var,
-                TACS)
+                TACS,
+                f01,
+                f26)
   
   ##fill stf.table
   stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
@@ -515,7 +525,9 @@ if("fmsyAR" %in% stf.options){
                     FuY,
                     CATCH,
                     RECS,
-                    referencePoints)
+                    referencePoints,
+                    f01,
+                    f26)
   
   # update stf table
   stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
@@ -644,7 +656,9 @@ if("fmsy" %in% stf.options){
                         CATCH,
                         RECS,
                         referencePoints,
-                        referencePoints$Fmsy)
+                        referencePoints$Fmsy,
+                        f01,
+                        f26)
   
   stf.table[caseName,"Fbar 2-6 A",]                                 <- quantMeans(res$stf@harvest[f26,FcY,"A"])
   stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
@@ -668,7 +682,9 @@ if("fpa" %in% stf.options){
                         CATCH,
                         RECS,
                         referencePoints,
-                        referencePoints$Fpa)
+                        referencePoints$Fpa,
+                        f01,
+                        f26)
   
   stf.table[caseName,"Fbar 2-6 A",]                                 <- quantMeans(res$stf@harvest[f26,FcY,"A"])
   stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
@@ -692,7 +708,9 @@ if("flim" %in% stf.options){
                         CATCH,
                         RECS,
                         referencePoints,
-                        referencePoints$Flim)
+                        referencePoints$Flim,
+                        f01,
+                        f26)
   
   stf.table[caseName,"Fbar 2-6 A",]                                 <- quantMeans(res$stf@harvest[f26,FcY,"A"])
   stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
@@ -716,7 +734,9 @@ if("fsq" %in% stf.options){
                         CATCH,
                         RECS,
                         referencePoints,
-                        referencePoints$Fsq)
+                        referencePoints$Fsq,
+                        f01,
+                        f26)
   
   stf.table[caseName,"Fbar 2-6 A",]                                 <- quantMeans(res$stf@harvest[f26,FcY,"A"])
   stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))

@@ -4,8 +4,8 @@ find.FAB_HCRB  <- function(mult,
                            f01=f01,
                            f26=f26){
   
-  f01 <- ac(0:1)
-  f26 <- ac(2:6)
+  #f01 <- ac(0:1)
+  #f26 <- ac(2:6)
   
   Fs      <- sweep(stk.@harvest@.Data,3,mult,"*")
   Ns      <- stk.@stock.n@.Data[,,1,,,]
@@ -31,6 +31,7 @@ find.FAB_HCRB  <- function(mult,
     Ftarget <- mpPoints.$Ftarget
     F01Tar  <- mpPoints.$F01
   }
+
   fbarB     <- mean(bigF[f01])
   fbarA     <- mean(bigF[f26])
   

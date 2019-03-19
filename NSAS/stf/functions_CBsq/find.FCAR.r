@@ -23,7 +23,7 @@ find.FCAR <- function(mult,
   #mult                <- c(mult[1],mult[1],mult[2],mult[3])
   
   # compute harvest
-  stk.@harvest[,,c('A','C','D')]        <- sweep(stk.@harvest[,,c('A','C','D')],3,mult,"*")
+  stk.@harvest        <- sweep(stk.@harvest,3,mult,"*")
   
   # compute total mortality
   stkZ                <- unitSums(stk.@harvest) + stk.@m[,,1]
@@ -50,9 +50,9 @@ find.FCAR <- function(mult,
   
   # compute residual between ftar and F26 (on total F)
   resA <- sqrt(((F26_bar-F26tar)/F26tar)^2)
-  #resB <- sqrt(((stk.@catch[,,'B']-CATCH[,,'B'])/CATCH[,,'B'])^2)
+  resB <- sqrt(((stk.@catch[,,'B']-CATCH[,,'B'])/CATCH[,,'B'])^2)
   resC <- sqrt(((stk.@catch[,,'C']-CATCH[,,'C'])/CATCH[,,'C'])^2)
   resD <- sqrt(((stk.@catch[,,'D']-CATCH[,,'D'])/CATCH[,,'D'])^2)
 
-  res                 <- c(resA,resC,resD)
+  res                 <- c(resA,resB,resC,resD)
   return(res)}

@@ -6,8 +6,10 @@ find.BC <- function(mult,
                     Btarget=Btarget,
                     CATCH=CATCH){
   
+  #mult                <- c(mult[1],mult[1],mult[2],mult[3])
+  
   # scale F
-  stk.@harvest[,,c('A','C','D')]        <- sweep(stk.@harvest[,,c('A','C','D')],3,mult,"*")
+  stk.@harvest        <- sweep(stk.@harvest,3,mult,"*")
   
   # calculate Z
   stkZ                <- unitSums(stk.@harvest) + stk.@m[,,1]
