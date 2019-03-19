@@ -1,6 +1,6 @@
-Proportion of M before Spawning (14/Mar/2017 22:48)
+Proportion of M before Spawning 
 1 8
-1957 2017
+1957 2018
 1 9
 3
 0.67
