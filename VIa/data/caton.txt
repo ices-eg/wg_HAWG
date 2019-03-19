@@ -1,6 +1,6 @@
-Landings (tonnes) (14/Mar/2017 22:47)
+Landings (tonnes) (combined)
 1 1
-1957 2017
+1957 2018
 1 9
 5
 48508
@@ -64,3 +64,4 @@ Landings (tonnes) (14/Mar/2017 22:47)
 19885
 6937
 6424
+6098
