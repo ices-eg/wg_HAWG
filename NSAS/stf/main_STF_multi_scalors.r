@@ -29,7 +29,7 @@ try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
 
 dataPath      <- file.path(".","data/")
-outPath       <- file.path(".","stf/results/")
+outPath       <- file.path(".","results/stf")
 functionPath  <- file.path(".","stf/functions/")
 scriptPath    <- file.path(".","stf/side_script/")
 
@@ -90,7 +90,7 @@ FuY   <- c(ImY,FcY,CtY)            #Future years
 # flag on TAC assumptions for C and D fleet. 
 # If true, one takes TAC from WBSS advice
 # If false, one takes TAC from ImY
-TAC_CD_advice   <- FALSE
+TAC_CD_advice   <- TRUE
 
 if(TAC_CD_advice == TRUE){
   stfFileName   <- paste0('NSAS_stf_',ImY)
