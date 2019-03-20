@@ -86,11 +86,11 @@ fig_prefix_single<-"big_xxx-00-00.00.00_" #Prefix for figures at www.stockassess
 
 ![Figure 3.6.4.23 WESTERN BALTIC SPRING SPAWNING HERRING. BUBBLE PLOT. Standardized one-observation-ahead residuals from multi fleet run.](`r paste(dir_fig_sam,fig_prefix,"014.png",sep="")`)
 
-![Figure 3.6.4.24 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years from multi fleet run. Spawning stock biomass.](`r paste(dir_fig_sam,fig_prefix,"027.png",sep="")`)
+![Figure 3.6.4.24 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years from multi fleet run. Spawning stock biomass.](`r paste(dir_fig_sam,fig_prefix,"031.png",sep="")`)
 
-![Figure 3.6.4.25 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years from multi fleet run. Average fishing mortality for the shown age range.](`r paste(dir_fig_sam,fig_prefix,"028.png",sep="")`)
+![Figure 3.6.4.25 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years from multi fleet run. Average fishing mortality for the shown age range.](`r paste(dir_fig_sam,fig_prefix,"032.png",sep="")`)
 
-![Figure 3.6.4.26 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years from multi fleet run. Recruitment.](`r paste(dir_fig_sam,fig_prefix,"029.png",sep="")`)
+![Figure 3.6.4.26 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years from multi fleet run. Recruitment.](`r paste(dir_fig_sam,fig_prefix,"033.png",sep="")`)
 
-![Figure 3.6.4.27 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years from multi fleet run. Catch.](`r paste(dir_fig_sam,fig_prefix,"030.png",sep="")`)
+![Figure 3.6.4.27 WESTERN BALTIC SPRING SPAWNING HERRING. Analytical retrospective pattern over 5 years from multi fleet run. Catch.](`r paste(dir_fig_sam,fig_prefix,"034.png",sep="")`)
 
