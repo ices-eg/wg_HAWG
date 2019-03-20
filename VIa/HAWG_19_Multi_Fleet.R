@@ -68,7 +68,7 @@ MSH@stock.wt[1,ac(2013)]   <- yearMeans(MSH@stock.wt[1,ac(2010:2012)])
 MSH@stock.wt[1,ac(2015)]   <- yearMeans(MSH@stock.wt[1,ac(2010:2014)])
 MSH@stock.wt[1,ac(2016)]   <- yearMeans(MSH@stock.wt[1,ac(2010:2015)])
 MSH@stock.wt[1,ac(2017)]   <- yearMeans(MSH@stock.wt[1,ac(2010:2016)])
-MSH@stock.wt[1,ac(2018)]    <- yearMeans(MSH@stock.wt[1,ac(2010:2017)])
+
 units(MSH)[1:17]            <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
 
 #Set fbar
