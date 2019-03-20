@@ -1,0 +1,498 @@
+---
+date: "12 April 2018"
+output:
+  word_document:
+    reference_docx: input_tables_SAM_word_style.docx
+---
+
+```{r info, include=F}
+
+#This script reads in data and tables directly from www.stockassessment.org
+
+#Remember to save the reference docx for styles the same place at the rmd script - input_tables_SAM_word_style.docx
+
+#To insure that each table starts on a new pages Page Break are inserted - these need to be deleted from the final document
+
+```
+
+
+```{r setup, include=FALSE}
+library(pander)
+library(stockassessment)
+library(htmltab)
+library(dplyr)
+library(reshape2)
+
+options(scipen=999)
+
+#Multi fleet 
+dir_dat<-"https://www.stockassessment.org/datadisk/stockassessment/userdirs/user278/WBSS_HAWG_2019/data/" #input data directly from www.stockassessment.org
+dir_fig<-"https://www.stockassessment.org/datadisk/stockassessment/userdirs/user278/WBSS_HAWG_2019/res/" #tables directly from www.stockassessment.org
+fig_prefix<-"xxx-00-00.00.00_" #Prefix for figures at www.stockassessment.org
+
+panderOptions("table.style", "rmarkdown")
+panderOptions("table.alignment.default", "right")
+panderOptions('table.split.table', Inf)
+
+knitr::opts_chunk$set(echo=F, warning=F, message=F)
+
+```
+
+**TABLE 3.7.1 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Input table for short term predictions
+
+To be done by Tomas
+
+**TABLE 3.7.2 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. MSY approach (zero catch)
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX1a.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX1b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.3 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. MAP 2018: F=FMSY(0.31)*SSBy-1/MSYBtrigger
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX2a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX2b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.4 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. MAP 2018: F=FMSYlower(0.216)*SSBy-1/MSYBtrigger
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX3a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX3b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.5 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. MAP 2018: F=FMSYupper(0.379)*SSBy-1/MSYBtrigger
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX4a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX4b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.6 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. F=FMSY=0.31
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX5a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX5b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.7 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. F=Fpa=0.35
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX6a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX6b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.8 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. F=Flim=0.45
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX7a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX7b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.9 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. F=F2019=0.238
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX8a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX8b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.10 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. F=0
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX9a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX9b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.11 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. F=0.05
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX10a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX10b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.12 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. F=0.1
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX11a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX11b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.13 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. F=0.15
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX12a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX12b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.7.14 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Forecast table. Constant 2019 TAC
+```{r}
+t37<-t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX13a.html", sep=""), skip.rows=2)))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+pander(t37.1, include.rownames=FALSE, include.header=T)
+```
+
+\
+Per fleet
+```{r}
+t37<-data.frame(t(data.frame(htmltab(paste(dir_fig, fig_prefix, "tabX13b.html", sep=""), skip.rows=2))))
+
+colnames(t37)<-unlist(t37[1, ], use.names = FALSE)
+
+t37.1<-t37[-1,]
+row.names(t37.1)<-NULL
+
+#Rename fleets 
+t37.2<- mutate(t37.1, Year= ifelse(substr(Year,1,2)=="F1", paste("Fleet A :",substr(Year,4,11)), 
+                                   ifelse(substr(Year,1,2)=="F2", paste("Fleet C :",substr(Year,4,11)), 
+                                          ifelse(substr(Year,1,2)=="F3", paste("Fleet D :",substr(Year,4,11)),
+                                                 ifelse(substr(Year,1,2)=="F4", paste("Fleet F :",substr(Year,4,11)), NA)))))
+
+pander(t37.2, include.rownames=FALSE, include.header=T)
+```

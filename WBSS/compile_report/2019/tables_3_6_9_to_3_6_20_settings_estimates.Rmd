@@ -1,0 +1,332 @@
+---
+date: "19 Marts 2019"
+output:
+  word_document:
+    reference_docx: input_tables_SAM_word_style.docx
+---
+
+```{r info, include=F}
+
+#This script reads in data and tables directly from www.stockassessment.org
+
+#Remember to save the reference docx for styles the same place at the rmd script - input_tables_SAM_word_style.docx
+
+#To insure that each table starts on a new pages Page Break are inserted - these need to be deleted from the final document
+
+```
+
+
+```{r setup, include=FALSE}
+library(pander)
+library(stockassessment)
+library(htmltab)
+library(dplyr)
+library(reshape2)
+
+options(scipen=999)
+
+load("Q:/mynd/Assessement_discard_and_the_like/WG/HAWG/WBSS_SC/wg_HAWG/WBSS/compile_data/model/data/2019/download/multi_fleet/model.RData")
+
+#Multi fleet 
+dir_dat<-"https://www.stockassessment.org/datadisk/stockassessment/userdirs/user278/WBSS_HAWG_2019/data/" #input data directly from www.stockassessment.org
+dir_fig<-"https://www.stockassessment.org/datadisk/stockassessment/userdirs/user278/WBSS_HAWG_2019/res/" #tables directly from www.stockassessment.org
+fig_prefix<-"xxx-00-00.00.00_" #Prefix for figures at www.stockassessment.org
+
+panderOptions("table.style", "rmarkdown")
+panderOptions("table.alignment.default", "right")
+panderOptions('table.split.table', Inf)
+
+knitr::opts_chunk$set(echo=F, warning=F, message=F)
+
+```
+
+
+**TABLE 3.6.9.a - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Single fleet*\
+SAM configuration settings
+
+copy directly from SAM
+
+##### Page Break
+
+**TABLE 3.6.9.b- WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+SAM configuration settings
+
+copy directly from SAM
+
+##### Page Break
+
+**TABLE 3.6.10 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet & single fleet*\
+SAM software version
+
+copy directly from SAM
+
+##### Page Break
+
+**TABLE 3.6.11 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Stock summary - Estimated recruitment (1000), spawning stock biomass (SSB) (tons), average fishing mortality and total stock biomass (TSB) (tons).
+
+```{r, echo=F, warning=F}
+
+t3612<-data.frame(htmltab(paste(dir_fig, fig_prefix, "tab1.html", sep=""), skip.rows=2))
+
+colnames(t3612)<-unlist(t3612[1, ], use.names = FALSE)
+
+t3612.2<-t3612[-1,]
+row.names(t3612.2)<-NULL
+
+pander(t3612.2, include.rownames=FALSE, include.header=T)
+```
+
+##### Page Break
+
+**TABLE 3.6.12.a - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Estimated fishing mortality - Sum all fleets
+
+```{r, echo=F, warning=F}
+
+t3613<-data.frame(htmltab(paste(dir_fig, fig_prefix, "tab2.html", sep=""), skip.rows=2))
+
+colnames(t3613)<-unlist(t3613[1, ], use.names = FALSE)
+
+t3613.2<-t3613[-1,]
+row.names(t3613.2)<-NULL
+
+pander(t3613.2, include.rownames=FALSE, include.header=T, label=names(t2612.1))
+```
+
+##### Page Break
+
+**TABLE 3.6.12.b - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Estimated fishing mortality - Fleet A
+
+```{r, echo=F, warning=F}
+
+t3613<-data.frame(htmltab(paste(dir_fig, fig_prefix, "tab2a.html", sep=""), skip.rows=2))
+
+colnames(t3613)<-unlist(t3613[1, ], use.names = FALSE)
+
+t3613.2<-t3613[-1,]
+row.names(t3613.2)<-NULL
+
+pander(t3613.2, include.rownames=FALSE, include.header=T, label=names(t2612.1))
+```
+
+##### Page Break
+
+**TABLE 3.6.12.c - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Estimated fishing mortality - Fleet C
+
+```{r, echo=F, warning=F}
+t3613<-data.frame(htmltab(paste(dir_fig, fig_prefix, "tab2c.html", sep=""), skip.rows=2))
+
+colnames(t3613)<-unlist(t3613[1, ], use.names = FALSE)
+
+t3613.2<-t3613[-1,]
+row.names(t3613.2)<-NULL
+
+pander(t3613.2, include.rownames=FALSE, include.header=T, label=names(t2612.1))
+```
+
+##### Page Break
+
+**TABLE 3.6.12.d - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Estimated fishing mortality - Fleet D
+
+```{r, echo=F, warning=F}
+t3613<-data.frame(htmltab(paste(dir_fig, fig_prefix, "tab2d.html", sep=""), skip.rows=2))
+
+colnames(t3613)<-unlist(t3613[1, ], use.names = FALSE)
+
+t3613.2<-t3613[-1,]
+row.names(t3613.2)<-NULL
+
+pander(t3613.2, include.rownames=FALSE, include.header=T, label=names(t2612.1))
+```
+
+##### Page Break
+
+**TABLE 3.6.12.e - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Estimated fishing mortality - Fleet F
+
+```{r, echo=F, warning=F}
+t3613<-data.frame(htmltab(paste(dir_fig, fig_prefix, "tab2f.html", sep=""), skip.rows=2))
+
+colnames(t3613)<-unlist(t3613[1, ], use.names = FALSE)
+
+t3613.2<-t3613[-1,]
+row.names(t3613.2)<-NULL
+
+pander(t3613.2, include.rownames=FALSE, include.header=T, label=names(t2612.1))
+```
+
+##### Page Break
+
+**TABLE 3.6.13 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Estimated stock numbers at age
+```{r, echo=F, warning=F}
+
+t3613<-data.frame(htmltab(paste(dir_fig, fig_prefix, "tab3.html", sep=""), skip.rows=2))
+
+colnames(t3613)<-unlist(t3613[1, ], use.names = FALSE)
+
+t3613.2<-t3613[-1,]
+row.names(t3613.2)<-NULL
+
+pander(t3613.2, include.rownames=FALSE, include.header=T, label=names(t2612.1))
+```
+
+##### Page Break
+
+**TABLE 3.6.14.a - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Predicted catch in numbers - Sum fleets
+
+```{r}
+a<-round(caytable(fit,fleet=1), digits=2)
+c<-round(caytable(fit,fleet=2), digits=2)
+d<-round(caytable(fit,fleet=3), digits=2)
+f<-round(caytable(fit,fleet=4), digits=2)
+
+all<-a+c+d+f
+all<-format(all, digits=2, nsmall=2)
+pander(all)
+
+```
+
+##### Page Break
+
+**TABLE 3.6.14.b - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Predicted catch in numbers - Fleet A
+```{r}
+a<-round(caytable(fit,fleet=1), digits=2)
+a<-format(a, digits=2, nsmall=2)
+pander(a)
+```
+
+##### Page Break
+
+**TABLE 3.6.14.c - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Predicted catch in numbers - Fleet C
+```{r}
+c<-round(caytable(fit,fleet=2), digits=2)
+c<-format(c, digits=2, nsmall=2)
+pander(c)
+```
+
+##### Page Break
+
+**TABLE 3.6.14.d - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Predicted catch in numbers - Fleet D
+
+```{r}
+d<-round(caytable(fit,fleet=3), digits=2)
+d<-format(d, digits=2, nsmall=2)
+pander(d)
+```
+
+##### Page Break
+
+**TABLE 3.6.14.e - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Multi fleet*\
+Predicted catch in numbers - Fleet F
+
+```{r}
+f<-round(caytable(fit,fleet=4), digits=2)
+f<-format(f, digits=2, nsmall=2)
+pander(f)
+```
+
+##### Page Break
+
+```{r}
+load(url("https://www.stockassessment.org/datadisk/stockassessment/userdirs/user278/WBSS_HAWG_2019/run/residuals.RData"))
+res<-data.frame(cbind(RES$year, attr(RES,"fleetNames")[RES$fleet], RES$age, RES$residual), stringsAsFactors=F)
+colnames(res)<-c("year", "fleet", "wr", "res")
+```
+
+
+**TABLE 3.6.15 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Single fleet*\
+Survey standardized residual - HERAS
+```{r}
+resH<-subset(res, fleet=="HERAS")
+resH$res<-round(as.numeric(resH$res), digits=8)
+resH1<-dcast(resH, fleet+year~wr)
+resH1<-format(resH1, digits=8, nsmall=8)
+pander(resH1)
+```
+
+
+##### Page Break
+
+**TABLE 3.6.16 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Single fleet*\
+Survey standardized residual - GerAS
+```{r}
+resH<-subset(res, fleet=="GerAS")
+resH$res<-round(as.numeric(resH$res), digits=8)
+resH1<-dcast(resH, fleet+year~wr)
+resH1<-format(resH1, digits=8, nsmall=8)
+pander(resH1)
+```
+
+##### Page Break
+
+**TABLE 3.6.17 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Single fleet*\
+Survey standardized residual - N20
+```{r}
+resH<-subset(res, fleet=="N20")
+resH$res<-round(as.numeric(resH$res), digits=8)
+resH1<-dcast(resH, fleet+year~wr)
+resH1<-format(resH1, digits=8, nsmall=8)
+pander(resH1)
+```
+
+##### Page Break
+
+**TABLE 3.6.18 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Single fleet*\
+Survey standardized residual - IBTS+BITS-Q1
+```{r}
+resH<-subset(res, fleet=="IBTS+BITS-Q1")
+resH$res<-round(as.numeric(resH$res), digits=8)
+resH1<-dcast(resH, fleet+year~wr)
+resH1<-format(resH1, digits=8, nsmall=8)
+pander(resH1)
+```
+
+##### Page Break
+
+**TABLE 3.6.19 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Single fleet*\
+Survey standardized residual - IBTS+BITS-Q3.4
+```{r}
+resH<-subset(res, fleet=="IBTS+BITS-Q3.4")
+resH$res<-round(as.numeric(resH$res), digits=8)
+resH1<-dcast(resH, fleet+year~wr)
+resH1<-format(resH1, digits=8, nsmall=8)
+pander(resH1)
+```
+
+##### Page Break
+
+**TABLE 3.6.20 - WESTERN BALTIC SPRING SPAWNING HERRING**\
+*Single fleet*\
+Fit parameters
+```{r}
+partable(fit)
+```
