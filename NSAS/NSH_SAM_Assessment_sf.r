@@ -39,7 +39,7 @@ source(file.path("../_Common/HAWG_Common_module.r"))
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-NSH.sam               <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+NSH.sam               <- FLSAM(NSH,NSH.tun,NSH.ctrl,starting.values=initSam)
 NSH@stock.n           <- NSH.sam@stock.n[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
 NSH@harvest           <- NSH.sam@harvest[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
 

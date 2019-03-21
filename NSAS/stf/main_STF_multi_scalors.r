@@ -29,7 +29,7 @@ try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
 
 dataPath      <- file.path(".","data/")
-outPath       <- file.path(".","stf/results/")
+outPath       <- file.path(".","results/stf")
 functionPath  <- file.path(".","stf/functions/")
 scriptPath    <- file.path(".","stf/side_script/")
 
@@ -45,6 +45,9 @@ source(file.path(functionPath,"rescaleF.r"))
 # fmsyAR function
 source(file.path(functionPath,"fmsyAR_fun.r"))
 source(file.path(functionPath,"find.FCAR.r"))
+
+source(file.path(functionPath,"fmsyAR_fun_transfer.r"))
+source(file.path(functionPath,"fmsyAR_fun_no_transfer.r"))
 
 # MP functions
 source(file.path(functionPath,"find.FAB_HCRA.r"))
@@ -83,7 +86,17 @@ CtY   <- ac(an(DtY)+3)             #Continuation year
 CtY1  <- ac(an(DtY)+4)
 FuY   <- c(ImY,FcY,CtY)            #Future years
 
-stfFileName <- paste0('NSAS_stf_',ImY)
+
+# flag on TAC assumptions for C and D fleet. 
+# If true, one takes TAC from WBSS advice
+# If false, one takes TAC from ImY
+TAC_CD_advice   <- TRUE
+
+if(TAC_CD_advice == TRUE){
+  stfFileName   <- paste0('NSAS_stf_',ImY)
+}else{
+  stfFileName   <- paste0('NSAS_stf_CD_TAC_sq_',ImY)
+}
 
 # slots copied from last year of assessment
 yrs1        <- list("m.spwn","harvest.spwn","stock.wt")
@@ -103,22 +116,24 @@ dms$unit    <- c("A","B","C","D")
 f01         <- ac(0:1)
 f26         <- ac(2:6)
 
-stf.options <- c("mpA",
+stf.options <- c("fmsyAR",
+                 'fmsyAR_transfer',
+                 'fmsyAR_no_transfer',
+                 "mpA",
                  "mpAC",
                  "mpAD",
                  "mpB",
+                 "fmsy",
+                 "nf",
                  "tacro",
                  "-15%",
                  "+15%",
-                 "fmsy",
-                 "fmsyAR",
+                 "fsq",
                  "fpa",
                  "flim",
-                 "fsq",
                  "bpa",
                  "blim",
-                 "MSYBtrigger",
-                 "nf")
+                 "MSYBtrigger")
 # mp    =according to management plan,
 # +/-%  =TAC change,
 # nf    =no fishing,
@@ -204,16 +219,23 @@ TACS[,ImY,'D'] <- TACTab[ImY,'D']
 
 # TAC C and D fleet in FcY and CtY
 # set TAC to 0.1 if 0 catch (for optimizers)
-if(TACTab[FcY,'C'] == 0){
-  TACS[,c(FcY,CtY),'C'] <- 0.1
-}else{
+if(TAC_CD_advice == TRUE){
   TACS[,c(FcY,CtY),'C'] <- TACTab[FcY,'C']
-}
-# D fleet
-if(TACTab[FcY,'D'] == 0){
-  TACS[,c(FcY,CtY),'D'] <- 0.1
+  if(TACS[,FcY,'C'] == 0){
+    TACS[,c(FcY,CtY),'C'] <- 0.1
+  }
 }else{
+  TACS[,c(FcY,CtY),'C'] <- TACTab[ImY,'C']
+}
+
+# D fleet
+if(TAC_CD_advice == TRUE){
   TACS[,c(FcY,CtY),'D'] <- TACTab[FcY,'D']
+  if(TACS[,FcY,'D'] == 0){
+    TACS[,c(FcY,CtY),'D'] <- 0.1
+  }
+}else{
+  TACS[,c(FcY,CtY),'D'] <- TACTab[ImY,'D']
 }
 
 ############## realised catches ##############
@@ -230,12 +252,12 @@ CATCH[,ImY,'D'] <- TACS[,ImY,'D']*TAC_var$Dsplit*TAC_var$Duptake
 CATCH[,c(FcY,CtY),'B'] <- CATCH[,ImY,'B']
 
 # zero catch in FcY and CtY for C and D fleet, because of zero catch advice for WBSS herring
-if(TACTab[FcY,'C'] == 0){
+if(TACS[,FcY,'C'] == 0.1){
   CATCH[,c(FcY,CtY),'C'] <- 0.1
 }else{
   CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*(1-TAC_var$Ctransfer)*TAC_var$Csplit
 }
-if(TACTab[FcY,'D'] == 0){
+if(TACS[,FcY,'D'] == 0.1){
   CATCH[,c(FcY,CtY),'D'] <- 0.1
 }else{
   CATCH[,c(FcY,CtY),'D'] <- TACS[,FcY,'D']*TAC_var$Dsplit*TAC_var$Duptake
@@ -350,6 +372,66 @@ for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),FcY,i]   <- (stf@stock.n[,ImY
 for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.n[,ImY,1]*exp(-unitSums(stf@harvest[,ImY])-stf@m[,ImY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
 
 #-------------------------------------------------------------------------------
+# 7a) Fmsy Advice rule transfer
+#-------------------------------------------------------------------------------
+
+if("fmsyAR_transfer" %in% stf.options){
+  
+  caseName <- "fmsyAR_transfer"
+  
+  res <- fmsyAR_fun_transfer( stf,
+                              FuY,
+                              TACS,
+                              RECS,
+                              referencePoints,
+                              TAC_var,
+                              f01,
+                              f26)
+  
+  # update stf table
+  stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
+  stf.table[caseName,"Fbar 2-6",]                                    <- quantMeans(unitSums(res$stf@harvest[f26,FcY,]))
+  stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
+  stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- res$ssb.FcY
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
+  
+  # Save the stf object to an RData file for later comparison
+}
+
+#-------------------------------------------------------------------------------
+# 7a) Fmsy Advice rule transfer
+#-------------------------------------------------------------------------------
+#fmsyAR_fun_no_transfer.r
+if("fmsyAR_no_transfer" %in% stf.options){
+  
+  caseName <- "fmsyAR_no_transfer"
+  
+  source(file.path(functionPath,"fmsyAR_fun_no_transfer.r"))
+  
+  res <- fmsyAR_fun_no_transfer(  stf,
+                                  FuY,
+                                  TACS,
+                                  RECS,
+                                  referencePoints,
+                                  TAC_var,
+                                  f01,
+                                  f26)
+  
+  # update stf table
+  stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
+  stf.table[caseName,"Fbar 2-6",]                                    <- quantMeans(unitSums(res$stf@harvest[f26,FcY,]))
+  stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
+  stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- res$ssb.FcY
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
+  
+  # Save the stf object to an RData file for later comparison
+}
+
+#-------------------------------------------------------------------------------
 # 7b) Management plan HCR A
 # HCR A without IAV
 # Note: no implementation for BB
@@ -409,8 +491,8 @@ if("mpB" %in% stf.options){
   
   caseName <- "mpB"
   
-  referencePoints$Ftarget   <- 0.24
-  referencePoints$Btrigger  <- 1.5E06
+  referencePoints$Ftarget   <- 0.22
+  referencePoints$Btrigger  <- 1.4E06
   
   managementRule  <- list(HCR = 'B',
                           TACIAV= NULL, #"A",c("A","B"),"NULL"
@@ -539,7 +621,7 @@ if("fmsyAR" %in% stf.options){
   stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
   
   # Save the stf object to an RData file for later comparison
-  save(res, file=file.path(outPath, paste0("STF",ImY," FmsyAR.RData")))
+  save(res, file=file.path(outPath, paste0(stfFileName,"_FmsyAR.RData")))
 }
 
 #-------------------------------------------------------------------------------

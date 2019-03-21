@@ -13,7 +13,7 @@ try(setwd(path),silent=TRUE)
 dataIBTSQ1 <- file.path(".","data/IBTS index/IBTSQ1")
 dataIBTSQ3 <- file.path(".","data/IBTS index/IBTSQ3")
 
-resPath <- file.path(".","data/IBTS index/comp_results")
+resPath <- file.path(".","data/IBTS index")
 
 outputName <- 'IBTS_comparison_'
 
