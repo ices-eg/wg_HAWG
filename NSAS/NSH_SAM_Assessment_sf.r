@@ -63,3 +63,21 @@ save(NSH,
      file=file.path(output.dir,
                     paste0(assessment_name,'_retro.Rdata')))
 
+
+### ============================================================================
+### produce stock replicates
+### ============================================================================
+
+nits            <- 100
+NSH.sim         <- simulate(NSH,NSH.tun,NSH.ctrl,n=nits)
+NSH.sam         <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+NSH@stock.n     <- NSH.sam@stock.n[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
+NSH@harvest     <- NSH.sam@harvest[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
+
+save(NSH,
+     NSH.tun,
+     NSH.ctrl,
+     NSH.sam,
+     NSH.sim,
+     file=file.path(output.dir,
+                    paste0(assessment_name,'_replicates.Rdata')))

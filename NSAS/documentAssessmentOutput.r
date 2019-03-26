@@ -11,18 +11,24 @@
 # load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2018/wkherring/2014 Meeting docs/06. Data/NSAS/SAM/NSH_final.RData")
 
 # HAWG 2018
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/05. Data/NSAS/NSH_HAWG2018_sf.Rdata")
+#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/05. Data/NSAS/NSH_HAWG2018_sf.Rdata")
 
 
-path <- "D:/git/wg_HAWG/NSAS/"
+path <- "C:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=FALSE)
 
-output.dir          <-  file.path(".","results/")        # figures directory
+output.dir          <-  file.path(".","results/assessment_output/")        # figures directory
+res.dir          <-  file.path(".","results/")        # figures directory
 
 old.opt           <- options("width","scipen")
 options("width"=75,"scipen"=1000)
 
+load(paste(res.dir,"/NSH_HAWG2019_sf.RData",sep=""))
+
 sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
+
+#sam.out.file      <- FLSAM.out(NSHs3$residual,NSH.tun,NSH3f.sam,format="TABLE 2.7.1.%i North Sea Herring.")
+
 write(sam.out.file,file=paste(output.dir,"/sam.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 #
@@ -47,9 +53,17 @@ stockSummaryTable[nrow(stockSummaryTable),"Spawing biomass (tonnes) Mean"] <- 22
 stockSummaryTable[nrow(stockSummaryTable),2:4] <- c(rec(NSH.sam)$value[nrow(rec(NSH.sam))],rec(NSH.sam)$lbnd[nrow(rec(NSH.sam))],rec(NSH.sam)$ubnd[nrow(rec(NSH.sam))])
 
 # write.csv(stockSummaryTable,file=file.path(output.dir,paste(name(NSH),"stockSummaryTable.csv",sep="_")))
-write.csv(stockSummaryTable,file=file.path("NSAS","stockSummaryTable.csv"))
+#write.csv(stockSummaryTable,file=file.path("NSAS","stockSummaryTable.csv"))
+write.csv(stockSummaryTable,file=file.path(output.dir,"stockSummaryTable.csv"))
+
+
 
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 
 
+load(paste(res.dir,"/NSH_HAWG2019_sf_retro.RData",sep=""))
+
+SSB_mr  <- mean(mohns.rho(NSH.retro,span=7,ref.year=2018,type="ssb")$rho)
+fbar_mr <- mean(mohns.rho(NSH.retro,span=7,ref.year=2018,type="fbar")$rho)
+rec_mr  <- mean(mohns.rho(NSH.retro,span=7,ref.year=2018,type="rec")$rho)

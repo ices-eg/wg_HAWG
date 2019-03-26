@@ -10,12 +10,13 @@ path <- "C:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
 dataDir           <-  file.path(".","data/")        # figures directory
-output.dir        <-  file.path(".","results/")        # figures directory
+resPath           <-  file.path(".","results/")        # figures directory
+output.dir        <-  file.path(".","results/plots_singlefleet")        # figures directory
 assessment_name_multifleet <- "HAWG2019_multifleet"
 assessment_name_singlefleet <- "HAWG2019_singlefleet"
 
 
-load(paste(output.dir,"/NSH_HAWG2019_sf_retro.RData",sep=""))
+load(paste(resPath,"/NSH_HAWG2019_sf_retro.RData",sep=""))
 
 #load(paste(output.dir,"/NSH_HAWG2019_sf.RData",sep=""))
 
@@ -30,8 +31,8 @@ PNG <- ifelse(PDF,F,T)
 ### ============================================================================
 
 # figure - residual plots at each age for each time series
-if(PDF) pdf(file.path(output.dir,'plots_diagnostics',paste(assessment_name_singlefleet,".pdf",sep="")))
-if(PNG) png(file.path(output.dir,'plots_diagnostics',paste(assessment_name_singlefleet,"_1_fit_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
+if(PDF) pdf(file.path(output.dir,paste(assessment_name_singlefleet,".pdf",sep="")))
+if(PNG) png(file.path(output.dir,paste(assessment_name_singlefleet,"_1_fit_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
 residual.diagnostics(NSH.sam)
 
 # figure - assessment result, spawning stock biomass, fishing mortality, recruitment
@@ -121,10 +122,10 @@ timeseries <- function(stck.,slot.,...){
                 par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25))))}
 
 # figure - times series for each age, stock
-print(timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt"))
+timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt")
 
 # figure - times series for each age, catches
-print(timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt"))
+timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt")
 
 # figure - times series for each age, harvest
 print(timeseries(window(NSH,2000,range(NSH)["maxyear"]),slot="harvest"))
@@ -212,7 +213,7 @@ overlayTimeseries <- function(x,nyrs,ages){
 
 # figure - plot of time series: IBTS0, IBTSQ1 by cohort.
 for(iAge in range(NSH)["min"]:range(NSH)["max"]){
-  print(overlayTimeseries(FLQuants(IBTS0=NSH.tun[["IBTS0"]]@index,HERAS=NSH.tun[["HERAS"]]@index,IBTSQ3=NSH.tun[["IBTS-Q3"]]@index,IBTSQ1=NSH.tun[["IBTS-Q1"]]@index),nyrs=20,ages=iAge))
+  overlayTimeseries(FLQuants(IBTS0=NSH.tun[["IBTS0"]]@index,HERAS=NSH.tun[["HERAS"]]@index,IBTSQ3=NSH.tun[["IBTS-Q3"]]@index,IBTSQ1=NSH.tun[["IBTS-Q1"]]@index),nyrs=20,ages=iAge)
 }
 
 # figure - catch number at age
@@ -652,6 +653,10 @@ residual.diagnostics(NSH.sam)
 
 # figure - residual plots at each age for each time series
 #residual.diagnostics(NSH3f.sam)
+
+
+load(paste(output.dir,"/NSH_HAWG2019_mf.RData",sep=""))
+load(paste(output.dir,"/NSH_HAWG2019_sf.RData",sep=""))
 
 
 windows()

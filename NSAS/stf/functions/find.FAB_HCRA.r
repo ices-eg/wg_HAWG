@@ -20,6 +20,7 @@ find.FAB_HCRA  <- function(mult,
   
   bigF              <- apply(Fs,1,sum)
   ssb               <- sum(Ns * Swghts * exp(-bigF*Hspwns - Ms*Mspwns) * Mats)
+  
   if(ssb <= mpPoints.$Btrigger){
     Ftarget <- mpPoints.$Ftarget*ssb/mpPoints.$Btrigger
     F01Tar  <- mpPoints.$F01*ssb/mpPoints.$Btrigger
