@@ -9,6 +9,8 @@
 
 rm(list=ls())
 
+library(FLCore)
+library(FLSAM)
 library(icesSAG)  # devtools::install_github("ices-tools-prod/icesSAG")
 library(tidyverse)
 
@@ -16,10 +18,10 @@ library(tidyverse)
 options(icesSAG.use_token = TRUE)
 
 # Load utils code
-source("../mptools/r/my_utils.r")
+# source("../_Common/get_dropbox.r")
 
 # Set dropbox folder
-advicedir <- paste(get_dropbox(), "/iAdvice", sep="")
+# advicedir <- paste(get_dropbox(), "/iAdvice", sep="")
 
 # Get the assessment data and convert to dataframe
 load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
@@ -58,7 +60,7 @@ info$Fpa                       <- 0.30
 info$FMSY                      <- 0.26
 info$Fage                      <- "2-6" 
 info$RecruitmentAge            <- 0
-info$CatchesCatchesUnits       <- "t"
+info$CatchesLandingsUnits      <- "t"
 info$RecruitmentDescription    <- "wr"
 info$RecruitmentUnits          <- "NE3" 
 info$FishingPressureDescription<- "F"
@@ -70,21 +72,24 @@ info$CustomSeriesName1         <- "model catch"
 info$CustomSeriesName2         <- "model catch low"
 info$CustomSeriesName3         <- "model catch high"
 info$CustomSeriesName4         <- "F0-1"
-info$CustomSeriesName5         <- "F7-8"
+info$CustomSeriesName5         <- "F2-6"
+info$CustomSeriesName6         <- "F7-8"
 info$CustomSeriesUnits1        <- "t"
 info$CustomSeriesUnits2        <- "t"
 info$CustomSeriesUnits3        <- "t"
 info$CustomSeriesUnits4        <- NA
 info$CustomSeriesUnits5        <- NA
+info$ModelName                 <- "SAM"
+info$ModelType                 <- "A"
 
 # Create the fish data
 fishdata                          <- stockFishdata(FiY:LaY)
 
 fishdata$Catches[1:nyrs]          <- an(STK@landings)[1:nyrs]
 
-fishdata$Low_Recruitment[1:nyrs]  <- rec(STK.sam)$lbnd[1:nyrs]
+fishdata$Low_Recruitment          <- rec(STK.sam)$lbnd
 fishdata$Recruitment              <- rec(STK.sam)$value
-fishdata$High_Recruitment[1:nyrs] <- rec(STK.sam)$ubnd[1:nyrs] 
+fishdata$High_Recruitment         <- rec(STK.sam)$ubnd 
 
 fishdata$Low_StockSize[1:nyrs]    <- ssb(STK.sam)$lbnd[1:nyrs]
 fishdata$StockSize                <- c(ssb(STK.sam)$value[1:nyrs], SSBint)
@@ -95,16 +100,38 @@ fishdata$TBiomass                 <- tsb(STK.sam)$value
 fishdata$High_TBiomass[1:nyrs]    <- tsb(STK.sam)$ubnd[1:nyrs]
 
 fishdata$Low_FishingPressure[1:nyrs] <- fbar(STK.sam)$lbnd[1:nyrs]
-fishdata$FishingPressure             <- fbar(STK.sam)$value
+fishdata$FishingPressure[1:nyrs]     <- fbar(STK.sam)$value[1:nyrs]
 fishdata$High_FishingPressure[1:nyrs]<- fbar(STK.sam)$ubnd[1:nyrs]
 
 fishdata$CustomSeries1[1:nyrs]    <- catch(STK.sam)$value[1:nyrs]
 fishdata$CustomSeries2[1:nyrs]    <- catch(STK.sam)$lbnd[1:nyrs]
 fishdata$CustomSeries3[1:nyrs]    <- catch(STK.sam)$ubnd[1:nyrs]
 
-fishdata$CustomSeries4[1:nyrs]    <- c(quantMeans(harvest(NSH.sam)[ac(0:1),]))[1:nyrs]
-fishdata$CustomSeries5[1:nyrs]    <- c(quantMeans(harvest(NSH.sam)[ac(7:8),]))[1:nyrs]
+fishdata$CustomSeries4[1:nyrs]    <- c(quantMeans(harvest(STK.sam)[ac(0:1),]))[1:nyrs]
+fishdata$CustomSeries5[1:nyrs]    <- c(quantMeans(harvest(STK.sam)[ac(2:6),]))[1:nyrs]
+fishdata$CustomSeries6[1:nyrs]    <- c(quantMeans(harvest(STK.sam)[ac(7:8),]))[1:nyrs]
 
 # upload to SAG
 key <- icesSAG::uploadStock(info, fishdata)
+
+# Get SAG settings
+# getSAGSettingsForAStock(assessmentKey=key) %>% View()
+
+# Add comment to SAG settings
+# setSAGSettingForAStock(assessmentKey=key, 
+#                        chartKey=0,
+#                        settingKey=21,
+#                        settingValue="My text for the comment field",
+#                        copyNextYear=FALSE) 
+
+# plot F's
+# fishdata %>% 
+#   dplyr::select(Year, FishingPressure, CustomSeries4, CustomSeries5) %>% 
+#   setNames(c("year", "F26", "F01", "F78")) %>% 
+#   gather(key=F, value=value, F26:F78) %>% 
+#   filter(year >= 1980) %>% 
+#   
+#   ggplot(aes(x=year, y=value, group=F)) +
+#   theme_bw() +
+#   geom_line(aes(colour=F), size=1)
 
