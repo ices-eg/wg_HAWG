@@ -1,27 +1,27 @@
+#R 3.0.0
+
+library(FLCore)
+library(FLAssess)
+library(FLash)
+library(FLSAM)
+
 ### ============================================================================
 ### Short term forecast
 ### ============================================================================
 ### ============================================================================
 ### Input data
 ###=============================================================================
-setwd("C:\\Work\\HAWG2019\\SAM\\results")
-load("ISH_assessment 2019.Rdata")
-
-my.path<-file.path("C:\\Users\\Matt Lundy\\Desktop\\UpdateAssessment\\SAM")
+setwd("C:\\Users\\Matt Lundy\\Documents\\GIT_HUB\\wg_HAWG\\IrishSea\\UpdateAssessment\\SAM\\Results")
+load("ISH_assessment 2020.Rdata")
+my.path<-file.path("C:","Users","Matt Lundy","Documents", "GIT_HUB", "wg_HAWG", "IrishSea","UpdateAssessment","SAM")
 output.dir              <- file.path(my.path,"results")
 data.source         <- file.path(my.path,"data")
-
-library(FLAssess)
-library(FLash)
-library(FLCore)
 
 #survivors
 dmns <- dims(ISH@stock.n)
 gm.recruitmentEstimate <- exp(mean(log(ISH@stock.n[1,as.character((ISH@range['maxyear']-11):(ISH@range['maxyear']-2)),,,,])))
 survivors <- FLQuant(c(gm.recruitmentEstimate,stock.n(ISH)[,ac(ISH@range['maxyear'])] * exp(-harvest(ISH[,ac(ISH@range['maxyear'])])-m(ISH[,ac(2015)]))),
                                dimnames=list(ages=dmns$min:(dmns$max+1),year=ISH@range['maxyear']+1,unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter))
-
-
 
 ## plusgroup
 survivors[ac(dmns$max),ac(ISH@range['maxyear']+1)] <- quantSums(survivors[ac(dmns$max:(dmns$max+1)),ac(ISH@range['maxyear']+1)])
@@ -60,14 +60,13 @@ survivors           <- FLQuant(c(gm.recs,stock.n(ISH)[,ac(ISH@range['maxyear'])]
 survivors[ac(dmns$max),ac(ISH@range['maxyear']+1)] <- quantSums(survivors[ac(dmns$max:(dmns$max+1)),ac(ISH@range['maxyear']+1)])
 survivors           <- survivors[ac(dmns$min:dmns$max),]
 
-
 #ISH.proj@stock.n[-1,ac(ImY)]  <- setPlusGroup(ISH@stock.n[,ac(TaY)] * exp(-ISH@harvest[,ac(TaY)] - ISH@m[,ac(TaY)]),7)
 
 ISH.proj@stock.n[,ac(ImY)]<-survivors
 ISH.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- gm.recs;
 
 #For 2017
-ImY.catch <- 6896;  
+ImY.catch <- 8064;  
 #2017 real advice year
 numFmsy <- 0.266;
 numFlim <- 0.397;

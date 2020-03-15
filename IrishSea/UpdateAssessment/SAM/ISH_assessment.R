@@ -1,15 +1,13 @@
+##R 3.2.0
 
 library(FLCore)
 library(FLSAM)
-library(FLEDA)
-library(FLAssess)
-library(FLash)
 
 
 rm(list=ls())
-
+#C:\Users\Matt Lundy\Documents\GIT_HUB\wg_HAWG\IrishSea\UpdateAssessment\SAM
 #- Set paths
-my.path<-file.path("C:","Users","Matt Lundy","Desktop","UpdateAssessment","SAM")
+my.path<-file.path("C:","Users","Matt Lundy","Documents", "GIT_HUB", "wg_HAWG", "IrishSea","UpdateAssessment","SAM")
 output.dir              <- file.path(my.path,"results")
 data.source         <- file.path(my.path,"data")    #Data source, not code or package source!!!
 
@@ -29,7 +27,7 @@ ISH.sam       <- FLSAM(ISH,ISH.tun,ISH.ctrl)
 ISH.sam       <- SAM2FLR(ctrl=ISH.ctrl,admb.stem="sam")
 
 #save results
-name(ISH.sam) <- "ISH_assessment 2019"
+name(ISH.sam) <- "ISH_assessment 2020"
 ISH@stock.n <- ISH.sam@stock.n
 ISH@harvest <- ISH.sam@harvest
 
