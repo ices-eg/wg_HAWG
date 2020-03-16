@@ -22,7 +22,7 @@ try(setwd(path),silent=TRUE)
 output.dir          <-  file.path(".","results//")              # result directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  # Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  7                                       # Number of years for which to run the retrospective
-assessment_name     <- 'NSH_HAWG2019_sf'
+assessment_name     <- 'NSH_HAWG2020_sf'
 
 ### ============================================================================
 ### imports
@@ -39,7 +39,7 @@ source(file.path("../_Common/HAWG_Common_module.r"))
 ### ============================================================================
 ### ============================================================================
 ### ============================================================================
-NSH.sam               <- FLSAM(NSH,NSH.tun,NSH.ctrl,starting.values=initSam)
+NSH.sam               <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 NSH@stock.n           <- NSH.sam@stock.n[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
 NSH@harvest           <- NSH.sam@harvest[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
 

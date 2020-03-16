@@ -408,8 +408,6 @@ if("fmsyAR_no_transfer" %in% stf.options){
   
   caseName <- "fmsyAR_no_transfer"
   
-  source(file.path(functionPath,"fmsyAR_fun_no_transfer.r"))
-  
   res <- fmsyAR_fun_no_transfer(  stf,
                                   FuY,
                                   TACS,
