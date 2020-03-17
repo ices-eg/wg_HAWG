@@ -13,5 +13,5 @@ FLT05: SSB acoustic (Catch: Unknown) (Effort: Unknown)
 2016   1    74.27573
 2017   1    41.6836
 2018   1    38.9738
-2019   1    41.1849
+2019   1    44.1849
  

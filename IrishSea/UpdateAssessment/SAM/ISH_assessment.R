@@ -37,7 +37,7 @@ obs.var(ISH.sam)
 plot(ISH.sam)
 ISH.sam@nlogl
 fbar(ISH.sam)$value
-
+ssb(ISH.sam)$value
 ##############
 ##############
 ##############
