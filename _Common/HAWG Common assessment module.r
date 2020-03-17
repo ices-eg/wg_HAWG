@@ -478,15 +478,28 @@ ref.pts <- function(stk,model.,factor.){
 an <- function(x){ return(as.numeric(x))}            
 
 # Plot time series of any slot in a stock or ica object (added 18-03-2010 by NTH)
+# timeseries <- function(stck.,slot.){
+#                 assign("stck.",stck.,envir=.GlobalEnv);assign("slot.",slot.,envir=.GlobalEnv);
+#                 print(xyplot(data~year,data=slot(stck.,slot.),
+#                 groups=age,
+#                 auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+#                 type="b",
+#                 xlab="Year",ylab=paste("Time series of",slot.,ifelse(units(slot(stck.,slot.))=="NA","",paste("(",units(slot(stck.,slot.)),")",sep=""))),
+#                 main=paste(stck.@name,"timeseries of",slot.),
+#                 par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25))))}
+
+# Updated to better show the age indicator
 timeseries <- function(stck.,slot.){
-                assign("stck.",stck.,envir=.GlobalEnv);assign("slot.",slot.,envir=.GlobalEnv);
-                print(xyplot(data~year,data=slot(stck.,slot.),
-                groups=age,
-                auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
-                type="b",
-                xlab="Year",ylab=paste("Time series of",slot.,ifelse(units(slot(stck.,slot.))=="NA","",paste("(",units(slot(stck.,slot.)),")",sep=""))),
-                main=paste(stck.@name,"timeseries of",slot.),
-                par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25))))}
+               assign("stck.",stck.,envir=.GlobalEnv);assign("slot.",slot.,envir=.GlobalEnv);
+               print(xyplot(data~year,data=slot(stck.,slot.),
+               groups=age,
+               auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+               type="b",
+               xlab="Year",ylab=paste("Time series of",slot.,ifelse(units(slot(stck.,slot.))=="NA","",paste("(",units(slot(stck.,slot.)),")",sep=""))),
+               main=paste(stck.@name,"timeseries of",slot.),
+               par.settings=list(superpose.symbol=list(
+                 pch=as.character(range(stck.)["min"]:range(stck.)["max"] %% 10),
+                 cex=1.25))))}
 
 #Anomaly plots - primarily oriented towards weight at age anomalies, but should work for other things too
 anom.plot <- function(x,...) {
