@@ -296,6 +296,7 @@ print(plot(NSH.tun[["IBTS-Q3"]],type="internal"))
 
 # retro stock trajectory
 print(plot(NSH.retro))
+# print(plot(NSH.retro,xlim=c(2010,2020)))
 
 # model parameters retrospective
 print(retroParams(NSH.retro))
