@@ -114,6 +114,26 @@ extreme.trim     <- c(0.01,0.99)
 Nrun             <- 200  #200
 rshift           <- 1               #for WR =1, for other = 0
 
+# temp: 2/3 rule based on HERAS
+# t1 <-quantSums(STK@stock.wt[1:9,ac(1991:2017)] * 
+#           STK@mat[1:9,ac(1991:2017)]* 
+#             STK.tun[["MS HERAS"]]@index)
+
+# temp: 2/3 rule based on assessment
+# t2 <- ssb(STK)
+
+# twothreesurvey <- mean(t[,ac(2016:2017)]) / mean(t[,ac(2013:2015)])
+# twothreessb <- mean(ssb(STK)[,ac(2016:2017)]) / mean(ssb(STK)[,ac(2013:2015)])
+
+# bind_rows(as.data.frame(t1, row.names=FALSE) %>% mutate(source="HERAS"),
+#           as.data.frame(t2, row.names=FALSE) %>% mutate(source="ASSESS") ) %>% 
+#   filter(year >= 1991) %>% 
+#   group_by(source) %>% 
+#   mutate(data2 = data/mean(data, na.rm=TRUE)) %>% 
+#   ggplot(aes(x=year,y=data2,group=source)) +
+#   theme_bw() +
+#   geom_line(aes(colour=source))
+
 
 ```
 
