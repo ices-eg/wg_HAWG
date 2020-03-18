@@ -82,7 +82,7 @@ extryrsfw       <- extryrs[which(extryrs > max(an(yrs)))]
 extryrsbw       <- extryrs[which(extryrs <= max(an(yrs)))]
 ages            <- dimnames(NSHM2@m)$age
 extrags         <- names(which(apply(M2,1,function(x){all(is.na(x))==T})==T))
-yrAver          <- 2
+yrAver          <- 3
 for(iYr in as.numeric(rev(extryrs))){
   for(iAge in ages[!ages%in%extrags]){
     if(iYr %in% extryrsbw){ 
