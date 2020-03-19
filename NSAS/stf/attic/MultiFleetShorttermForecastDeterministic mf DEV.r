@@ -1,4 +1,3 @@
-#-------------------------------------------------------------------------------
 # Code to do the multifleet short term forecast for North Sea Herring
 #
 # By: Niels Hintzen

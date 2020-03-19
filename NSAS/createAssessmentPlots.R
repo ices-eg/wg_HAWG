@@ -301,6 +301,7 @@ savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_27_IBTSQ3_internal.p
 
 # retro stock trajectory
 print(plot(NSH.retro))
+# print(plot(NSH.retro,xlim=c(2010,2020)))
 
 savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_28_retro_stock.png",sep = ""),type="png")
 
