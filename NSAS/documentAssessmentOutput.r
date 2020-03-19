@@ -23,7 +23,7 @@ res.dir          <-  file.path(".","results/")        # figures directory
 old.opt           <- options("width","scipen")
 options("width"=75,"scipen"=1000)
 
-load(paste(res.dir,"/NSH_HAWG2019_sf.RData",sep=""))
+load(paste(res.dir,"/NSH_HAWG2020_sf.RData",sep=""))
 
 sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
 

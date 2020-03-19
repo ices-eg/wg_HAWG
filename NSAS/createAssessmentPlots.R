@@ -4,6 +4,7 @@
 rm(list=ls())
 graphics.off()
 
+library(ggplot2)
 library(FLSAM)
 library(FLEDA)
 path <- "C:/git/wg_HAWG/NSAS/"
@@ -12,13 +13,12 @@ try(setwd(path),silent=TRUE)
 dataDir           <-  file.path(".","data/")        # figures directory
 resPath           <-  file.path(".","results/")        # figures directory
 output.dir        <-  file.path(".","results/plots_singlefleet")        # figures directory
-assessment_name_multifleet <- "HAWG2019_multifleet"
-assessment_name_singlefleet <- "HAWG2019_singlefleet"
+assessment_name_multifleet  <- "HAWG2020_multifleet"
+assessment_name_singlefleet <- "HAWG2020_singlefleet"
 
+source(file.path("../_Common/HAWG_Common_module.r")) # load general functions
 
-load(paste(resPath,"/NSH_HAWG2019_sf_retro.RData",sep=""))
-
-#load(paste(output.dir,"/NSH_HAWG2019_sf.RData",sep=""))
+#load(paste(resPath,"/NSH_HAWG2020_sf.RData",sep=""))
 
 PDF <- F
 PNG <- ifelse(PDF,F,T)
@@ -26,17 +26,27 @@ PNG <- ifelse(PDF,F,T)
 ### single fleet
 ### ============================================================================
 
+load(paste(resPath,"/NSH_HAWG2020_sf_retro.RData",sep=""))
+
 ### ============================================================================
 ### Model fit
 ### ============================================================================
 
 # figure - residual plots at each age for each time series
-if(PDF) pdf(file.path(output.dir,paste(assessment_name_singlefleet,".pdf",sep="")))
-if(PNG) png(file.path(output.dir,paste(assessment_name_singlefleet,"_1_fit_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
+#if(PDF) pdf(file.path(output.dir,paste(assessment_name_singlefleet,".pdf",sep="")))
+#if(PNG) png(file.path(output.dir,paste(assessment_name_singlefleet,"_1_fit_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
+
+png(file.path(output.dir,paste(assessment_name_singlefleet,"_1_fit_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
+
 residual.diagnostics(NSH.sam)
 
+dev.off()
+
+windows()
 # figure - assessment result, spawning stock biomass, fishing mortality, recruitment
-plot(NSH.sam,futureYrs=F)
+print(plot(NSH.sam,futureYrs=F))
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_2_stock_trajectory.png",sep = ""),type="png")
 
 # figure - catchabilities at age from HERAS
 catch <- catchabilities(NSH.sam)
@@ -45,6 +55,8 @@ print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
        type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
        subset=fleet %in% c("HERAS","IBTS-Q3"),
        main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_3_catchability_HERAS.png",sep = ""),type="png")
 
 # figure - variance by data source
 obv <- obs.var(NSH.sam)
@@ -55,10 +67,14 @@ bp <- barplot(obv$value,ylab="Observation Variance",
 axis(1,at=bp,labels=obv$str,las=3,lty=0,mgp=c(0,0,0))
 legend("topleft",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_4_observation_variance.png",sep = ""),type="png")
+
 # figure - variance vs uncertainty for each data source
 plot(obv$value,obv$CV,xlab="Observation variance",ylab="CV of estimate",log="x",
      pch=16,col=obv$fleet,main="Observation variance vs uncertainty")
 text(obv$value,obv$CV,obv$str,pos=4,cex=0.75,xpd=NA)
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_5_observation_variance_CV.png",sep = ""),type="png")
 
 # figure - fishing age selectivity per year
 sel.pat <- merge(f(NSH.sam),fbar(NSH.sam),
@@ -70,8 +86,12 @@ xyplot(sel ~ age|sprintf("%i's",floor((year)/5)*5),sel.pat,
        scale=list(alternating=FALSE),
        main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar")
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_6_fishing_selectivity.png",sep = ""),type="png")
+
 # figure - correlation matrix of model parameters
 print(cor.plot(NSH.sam))
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_7_SAM_prameter_correlation.png",sep = ""),type="png")
 
 # figure - catch residuals per year per age
 dat <- subset(residuals(NSH.sam),fleet=="catch unique")
@@ -81,13 +101,17 @@ print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by 
          panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=1*abs(lst$cex))
        }))
 
-# figure - acosutic index residuals per year per age
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_8_residuals_catches.png",sep = ""),type="png")
+
+# figure - IBTS-Q1 index residuals per year per age
 dat <- subset(residuals(NSH.sam),fleet=="IBTS-Q1")
 print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year IBTSQ1",
        panel=function(...){
          lst <- list(...)
          panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=1*abs(lst$cex))
        }))
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_9_residuals_IBTSQ1.png",sep = ""),type="png")
 
 # figure - acosutic index residuals per year per age
 dat <- subset(residuals(NSH.sam),fleet=="HERAS")
@@ -97,6 +121,8 @@ print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by 
                panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=1*abs(lst$cex))
              }))
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_10_residuals_HERAS.png",sep = ""),type="png")
+
 # figure - acosutic index residuals per year per age
 dat <- subset(residuals(NSH.sam),fleet=="IBTS-Q3")
 print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year IBTS-Q3",
@@ -105,51 +131,61 @@ print(xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by 
                panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=1*abs(lst$cex))
              }))
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_11_residuals_IBTSQ3.png",sep = ""),type="png")
+
 # process error in terms of N
 print(procerr.plot(NSH+NSH.sam,weight="stock.wt",type="n",rel=T))
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_12_process_error_N.png",sep = ""),type="png")
 
 # process error in terms of additional mortality
 print(procerr.plot(NSH+NSH.sam,weight="stock.wt",type="mort",rel=F))
 
-timeseries <- function(stck.,slot.,...){
-                assign("stck.",stck.,envir=.GlobalEnv);assign("slot.",slot.,envir=.GlobalEnv);
-                print(xyplot(data~year,data=slot(stck.,slot.),...,
-                groups=age,
-                auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
-                type="b",
-                xlab="Year",ylab=paste("Time series of",slot.,ifelse(units(slot(stck.,slot.))=="NA","",paste("(",units(slot(stck.,slot.)),")",sep=""))),
-                main=paste(stck.@name,"timeseries of",slot.),
-                par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25))))}
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_13_process_error_M.png",sep = ""),type="png")
 
 # figure - times series for each age, stock
 timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt")
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_14_ts_stock_weight.png",sep = ""),type="png")
+
 # figure - times series for each age, catches
 timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt")
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_15_ts_catch_weight.png",sep = ""),type="png")
 
 # figure - times series for each age, harvest
 print(timeseries(window(NSH,2000,range(NSH)["maxyear"]),slot="harvest"))
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_16_ts_harvest.png",sep = ""),type="png")
+
 # figure - times series for each age, maturity
 print(timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="mat"))
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_17_ts_mat.png",sep = ""),type="png")
 
 # figure - times series for each age, mortality
 print(timeseries(window(NSH,1947,range(NSH)["maxyear"]),slot="m"))
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_18_ts_M.png",sep = ""),type="png")
+
 ## figure - acoustic index at age
-source("../_Common/Stacked Area plot.r")
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[["HERAS"]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
-#figure - TACs and catches - !!!!!!!!!!!!!Need to update historic table !!!!!!!!!!!!!!!!!!!!!!
-TACs          <- read.csv(file.path(".","data","historic data","TAC-historic.csv"))
-TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("Agreed_A","Bycatch_B")],na.rm=T),each=2))
-catch         <- as.data.frame(NSH@catch[,ac(TACs$year[1:(length(TACs$year)-1)])]/1e3)
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_19_HERAS_prop.png",sep = ""),type="png")
+
+#figure - TACs and catches
+#TACs          <- read.csv(file.path(".","data","historic data","TAC-historic.csv"))
+TACs          <- read.csv(file.path(".","data","TAC_var","NSAS_TAC.csv"))
+TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("A","B")],na.rm=T),each=2))
+catch         <- as.data.frame(NSH@catch[,ac(TACs$year[1:(length(TACs$year)-1)])])#
 plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=1.2,cex.axis=1.1,font=2)
 rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
 lines(TAC.plot.dat,lwd=3)
 legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2),box.lty=0)
 box()
 title(main=paste(NSH@name,"Catch and TAC"))
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_20_TAC_catches.png",sep = ""),type="png")
 
 # weight in the stock by cohort
 west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,2000,range(NSH)["maxyear"])))
@@ -168,66 +204,27 @@ west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
                               })
 print(west.cohort.plot)
 
-#Overlay time series by cohort and align by cohort
-overlayTimeseries <- function(x,nyrs,ages){
-                      require(doBy)
-                      validObject(x)
-                      if(class(x)!="FLQuants") stop("Object is not an FLQuants")
-                      if(any(is.na(names(x))==T)) stop("Each FLQuant must have a name")
-                      require(reshape)
-                      lng   <- length(x)
-                      dmns  <- list()
-                      for(i in 1:lng)
-                        dmns[[i]] <- dimnames(x[[i]])
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_21_weight_stock_cohort.png",sep = ""),type="png")
 
-                      ags   <- unique(unlist(lapply(dmns,function(x){return(x$age)})))
-                      if("all" %in% ags){ x <- x[-which(ags == "all")]; dmns <- dmns[-which(ags == "all")]}
-                      lng   <- length(x);
-                      idx   <- lapply(dmns,function(x){any(x$age %in% ages)})
-                      if(length(idx)>0){
-                        x   <- x[unlist(idx)]; dmns <- dmns[unlist(idx)]}
-                      lng   <- length(x)
-                      yrs   <- range(unlist(lapply(x,function(y){dims(y)[c("minyear","maxyear")]})))
-
-                      stk   <- data.frame()
-                      for(i in 1:lng)
-                        stk   <- rbind(stk,cbind(as.data.frame(rescaler(trim(window(x[[i]],start=(max(an(yrs))-(nyrs-1)),end=max(an(yrs))),age=c(max(ages[1],dims(x[[i]])$min):min(rev(ages)[1],dims(x[[i]])$max))))),qname=names(x)[i]))
-                      stk$track <- stk$year - stk$age
-
-                      stk <- orderBy(~age+qname+track,data=stk)
-                      xyplot(data ~ track,data=stk,groups=qname,type="l",
-                             prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},xlab="Cohort",ylab="Standardized timeseries",
-                             auto.key=list(space="right",points=FALSE,lines=TRUE,type="l"),
-                             panel = panel.superpose,
-                             panel.groups = function(...) {
-                              res <- list(...)
-                              lng <- length(res$x)/nyrs
-                              for(i in 1:lng){
-                                panel.grid(v=-1,h=-1,lty=3)
-                                panel.xyplot(res$x[(nyrs*i-nyrs+1):(nyrs*i)],res$y[(nyrs*i-nyrs+1):(nyrs*i)],lty=i,type="l",col=res$col.line)
-                                panel.text(res$x[(nyrs*i-nyrs+1):(nyrs*i)],res$y[(nyrs*i-nyrs+1):(nyrs*i)],labels=stk$age[res$subscript[(nyrs*i-nyrs+1):(nyrs*i)]],col=res$col.line,cex=0.8)
-                              }
-                            },
-                            scales=list(alternating=1,y=list(relation="free",rot=0)))
-}
-
-# figure - plot of time series: IBTS0, IBTSQ1 by cohort.
+# figure - overlay survey time series for the different ages.
 for(iAge in range(NSH)["min"]:range(NSH)["max"]){
-  overlayTimeseries(FLQuants(IBTS0=NSH.tun[["IBTS0"]]@index,HERAS=NSH.tun[["HERAS"]]@index,IBTSQ3=NSH.tun[["IBTS-Q3"]]@index,IBTSQ1=NSH.tun[["IBTS-Q1"]]@index),nyrs=20,ages=iAge)
+  print(overlayTimeseries(FLQuants(IBTS0=NSH.tun[["IBTS0"]]@index,HERAS=NSH.tun[["HERAS"]]@index,IBTSQ3=NSH.tun[["IBTS-Q3"]]@index,IBTSQ1=NSH.tun[["IBTS-Q1"]]@index),nyrs=20,ages=iAge))
+  savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_22_survey_time_series_ages",iAge,".png",sep = ""),type="png")
 }
 
 # figure - catch number at age
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.n)),groups="age",main="Proportion of Catch numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_23_catch_N.png",sep = ""),type="png")
+
 # IBTS0/IBTSQ1 relationship
-IBTSQ1 <- read.table(paste(dataDir,"/IBTS index/IBTSQ1/Indices_2019-03-15 11_48_12.csv",sep=""), sep=",", header = TRUE) # read raw indices instead of standardized ones
-IBTSQ1 <- IBTSQ1[IBTSQ1$IndexArea == "NS_Her",]
+IBTSQ1      <- read.table(paste(dataDir,"/IBTS index/IBTSQ1/DATRAS_IBTSQ1.csv",sep=""), sep=",", header = TRUE) # read raw indices instead of standardized ones
+IBTSQ1      <- IBTSQ1[IBTSQ1$IndexArea == "NS_Her",]
 IBTSQ1$Year <- IBTSQ1$Year-1
 
 array_IBTSQ1 <- data.frame(cbind(IBTSQ1$Year, IBTSQ1$Age_1))
 names(array_IBTSQ1) <- c("year","data")
 
-#array_IBTSQ1  <- subset(as.data.frame(NSH.tun), cname == "IBTS-Q1" & slot == "index")
 array_IBTS0   <- subset(as.data.frame(NSH.tun), cname == "IBTS0" & slot == "index")
 array_IBTS0$year <- array_IBTS0$year-1
 
@@ -266,6 +263,8 @@ g<- ggplot(tabMarkers[1:dim(tabMarkers)[1]-1,], aes(x= IBTS0, y = IBTSQ1, label 
                 vjust = -0.3)
 print(g)
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_24_IBTS0_vs_IBTSQ1.png",sep = ""),type="png")
+
 # figure - fishing mortality vs SSB, management plan
 plot(x=c(0,0.8,1.4,2.6),
      y=c(0.1,0.1,0.26,0.26),
@@ -283,31 +282,47 @@ text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
 text(0.9,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
 text(1.4,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
 
-points(y=fbar(NSH[,ac(2005:2017)]), x=(ssb(NSH[,ac(2005:2017)])/1e6),pch=19)
-lines(y=fbar(NSH[,ac(2005:2017)]),  x=(ssb(NSH[,ac(2005:2017)])/1e6))
-text(y=fbar(NSH[,ac(2005:2017)]),   x=(ssb(NSH[,ac(2005:2017)])/1e6),labels=ac(2005:2017),pos=3,cex=0.7)
+points(y=fbar(NSH[,ac(2005:2018)]), x=(ssb(NSH[,ac(2005:2018)])/1e6),pch=19)
+lines(y=fbar(NSH[,ac(2005:2018)]),  x=(ssb(NSH[,ac(2005:2018)])/1e6))
+text(y=fbar(NSH[,ac(2005:2018)]),   x=(ssb(NSH[,ac(2005:2018)])/1e6),labels=ac(2005:2018),pos=3,cex=0.7)
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_25_F_vs_SSB.png",sep = ""),type="png")
 
 
 # internal consistency HERAS
 print(plot(NSH.tun[["HERAS"]],type="internal"))
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_26_HERAS_internal.png",sep = ""),type="png")
+
 # internal consistency IBTS-Q3
 print(plot(NSH.tun[["IBTS-Q3"]],type="internal"))
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_27_IBTSQ3_internal.png",sep = ""),type="png")
 
 # retro stock trajectory
 print(plot(NSH.retro))
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_28_retro_stock.png",sep = ""),type="png")
+
 # model parameters retrospective
 print(retroParams(NSH.retro))
 
-# stock trajectory retrospective
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_29_retro_params.png",sep = ""),type="png")
+
+# selectivity trajectory retrospective
 print(retroSelectivity(NSH.retro,2009:range(NSH)["maxyear"]))
 
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_30_retro_F.png",sep = ""),type="png")
+
 # component proportions
-comp.plot(NSH.sam)
+print(comp.plot(NSH.sam))
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_31_LAI_prop.png",sep = ""),type="png")
 
 # figure - otholith. Warning, this takes very long!
 otolith(NSH.sam,n=1000)
+
+savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_32_otolith.png",sep = ""),type="png")
 
 dev.off()
 
@@ -318,7 +333,7 @@ dev.off()
 ################################################################################
 
 #load("C:/git/wg_HAWG/NSAS/results/NSH_HAWG2018_mf.RData")
-load(paste(output.dir,"/NSH_HAWG2019_mf_retro.RData",sep=""))
+load(paste(output.dir,"/NSH_HAWG2020_mf_retro.RData",sep=""))
 
 if(PDF) pdf(file.path(output.dir,paste(assessment_name_multifleet,"_multifleet_diagnostics.pdf",sep="")))
 if(PNG) png(file.path(output.dir,paste(assessment_name_multifleet,"_multifleet_diagnostics_%02d.png",sep="")),units = "px", height=800,width=672, bg = "white")
