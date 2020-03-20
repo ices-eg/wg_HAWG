@@ -22,8 +22,8 @@ require(msm)         # install.packages("msm")
 #   load mf and sf objects and stf functions
 #-------------------------------------------------------------------------------
 
-path <- "C:/git/wg_HAWG/NSAS/"
-#path <- "D:/GIT/wg_HAWG/NSAS/"
+# path <- "C:/git/wg_HAWG/NSAS/"
+path <- "D:/GIT/wg_HAWG/NSAS/"
 
 try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
@@ -33,10 +33,10 @@ outPath       <- file.path(".","results/stf")
 functionPath  <- file.path(".","stf/functions/")
 scriptPath    <- file.path(".","stf/side_script/")
 
-#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_mf.Rdata")
-#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
-load(file=file.path(output.dir,"NSH_HAWG2020_sf.RData"))
-load(file=file.path(output.dir,"NSH_HAWG2020_mf.RData"))
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_mf.Rdata")
+# load(file=file.path(output.dir,"NSH_HAWG2020_sf.RData"))
+# load(file=file.path(output.dir,"NSH_HAWG2020_mf.RData"))
 
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))
@@ -203,7 +203,7 @@ TAC_var$Duptake         <- mean(uptakeTab[ac((an(DtY)-2):an(DtY)),'D'])   # Upta
 # TAC C is TAC3aC; HER/03A.
 # TAC D is TAC3aD; HER/03A-BC
 
-# TAC information for 2018
+# TAC information for current year
 TACTab            <- read.table(file.path(dataPath,'TAC_var','NSAS_TAC.csv'),sep = ",",header=T)
 rownames(TACTab)  <- TACTab[,1]
 
@@ -922,6 +922,5 @@ write(stf.out.file,file=file.path(outPath,paste0(stfFileName,'.out')))
 write.csv(stf.table[,,2],
           file=file.path(outPath,paste0(stfFileName,'.csv')))
 #           file=paste0("stf.table_mf_","deterministic.csv"))
-
 
 
