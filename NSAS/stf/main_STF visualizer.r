@@ -47,6 +47,10 @@ catchy1  <- as.data.frame(resy1@catch.n * resy1@catch.wt) %>% mutate(stf=ac(y1))
 catchy2  <- as.data.frame(resy2@catch.n * resy2@catch.wt) %>% mutate(stf=ac(y2))
 catchy3  <- as.data.frame(resy3@catch.n * resy3@catch.wt) %>% mutate(stf=ac(y3))
 
+harvesty1  <- as.data.frame(resy1@harvest) %>% mutate(stf=ac(y1))
+harvesty2  <- as.data.frame(resy2@harvest) %>% mutate(stf=ac(y2))
+harvesty3  <- as.data.frame(resy3@harvest) %>% mutate(stf=ac(y3))
+
 # plot SSB at age - lines
 bind_rows(ssby2,ssby3) %>% 
   filter(unit=="A") %>% 
@@ -129,3 +133,11 @@ bind_rows(mutate(as.data.frame(resy2@catch.n), stf=ac(y2)),
   geom_line(aes(colour=stf)) +
   facet_wrap(~age, scales="free_y")
 
+# plot harvest at age - lines
+bind_rows(harvesty1,harvesty2,harvesty3) %>% 
+  filter(unit=="A") %>% 
+  ggplot(aes(x=year, y=data, group=age)) +
+  theme_bw() +
+  geom_line(aes(colour=factor(age))) +
+  labs(title="F", colour="age (WR)") +
+  facet_wrap(~stf)
