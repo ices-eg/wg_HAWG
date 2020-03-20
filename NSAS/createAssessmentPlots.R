@@ -175,9 +175,12 @@ savePlot(paste(output.dir,"/",assessment_name_singlefleet,"_19_HERAS_prop.png",s
 
 #figure - TACs and catches
 #TACs          <- read.csv(file.path(".","data","historic data","TAC-historic.csv"))
+start_year    <- 1987
+end_year      <- 2020
 TACs          <- read.csv(file.path(".","data","TAC_var","NSAS_TAC.csv"))
+TACs          <- TACs[TACs$year <= end_year,]
 TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("A","B")],na.rm=T),each=2))
-catch         <- as.data.frame(NSH@catch[,ac(TACs$year[1:(length(TACs$year)-1)])])#
+catch         <- as.data.frame(NSH@catch[,ac(start_year:end_year-1)])#
 plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=1.2,cex.axis=1.1,font=2)
 rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
 lines(TAC.plot.dat,lwd=3)
@@ -465,7 +468,7 @@ cor.plot(NSH3f.sam)
 savePlot(paste(output.dir,"/",assessment_name_multifleet,"_7_corr_SAM_params.png",sep = ""),type="png")
 
 # figure - catch residuals per year per age
-dat <- subset(residuals(NSH3f.sam),fleet=="catch unique")
+dat <- subset(residuals(NSH3f.sam),fleet=="sumFleet")
 xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch",
        panel=function(...){
          lst <- list(...)
@@ -537,6 +540,11 @@ ggplot(selC, aes(x = age, y = sel, colour = year)) + geom_line() + xlab("age") +
 
 savePlot(paste(output.dir,"/",assessment_name_multifleet,"_selectivity_fleetC.png",sep = ""),type="png")
 
+# process error in terms of additional mortality
+plot(NSH3f.retro)
+
+savePlot(paste(output.dir,"/",assessment_name_multifleet,"_12_retro.png",sep = ""),type="png")
+
 ### ============================================================================
 ### single fleet vs multi-fleet
 ### ============================================================================
@@ -574,7 +582,7 @@ polygon(c(years,rev(years)),c(plotQuant2$lbnd,rev(plotQuant2$ubnd)),col=rgb(1,0,
 
 legend("topright",legend=c("single fleet","multi-fleet"),col=c(rgb(0,0,1),rgb(1,0,0)),lty=1,lwd=2)
 
-#savePlot(paste(output.dir,"/",assessment_name_multifleet,"_single_fleet_SSB.png",sep = ""),type="png")
+savePlot(paste(output.dir,"/",assessment_name_multifleet,"_single_fleet_SSB.png",sep = ""),type="png")
 
 # fbar
 plotQuant <- fbar(NSH.sam)

@@ -22,8 +22,8 @@ require(msm)         # install.packages("msm")
 #   load mf and sf objects and stf functions
 #-------------------------------------------------------------------------------
 
-# path <- "C:/git/wg_HAWG/NSAS/"
-path <- "D:/GIT/wg_HAWG/NSAS/"
+ path <- "C:/git/wg_HAWG/NSAS/"
+#path <- "D:/GIT/wg_HAWG/NSAS/"
 
 try(setwd(path),silent=FALSE)
 output.dir <- file.path(".","results")
@@ -33,10 +33,12 @@ outPath       <- file.path(".","results/stf")
 functionPath  <- file.path(".","stf/functions/")
 scriptPath    <- file.path(".","stf/side_script/")
 
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_mf.Rdata")
-# load(file=file.path(output.dir,"NSH_HAWG2020_sf.RData"))
-# load(file=file.path(output.dir,"NSH_HAWG2020_mf.RData"))
+#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
+#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_mf.Rdata")
+#load(file=file.path(output.dir,"NSH_HAWG2020_sf.RData"))
+#load(file=file.path(output.dir,"NSH_HAWG2020_mf.RData"))
+load(file=file.path(output.dir,"NSH_HAWG2018_sf.RData"))
+load(file=file.path(output.dir,"NSH_HAWG2018_mf.RData"))
 
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))
