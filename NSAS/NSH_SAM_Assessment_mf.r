@@ -22,7 +22,7 @@ try(setwd(path),silent=TRUE)
 output.dir          <-  file.path(".","results//")              # result directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  # Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  7                                       # Number of years for which to run the retrospective
-assessment_name     <- 'NSH_HAWG2019_mf'
+assessment_name     <- 'NSH_HAWG2020_mf'
 
 ### ============================================================================
 ### imports

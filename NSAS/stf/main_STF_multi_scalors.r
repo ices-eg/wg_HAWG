@@ -35,8 +35,8 @@ scriptPath    <- file.path(".","stf/side_script/")
 
 #load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_mf.Rdata")
 #load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
-load(file=file.path(output.dir,"NSH_HAWG2019_sf.RData"))
-load(file=file.path(output.dir,"NSH_HAWG2019_mf.RData"))
+load(file=file.path(output.dir,"NSH_HAWG2020_sf.RData"))
+load(file=file.path(output.dir,"NSH_HAWG2020_mf.RData"))
 
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))

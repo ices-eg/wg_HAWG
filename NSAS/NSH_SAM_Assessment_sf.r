@@ -13,8 +13,8 @@ log.msg("\nNSH Final Assessment (single fleet)\n=====================\n")
 
 # local path
 #path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
-#path <- "C:/git/wg_HAWG/NSAS/"
-path <- "D:/git/wg_HAWG/NSAS/"
+path <- "C:/git/wg_HAWG/NSAS/"
+#path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -22,7 +22,8 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 output.dir          <-  file.path(".","results//")              # result directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  # Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  7                                       # Number of years for which to run the retrospective
+n.retro.years       <-  12                                       # Number of years for which to run the retrospective
+#assessment_name     <- 'NSH_HAWG2020_sf_alt4'
 assessment_name     <- 'NSH_HAWG2020_sf'
 
 ### ============================================================================
@@ -30,8 +31,8 @@ assessment_name     <- 'NSH_HAWG2020_sf'
 ### ============================================================================
 library(FLSAM); library(FLEDA)
 source(file.path("./setupAssessmentObjects_sf.r"))
-#source(file.path("./setupControlObject_sf.r"))
 source(file.path("./setupControlObject_sf.r"))
+#source(file.path("./setupControlObject_sf_alt.r"))
 source(file.path("../_Common/HAWG_Common_module.r"))
 
 ### ============================================================================
@@ -64,6 +65,10 @@ save(NSH,
      NSH.retro,
      file=file.path(output.dir,
                     paste0(assessment_name,'_retro.Rdata')))
+
+write.csv(mohns.rho(retro = NSH.retro,ref.year = 2019,span = 7,type = 'ssb'),
+          file.path(output.dir,
+                    paste0(assessment_name,'_mohn_rho.csv')),row.names = TRUE)
 
 
 ### ============================================================================
