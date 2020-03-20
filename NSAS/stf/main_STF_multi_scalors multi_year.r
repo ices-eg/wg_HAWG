@@ -462,3 +462,6 @@ stf2.df %>%
   facet_wrap(~slot, scales="free_y")
 
 
+ggsave(file=file.path(outPath, 
+                      paste0("STF_", FuY2[1],"-",FuY2[length(FuY2)],".jpg")), 
+       width=30, height=16, units="cm", device="jpeg", dpi=300)
