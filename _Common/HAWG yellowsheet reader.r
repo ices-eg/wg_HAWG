@@ -21,6 +21,9 @@ source("../prf/r/my utils.R")
 
 data_path <- "D:/iHAWG/HAWG_accessions/Data call 2020/HER"
 
+onedrive <- file.path(Sys.getenv('USERPROFILE'), 'PFA/PFA team site - PRF') 
+load(file.path(onedrive, "rdata/length_raised.RData"))
+
 # read_catch function -------------------------------------------------------------------
 
 read_catch <- function(file, ws, member, species, year) {
@@ -88,18 +91,25 @@ read_sampling <- function(file, ws, member, species, year) {
 
 # read_length function -------------------------------------------------------------------
 
+# file       <- file.list[8]
+# worksheets <- excel_sheets(file)
+# ws         <- worksheets[grepl("length", tolower(worksheets))][1]
+# member     <- as.character(read_excel(file, sheet = 1, col_names = FALSE, col_types = "text", range = "F7"))
+# species    <- as.character(read_excel(file, sheet = 1, col_names = FALSE, col_types = "text", range = "F6"))
+# year       <- as.integer  (read_excel(file, sheet = 1, col_names = FALSE, col_types = "numeric", range = "K4"))
+
 read_length <- function(file, ws, member, species, year) {
   
   print(ws)
   
-  fleet      <- gsub("LENGTH ","", ws)
+  fleet      <- gsub("length ","", tolower(ws))
   lengthtype <- as.character(read_excel(file, sheet = ws, col_names = FALSE, col_types = "text", range = "A8") )
   lengthunit <- as.character(read_excel(file, sheet = ws, col_names = FALSE, col_types = "text", range = "A9"))
   # unit       <- as.character(read_excel(file, sheet = ws, col_names = FALSE, col_types = "text", range = "F5") )
   # need to sort out how to deal with missing units !!
   
   t <- 
-    read_excel(file, sheet = ws, col_names = FALSE, na="NA", col_types = "text", range = "A10:E109") %>% 
+    read_excel(file, sheet = ws, col_names = FALSE, na="NA", col_types = "text", range = "B10:F84") %>% 
     setNames(c("length","quarter1","quarter2","quarter3","quarter4")) %>%
     gather(key=quarter, value=value, quarter1:quarter4) %>% 
     mutate(member=member, species=species, year=year, file=basename(file), fleet=fleet,
@@ -117,6 +127,8 @@ read_length <- function(file, ws, member, species, year) {
   
   
   # generate dataframe is not all empty
+  if (nrow(t) > 0) print(head(t))
+  
   if (nrow(t) > 0) return(t)
   
 } # end of function
@@ -225,29 +237,25 @@ for (i in 1:length(file.list)){
   year   <- as.integer  (read_excel(file, sheet = 1, col_names = FALSE, col_types = "numeric", range = "K4"))
   
   # catch
-  for (ws in worksheets[grepl("catch", worksheets)]) {
-    catch <- bind_rows(catch, read_catch(file=file, ws=ws, member=member, species=species, year=year)) }
+  # for (ws in worksheets[grepl("catch", tolower(worksheets))]) {
+  #   catch <- bind_rows(catch, read_catch(file=file, ws=ws, member=member, species=species, year=year)) }
   
   # sampling
-  for (ws in worksheets[grepl("sampling", worksheets)]) {
-    sampling <- bind_rows(sampling, read_sampling(file=file, ws=ws, member=member, species=species, year=year)) }
+  # for (ws in worksheets[grepl("sampling", tolower(worksheets))]) {
+  #   sampling <- bind_rows(sampling, read_sampling(file=file, ws=ws, member=member, species=species, year=year)) }
 
   # length
-  for (ws in worksheets[grepl("LENGTH", worksheets)]) {
+  for (ws in worksheets[grepl("length", tolower(worksheets))]) {
     length <- bind_rows(length, read_length(file=file, ws=ws, member=member, species=species, year=year)) }
 
   # alk
-  for (ws in worksheets[grepl("ALK", worksheets)]) {
-    alk <- bind_rows(alk, read_alk(file=file, ws=ws, member=member, species=species, year=year)) }
+  # for (ws in worksheets[grepl("alk", tolower(worksheets))]) {
+  #   alk <- bind_rows(alk, read_alk(file=file, ws=ws, member=member, species=species, year=year)) }
   
 } # end of i loop
 
 # plot cumulative proportions at length
 length %>%   
-  filter(year == 2018) %>%
-  filter(lengthtype == "Fork length") %>% 
-  mutate(quarter = paste0("Q", quarter)) %>% 
-  
   ggplot(aes(x=length, y=cumprop, group=member)) + 
   theme_publication() +
   theme(panel.spacing     = unit(2, "mm"),
@@ -263,13 +271,36 @@ length %>%
   facet_grid(fleet~quarter)
   # facet_grid(.~quarter)
 
-# compare fork length to total length for Peru
+t <-
+  length_raised %>% 
+  filter(year == 2019, species == "her") %>%
+  filter(division %in% c("27.4.a","27.4.b","27.7.d")) %>% 
+  mutate(length = floor(length)) %>% 
+  mutate(fleet = case_when(
+    division == "27.4.a" ~ "iva",
+    division == "27.4.b" ~ "ivb",
+    division == "27.7.d" ~ "viid",
+    TRUE                 ~ division
+  )) %>% 
+  group_by(fleet, quarter, length) %>% 
+  summarize(catchnumber = sum(catchnumber, na.rm=TRUE)) %>% 
+  group_by(fleet, quarter) %>% 
+  mutate(prop = catchnumber / sum(catchnumber, na.rm=TRUE)) %>% 
+  mutate(member = "PFA")
+
+
+
 length %>%   
-  filter(year == 2018) %>%
-  filter(member == "Peru") %>% 
-  mutate(quarter = paste0("Q", quarter)) %>% 
+  filter(!grepl("discard", fleet)) %>% 
+  filter(length >= 20) %>% 
   
-  ggplot(aes(x=length, y=cumprop, group=lengthtype)) + 
+  mutate(fleet = ifelse(grepl("iva", fleet), "iva", fleet)) %>% 
+  filter(fleet %in% c("iva", "ivb", "viid")) %>% 
+  
+  group_by(quarter, length, fleet, member) %>% 
+  summarize(prop = sum(prop, na.rm=TRUE)) %>% 
+  
+  ggplot(aes(x=length, y=prop, group=member)) + 
   theme_publication() +
   theme(panel.spacing     = unit(2, "mm"),
         legend.key.width  = unit(1, "cm"),
@@ -278,11 +309,12 @@ length %>%
         # legend.position = "null",
         text              = element_text(size=12) ) +
   
-  labs(x = "length", y = "cumulative prop") +
-  geom_line(aes(colour=lengthtype), alpha=1) +
-  facet_grid(member~quarter)
-# facet_grid(fleet~quarter)
-# facet_grid(.~quarter)
+  labs(x = "length", y = "xxx") +
+  
+  geom_line(aes(colour=member, group=member), alpha=1) +
+  geom_line(data=t, colour="darkgray", size=1, alpha=1) +
+  facet_grid(fleet~quarter, scales = "free_y")
+
 
 # plot age-length keys
 alk %>%   
