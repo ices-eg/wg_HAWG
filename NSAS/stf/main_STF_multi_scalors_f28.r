@@ -371,7 +371,7 @@ referencePoints$Fsq <- stf.table["intermediate year","Fbar 2-8","50%"]
 
 for(i in dms$unit) stf@stock.n[1,FcY,i]                     <- RECS$FcY
 for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),FcY,i]   <- (stf@stock.n[,ImY,1]*exp(-unitSums(stf@harvest[,ImY])-stf@m[,ImY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
-for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.n[,ImY,1]*exp(-unitSums(stf@harvest[,ImY])-stf@m[,ImY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:8,sum,na.rm=T)
+for(i in dms$unit) stf@stock.n[dims(stf)$age,FcY,i]         <- apply((stf@stock.n[,ImY,1]*exp(-unitSums(stf@harvest[,ImY])-stf@m[,ImY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
 
 #-------------------------------------------------------------------------------
 # 7a) Fmsy Advice rule transfer
@@ -392,7 +392,7 @@ if("fmsyAR_transfer" %in% stf.options){
   
   # update stf table
   stf.table[caseName,"Fbar 2-8 A",]                                  <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                    <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
@@ -421,7 +421,7 @@ if("fmsyAR_no_transfer" %in% stf.options){
   
   # update stf table
   stf.table[caseName,"Fbar 2-8 A",]                                  <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                    <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
@@ -461,7 +461,7 @@ if("mpA" %in% stf.options){
   
   ##fill stf.table
   stf.table[caseName,"Fbar 2-8 A",]                                  <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                    <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
@@ -511,7 +511,7 @@ if("mpB" %in% stf.options){
   
   ##fill stf.table
   stf.table[caseName,"Fbar 2-8 A",]                                  <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                    <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
@@ -549,7 +549,7 @@ if("mpAC" %in% stf.options){
   
   ##fill stf.table
   stf.table[caseName,"Fbar 2-8 A",]                                  <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                    <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
@@ -587,7 +587,7 @@ if("mpAD" %in% stf.options){
   
   ##fill stf.table
   stf.table[caseName,"Fbar 2-8 A",]                                  <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                    <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
@@ -613,7 +613,7 @@ if("fmsyAR" %in% stf.options){
   
   # update stf table
   stf.table[caseName,"Fbar 2-8 A",]                                  <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                    <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
@@ -638,7 +638,7 @@ if("nf" %in% stf.options){
   
   # update stf table
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -663,7 +663,7 @@ if("+15%" %in% stf.options){
                           1.15)
 
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -688,7 +688,7 @@ if("-15%" %in% stf.options){
                           0.85)
   
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -716,7 +716,7 @@ if("tacro" %in% stf.options){
                           1)
   
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -743,7 +743,7 @@ if("fmsy" %in% stf.options){
                         f28)
   
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -769,7 +769,7 @@ if("fpa" %in% stf.options){
                         f28)
   
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -795,7 +795,7 @@ if("flim" %in% stf.options){
                         f28)
   
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -821,7 +821,7 @@ if("fsq" %in% stf.options){
                         f28)
   
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -845,7 +845,7 @@ if("bpa" %in% stf.options){
                         referencePoints$Bpa)
   
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -869,7 +869,7 @@ if("blim" %in% stf.options){
                         referencePoints$Blim)
   
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -893,7 +893,7 @@ if("MSYBtrigger" %in% stf.options){
                         referencePoints$MSYBtrigger)
   
   stf.table[caseName,"Fbar 2-8 A",]                                 <- quantMeans(res$stf@harvest[f28,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:8,1))
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),] <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
   stf.table[caseName,"Fbar 2-8",]                                   <- quantMeans(unitSums(res$stf@harvest[f28,FcY,]))
   stf.table[caseName,"Fbar 0-1",]                                   <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]    <- res$stf@catch[,FcY]
@@ -905,6 +905,8 @@ if("MSYBtrigger" %in% stf.options){
 # 8) Save outputs
 #-------------------------------------------------------------------------------
 
+# add f28 to filename
+stfFileName <- paste0(stfFileName,"_f28")
 
 # Save the output to an RData file
 save(stf, stf.table, file=file.path(outPath,paste0(stfFileName,'.Rdata')))
