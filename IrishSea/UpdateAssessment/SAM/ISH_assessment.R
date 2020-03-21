@@ -2,7 +2,8 @@
 
 library(FLCore)
 library(FLSAM)
-
+library(FLSAM)
+library(FLEDA)
 
 rm(list=ls())
 #C:\Users\Matt Lundy\Documents\GIT_HUB\wg_HAWG\IrishSea\UpdateAssessment\SAM
@@ -24,14 +25,16 @@ ISH.ctrl@obs.vars["AC(VIIaN)",] <- c(4,rep(5,4),rep(6,3))
 #only need the run dir setup below if sam.exe name is longer than 4 characters
 ISH.ctrl@sam.binary <- file.path(my.path,"sam.exe")
 ISH.sam       <- FLSAM(ISH,ISH.tun,ISH.ctrl)
-ISH.sam       <- SAM2FLR(ctrl=ISH.ctrl,admb.stem="sam")
+#ISH.sam       <- SAM2FLR(ctrl=ISH.ctrl,admb.stem="sam")
+
+ISH.sam       <- SAM2FLR(ctrl=ISH.ctrl)
 
 #save results
 name(ISH.sam) <- "ISH_assessment 2020"
 ISH@stock.n <- ISH.sam@stock.n
 ISH@harvest <- ISH.sam@harvest
 
-save(ISH,ISH,ISH.tun,ISH.ctrl,ISH.sam,file=file.path(output.dir,paste(name(ISH.sam),".RData",sep="")))
+save(ISH,ISH.tun,ISH.ctrl,ISH.sam,file=file.path(output.dir,paste(name(ISH.sam),".RData",sep="")))
 
 obs.var(ISH.sam)
 plot(ISH.sam)
