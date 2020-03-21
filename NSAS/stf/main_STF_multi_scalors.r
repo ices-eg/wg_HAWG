@@ -26,6 +26,7 @@ require(msm)         # install.packages("msm")
 #path <- "D:/GIT/wg_HAWG/NSAS/"
 
 try(setwd(path),silent=FALSE)
+
 output.dir <- file.path(".","results")
 
 dataPath      <- file.path(".","data/")
@@ -37,19 +38,22 @@ scriptPath    <- file.path(".","stf/side_script/")
 #load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_mf.Rdata")
 #load(file=file.path(output.dir,"NSH_HAWG2020_sf.RData"))
 #load(file=file.path(output.dir,"NSH_HAWG2020_mf.RData"))
-load(file=file.path(output.dir,"NSH_HAWG2018_sf.RData"))
-load(file=file.path(output.dir,"NSH_HAWG2018_mf.RData"))
+load(file=file.path(output.dir,"NSH_HAWG2020_sf.RData"))
+load(file=file.path(output.dir,"NSH_HAWG2020_mf.RData"))
 
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))
 source(file.path(functionPath,"rescaleF.r"))
 
 # fmsyAR function
-source(file.path(functionPath,"fmsyAR_fun.r"))
-source(file.path(functionPath,"find.FCAR.r"))
-
 source(file.path(functionPath,"fmsyAR_fun_transfer.r"))
 source(file.path(functionPath,"fmsyAR_fun_no_transfer.r"))
+source(file.path(functionPath,"find.FCAR.r"))
+
+# fmsyAR function F01 target
+source(file.path(functionPath,"fmsyAR_fun_transfer_Btarget.r"))
+source(file.path(functionPath,"fmsyAR_fun_no_transfer_Btarget.r"))
+source(file.path(functionPath,"find.FCAR_Btarget.r"))
 
 # MP functions
 source(file.path(functionPath,"find.FAB_HCRA.r"))
@@ -118,9 +122,10 @@ dms$unit    <- c("A","B","C","D")
 f01         <- ac(0:1)
 f26         <- ac(2:6)
 
-stf.options <- c("fmsyAR",
-                 'fmsyAR_transfer',
+stf.options <- c('fmsyAR_transfer',
+                 'fmsyAR_transfer_Btarget',
                  'fmsyAR_no_transfer',
+                 'fmsyAR_no_transfer_Btarget',
                  "mpA",
                  "mpAC",
                  "mpAD",
@@ -275,8 +280,8 @@ recWeights  <- subset(NSH.sam@params, name=="logR")$std.dev^2
 
 # fill in recruitment for the different years
 RECS <- FLQuants( "ImY" =FLQuant(subset(rec(NSH.sam),year==ImY)$value),
-                  "FcY" =exp(apply(log(rec(NSH)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:12]),na.rm=T)),
-                  "CtY" =exp(apply(log(rec(NSH)[,ac((an(DtY)-10):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:12]),na.rm=T)))
+                  "FcY" =exp(apply(log(rec(NSH)[,ac((an(DtY)-9):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:11]),na.rm=T)),
+                  "CtY" =exp(apply(log(rec(NSH)[,ac((an(DtY)-9):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:11]),na.rm=T)))
 
 
 #-------------------------------------------------------------------------------
@@ -403,7 +408,36 @@ if("fmsyAR_transfer" %in% stf.options){
 }
 
 #-------------------------------------------------------------------------------
-# 7a) Fmsy Advice rule transfer
+# 7a) Fmsy Advice rule with C fleet transfer and 0.05 target for F01
+#-------------------------------------------------------------------------------
+
+if("fmsyAR_transfer_Btarget" %in% stf.options){
+  
+  caseName <- "fmsyAR_transfer_Btarget"
+
+  res <- fmsyAR_fun_transfer_Btarget( stf,
+                                      FuY,
+                                      TACS,
+                                      RECS,
+                                      referencePoints,
+                                      TAC_var,
+                                      f01,
+                                      f26)
+  
+  # update stf table
+  stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
+  stf.table[caseName,"Fbar 2-6",]                                    <- quantMeans(unitSums(res$stf@harvest[f26,FcY,]))
+  stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
+  stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- res$ssb.FcY
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
+  
+  # Save the stf object to an RData file for later comparison
+}
+
+#-------------------------------------------------------------------------------
+# 7a) Fmsy Advice rule no transfer
 #-------------------------------------------------------------------------------
 #fmsyAR_fun_no_transfer.r
 if("fmsyAR_no_transfer" %in% stf.options){
@@ -418,6 +452,35 @@ if("fmsyAR_no_transfer" %in% stf.options){
                                   TAC_var,
                                   f01,
                                   f26)
+  
+  # update stf table
+  stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
+  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
+  stf.table[caseName,"Fbar 2-6",]                                    <- quantMeans(unitSums(res$stf@harvest[f26,FcY,]))
+  stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
+  stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- res$ssb.FcY
+  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
+  
+  # Save the stf object to an RData file for later comparison
+}
+
+#-------------------------------------------------------------------------------
+# 7a) Fmsy Advice rule no transfer with F01=0.05 as target
+#-------------------------------------------------------------------------------
+#fmsyAR_fun_no_transfer.r
+if("fmsyAR_no_transfer_Btarget" %in% stf.options){
+  
+  caseName <- "fmsyAR_no_transfer_Btarget"
+  
+  res <- fmsyAR_fun_no_transfer_Btarget(  stf,
+                                          FuY,
+                                          TACS,
+                                          RECS,
+                                          referencePoints,
+                                          TAC_var,
+                                          f01,
+                                          f26)
   
   # update stf table
   stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
@@ -593,35 +656,6 @@ if("mpAD" %in% stf.options){
   stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
   stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- res$ssb.FcY
   stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
-}
-
-#-------------------------------------------------------------------------------
-# 7a) Fmsy Advice rule
-#-------------------------------------------------------------------------------
-
-if("fmsyAR" %in% stf.options){
-  
-  caseName <- "fmsyAR"
-  
-  res <- fmsyAR_fun(stf,
-                    FuY,
-                    CATCH,
-                    RECS,
-                    referencePoints,
-                    f01,
-                    f26)
-  
-  # update stf table
-  stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
-  stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
-  stf.table[caseName,"Fbar 2-6",]                                    <- quantMeans(unitSums(res$stf@harvest[f26,FcY,]))
-  stf.table[caseName,"Fbar 0-1",]                                    <- quantMeans(unitSums(res$stf@harvest[f01,FcY,]))
-  stf.table[caseName,grep("Catch ",dimnames(stf.table)$values),]     <- res$stf@catch[,FcY]
-  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- res$ssb.FcY
-  stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
-  
-  # Save the stf object to an RData file for later comparison
-  save(res, file=file.path(outPath, paste0(stfFileName,"_FmsyAR.RData")))
 }
 
 #-------------------------------------------------------------------------------

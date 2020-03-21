@@ -25,8 +25,30 @@ fmsyAR_fun_transfer <- function(   stf,
   
   CATCH <- TACS
 
+  # assume a transfer of the C fleet TAC, i.e. catches in IIIa and IVa. The catches in IIIa is CATCH for C
+  # while catches in IVa are now transferred in the A fleet
   CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*TAC_var$Csplit*(1-TAC_var$Ctransfer)
   CATCH[,c(FcY,CtY),'D'] <- TACS[,FcY,'D']*TAC_var$Dsplit*TAC_var$Duptake
+  
+  iTer <- 1
+  find.FCAR(c(1,3,2),
+                    stk.=iter(stf[,FcY],iTer),
+                    CATCH=iter(CATCH[,FcY],iTer),
+                    refs.=referencePoints,
+                    f26=f26,
+                    f01=f01)
+  
+  nls.lm(par=rep(1,3), # A scalor = B scalor, therefore 3 scalors
+         lower=rep(1e-8,3),
+         upper=NULL,
+         find.FCAR,
+         stk=iter(stf[,FcY],iTer),
+         CATCH=iter(CATCH[,FcY],iTer),
+         refs.=referencePoints,
+         f01=f01,
+         f26=f26,
+         jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),
+                                 maxiter = 1000))$par
   
   for(iTer in 1:dims(stf)$iter)      #stf.=stf,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
     res[,iTer]                  <- nls.lm(par=rep(1,3), # A scalor = B scalor, therefore 3 scalors
@@ -36,8 +58,8 @@ fmsyAR_fun_transfer <- function(   stf,
                                           stk=iter(stf[,FcY],iTer),
                                           CATCH=iter(CATCH[,FcY],iTer),
                                           refs.=referencePoints,
-                                          f01,
-                                          f26,
+                                          f01=f01,
+                                          f26=f26,
                                           jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),
                                                                   maxiter = 1000))$par
   

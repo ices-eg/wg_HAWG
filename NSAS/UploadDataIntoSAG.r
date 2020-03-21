@@ -14,6 +14,13 @@ library(FLSAM)
 library(icesSAG)  # devtools::install_github("ices-tools-prod/icesSAG")
 library(tidyverse)
 
+path <- "C:/git/wg_HAWG/NSAS/"
+#path <- "D:/git/wg_HAWG/NSAS/"
+try(setwd(path),silent=TRUE)
+
+output.dir          <-  file.path(".","results/")              # result directory
+assessment_name     <- 'NSH_HAWG2020_sf'
+
 # use token
 options(icesSAG.use_token = TRUE)
 
@@ -24,26 +31,27 @@ options(icesSAG.use_token = TRUE)
 # advicedir <- paste(get_dropbox(), "/iAdvice", sep="")
 
 # Get the assessment data and convert to dataframe
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
+#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
+load(file.path(output.dir,paste0(assessment_name,'.RData')))
 
 # rename the FLStock and FLSAM objects
 STK     <- NSH
 STK.sam <- NSH.sam
 
 # Set years and ranges
-FiY   <- as.numeric(min(dimnames(STK)$year))
-DtY   <- as.numeric(max(dimnames(STK)$year))
-LaY   <- as.numeric(max(dimnames(STK.sam)$year))
+FiY   <- dims(NSH)$minyear
+DtY   <- dims(NSH)$maxyear
+LaY   <- dims(NSH.sam)$maxyear
 nyrs  <- ((DtY)-(FiY))+1
 nyrs2 <- ((LaY)-(FiY))+1
 
 # Meta information
 stockkeylabel  <- "her.27.3a47d"
-assessmentyear <- 2019
+assessmentyear <- 2020
 contactperson  <- "benoit.berges@wur.nl"
 
 # SSB in intermediate year 
-SSBint <- 1529000
+SSBint <- 1288765
 
 # Create the input data for uploading  
 info     <- stockInfo(
@@ -85,31 +93,31 @@ info$ModelType                 <- "A"
 # Create the fish data
 fishdata                          <- stockFishdata(FiY:LaY)
 
-fishdata$Catches[1:nyrs]          <- an(STK@landings)[1:nyrs]
+fishdata$Catches[1:nyrs]          <- an(NSH@landings)[1:nyrs]
 
-fishdata$Low_Recruitment          <- rec(STK.sam)$lbnd
-fishdata$Recruitment              <- rec(STK.sam)$value
-fishdata$High_Recruitment         <- rec(STK.sam)$ubnd 
+fishdata$Low_Recruitment          <- rec(NSH.sam)$lbnd
+fishdata$Recruitment              <- rec(NSH.sam)$value
+fishdata$High_Recruitment         <- rec(NSH.sam)$ubnd 
 
-fishdata$Low_StockSize[1:nyrs]    <- ssb(STK.sam)$lbnd[1:nyrs]
-fishdata$StockSize                <- c(ssb(STK.sam)$value[1:nyrs], SSBint)
-fishdata$High_StockSize[1:nyrs]   <- ssb(STK.sam)$ubnd[1:nyrs]
+fishdata$Low_StockSize[1:nyrs]    <- ssb(NSH.sam)$lbnd[1:nyrs]
+fishdata$StockSize                <- c(ssb(NSH.sam)$value[1:nyrs], SSBint)
+fishdata$High_StockSize[1:nyrs]   <- ssb(NSH.sam)$ubnd[1:nyrs]
 
-fishdata$Low_TBiomass[1:nyrs]     <- tsb(STK.sam)$lbnd[1:nyrs]
-fishdata$TBiomass                 <- tsb(STK.sam)$value
-fishdata$High_TBiomass[1:nyrs]    <- tsb(STK.sam)$ubnd[1:nyrs]
+fishdata$Low_TBiomass[1:nyrs]     <- tsb(NSH.sam)$lbnd[1:nyrs]
+fishdata$TBiomass                 <- tsb(NSH.sam)$value
+fishdata$High_TBiomass[1:nyrs]    <- tsb(NSH.sam)$ubnd[1:nyrs]
 
-fishdata$Low_FishingPressure[1:nyrs] <- fbar(STK.sam)$lbnd[1:nyrs]
-fishdata$FishingPressure[1:nyrs]     <- fbar(STK.sam)$value[1:nyrs]
-fishdata$High_FishingPressure[1:nyrs]<- fbar(STK.sam)$ubnd[1:nyrs]
+fishdata$Low_FishingPressure[1:nyrs] <- fbar(NSH.sam)$lbnd[1:nyrs]
+fishdata$FishingPressure[1:nyrs]     <- fbar(NSH.sam)$value[1:nyrs]
+fishdata$High_FishingPressure[1:nyrs]<- fbar(NSH.sam)$ubnd[1:nyrs]
 
-fishdata$CustomSeries1[1:nyrs]    <- catch(STK.sam)$value[1:nyrs]
-fishdata$CustomSeries2[1:nyrs]    <- catch(STK.sam)$lbnd[1:nyrs]
-fishdata$CustomSeries3[1:nyrs]    <- catch(STK.sam)$ubnd[1:nyrs]
+fishdata$CustomSeries1[1:nyrs]    <- catch(NSH.sam)$value[1:nyrs]
+fishdata$CustomSeries2[1:nyrs]    <- catch(NSH.sam)$lbnd[1:nyrs]
+fishdata$CustomSeries3[1:nyrs]    <- catch(NSH.sam)$ubnd[1:nyrs]
 
-fishdata$CustomSeries4[1:nyrs]    <- c(quantMeans(harvest(STK.sam)[ac(0:1),]))[1:nyrs]
-fishdata$CustomSeries5[1:nyrs]    <- c(quantMeans(harvest(STK.sam)[ac(2:6),]))[1:nyrs]
-fishdata$CustomSeries6[1:nyrs]    <- c(quantMeans(harvest(STK.sam)[ac(7:8),]))[1:nyrs]
+fishdata$CustomSeries4[1:nyrs]    <- c(quantMeans(harvest(NSH.sam)[ac(0:1),]))[1:nyrs]
+fishdata$CustomSeries5[1:nyrs]    <- c(quantMeans(harvest(NSH.sam)[ac(2:6),]))[1:nyrs]
+fishdata$CustomSeries6[1:nyrs]    <- c(quantMeans(harvest(NSH.sam)[ac(7:8),]))[1:nyrs]
 
 # upload to SAG
 key <- icesSAG::uploadStock(info, fishdata)

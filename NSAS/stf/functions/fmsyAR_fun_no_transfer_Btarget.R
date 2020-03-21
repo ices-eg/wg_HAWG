@@ -1,10 +1,11 @@
-fmsyAR_fun <- function( stf,
-                        FuY,
-                        CATCH,
-                        RECS,
-                        referencePoints,
-                        f01,
-                        f26){
+fmsyAR_fun_no_transfer_Btarget <- function( stf,
+                                            FuY,
+                                            TACS,
+                                            RECS,
+                                            referencePoints,
+                                            TAC_var,
+                                            f01,
+                                            f26){
   
   ImY <- FuY[1]
   FcY <- FuY[2]
@@ -17,27 +18,34 @@ fmsyAR_fun <- function( stf,
   
   # optimize F scalors against FA and true TAC C and D
   res <- matrix(NA,
-                nrow=3,
+                nrow=4,
                 ncol=dims(stf)$iter,
-                dimnames=list(c('A','C','D'),
+                dimnames=list(c('A','B','C','D'),
                               dimnames(stf@stock.n)$iter))
   
+  CATCH <- TACS
+  
+  # assume no transfer of the C fleet TAC, i.e. catches only in IIIa
+  CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*TAC_var$Csplit
+  CATCH[,c(FcY,CtY),'D'] <- TACS[,FcY,'D']*TAC_var$Dsplit*TAC_var$Duptake
+  
   for(iTer in 1:dims(stf)$iter)      #stf.=stf,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,3), # A scalor = B scalor, therefore 3 scalors
-                                          lower=rep(1e-8,3),
+    res[,iTer]                  <- nls.lm(par=rep(1,4), # A scalor = B scalor, therefore 3 scalors
+                                          lower=rep(1e-8,4),
                                           upper=NULL,
-                                          find.FCAR,
+                                          find.FCAR_Btarget,
                                           stk=iter(stf[,FcY],iTer),
                                           CATCH=iter(CATCH[,FcY],iTer),
                                           refs.=referencePoints,
-                                          f01,
-                                          f26,
+                                          f01=f01,
+                                          f26=f26,
                                           jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),
                                                                   maxiter = 1000))$par
   
+  
   # update F with scalors
-  stf@harvest[,FcY,c('A','C','D')]  <- sweep(stf@harvest[,FcY,c('A','C','D')],
-                                             c(3,6),res,"*")
+  stf@harvest[,FcY,c('A','B','C','D')]  <- sweep(stf@harvest[,FcY,c('A','B','C','D')],
+                                                 c(3,6),res,"*")
   
   # update catch and landings for each fleet in Forecast year
   for(i in dms$unit){
@@ -47,6 +55,7 @@ fmsyAR_fun <- function( stf,
     stf@landings[,FcY,i]        <- computeLandings(stf[,FcY,i])
   }
   
+  # apply NSAS/WBSS split in the North Sea and recompute harvest
   CATCH[,FcY,'A'] <- stf@catch[,FcY,'A'] - stf@catch[,FcY,'A']*TAC_var$WBSS_NSAS
   CATCH[,FcY,'B'] <- stf@catch[,FcY,'B']
   
