@@ -34,10 +34,6 @@ options(icesSAG.use_token = TRUE)
 #load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
 load(file.path(output.dir,paste0(assessment_name,'.RData')))
 
-# rename the FLStock and FLSAM objects
-STK     <- NSH
-STK.sam <- NSH.sam
-
 # Set years and ranges
 FiY   <- dims(NSH)$minyear
 DtY   <- dims(NSH)$maxyear
