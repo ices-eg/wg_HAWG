@@ -5,6 +5,7 @@
 # 27/04/2018 Change to Historical in the Purpose Field
 # 15/11/2018 Change just the comments of an assessment (trial)
 # 19/03/2019 Updated for HAWG 2019
+# 21/03/2020 Updated for HAWG 2020
 # ============================================================================
 
 rm(list=ls())
@@ -14,8 +15,8 @@ library(FLSAM)
 library(icesSAG)  # devtools::install_github("ices-tools-prod/icesSAG")
 library(tidyverse)
 
-path <- "C:/git/wg_HAWG/NSAS/"
-#path <- "D:/git/wg_HAWG/NSAS/"
+# path <- "C:/git/wg_HAWG/NSAS/"
+path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
 output.dir          <-  file.path(".","results/")              # result directory
@@ -31,8 +32,8 @@ options(icesSAG.use_token = TRUE)
 # advicedir <- paste(get_dropbox(), "/iAdvice", sep="")
 
 # Get the assessment data and convert to dataframe
-#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
-load(file.path(output.dir,paste0(assessment_name,'.RData')))
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
+# load(file.path(output.dir,paste0(assessment_name,'.RData')))
 
 # Set years and ranges
 FiY   <- dims(NSH)$minyear
@@ -85,6 +86,7 @@ info$CustomSeriesUnits4        <- NA
 info$CustomSeriesUnits5        <- NA
 info$ModelName                 <- "SAM"
 info$ModelType                 <- "A"
+info$ConfidenceIntervalDefinition <- "tst"
 
 # Create the fish data
 fishdata                          <- stockFishdata(FiY:LaY)
@@ -114,6 +116,8 @@ fishdata$CustomSeries3[1:nyrs]    <- catch(NSH.sam)$ubnd[1:nyrs]
 fishdata$CustomSeries4[1:nyrs]    <- c(quantMeans(harvest(NSH.sam)[ac(0:1),]))[1:nyrs]
 fishdata$CustomSeries5[1:nyrs]    <- c(quantMeans(harvest(NSH.sam)[ac(2:6),]))[1:nyrs]
 fishdata$CustomSeries6[1:nyrs]    <- c(quantMeans(harvest(NSH.sam)[ac(7:8),]))[1:nyrs]
+
+View(fishdata)
 
 # upload to SAG
 key <- icesSAG::uploadStock(info, fishdata)
