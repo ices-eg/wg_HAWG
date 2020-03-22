@@ -85,7 +85,7 @@ extrags         <- names(which(apply(M2,1,function(x){all(is.na(x))==T})==T))
 yrAver          <- 3
 for(iYr in as.numeric(rev(extryrs))){
   for(iAge in ages[!ages%in%extrags]){
-    if(iYr %in% extryrsbw){ 
+    if(iYr %in% extryrsbw){
       NSHM2@m[ac(iAge),ac(iYr)] <- yearMeans(NSHM2@m[ac(iAge),ac((iYr+1):(iYr+yrAver)),],na.rm=T)
     }
     if(iYr %in% extryrsfw){

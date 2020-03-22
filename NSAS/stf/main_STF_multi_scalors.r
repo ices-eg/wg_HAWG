@@ -6,6 +6,7 @@
 # 12/03/2019 Rearranging previous code (Benoit Berges)
 # 17/03/2019 Small modifications to calculating uptake and split (3 year averages)
 # 18/03/2019 Checking code and adding additional comments (Martin Pastoors) 
+# 22/03/2020 code update
 # 
 #-------------------------------------------------------------------------------
 
@@ -95,8 +96,8 @@ FuY   <- c(ImY,FcY,CtY)            #Future years
 
 # flag on TAC assumptions for C and D fleet. 
 # If true, one takes TAC from WBSS advice
-# If false, one takes TAC from ImY
-TAC_CD_advice   <- TRUE
+# If false, sq in TAC, i.e. one takes TAC from ImY (fed from WBSS advice)
+TAC_CD_advice   <- FALSE
 
 if(TAC_CD_advice == TRUE){
   stfFileName   <- paste0('NSAS_stf_',ImY)
@@ -214,6 +215,10 @@ TAC_var$Duptake         <- mean(uptakeTab[ac((an(DtY)-2):an(DtY)),'D'])   # Upta
 TACTab            <- read.table(file.path(dataPath,'TAC_var','NSAS_TAC.csv'),sep = ",",header=T)
 rownames(TACTab)  <- TACTab[,1]
 
+# tAC advice information
+adviceTab             <- read.table(file.path(dataPath,'TAC_var','NSAS_advice.csv'),sep = ",",header=T)
+rownames(adviceTab)   <- adviceTab[,1]
+
 # Create TAC objects for current year, forecast year and last year
 TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),
                                         season="all",area=1,iter=1:dims(NSH)$iter))
@@ -227,7 +232,7 @@ TACS[,ImY,'D'] <- TACTab[ImY,'D']
 # TAC C and D fleet in FcY and CtY
 # set TAC to 0.1 if 0 catch (for optimizers)
 if(TAC_CD_advice == TRUE){
-  TACS[,c(FcY,CtY),'C'] <- TACTab[FcY,'C']
+  TACS[,c(FcY,CtY),'C'] <- adviceTab[FcY,'C']
   if(TACS[,FcY,'C'] == 0){
     TACS[,c(FcY,CtY),'C'] <- 0.1
   }
@@ -237,7 +242,7 @@ if(TAC_CD_advice == TRUE){
 
 # D fleet
 if(TAC_CD_advice == TRUE){
-  TACS[,c(FcY,CtY),'D'] <- TACTab[FcY,'D']
+  TACS[,c(FcY,CtY),'D'] <- adviceTab[FcY,'D']
   if(TACS[,FcY,'D'] == 0){
     TACS[,c(FcY,CtY),'D'] <- 0.1
   }
