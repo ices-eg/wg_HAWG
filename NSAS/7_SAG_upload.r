@@ -19,7 +19,7 @@ library(tidyverse)
 path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
-output.dir          <-  file.path(".","results/")              # result directory
+output.dir          <-  file.path(".","assessment")              # result directory
 assessment_name     <- 'NSH_HAWG2020_sf'
 
 # use token
@@ -32,8 +32,8 @@ options(icesSAG.use_token = TRUE)
 # advicedir <- paste(get_dropbox(), "/iAdvice", sep="")
 
 # Get the assessment data and convert to dataframe
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
-# load(file.path(output.dir,paste0(assessment_name,'.RData')))
+#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
+ load(file.path(output.dir,paste0(assessment_name,'.RData')))
 
 # Set years and ranges
 FiY   <- dims(NSH)$minyear
