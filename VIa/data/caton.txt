@@ -1,6 +1,6 @@
 Landings (tonnes) (combined)
 1 1
-1957 2018
+1957 2019
 1 9
 5
 48508
@@ -65,3 +65,4 @@ Landings (tonnes) (combined)
 6937
 6424
 5557
+3429 #2019 From yellow sheets 18/Mar/2020 14:56
