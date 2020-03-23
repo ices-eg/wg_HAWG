@@ -98,7 +98,7 @@ FuY   <- c(ImY,FcY,CtY)            #Future years
 # flag on TAC assumptions for C and D fleet.
 # If true, one takes TAC from WBSS advice
 # If false, sq in TAC, i.e. one takes TAC from ImY (fed from WBSS advice)
-TAC_CD_advice   <- TRUE
+TAC_CD_advice   <- FALSE
 
 if(TAC_CD_advice == TRUE){
   stfFileName   <- paste0('NSAS_stf_',ImY)
