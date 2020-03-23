@@ -98,7 +98,7 @@ FuY   <- c(ImY,FcY,CtY)            #Future years
 # flag on TAC assumptions for C and D fleet.
 # If true, one takes TAC from WBSS advice
 # If false, sq in TAC, i.e. one takes TAC from ImY (fed from WBSS advice)
-TAC_CD_advice   <- FALSE
+TAC_CD_advice   <- TRUE
 
 if(TAC_CD_advice == TRUE){
   stfFileName   <- paste0('NSAS_stf_',ImY)
@@ -742,6 +742,10 @@ if("-15%" %in% stf.options){
 # for 2015: use estimated B-fleet TAC from mp for the FcY and the NSAS 
 # proportion of the advised C-fleet catch in the FcY
 #-------------------------------------------------------------------------------
+
+source(file.path(functionPath,"TAC_scaling_fun.r"))
+source(file.path(functionPath,"fleet.harvest2.r")) # only used for having FBsq
+source(file.path(functionPath,"rescaleF_FBsq.r")) # only used for having FBsq
 
 if("tacro" %in% stf.options){
   

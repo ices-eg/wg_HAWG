@@ -69,8 +69,8 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 
 
-load(paste(res.dir,"/NSH_HAWG2019_sf_retro.RData",sep=""))
+load(paste(output.dir,"/NSH_HAWG2020_sf_retro.RData",sep=""))
 
-SSB_mr  <- mean(mohns.rho(NSH.retro,span=7,ref.year=2018,type="ssb")$rho)
-fbar_mr <- mean(mohns.rho(NSH.retro,span=7,ref.year=2018,type="fbar")$rho)
-rec_mr  <- mean(mohns.rho(NSH.retro,span=7,ref.year=2018,type="rec")$rho)
+SSB_mr  <- mean(mohns.rho(NSH.retro,span=5,ref.year=2019,type="ssb")$rho)
+fbar_mr <- mean(mohns.rho(NSH.retro,span=5,ref.year=2019,type="fbar")$rho)
+rec_mr  <- mean(mohns.rho(NSH.retro,span=5,ref.year=2019,type="rec")$rho)

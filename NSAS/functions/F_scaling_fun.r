@@ -50,8 +50,8 @@ F_scaling_fun <- function(  stf,
     stf@landings[,FcY,i]        <- computeLandings(stf[,FcY,i])
   }
   
-  # apply NSAS/WBSS split in the North Sea and recompute harvest
-  CATCH[,FcY,'A'] <- stf@catch[,FcY,'A'] - stf@catch[,FcY,'A']*TAC_var$WBSS_NSAS
+  # apply NSAS/WBSS split in the North Sea + C fleet transfer and recompute harvest
+  CATCH[,FcY,'A'] <- stf@catch[,FcY,'A'] + TAC_var$Ctransfer*TACS[,FcY,'C'] - (stf@catch[,FcY,'A']+TAC_var$Ctransfer*TACS[,FcY,'C'])*TAC_var$WBSS_NSAS
   CATCH[,FcY,'B'] <- stf@catch[,FcY,'B']
   
   stf@harvest[,FcY]         <- fleet.harvest(stk=stf,

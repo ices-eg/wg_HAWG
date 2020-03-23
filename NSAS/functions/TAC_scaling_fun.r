@@ -41,8 +41,7 @@ TAC_scaling_fun <- function(  stf,
   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
   
-  CATCH[,CtY,"A"]            <- TACS[,ImY,"A"]*rat*rat + TAC_var$Ctransfer*TACS[,FcY,'C']
-  CATCH[,CtY,"B"]            <- CATCH[,ImY,"B"]
+  CATCH[,CtY,"A"]            <- TACS[,ImY,"A"]*rat*rat + TAC_var$Ctransfer*TACS[,CtY,'C'] - (TACS[,ImY,"A"]*rat*rat + TAC_var$Ctransfer*TACS[,CtY,'C'])*TAC_var$WBSS_NSAS
 
   stf@harvest[,CtY]                                           <- fleet.harvest2(stk=stf,
                                                                                iYr=CtY,
