@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 #- Calculate the harvest by fleet given a TAC for a stock
 #-------------------------------------------------------------------------------
-fleet.harvest2 <- function(stk,
+fleet.harvest <- function(stk,
                           iYr,
                           CATCH){
   nUnits                          <- dims(stk)$unit
@@ -9,15 +9,14 @@ fleet.harvest2 <- function(stk,
   nIter                           <- dims(CATCH)$iter
   res                             <- matrix(NA,
                                             ncol=nIter,
-                                            nrow=3,
-                                            dimnames=list(units=c('AB','C','D'),
+                                            nrow=nUnits,
+                                            dimnames=list(units=dimnames(stk@stock.n)$unit,
                                                           iter=1:nIter))
-  
   for(iTer in 1:nIter) 
-    res[,iTer] <- nls.lm(par=rep(1,3),
-                         lower=rep(1e-8,3),
+    res[,iTer] <- nls.lm(par=runif(nUnits),
+                         lower=rep(1e-8,nUnits),
                          upper=NULL,
-                         rescaleF_FBsq,
+                         rescaleF,
                          stk=iter(stk,iTer),
                          iYr=iYr,
                          TACS=c(iter(CATCH,iTer)),
@@ -25,13 +24,5 @@ fleet.harvest2 <- function(stk,
                                         maxiter = 1000),
                          jac=NULL)$par
   
-  
-  res <- c(res[1],res[1],res[2],res[3])
-  stk@harvest[,iYr,c('A','B','C','D')]  <- sweep(stk@harvest[,iYr,c('A','B','C','D')],
-                                             c(3,6),res,"*")
-  
-  #print(stf@harvest[,iYr,c('A','C','D')])
-  #print(res)
-  
-  
+  stk@harvest[,iYr]               <- sweep(stk@harvest[,iYr],c(3,6),res,"*")
   return(stk@harvest[,iYr])}

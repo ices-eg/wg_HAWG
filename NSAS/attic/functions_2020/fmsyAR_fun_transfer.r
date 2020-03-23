@@ -1,11 +1,11 @@
-fmsyAR_fun_transfer <- function(  stf,
-                                  FuY,
-                                  TACS,
-                                  RECS,
-                                  referencePoints,
-                                  TAC_var,
-                                  f01,
-                                  f26){
+fmsyAR_fun_transfer <- function(   stf,
+                                      FuY,
+                                      TACS,
+                                      RECS,
+                                      referencePoints,
+                                      TAC_var,
+                                      f01,
+                                      f26){
   
   ImY <- FuY[1]
   FcY <- FuY[2]
@@ -20,7 +20,7 @@ fmsyAR_fun_transfer <- function(  stf,
   res <- matrix(NA,
                 nrow=3,
                 ncol=dims(stf)$iter,
-                dimnames=list(c('AB','C','D'),
+                dimnames=list(c('A','C','D'),
                               dimnames(stf@stock.n)$iter))
   
   CATCH <- TACS
@@ -29,6 +29,26 @@ fmsyAR_fun_transfer <- function(  stf,
   # while catches in IVa are now transferred in the A fleet
   CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*TAC_var$Csplit*(1-TAC_var$Ctransfer)
   CATCH[,c(FcY,CtY),'D'] <- TACS[,FcY,'D']*TAC_var$Dsplit*TAC_var$Duptake
+  
+  iTer <- 1
+  find.FCAR(c(1,3,2),
+                    stk.=iter(stf[,FcY],iTer),
+                    CATCH=iter(CATCH[,FcY],iTer),
+                    refs.=referencePoints,
+                    f26=f26,
+                    f01=f01)
+  
+  nls.lm(par=rep(1,3), # A scalor = B scalor, therefore 3 scalors
+         lower=rep(1e-8,3),
+         upper=NULL,
+         find.FCAR,
+         stk=iter(stf[,FcY],iTer),
+         CATCH=iter(CATCH[,FcY],iTer),
+         refs.=referencePoints,
+         f01=f01,
+         f26=f26,
+         jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),
+                                 maxiter = 1000))$par
   
   for(iTer in 1:dims(stf)$iter)      #stf.=stf,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
     res[,iTer]                  <- nls.lm(par=rep(1,3), # A scalor = B scalor, therefore 3 scalors
@@ -44,15 +64,9 @@ fmsyAR_fun_transfer <- function(  stf,
                                                                   maxiter = 1000))$par
   
   
-  # same scalor for B and A fleets
-  res <- c(res[1],res[1],res[2],res[3])
-
   # update F with scalors
-  stf@harvest[,FcY,c('A','B','C','D')]  <- sweep(stf@harvest[,FcY,c('A','B','C','D')],
+  stf@harvest[,FcY,c('A','C','D')]  <- sweep(stf@harvest[,FcY,c('A','C','D')],
                                              c(3,6),res,"*")
-  
-  #stf@harvest[,FcY,c('A','C','D')]  <- sweep(stf@harvest[,FcY,c('A','C','D')],
-  #                                               c(3,6),res,"*")
   
   
   # update catch and landings for each fleet in Forecast year

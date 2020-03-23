@@ -22,9 +22,8 @@ find.FCAR <- function(mult,
   # same multiplier for A and B fleet
   #mult                <- c(mult[1],mult[1],mult[2],mult[3])
   
-  mult <- c(mult[1],mult[1],mult[2],mult[3])
   # compute harvest
-  stk.@harvest[,,c('A','B','C','D')]        <- sweep(stk.@harvest[,,c('A','B','C','D')],3,mult,"*")
+  stk.@harvest[,,c('A','C','D')]        <- sweep(stk.@harvest[,,c('A','C','D')],3,mult,"*")
   
   # compute total mortality
   stkZ                <- unitSums(stk.@harvest) + stk.@m[,,1]

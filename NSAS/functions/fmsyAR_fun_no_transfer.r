@@ -20,7 +20,7 @@ fmsyAR_fun_no_transfer <- function(  stf,
   res <- matrix(NA,
                 nrow=3,
                 ncol=dims(stf)$iter,
-                dimnames=list(c('A','C','D'),
+                dimnames=list(c('AB','C','D'),
                               dimnames(stf@stock.n)$iter))
   
   CATCH <- TACS
@@ -42,9 +42,10 @@ fmsyAR_fun_no_transfer <- function(  stf,
                                           jac=NULL,nls.lm.control(ftol = (.Machine$double.eps),
                                                                   maxiter = 1000))$par
   
+  res <- c(res[1],res[1],res[2],res[3])
   
   # update F with scalors
-  stf@harvest[,FcY,c('A','C','D')]  <- sweep(stf@harvest[,FcY,c('A','C','D')],
+  stf@harvest[,FcY,c('A','B','C','D')]  <- sweep(stf@harvest[,FcY,c('A','B','C','D')],
                                              c(3,6),res,"*")
   
   # update catch and landings for each fleet in Forecast year

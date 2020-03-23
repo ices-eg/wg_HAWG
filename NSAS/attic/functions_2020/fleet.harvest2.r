@@ -10,7 +10,7 @@ fleet.harvest2 <- function(stk,
   res                             <- matrix(NA,
                                             ncol=nIter,
                                             nrow=3,
-                                            dimnames=list(units=c('AB','C','D'),
+                                            dimnames=list(units=c('A','C','D'),
                                                           iter=1:nIter))
   
   for(iTer in 1:nIter) 
@@ -26,8 +26,7 @@ fleet.harvest2 <- function(stk,
                          jac=NULL)$par
   
   
-  res <- c(res[1],res[1],res[2],res[3])
-  stk@harvest[,iYr,c('A','B','C','D')]  <- sweep(stk@harvest[,iYr,c('A','B','C','D')],
+  stk@harvest[,iYr,c('A','C','D')]  <- sweep(stk@harvest[,iYr,c('A','C','D')],
                                              c(3,6),res,"*")
   
   #print(stf@harvest[,iYr,c('A','C','D')])

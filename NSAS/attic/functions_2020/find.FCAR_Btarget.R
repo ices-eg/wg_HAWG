@@ -10,7 +10,7 @@
 # Note: Only Fmsy is used here corresponding to F26. There is therefore no F01
 # constraint. One only calculate scalors for fleets AB, C and D.
 #-------------------------------------------------------------------------------
-find.FCAR <- function(mult,
+find.FCAR_Btarget <- function(mult,
                       stk.=stk,
                       CATCH=CATCH,
                       refs.,
@@ -22,7 +22,6 @@ find.FCAR <- function(mult,
   # same multiplier for A and B fleet
   #mult                <- c(mult[1],mult[1],mult[2],mult[3])
   
-  mult <- c(mult[1],mult[1],mult[2],mult[3])
   # compute harvest
   stk.@harvest[,,c('A','B','C','D')]        <- sweep(stk.@harvest[,,c('A','B','C','D')],3,mult,"*")
   
@@ -37,8 +36,8 @@ find.FCAR <- function(mult,
   
   # compute SSB
   ssb                 <- quantSums(  stk.@stock.n[,,1] * stk.@stock.wt[,,1] *
-                                     exp(-unitSums(stk.@harvest)*stk.@harvest.spwn[,,1]-stk.@m[,,1] *
-                                      stk.@m.spwn[,,1]) * stk.@mat[,,1])
+                                       exp(-unitSums(stk.@harvest)*stk.@harvest.spwn[,,1]-stk.@m[,,1] *
+                                             stk.@m.spwn[,,1]) * stk.@mat[,,1])
   
   # compute F based on HCR A, downward slope after MSYBtrigger
   if(ssb<refs.$MSYBtrigger){
@@ -46,14 +45,19 @@ find.FCAR <- function(mult,
   }else{
     F26tar <- refs.$Fmsy
   }
-
+  
   F26_bar <- quantMeans(unitSums(stk.@harvest[f26,]))
+  
+  F01_tar <- refs.$F01
+  F01_bar <- quantMeans(unitSums(stk.@harvest[f01,]))
   
   # compute residual between ftar and F26 (on total F)
   resA <- sqrt(((F26_bar-F26tar)/F26tar)^2)
+  
+  resB <- sqrt(((F01_bar-F01_tar)/F01_tar)^2)
   #resB <- sqrt(((stk.@catch[,,'B']-CATCH[,,'B'])/CATCH[,,'B'])^2)
   resC <- sqrt(((stk.@catch[,,'C']-CATCH[,,'C'])/CATCH[,,'C'])^2)
   resD <- sqrt(((stk.@catch[,,'D']-CATCH[,,'D'])/CATCH[,,'D'])^2)
-
-  res                 <- c(resA,resC,resD)
+  
+  res                 <- c(resA,resB,resC,resD)
   return(res)}

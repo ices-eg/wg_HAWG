@@ -8,10 +8,10 @@ find.FC <- function(mult,
   #f26 <- ac(2:6)
   #f01 <- ac(0:1)
   
-  mult                <- c(mult[1],mult[1],mult[2],mult[3])
+  #mult                <- c(mult[1],mult[1],mult[2],mult[3])
   
   # scale F
-  stk.@harvest[,,c('A','B','C','D')]        <- sweep(stk.@harvest[,,c('A','B','C','D')],3,mult,"*")
+  stk.@harvest[,,c('A','C','D')]        <- sweep(stk.@harvest[,,c('A','C','D')],3,mult,"*")
   
   # calculate Z
   stkZ                <- unitSums(stk.@harvest) + stk.@m[,,1]
@@ -29,10 +29,10 @@ find.FC <- function(mult,
   # compute residual between ftar and F26 (on total F)
   resA <- sqrt(((F26_bar-F26tar)/F26tar)^2)
   #resB <- sqrt(((stk.@catch[,,'B']-CATCH[,,'B'])/CATCH[,,'B'])^2)
-  #resB <- sqrt(((stk.@catch[,,'B']-CATCH[,,'B'])/CATCH[,,'B'])^2)
+  resB <- sqrt(((stk.@catch[,,'B']-CATCH[,,'B'])/CATCH[,,'B'])^2)
   resC <- sqrt(((stk.@catch[,,'C']-CATCH[,,'C'])/CATCH[,,'C'])^2)
   resD <- sqrt(((stk.@catch[,,'D']-CATCH[,,'D'])/CATCH[,,'D'])^2)
   
-  ret <- c(resA,resC,resD)
+  ret <- c(resA,resB,resC,resD)
   
   return(ret)}
