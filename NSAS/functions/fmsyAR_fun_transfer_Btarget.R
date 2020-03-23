@@ -27,7 +27,7 @@ fmsyAR_fun_transfer_Btarget <- function(  stf,
   
   # assume a transfer of the C fleet TAC, i.e. catches in IIIa and IVa. The catches in IIIa is CATCH for C
   # while catches in IVa are now transferred in the A fleet
-  CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*TAC_var$Csplit*(1-TAC_var$Ctransfer)
+  CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*TAC_var$Csplit#*(1-TAC_var$Ctransfer)
   CATCH[,c(FcY,CtY),'D'] <- TACS[,FcY,'D']*TAC_var$Dsplit*TAC_var$Duptake
   
   for(iTer in 1:dims(stf)$iter)      #stf.=stf,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
@@ -57,10 +57,10 @@ fmsyAR_fun_transfer_Btarget <- function(  stf,
     stf@landings[,FcY,i]        <- computeLandings(stf[,FcY,i])
   }
   
-  CATCH[,FcY,'A'] <- stf@catch[,FcY,'A'] + TAC_var$Ctransfer*TACS[,FcY,'C'] - (stf@catch[,FcY,'A'] + TAC_var$Ctransfer*TACS[,FcY,'C'])*TAC_var$WBSS_NSAS
-  CATCH[,FcY,'B'] <- stf@catch[,FcY,'B']
+  CATCH[,FcY,'A'] <- stf@catch[,FcY,'A'] + TAC_var$Ctransfer*TACS[,FcY,'C']# - (stf@catch[,FcY,'A'] + TAC_var$Ctransfer*TACS[,FcY,'C'])*TAC_var$WBSS_NSAS
+  CATCH[,FcY,'C'] <- stf@catch[,FcY,'C']*(1-TAC_var$Ctransfer)
   
-  stf@harvest[,FcY]         <- fleet.harvest(stk=stf,
+  stf@harvest[,FcY]         <- fleet.harvest2(stk=stf,
                                              iYr=FcY,
                                              CATCH=CATCH[,FcY])
   

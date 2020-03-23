@@ -1,7 +1,7 @@
  #-------------------------------------------------------------------------------
 #- Function to scale the F pattern for stock
 #-------------------------------------------------------------------------------
-rescaleF      <- function(mult,
+rescaleF2      <- function(mult,
                                stk.=stk,
                                iYr.=iYr,
                                TACS.=TACS){

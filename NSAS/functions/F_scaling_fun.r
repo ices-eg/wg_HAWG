@@ -16,6 +16,10 @@ F_scaling_fun <- function(  stf,
   
   dms <- dimnames(stf@m)
   
+  # assume no transfer of the C fleet TAC, i.e. catches only in IIIa
+  CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*TAC_var$Csplit
+  CATCH[,c(FcY,CtY),'D'] <- TACS[,FcY,'D']*TAC_var$Dsplit*TAC_var$Duptake
+  
   # optimize F scalors against FA and true TAC C and D
   res <- matrix(NA,
                 nrow=3,
@@ -41,22 +45,6 @@ F_scaling_fun <- function(  stf,
   # update F with scalors
   stf@harvest[,FcY,c('A','B','C','D')]  <- sweep(stf@harvest[,FcY,c('A','B','C','D')],
                                              c(3,6),res,"*")
-  
-  # update catch and landings for each fleet in Forecast year
-  for(i in dms$unit){
-    stf@catch.n[,FcY,i]         <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
-    stf@catch[,FcY,i]           <- computeCatch(stf[,FcY,i])
-    stf@landings.n[,FcY,i]      <- stf@catch.n[,FcY,i]
-    stf@landings[,FcY,i]        <- computeLandings(stf[,FcY,i])
-  }
-  
-  # apply NSAS/WBSS split in the North Sea + C fleet transfer and recompute harvest
-  CATCH[,FcY,'A'] <- stf@catch[,FcY,'A'] + TAC_var$Ctransfer*TACS[,FcY,'C'] - (stf@catch[,FcY,'A']+TAC_var$Ctransfer*TACS[,FcY,'C'])*TAC_var$WBSS_NSAS
-  CATCH[,FcY,'B'] <- stf@catch[,FcY,'B']
-  
-  stf@harvest[,FcY]         <- fleet.harvest(stk=stf,
-                                             iYr=FcY,
-                                             CATCH=CATCH[,FcY])
   
   # update catch and landings for each fleet in Forecast year
   for(i in dms$unit){

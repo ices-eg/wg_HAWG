@@ -14,6 +14,10 @@ B_scaling_fun <- function(  stf,
   
   dms <- dimnames(stf@m)
   
+  # assume no transfer of the C fleet TAC, i.e. catches only in IIIa
+  CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*TAC_var$Csplit
+  CATCH[,c(FcY,CtY),'D'] <- TACS[,FcY,'D']*TAC_var$Dsplit*TAC_var$Duptake
+  
   # optimize F scalors against FA and true TAC C and D
   res <- matrix(NA,
                 nrow=3,

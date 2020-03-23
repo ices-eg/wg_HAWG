@@ -69,7 +69,7 @@ source(file.path(functionPath,"nf_fun.r"))
 # TAC scaling functions
 source(file.path(functionPath,"TAC_scaling_fun.r"))
 source(file.path(functionPath,"fleet.harvest2.r")) # only used for having FBsq
-source(file.path(functionPath,"rescaleF_FBsq.r")) # only used for having FBsq
+source(file.path(functionPath,"rescaleF2.r")) # only used for having FBsq
 
 # F scaling functions
 source(file.path(functionPath,"F_scaling_fun.r"))
@@ -98,7 +98,7 @@ FuY   <- c(ImY,FcY,CtY)            #Future years
 # flag on TAC assumptions for C and D fleet.
 # If true, one takes TAC from WBSS advice
 # If false, sq in TAC, i.e. one takes TAC from ImY (fed from WBSS advice)
-TAC_CD_advice   <- TRUE
+TAC_CD_advice   <- FALSE
 
 if(TAC_CD_advice == TRUE){
   stfFileName   <- paste0('NSAS_stf_',ImY)
@@ -268,7 +268,8 @@ CATCH[,c(FcY,CtY),'B'] <- CATCH[,ImY,'B']
 if(TACS[,FcY,'C'] == 0.1){
   CATCH[,c(FcY,CtY),'C'] <- 0.1
 }else{
-  CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*(1-TAC_var$Ctransfer)*TAC_var$Csplit
+  # no transfer assumed
+  CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*TAC_var$Csplit#*(1-TAC_var$Ctransfer)
 }
 if(TACS[,FcY,'D'] == 0.1){
   CATCH[,c(FcY,CtY),'D'] <- 0.1
@@ -742,10 +743,6 @@ if("-15%" %in% stf.options){
 # for 2015: use estimated B-fleet TAC from mp for the FcY and the NSAS 
 # proportion of the advised C-fleet catch in the FcY
 #-------------------------------------------------------------------------------
-
-source(file.path(functionPath,"TAC_scaling_fun.r"))
-source(file.path(functionPath,"fleet.harvest2.r")) # only used for having FBsq
-source(file.path(functionPath,"rescaleF_FBsq.r")) # only used for having FBsq
 
 if("tacro" %in% stf.options){
   

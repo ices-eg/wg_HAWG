@@ -14,9 +14,12 @@ TAC_scaling_fun <- function(  stf,
   #reset harvest for all fleets to F in ImY
   stf@harvest[,FcY] <- stf@harvest[,ImY]
   
+  # assume no transfer of the C fleet TAC, i.e. catches only in IIIa
+  CATCH[,c(FcY,CtY),'C'] <- TACS[,FcY,'C']*TAC_var$Csplit
+  CATCH[,c(FcY,CtY),'D'] <- TACS[,FcY,'D']*TAC_var$Dsplit*TAC_var$Duptake
+  
   # 15% increase only for the A fleet
-  CATCH[,FcY,"A"]       <- TACS[,ImY,"A"]*rat + TAC_var$Ctransfer*TACS[,FcY,'C'] - (TACS[,ImY,"A"]*rat + TAC_var$Ctransfer*TACS[,FcY,'C'])*TAC_var$WBSS_NSAS
-  #CATCH[,FcY,"B"]       <- CATCH[,ImY,"B"]
+  CATCH[,FcY,"A"]       <- TACS[,ImY,"A"]*rat# + TAC_var$Ctransfer*TACS[,FcY,'C'] - (TACS[,ImY,"A"]*rat + TAC_var$Ctransfer*TACS[,FcY,'C'])*TAC_var$WBSS_NSAS
   
   stf@harvest[,FcY]         <- fleet.harvest2(stk=stf,
                                               iYr=FcY,
@@ -41,7 +44,7 @@ TAC_scaling_fun <- function(  stf,
   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
   
-  CATCH[,CtY,"A"]            <- TACS[,ImY,"A"]*rat*rat + TAC_var$Ctransfer*TACS[,CtY,'C'] - (TACS[,ImY,"A"]*rat*rat + TAC_var$Ctransfer*TACS[,CtY,'C'])*TAC_var$WBSS_NSAS
+  CATCH[,CtY,"A"]            <- TACS[,ImY,"A"]*rat*rat# + TAC_var$Ctransfer*TACS[,CtY,'C'] - (TACS[,ImY,"A"]*rat*rat + TAC_var$Ctransfer*TACS[,CtY,'C'])*TAC_var$WBSS_NSAS
 
   stf@harvest[,CtY]                                           <- fleet.harvest2(stk=stf,
                                                                                iYr=CtY,
