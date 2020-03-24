@@ -13,7 +13,7 @@ fleet.harvest2 <- function(stk,
                                             dimnames=list(units=c('AB','C','D'),
                                                           iter=1:nIter))
   
-  for(iTer in 1:nIter) 
+  for(iTer in 1:nIter)
     res[,iTer] <- nls.lm(par=rep(1,3),
                          lower=rep(1e-8,3),
                          upper=NULL,

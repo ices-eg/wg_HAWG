@@ -65,9 +65,10 @@ fmsyAR_fun_transfer <- function(  stf,
   
   # apply transfer
   CATCH[,FcY,'A'] <- stf@catch[,FcY,'A'] + TAC_var$Ctransfer*TACS[,FcY,'C']# - (stf@catch[,FcY,'A'] + TAC_var$Ctransfer*TACS[,FcY,'C'])*TAC_var$WBSS_NSAS
+  CATCH[,FcY,'B'] <- stf@catch[,FcY,'B']
   CATCH[,FcY,'C'] <- stf@catch[,FcY,'C']*(1-TAC_var$Ctransfer)
   
-  stf@harvest[,FcY]         <- fleet.harvest2(stk=stf,
+  stf@harvest[,FcY]         <- fleet.harvest(stk=stf,
                                              iYr=FcY,
                                              CATCH=CATCH[,FcY])
 

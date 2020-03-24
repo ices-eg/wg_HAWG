@@ -28,7 +28,7 @@ B_scaling_fun <- function(  stf,
   # assume same F in FcY for the B fleet
   for(iTer in 1:dims(stf)$iter)
     res[,iTer]                  <- nls.lm(par=rep(1,3),
-                                          lower=rep(1e-08,3),
+                                          lower=rep(1e-06,3),
                                           upper=NULL,
                                           find.BC,
                                           stk=iter(stf[,FcY],iTer),
