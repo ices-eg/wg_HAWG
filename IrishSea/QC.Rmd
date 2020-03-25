@@ -1,0 +1,214 @@
+---
+output: 
+  word_document:
+    reference_docx: ../_Common/report_template_v1.5.dotx
+---
+
+```{r setup, include=FALSE}
+# ==============================================================================
+# Irish Sea herring; quality control (and miscellaneous visualization)
+#
+# 25/03/2020 Adapted from North Sea herring; Martin Pastoors
+# ==============================================================================
+
+require("knitr")
+knitr::opts_chunk$set(
+  echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE, fig.width=10) 
+
+rm(list=ls())
+
+#library(devtools)  ## install.packages("devtools")
+library(FLCore)
+library(FLSAM)
+library(tidyverse)
+library(RColorBrewer)
+
+# local path (not needed in RMarkdown)
+
+# source publication theme
+source("../_common/theme_publication.r")
+
+# Load crayola code
+source("../_common/crayola.r")
+
+# Create QC directory
+dir.create("qc",showWarnings = FALSE)
+
+# Other settings
+output.dir          <-  file.path(".","qc/")              # result directory\
+
+
+
+# read in data objects of year1
+y1               <- 2019
+dir1             <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/IrishSea"
+assessment_name1 <- 'ISH_assessment 2019'
+
+load(file.path(dir1, paste0(assessment_name1, ".RData"))) 
+s.y1             <- ISH
+s.ctrl.y1        <- ISH.ctrl
+s.sam.y1         <- ISH.sam
+s.tun.y1         <- ISH.tun
+ly.y1            <- an(range(s.y1)["maxyear"])
+# stf.y1    <- get(load(file.path('stf',y1,paste0('NSAS_stf_',y1,'_FmsyAR.RData'))))[["stf"]]
+
+# read in data objects of year1
+y2               <- 2020
+dir2             <- 
+  "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.nirs/SAM/results"
+assessment_name2 <- 'ISH_assessment 2020'
+
+load(file.path(dir2, paste0(assessment_name2, ".RData"))) 
+s.y2      <- ISH
+s.ctrl.y2 <- ISH.ctrl
+s.sam.y2  <- ISH.sam
+s.tun.y2  <- ISH.tun
+ly.y2     <- an(range(s.y2)["maxyear"])
+# stf.y2    <- get(load("D:/GIT/wg_HAWG/NSAS/stf/NSAS_stf_CD_TAC_sq_2020_FmsyAR.Rdata"))[["stf"]]
+
+
+rm(ISH, ISH.ctrl, ISH.sam, ISH.tun)
+
+```
+
+**Quality control of `r assessment_name2` assessment**
+
+**Martin Pastoors^1^**
+
+`r format(Sys.time(), '%d/%m/%Y %H:%M')`
+
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x1 Data check on biological input data 
+df.y1 <- as.data.frame(s.y1) %>% mutate(assessmentyear = ac(y1)) 
+df.y2 <- as.data.frame(s.y2) %>% mutate(assessmentyear = ac(y2)) 
+  
+bind_rows(df.y1, df.y2) %>%
+  filter(slot %in% c("catch", "catch.n","catch.wt", "harvest.spwn", "m.spwn","m","mat", "stock.wt")) %>% 
+  ggplot(aes(x=year, y=data)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  geom_line(aes(colour=assessmentyear)) +
+  # labs(title=myvar) +
+  facet_grid(slot~age, scale="free_y")
+
+```
+
+**Figure 2.2.4.x1. Irish Sea Herring. Data check on biological input data, comparing data of the `r y1` and `r y2` assessments.**
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x2 Data check on biological input data 
+# df.y1 <- as.data.frame(s.y1) %>% mutate(assessmentyear = ac(y1)) 
+# df.y2 <- as.data.frame(s.y2) %>% mutate(assessmentyear = ac(y2)) 
+  
+bind_rows(df.y1, df.y2) %>%
+  filter(slot %in% c("catch", "catch.n","catch.wt", "harvest.spwn", "m.spwn","m","mat", "stock.wt")) %>% 
+  filter(data != -1) %>% 
+  arrange(slot, age, year, unit, season, area, iter, assessmentyear) %>% 
+  group_by(slot, age, year, unit, season, area, iter) %>% 
+  mutate(data1 = lag(data, n=1)) %>% 
+  filter(data1 != -1, !is.na(data1)) %>% 
+  mutate(perc = 100*((data1-data)/data)) %>% 
+  # filter(perc > 0) %>% 
+  # View()
+
+  ggplot(aes(x=year, y=perc)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept=0, colour="black", linetype="dashed") +
+  geom_line(colour="red", size=1) +
+  labs(y="perc diff") +
+  facet_grid(slot~age)
+
+```
+
+**Figure 2.2.4.x2. Irish Sea Herring. Data check on biological input data, relative difference between the `r y1` and `r y2` assessments.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x3 Data check on survey input data 
+df.tun.y1 <- as.data.frame(s.tun.y1) %>% mutate(assessmentyear = ac(y1)) 
+df.tun.y2 <- as.data.frame(s.tun.y2) %>% mutate(assessmentyear = ac(y2)) 
+
+bind_rows(df.tun.y1, df.tun.y2) %>%
+  filter(slot %in% c("index")) %>% 
+  ggplot(aes(x=year, y=data)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  geom_line(aes(colour=assessmentyear)) +
+  # labs(title=myvar) +
+  facet_grid(cname~age, scale="free_y")
+
+```
+
+**Figure 2.2.4.x4. Irish Sea Herring. Data check on survey input data, relative difference between the `r y1` and `r y2` assessments.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.7, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x4 Data check on relative difference in survey input data 
+df.tun.y1 <- as.data.frame(s.tun.y1) %>% mutate(assessmentyear = ac(y1)) 
+df.tun.y2 <- as.data.frame(s.tun.y2) %>% mutate(assessmentyear = ac(y2)) 
+
+bind_rows(df.tun.y1, df.tun.y2) %>%
+      filter(slot=="index") %>%
+      filter(data != -1) %>% 
+      arrange(slot, age, year, unit, season, area, iter, cname, assessmentyear) %>% 
+      group_by(slot, age, year, unit, season, area, iter, cname) %>% 
+      mutate(data1 = lag(data, n=1)) %>% 
+      filter(data1 != -1) %>% 
+      mutate(perc = 100*((data1/data)-1)) %>% 
+      
+      ggplot(aes(x=year, y=perc)) +
+      theme_bw() +
+      theme(legend.position="none") +
+      geom_hline(yintercept=0, colour="black", linetype="dashed") +
+      geom_line(colour="red", size=1) +
+      labs(x="",y="") +
+      facet_grid(cname~age)
+
+
+```
+
+**Figure 2.2.4.x4. Irish Sea Herring. Data check on survey input data, comparing data of the `r y1` and `r y2` assessments.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# Figure 2.6.1.2, Crayola catch
+
+# trim(slot(s.y2,"catch.n"), year=(ly.y2-25):ly.y2, age=0:8) %>% 
+s.y2@catch.n %>% 
+  as.data.frame() %>% 
+  dplyr::select(year, age, number = data) %>% 
+  filter(number != -1) %>% 
+  crayola(., t="Irish Sea herring catch at age")
+
+```
+
+**Figure 2.6.1.2. Irish Sea Herring. Time series of catch-at-age proportion at age as used in the Irish Sea herring assessment. Colours indicate year-classes. All ages are scaled independently and therefore the size of the bars can only be compared within an age.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# Figure 2.6.1.4, Crayola acoustic survey
+
+# trim(s.tun.y2[["HERAS"]]@index, year=(ly.y2-25):ly.y2, age=1:8) %>% 
+s.tun.y2[[1]] %>% 
+  as.data.frame() %>% 
+  dplyr::select(year, age, number = data) %>% 
+  filter(number != -1) %>% 
+  crayola(., t = "Irish Sea acoustic survey")
+
+
+```
+
+**Figure 2.6.1.4. Irish Sea Herring. Time series of the Irish Sea acoustic index by age. Colours indicate year-classes. All ages are scaled independently and cannot be compared between ages.**
+
