@@ -477,3 +477,24 @@ stf2.df %>%
 ggsave(file=file.path(figure.path,
                      paste0(stf_plot_names,"_MT_0_stf_MSYAR_projection.png")),
       width=30, height=16, units="cm", device="png", dpi=300)
+
+# table
+library(pander)
+stf2.df %>% 
+  filter(slot %in% c("stock","catch", "FA2-6", "rec"), 
+         unit=="A") %>%
+  filter(year >=2019) %>% 
+  dplyr::select(slot, year, data) %>% 
+  spread(key=year, value = data) %>% 
+  pandoc.table(., 
+               style        = "simple",
+               split.tables = 200, 
+               justify      = "right",
+               missing      =" ",
+               big.mark     = '', 
+               round        = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+
+
+# Table of assumptions
+# as.data.frame(CATCH)
+
