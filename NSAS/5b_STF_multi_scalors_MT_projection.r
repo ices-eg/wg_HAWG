@@ -7,7 +7,7 @@
 # 17/03/2019 Small modifications to calculating uptake and split (3 year averages)
 # 18/03/2019 Checking code and adding additional comments (Martin Pastoors) 
 # 22/03/2020 code update
-# 
+# 25/03/2020 fixed small bug in calculation of future years F; updated plot
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
@@ -16,6 +16,7 @@ library(FLCore)
 library(FLSAM)
 library(minpack.lm)  # install.packages("minpack.lm")
 require(msm)         # install.packages("msm")
+library(tidyverse)
 
 #-------------------------------------------------------------------------------
 # 1) read data
@@ -23,8 +24,8 @@ require(msm)         # install.packages("msm")
 #   load mf and sf objects and stf functions
 #-------------------------------------------------------------------------------
 
-path <- "C:/git/wg_HAWG/NSAS/"
-#path <- "D:/GIT/wg_HAWG/NSAS/"
+# path <- "C:/git/wg_HAWG/NSAS/"
+path <- "D:/GIT/wg_HAWG/NSAS/"
 
 try(setwd(path),silent=FALSE)
 
@@ -45,12 +46,15 @@ figure.path     <- file.path(".","stf",'plots_stf')
 
 stf_plot_names    <- 'HAWG2020_stf'
 
-#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
-#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_mf.Rdata")
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_mf.Rdata")
 #load(file=file.path(assessment.dir,"NSH_HAWG2020_sf.RData"))
 #load(file=file.path(assessment.dir,"NSH_HAWG2020_mf.RData"))
-load(file=file.path(assessment.dir,"NSH_HAWG2020_sf.RData"))
-load(file=file.path(assessment.dir,"NSH_HAWG2020_mf.RData"))
+#load(file=file.path(assessment.dir,"NSH_HAWG2020_sf.RData"))
+#load(file=file.path(assessment.dir,"NSH_HAWG2020_mf.RData"))
+
+# source publication theme
+source("../_common/theme_publication.r")
 
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))
@@ -400,10 +404,11 @@ if("fmsyAR_no_transfer" %in% stf.options){
 
 stf2  <- window(res[["stf"]],start=an(dms$year)[1],end=(4+rev(an(dms$year))[1]))
 FuY2  <- ac((an(CtY)+1):(an(CtY)+4))
-stf2@harvest[,FuY2] <- stf2@harvest[,CtY]
+stf2@harvest[,CtY]  <- stf2@harvest[,FcY]
+stf2@harvest[,FuY2] <- stf2@harvest[,FcY]
 
 # fill the slots
-for(i in c("harvest", "stock.wt", "catch.wt", "mat", "m", "harvest.spwn", "m.spwn")){
+for(i in c("stock.wt", "catch.wt", "mat", "m", "harvest.spwn", "m.spwn")){
   slot(stf2,i)[,FuY2] <- slot(stf2,i)[,CtY]
 }
 
@@ -417,7 +422,7 @@ for(i in dms$unit){
 }
 
 # calculate stock and catch in 2023-2016
-y <- "2023"
+# y <- "2023"
 for(y in FuY2) {
   j <- an(y)
   
@@ -446,7 +451,6 @@ stf2@stock[,] <- quantSums( stf2@stock.n[,,1] * stf2@stock.wt[,,1] *
                                      stf2@m.spwn[,,1]) * stf2@mat[,,1])[,,1]
 
 
-library(tidyverse)
 
 # convert to dataframe
 stf2.df <- as.data.frame(stf2) %>% 
@@ -454,20 +458,22 @@ stf2.df <- as.data.frame(stf2) %>%
   bind_rows(., mutate(as.data.frame(rec(stf2)[,,1]), slot="rec", age=as.character(age)))
 
 # plot
-windows()
+# windows()
 stf2.df %>% 
   filter(slot %in% c("stock","catch", "FA2-6", "rec"), 
          unit=="A") %>%
 
   ggplot(aes(x=year,y=data)) +
-  theme_bw() +
+  theme_publication() +
   theme(legend.position = "none") +
-  geom_line(aes(colour=slot)) +
+  geom_vline(xintercept=2021, linetype="dashed", size=1, colour="darkgray") +
+  geom_line(aes(colour=slot), size=1) +
+  labs(x="", y="") +
   expand_limits(y=0) +
   facet_wrap(~slot, scales="free_y")
 
-savePlot(paste(figure.path,"/",stf_plot_names,"_0_stf_MSYAR_projection.png",sep = ""),type="png")
+# savePlot(paste(figure.path,"/",stf_plot_names,"_MT_0_stf_MSYAR_projection.png",sep = ""),type="png")
 
-#ggsave(file=file.path(outPath, 
-#                      paste0("STF_", FuY2[1],"-",FuY2[length(FuY2)],".jpg")), 
-#       width=30, height=16, units="cm", device="jpeg", dpi=300)
+ggsave(file=file.path(figure.path,
+                     paste0(stf_plot_names,"_MT_0_stf_MSYAR_projection.png")),
+      width=30, height=16, units="cm", device="png", dpi=300)
