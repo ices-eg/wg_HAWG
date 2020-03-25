@@ -14,6 +14,7 @@ output:
 require("knitr")
 knitr::opts_chunk$set(
   echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE, fig.width=10) 
+
 rm(list=ls())
 
 #library(devtools)  ## install.packages("devtools")
@@ -36,35 +37,39 @@ dir.create("qc",showWarnings = FALSE)
 # Other settings
 output.dir          <-  file.path(".","qc/")              # result directory\
 
-assessment_name     <- 'NSH_HAWG2020_sf'
 y1                  <- 2019
-y2                  <- 2020
+dir1                <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS"
+assessment_name1    <- 'NSH_HAWG2019_sf'
 
-# read in data objects of previous year
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata") 
+y2                  <- 2020
+dir2                <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d"
+assessment_name2    <- 'NSH_HAWG2020_sf'
+
+# read in data objects of year1
+load(file.path(dir1, paste0(assessment_name1, ".RData"))) 
 s.y1      <- NSH
 s.ctrl.y1 <- NSH.ctrl
 s.sam.y1  <- NSH.sam
 s.tun.y1  <- NSH.tun
 ly.y1     <- an(range(s.y1)["maxyear"])
 
-stf.y1    <- get(load(file.path('stf',y1,paste0('NSAS_stf_',y1,'.RData'))))#[["stf"]]
+stf.y1    <- get(load(file.path('stf',y1,paste0('NSAS_stf_',y1,'_FmsyAR.RData'))))[["stf"]]
 
-
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
+load(file.path(dir2, paste0(assessment_name2, ".RData"))) 
 s.y2      <- NSH
 s.ctrl.y2 <- NSH.ctrl
 s.sam.y2  <- NSH.sam
 s.tun.y2  <- NSH.tun
 ly.y2     <- an(range(s.y2)["maxyear"])
 
-stf.y2    <- get(load(file.path('stf',paste0('NSAS_stf_',y2,'.RData'))))#[["stf"]]
+stf.y2    <- get(load("D:/GIT/wg_HAWG/NSAS/stf/NSAS_stf_CD_TAC_sq_2020_FmsyAR.Rdata"))[["stf"]]
+
 
 rm(NSH, NSH.ctrl, NSH.sam, NSH.tun)
 
 ```
 
-**Quality control of `r assessment_name` assessment**
+**Quality control of `r assessment_name2` assessment**
 
 **Martin Pastoors^1^**
 
@@ -206,6 +211,8 @@ trim(s.tun.y2[["HERAS"]]@index, year=(ly.y2-25):ly.y2, age=1:8) %>%
 ```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
 
 # Figure 2.7.2.1. Predicted and projected catch (in weight) 
+# stf.y1    <- get(load(file.path('stf',y1,paste0('NSAS_stf_',y1,'_FmsyAR.RData'))))[["stf"]]
+# stf.y2    <- get(load(file.path('stf',y2,paste0('NSAS_stf_',y2,'_FmsyAR.RData'))))[["stf"]]
 
 catch.y1  <- as.data.frame(stf.y1@catch.n * stf.y1@catch.wt) %>% mutate(stf=ac(y1))
 catch.y2  <- as.data.frame(stf.y2@catch.n * stf.y2@catch.wt) %>% mutate(stf=ac(y2))
@@ -240,7 +247,9 @@ bind_rows(catch.y1,catch.y2) %>%
 
   ggplot(aes(x=year, y=data, group=stf)) +
   theme_bw() +
-  geom_bar(aes(fill=as.character(age)), stat="identity", colour="white") +
+  # geom_bar(aes(fill=as.character(age)), stat="identity", colour="white") +
+  geom_bar(aes(fill=as.character(age)), stat="identity", position="fill", colour="white") +
+  scale_y_continuous(labels = scales::percent) +
   labs(x = "", y= "catch (tonnes)", fill="age (WR)") +
   facet_wrap(~stf)
 
