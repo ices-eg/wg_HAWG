@@ -7,7 +7,7 @@
 # 17/03/2019 Small modifications to calculating uptake and split (3 year averages)
 # 18/03/2019 Checking code and adding additional comments (Martin Pastoors) 
 # 22/03/2020 code update
-# 
+# 25/03/2020 integrated longer term forecast into the code (last scenario)
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
@@ -17,14 +17,21 @@ library(FLSAM)
 library(minpack.lm)  # install.packages("minpack.lm")
 require(msm)         # install.packages("msm")
 
+library(tidyverse)
+library(pander)
+
+# source publication theme
+source("../_common/theme_publication.r")
+
+
 #-------------------------------------------------------------------------------
 # 1) read data
 #    setup paths
 #   load mf and sf objects and stf functions
 #-------------------------------------------------------------------------------
 
- path <- "C:/git/wg_HAWG/NSAS/"
-#path <- "D:/GIT/wg_HAWG/NSAS/"
+#path <- "C:/git/wg_HAWG/NSAS/"
+path <- "D:/GIT/wg_HAWG/NSAS/"
 
 try(setwd(path),silent=FALSE)
  
@@ -36,12 +43,12 @@ dataPath      <- file.path(".","data")
 outPath       <- file.path(".","stf")
 functionPath  <- file.path(".","functions")
 
-#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
-#load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_mf.Rdata")
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_mf.Rdata")
 #load(file=file.path(assessment.dir,"NSH_HAWG2020_sf.RData"))
 #load(file=file.path(assessment.dir,"NSH_HAWG2020_mf.RData"))
-load(file=file.path(assessment.dir,"NSH_HAWG2020_sf.RData"))
-load(file=file.path(assessment.dir,"NSH_HAWG2020_mf.RData"))
+# load(file=file.path(assessment.dir,"NSH_HAWG2020_sf.RData"))
+# load(file=file.path(assessment.dir,"NSH_HAWG2020_mf.RData"))
 
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))
@@ -333,7 +340,6 @@ for(i in 1:length(dms$unit)){
   }
 }
 
-
 # Fill slots that have no meaning for NSAS
 stf@discards.n[]          <- 0
 stf@discards[]            <- 0
@@ -412,6 +418,7 @@ if("fmsyAR_transfer" %in% stf.options){
   stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- res$ssb.CtY
   
   # Save the stf object to an RData file for later comparison
+  save(res, file=file.path(outPath,paste0(stfFileName,'_FmsyAR.Rdata')))
 }
 
 #-------------------------------------------------------------------------------
@@ -943,6 +950,97 @@ if("MSYBtrigger" %in% stf.options){
 }
 
 #-------------------------------------------------------------------------------
+# 7n) Expand the Fmsy AR rule a few more years
+#-------------------------------------------------------------------------------
+
+# First run the Fmsy AR again
+res <- fmsyAR_fun_no_transfer(stf,
+                              FuY,
+                              TACS,
+                              RECS,
+                              referencePoints,
+                              TAC_var,
+                              f01,
+                              f26)
+
+# set up the stf2 object  
+stf2  <- window(res[["stf"]],start=an(dms$year)[1],end=(4+rev(an(dms$year))[1]))
+FuY2  <- ac((an(CtY)+1):(an(CtY)+4))
+stf2@harvest[,CtY]  <- stf2@harvest[,FcY]
+stf2@harvest[,FuY2] <- stf2@harvest[,FcY]
+
+# fill the slots
+for(i in c("stock.wt", "catch.wt", "mat", "m", "harvest.spwn", "m.spwn")){
+  slot(stf2,i)[,FuY2] <- slot(stf2,i)[,CtY]
+}
+
+# fill the recruitment
+stf2@stock.n["0",FuY2] <- stf2@stock.n["0",CtY]
+
+# calculate catch in 2021
+for(i in dms$unit){
+  stf2@catch.n[,CtY,i]     <- stf2@stock.n[,CtY,i]*(1-exp(-unitSums(stf2@harvest[,CtY])-stf2@m[,CtY,i]))*(stf2@harvest[,CtY,i]/(unitSums(stf2@harvest[,CtY])+stf2@m[,CtY,i]))
+  stf2@catch[,CtY,i]       <- computeCatch(stf2[,CtY,i])
+}
+
+# calculate stock and catch in future years
+for(y in FuY2) {
+  j <- an(y)
+  
+  # age 2 to plusgroup-1
+  stf2@stock.n[2:(dims(stf2)$age-1),y]   <- 
+    (stf2@stock.n[,ac(j-1),1]*exp(-unitSums(stf2@harvest[,ac(j-1),])-stf2@m[,ac(j-1),1]))[ac(range(stf2)["min"]:(range(stf2)["max"]-2))]
+  
+  # plusgroup
+  stf2@stock.n[dims(stf2)$age,y]         <- 
+    apply((stf2@stock.n[,ac(j-1),1]*
+             exp(-unitSums(stf2@harvest[,ac(j-1)])-stf2@m[,ac(j-1),1]))[ac((range(stf2)["max"]-1):range(stf2)["max"]),],2:6,sum,na.rm=T)
+  #ssb
+  stf2@stock[,y] <- quantSums( stf2@stock.n[,y,1] * stf2@stock.wt[,y,1] *
+                                 exp(-unitSums(stf2@harvest[,y])*stf2@harvest.spwn[,y,1]-stf2@m[,y,1] *
+                                       stf2@m.spwn[,y,1]) * stf2@mat[,y,1])[,y,1]
+  
+  
+  for(i in dms$unit){
+    stf2@catch.n[,y,i]     <- stf2@stock.n[,y,i]*(1-exp(-unitSums(stf2@harvest[,y])-stf2@m[,y,i]))*(stf2@harvest[,y,i]/(unitSums(stf2@harvest[,y])+stf2@m[,y,i]))
+    stf2@catch[,y,i]       <- computeCatch(stf2[,y,i])
+  }
+}
+
+# calculate stock size
+stf2@stock[,] <- quantSums( stf2@stock.n[,,1] * stf2@stock.wt[,,1] *
+                              exp(-unitSums(stf2@harvest[,])*stf2@harvest.spwn[,,1]-stf2@m[,,1] *
+                                    stf2@m.spwn[,,1]) * stf2@mat[,,1])[,,1]
+
+
+
+# convert to dataframe
+stf2.df <- as.data.frame(stf2) %>% 
+  bind_rows(., mutate(as.data.frame(fbar(stf2)[,,1]), slot="FA2-6")) %>% 
+  bind_rows(., mutate(as.data.frame(rec(stf2)[,,1]), slot="rec", age=as.character(age)))
+
+# plot
+# windows()
+stf2.df %>% 
+  filter(slot %in% c("stock","catch", "FA2-6", "rec"), 
+         unit=="A") %>%
+  
+  ggplot(aes(x=year,y=data)) +
+  theme_publication() +
+  theme(legend.position = "none") +
+  geom_vline(xintercept=2021, linetype="dashed", size=1, colour="darkgray") +
+  geom_line(aes(colour=slot), size=1) +
+  labs(x="", y="") +
+  expand_limits(y=0) +
+  facet_wrap(~slot, scales="free_y")
+
+# savePlot(paste(figure.path,"/",stf_plot_names,"_MT_0_stf_MSYAR_projection.png",sep = ""),type="png")
+ggsave(file=file.path(outPath,
+                      paste0(stfFileName,"_MT_0_stf_MSYAR_projection.png")),
+       width=30, height=16, units="cm", device="png", dpi=300)
+
+
+#-------------------------------------------------------------------------------
 # 8) Save outputs
 #-------------------------------------------------------------------------------
 
@@ -965,5 +1063,26 @@ write(stf.out.file,file=file.path(outPath,paste0(stfFileName,'.out')))
 write.csv(stf.table[,,2],
           file=file.path(outPath,paste0(stfFileName,'.csv')))
 #           file=paste0("stf.table_mf_","deterministic.csv"))
+
+# table of longer term forecast
+stf2.df %>% 
+  filter(slot %in% c("stock","catch", "FA2-6", "rec"), 
+         unit=="A") %>%
+  filter(year >=2019) %>% 
+  dplyr::select(slot, year, data) %>% 
+  spread(key=year, value = data) %>% 
+  pandoc.table(., 
+               style        = "simple",
+               split.tables = 200, 
+               justify      = "right",
+               missing      =" ",
+               big.mark     = '', 
+               round        = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+
+
+# Table of assumptions
+# as.data.frame(CATCH)
+
+
 
 
