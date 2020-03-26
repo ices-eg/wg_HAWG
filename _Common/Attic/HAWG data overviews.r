@@ -7,6 +7,7 @@
 # 20/03/2018 added all weight in the catch; added the crayola plots; Note stock trends now 
 #            via the SAG download
 # 21/03/2019 Updated during HAWG 2019 (MP)
+# 25/03/2020 Updated for HAWG 2020 (MP)
 ################################################################################
 
 rm(list=ls());
@@ -32,151 +33,45 @@ library(lubridate)
 library(RColorBrewer)
 library(directlabels)
 library(ggmisc) # e.g. for crayola
+library(icesSAG)
 
 # source("_Common/crayola.r")
 
-options(max.print=999999)
+# use token
+options(icesSAG.use_token = TRUE)
+
+# Load utils code
+source("../mptools/r/my_utils.r")
+
 
 # ===================================================================================
 # Load datasets 
 # ===================================================================================
 
 # Load NSAS data
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS/NSH_HAWG2019_sf.Rdata")
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
+NSH.df     <- as.data.frame(NSH) %>% mutate(stock="her.27.3a47d")
+NSH.tun.df <- as.data.frame(NSH.tun) %>% mutate(stock="her.27.3a47d")
+NSH.sag.df <- as.data.frame(getSAG(stock = "her.27.3a47d", year = 2020)) %>% tolower()
 
-NSH.stock.n <-
-  slot(NSH,"stock.n") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, number = data) %>%
-  filter(number != -1) %>% 
-  mutate(stock = "NSH")
-
-NSH.canum <-
-  slot(NSH,"catch.n") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, number = data) %>%
-  filter(number != -1) %>% 
-  mutate(stock = "NSH")
-
-NSH.weca <-
-  slot(NSH,"catch.wt") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, weight = data) %>%
-  filter(weight != -1) %>% 
-  mutate(stock = "NSH")
-
-NSH.west <-
-  slot(NSH,"stock.wt") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, weight = data) %>%
-  filter(weight != -1) %>% 
-  mutate(stock = "NSH")
-
-NSH.HERAS <-
-  slot(NSH.tun[[1]],"index") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, index = data) %>%
-  filter(index != -1) %>% 
-  mutate(stock = "NSH",
-         survey = "HERAS")
-
-# Load CSAH data ------------------------------------
-
-mypath <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting docs/06. Data/Celtic Sea/data/"
-
-# CSH       <- readFLStock(file.path(mypath, 'index.txt'))
-# CSH.index <- readFLIndices(file.path(mypath, "fleet.txt"))
-
-CSH.canum  <- 
-  readVPAFile(file.path(mypath, "canum.txt")) %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, number = data) %>%
-  filter(number != -1) %>% 
-  mutate(stock = "CSH")
-
-CSH.weca  <- 
-  readVPAFile(file.path(mypath, "weca.txt")) %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, weight = data) %>%
-  filter(weight != -1) %>% 
-  mutate(stock = "CSH")
-
-CSH.west  <- 
-  readVPAFile(file.path(mypath, "west.txt")) %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, weight = data) %>%
-  filter(weight != -1) %>% 
-  mutate(stock = "CSH")
-
-CSH.index <- 
-  readFLIndices(file.path(mypath, "fleet.txt"))[[1]]@index %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, number = data) %>%
-  filter(number != -1) %>% 
-  mutate(stock = "CSH")
+# Irish Sea herring ---------------------------------------------------
+load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.nirs/SAM/results/ISH_assessment 2020.RData")
+ISH.df     <- as.data.frame(ISH) %>% mutate(stock="her.27.nirs")
+ISH.tun.df <- as.data.frame(ISH.tun) %>% mutate(stock="her.27.nirs")
 
 
-# 2018
-
-mypath <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2018 Meeting docs1/05. Data/Celtic Sea/"
-
-CSH.canum.2018  <- 
-  readVPAFile(file.path(mypath, "canum.txt")) %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, number = data) %>%
-  filter(number != -1) %>% 
-  mutate(stock = "CSH")
-
-CSH.weca.2018  <- 
-  readVPAFile(file.path(mypath, "weca.txt")) %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, weight = data) %>%
-  filter(weight != -1) %>% 
-  mutate(stock = "CSH")
-
-# CSH.west.2018  <- 
-#   readVPAFile(file.path(mypath, "west.txt")) %>% 
-#   as.data.frame() %>% 
-#   dplyr::select(year, age, weight = data) %>%
-#   filter(weight != -1) %>% 
-#   mutate(stock = "CSH")
+# Load Celtic Sea herring ------------------------------------
+mypath     <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting docs/06. Data/her.27.irls/data/"
+CSH.df     <- readFLStock(file.path(mypath, 'index.txt')) %>% as.data.frame() %>% mutate(stock="her.27.irls")
+CSH.tun.df <- readFLIndices(file.path(mypath, "fleet.txt")) %>% as.data.frame() %>% mutate(stock="her.27.irls")
 
 # Load WBSS data -------------------------------------------
+WBSS.dir    <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting docs/06. Data/her.27.2024/data/"
+WBSS.df     <- readFLStock(file.path(WBSS.dir, 'data/index.txt')) %>% as.data.frame() %>% mutate(stock="her.27.20-24")
+WBSS.tun.df <- readFLIndices(file.path(WBSS.dir, "data/survey.dat")) %>% as.data.frame() %>% mutate(stock="her.27.20-24")
+NSH.sag.df <- getSAG(stock = "her.27.20-24", year = 2020)
 
-WBSS.dir  <- "D:/HAWG/2019/06. Data/WBSS/"
-WBSS.data <- get(load(file.path(WBSS.dir,"run/data.RData")))
-WBSS.fit  <- get(load(file.path(WBSS.dir,"run/model.RData" )))
-
-WBSS.canum <-
-  read.ices(file.path(WBSS.dir,"data/cn.dat")) %>% 
-  data.frame() %>% 
-  rownames_to_column(var="year") %>% 
-  gather(key=age, value=number, X0:X8) %>% 
-  mutate(age = as.integer(gsub("X","",age)),
-         stock="WBSS", 
-         year=an(year))
-
-WBSS.weca <- 
-  read.ices(file.path(WBSS.dir,"data/cw.dat")) %>% 
-  data.frame() %>% 
-  rownames_to_column(var="year") %>% 
-  gather(key=age, value=weight, X0:X8) %>% 
-  filter(!is.na(weight)) %>% 
-  ungroup() %>% 
-  mutate(age = as.integer(gsub("X","",age)),
-         stock="WBSS", 
-         year=an(year)) 
-
-WBSS.west <- 
-  read.ices(file.path(WBSS.dir,"data/sw.dat")) %>% 
-  data.frame() %>% 
-  rownames_to_column(var="year") %>% 
-  gather(key=age, value=weight, X0:X8) %>% 
-  filter(!is.na(weight)) %>% 
-  ungroup() %>% 
-  mutate(age = as.integer(gsub("X","",age)),
-         stock="WBSS", 
-         year=an(year)) 
+data.frame(stockassessment::ssbtable( stockassessment::fitfromweb("WBSS_HAWG_2020_sf")))
 
 # Load 6a-7bc data -----------------------------------------------------
 
@@ -219,37 +114,6 @@ MSH.HERAS <-
          survey = "MSHAS")
 
 
-# Irish Sea herring ---------------------------------------------------
-
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/IrishSea/ISH_assessment 2019.RData")
-
-ISH.stock.n <-
-  slot(ISH,"stock.n") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, number = data) %>%
-  filter(number != -1) %>% 
-  mutate(stock = "ISH")
-
-ISH.canum <-
-  slot(ISH,"catch.n") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, number = data) %>%
-  filter(number != -1) %>% 
-  mutate(stock = "ISH")
-
-ISH.weca <-
-  slot(ISH,"catch.wt") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, weight = data) %>%
-  filter(weight != -1) %>% 
-  mutate(stock = "ISH")
-
-ISH.west <-
-  slot(ISH,"stock.wt") %>% 
-  as.data.frame() %>% 
-  dplyr::select(year, age, weight = data) %>%
-  filter(weight != -1) %>% 
-  mutate(stock = "ISH")
 
 # North Sea sprat ---------------------------------------------------
 

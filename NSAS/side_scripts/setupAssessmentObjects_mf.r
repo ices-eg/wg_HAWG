@@ -16,7 +16,8 @@ units(NSH)[1:17]    <- as.list(c(rep(c("tonnes","thousands","kg"),4),
                                  rep("NA",2),"f",rep("NA",2)))
 
 #Set object details
-NSH@name                              <- "NSH_HAWG2018"
+NSH@name                              <- assessment_name
+# NSH@name                              <- "NSH_HAWG2018"
 range(NSH)[c("minfbar","maxfbar")]    <- c(2,6)
 NSH                                   <- setPlusGroup(NSH,NSH@range["max"])
 
@@ -190,9 +191,10 @@ NSH3f@catch.wt[,ac(1947:1996),,,-1]   <- NA
 
 #We don't believe the closure catch data, so put it to NA
 NSH@catch.n[,ac(1978:1979)]           <- NA
-NSHsum <- NSH[,ac(1947:1996)]
-NSHres3 <- NSH3f[,ac(1997:range(NSH)["maxyear"])]; NSHres3@landings.n[] <- NSHres3@catch.n
-NSHs3        <- FLStocks(residual=NSHres3,sum=NSHsum)
+NSHsum        <- NSH[,ac(1947:1996)]
+NSHres3       <- NSH3f[,ac(1997:range(NSH)["maxyear"])]; NSHres3@landings.n[] <- NSHres3@catch.n
+NSHres3@catch <- computeCatch(NSHres3)
+NSHs3         <- FLStocks(residual=NSHres3,sum=NSHsum)
 
 NSH.tun[["HERAS"]]@index[ac(pg),]     <- quantSums(NSH.tun[["HERAS"]]@index[ac(pg:dims(NSH.tun[["HERAS"]]@index)$max),])
 NSH.tun[["HERAS"]]                    <- trim(NSH.tun[["HERAS"]],age=dims(NSH.tun[["HERAS"]]@index)$min:pg)

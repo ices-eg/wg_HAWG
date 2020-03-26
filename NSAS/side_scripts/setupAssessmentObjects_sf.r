@@ -17,7 +17,7 @@ units(NSH)[1:17]    <- as.list(c(rep(c("tonnes","thousands","kg"),4),
                                rep("NA",2),"f",rep("NA",2)))
 
 #Set object details
-NSH@name                              <- "North Sea Herring"
+NSH@name                              <- assessment_name
 range(NSH)[c("minfbar","maxfbar")]    <- c(2,6)
 NSH                                   <- setPlusGroup(NSH,NSH@range["max"])
 
