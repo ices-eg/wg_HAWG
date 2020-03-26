@@ -505,15 +505,35 @@ cor.plot(NSH3f.sam)
 
 savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_8_corr_SAM_params.png",sep = ""),type="png")
 
-# figure - catch residuals per year per age
-dat <- subset(residuals(NSH3f.sam),fleet=="sumFleet")
-xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch",
+# figure - catch residuals fleet A per year per age
+dat <- subset(residuals(NSH3f.sam),fleet=="catch A")
+xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch fleet A",
        panel=function(...){
          lst <- list(...)
          panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=3*abs(lst$cex))
        })
 
-savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_9_residuals_catch.png",sep = ""),type="png")
+savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_9_residuals_catch_fleet_A.png",sep = ""),type="png")
+
+# figure - catch residuals fleet BD per year per age
+dat <- subset(residuals(NSH3f.sam),fleet=="catch BD")
+xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch fleet BD",
+       panel=function(...){
+         lst <- list(...)
+         panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=3*abs(lst$cex))
+       })
+
+savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_9_residuals_catch_fleet_BD.png",sep = ""),type="png")
+
+# figure - catch residuals fleet BD per year per age
+dat <- subset(residuals(NSH3f.sam),fleet=="catch C")
+xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch fleet C",
+       panel=function(...){
+         lst <- list(...)
+         panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=3*abs(lst$cex))
+       })
+
+savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_9_residuals_catch_fleet_C.png",sep = ""),type="png")
 
 # figure - IBTSQ1 index residuals per year per age
 dat <- subset(residuals(NSH3f.sam),fleet=="IBTS-Q1")

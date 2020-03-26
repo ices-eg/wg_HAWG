@@ -23,22 +23,26 @@ dir.create("output",showWarnings = FALSE)
 
 setwd(path)
 
-assessment_name <- "NSH_HAWG2020_sf"
+assessment_name <- "NSH_HAWG2020"
 
 output.dir      <-  file.path(".","assessment")
+function.dir    <-  file.path(".","functions")
 
-old.opt           <- options("width","scipen")
-options("width"=75,"scipen"=1000)
+# load stuff
+source(file.path(function.dir,'FLSAM.out_local.r'))
 
-load(file.path(output.dir,paste0(assessment_name,'.RData')))
+load(file.path(output.dir,paste0(assessment_name,'_sf','.RData')))
+load(file.path(output.dir,paste0(assessment_name,'_mf','.RData')))
 
-sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
+# write and output sf and mf data
+sam.out.file      <- FLSAM.out_local(NSH,NSH.tun,NSH.sam,format="Table 2.6.3.%i North Sea Herring single fleet assessment.")
 
-#sam.out.file      <- FLSAM.out(NSHs3$residual,NSH.tun,NSH3f.sam,format="TABLE 2.7.1.%i North Sea Herring.")
+write(sam.out.file,file=file.path(output.dir,'output',"sam.out_sf"))
 
-write(sam.out.file,file=file.path(output.dir,'output',"sam.out"))
-options("width"=old.opt$width,"scipen"=old.opt$scipen)
-#
+sam.out.file      <- FLSAM.out_local(NSHs3$residual,NSH.tun,NSH3f.sam,format="Table 2.6.2.%i North Sea Herring multi-fleet assessment.")
+
+write(sam.out.file,file=file.path(output.dir,'output',"sam.out_mf"))
+
 ##And finally, write the results out in the lowestoft VPA format for further analysis
 writeFLStock(NSH,output.file=file.path(output.dir,'output',"NSAS_47d3_"))
 
@@ -67,10 +71,14 @@ write.csv(stockSummaryTable,file=file.path(output.dir,'output',"stockSummaryTabl
 
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
-
-
 load(paste(output.dir,"/NSH_HAWG2020_sf_retro.RData",sep=""))
 
 SSB_mr  <- mean(mohns.rho(NSH.retro,span=5,ref.year=2019,type="ssb")$rho)
 fbar_mr <- mean(mohns.rho(NSH.retro,span=5,ref.year=2019,type="fbar")$rho)
 rec_mr  <- mean(mohns.rho(NSH.retro,span=5,ref.year=2019,type="rec")$rho)
+
+# output for cindy
+write.csv(components(NSH.sam),file = file.path(output.dir,'output','LAI_prop.csv'))
+write.csv(rec(NSH.sam),file = file.path(output.dir,'output','rec_sf.csv'),row.names = FALSE)
+write.csv(ssb(NSH.sam),file = file.path(output.dir,'output','SSB_sf.csv'),row.names = FALSE)
+write.csv(fbar(NSH.sam),file = file.path(output.dir,'output','fbar_sf.csv'),row.names = FALSE)

@@ -13,11 +13,11 @@ log.msg("\nNSH Final Assessment (single fleet)\n=====================\n")
 
 # local path
 #path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
-#path <- "C:/git/wg_HAWG/NSAS/"
+path <- "C:/git/wg_HAWG/NSAS/"
 #path <- "C:/git/2020_her.27.3a47d_multifleet/"
 #path <- "C:/git/2020_her.27.3a47d_assessment/"
 #path <- "C:/git/2020_her.27.3a47d_forecast/"
-path <- "D:/git/wg_HAWG/NSAS/"
+#path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
