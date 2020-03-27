@@ -39,6 +39,7 @@ source("../_common/lowcase.r")
 
 # use token
 options(icesSAG.use_token = TRUE)
+options(stringsAsFactors=FALSE)
 
 # ===================================================================================
 # Load datasets 
@@ -78,46 +79,72 @@ MSH.sag.df <- as.data.frame(getSAG(stock = "her.27.6a7bc", year = 2020)) %>% low
 
 # Load North Sea sprat data -----------------------------------------------------
 NSSPR.dir    <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/spr.27.3a4"
+startyear <- 1974
+
+NSSPR.canum <-
+  read.table(file=file.path(NSSPR.dir, "canum.in"),
+           header=FALSE, skip=1) %>%
+  setNames(c("age0","age1","age2","age3")) %>%
+  mutate(year   = startyear + floor((row_number()-1)/4),
+         season = (row_number() %% 4),
+         season = ifelse(season == 0, 4, season)) %>%
+  gather(key=age, value=data, age0:age3) %>%
+  mutate(age = an(gsub("age", "", age))) %>%
+  group_by(year, age) %>%
+  summarize(data= sum(data, na.rm=TRUE)) %>%
+  ungroup() %>%
+  mutate(stock = "spr.27.3a4") %>% 
+  mutate(slot = "catch.n")
+
+NSSPR.weca <-
+  read.table(file=file.path(NSSPR.dir, "weca.in"),
+             header=FALSE, skip=1) %>%
+  setNames(c("age0","age1","age2","age3")) %>%
+  mutate(year   = startyear + floor((row_number()-1)/4),
+         season = (row_number() %% 4),
+         season = ifelse(season == 0, 4, season)) %>%
+  gather(key=age, value=weight, age0:age3) %>%
+  mutate(age = an(gsub("age", "", age))) %>%
+
+  left_join(NSSPR.canum, by=c("year","age")) %>%
+  group_by(year, age) %>%
+  summarize(data= weighted.mean(weight, data, na.rm=TRUE)) %>%
+  ungroup() %>%
+  mutate(stock = "spr.27.3a4") %>% 
+  mutate(slot = "catch.wt")
+
+NSSPR.df     <- bind_rows(NSSPR.canum, NSSPR.weca) %>% mutate(age = ac(age))
 NSSPR.sag.df <- as.data.frame(getSAG(stock = "spr.27.3a4", year = 2020)) %>% lowcase()
 
 # Load 3a4 sprat data -----------------------------------------------------
 # spr.path  <- "D:/HAWG/2019/06. Data/SPR-3a4"
-# startyear <- 1974
-#
-# NSsprat.canum <-
-#   read.table(file=file.path(spr.path, "canum.in"),
-#            header=FALSE, skip=1) %>%
-#   setNames(c("age0","age1","age2","age3")) %>%
-#   mutate(year   = startyear + floor((row_number()-1)/4),
-#          season = (row_number() %% 4),
-#          season = ifelse(season == 0, 4, season)) %>%
-#   gather(key=age, value=number, age0:age3) %>%
-#   mutate(age = an(gsub("age", "", age))) %>%
-#   group_by(year, age) %>%
-#   summarize(number= sum(number, na.rm=TRUE)) %>%
-#   ungroup() %>%
-#   mutate(stock = "SPR34")
-#
-# NSsprat.weca <-
-#   read.table(file=file.path(spr.path, "weca.in"),
-#              header=FALSE, skip=1) %>%
-#   setNames(c("age0","age1","age2","age3")) %>%
-#   mutate(year   = startyear + floor((row_number()-1)/4),
-#          season = (row_number() %% 4),
-#          season = ifelse(season == 0, 4, season)) %>%
-#   gather(key=age, value=weight, age0:age3) %>%
-#   mutate(age = an(gsub("age", "", age))) %>%
-#
-#   left_join(NSsprat.canum, by=c("year","age")) %>%
-#   group_by(year, age) %>%
-#   summarize(weight= weighted.mean(weight, number, na.rm=TRUE)) %>%
-#   ungroup() %>%
-#   mutate(stock = "SPR34")
+
+# Load 7de sprat data
+SPR7.sag.df <- as.data.frame(getSAG(stock = "spr.27.7de", year = 2020)) %>% lowcase()
+
+# Load sandeel data -----------------------------------------------------
+SAN1.sag.df <- as.data.frame(getSAG(stock = "san.sa.1r", year = 2020)) %>% lowcase()
+SAN2.sag.df <- as.data.frame(getSAG(stock = "san.sa.2r", year = 2020)) %>% lowcase()
+SAN3.sag.df <- as.data.frame(getSAG(stock = "san.sa.3r", year = 2020)) %>% lowcase()
+SAN4.sag.df <- as.data.frame(getSAG(stock = "san.sa.4", year = 2020)) %>% lowcase()
 
 # Combine data
 data.df <-
   bind_rows(NSH.df, MSH.df, WBSS.df, CSH.df, ISH.df) %>%
-  mutate(stock = factor(stock, levels=c("her.27.3a47d","her.27.6a7bc","her.27.nirs","her.27.irls","her.27.20-24"))) %>%
+  mutate(stock = factor(stock,
+                        levels=c("her.27.3a47d","her.27.6a7bc","her.27.nirs","her.27.irls",
+                                 "her.27.20-24"))) %>%
+  mutate (age = as.numeric(age)) %>% 
+  mutate_at(c("unit","season","area","iter"), as.character)
+
+# Add sprat
+data2.df <-
+  data.df %>% 
+  mutate (age = as.character(age)) %>% 
+  bind_rows(NSSPR.df) %>% 
+  mutate(stock = factor(stock,
+                        levels=c("her.27.3a47d","her.27.6a7bc","her.27.nirs","her.27.irls",
+                                 "her.27.20-24", "spr.27.3a4"))) %>%
   mutate (age = as.numeric(age))
 
 # tun.df <-
@@ -125,9 +152,13 @@ data.df <-
 #   mutate(stock = factor(stock, levels=c("her.27.3a47d","her.27.6a7bc","her.27.nirs","her.27.irls","her.27.20-24")))
 
 sag.df <-
-  bind_rows(NSH.sag.df, MSH.sag.df, WBSS.sag.df, CSH.sag.df, ISH.sag.df, NSSPR.sag.df) %>%
+  bind_rows(NSH.sag.df, MSH.sag.df, WBSS.sag.df, CSH.sag.df, ISH.sag.df, NSSPR.sag.df,
+            SPR7.sag.df, SAN1.sag.df, SAN2.sag.df, SAN3.sag.df, SAN4.sag.df) %>%
   rename(stock = fishstock) %>%
-  mutate(stock = factor(stock, levels=c("her.27.3a47d","her.27.6a7bc","her.27.nirs","her.27.irls","her.27.20-24", "spr.27.3a4")))
+  mutate(stock = factor(stock,
+                        levels=c("her.27.3a47d","her.27.6a7bc","her.27.nirs","her.27.irls",
+                                 "her.27.20-24","spr.27.3a4","spr.27.7de",
+                                 "san.sa.1r","san.sa.2r","san.sa.3r","san.sa.4")))
 
 
 ```
@@ -143,11 +174,11 @@ sag.df <-
 # glimpse(data.df)
 
 # Figure 2.2.4.x1 Data check on biological input data 
-for (i in 1:length(levels(data.df$stock))) {
+for (i in 1:(length(levels(data.df$stock)))) {
   t <- 
     data.df %>% 
     complete(year, age, stock) %>% 
-    filter(stock %in% levels(data.df$stock)[i]) %>% 
+    filter(stock %in% levels(data.df$stock)[i]) %>%
     filter(slot %in% c("catch.n", "landings.n")) %>% 
     filter(year >= 1990) %>% 
     filter(age %in% 1:8) %>% 
@@ -215,7 +246,30 @@ data.df %>%
 
 ##### page break
 
-```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
+
+# Trends in catch
+sag.df %>%
+  filter(year >= 1980) %>% 
+  ggplot(aes(x=year, y=catches)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  
+  # geom_ribbon(aes(ymin=lowssb, ymax=highssb), colour="darkgray", alpha=0.5) +
+  geom_bar(stat="identity") +
+  # labs(title=myvar) +
+  expand_limits(y=0) +
+  scale_x_continuous(breaks=scales::pretty_breaks(n=3)) +
+  scale_y_continuous(labels = scales::scientific) +
+  facet_wrap(~stock, scale="free_y", ncol=3)
+
+```
+
+**Figure x Trends in catch.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
 
 # Trends in SSB
 sag.df %>%
@@ -224,13 +278,13 @@ sag.df %>%
   theme_publication() +
   theme(legend.position="bottom") +
   
-  geom_ribbon(aes(ymin=lowssb, ymax=highssb), colour="darkgray", alpha=0.5) +
+  geom_ribbon(aes(ymin=lowssb, ymax=highssb), colour="gray", alpha=0.5) +
   geom_line() +
   # labs(title=myvar) +
   expand_limits(y=0) +
   scale_x_continuous(breaks=scales::pretty_breaks(n=3)) +
   scale_y_continuous(labels = scales::scientific) +
-  facet_wrap(~stock, scale="free_y")
+  facet_wrap(~stock, scale="free_y", ncol=3)
 
 ```
 
@@ -238,7 +292,7 @@ sag.df %>%
 
 ##### page break
 
-```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
 
 # Trends in Fishing mortality
 sag.df %>%
@@ -247,12 +301,12 @@ sag.df %>%
   theme_publication() +
   theme(legend.position="bottom") +
   
-  geom_ribbon(aes(ymin=lowf, ymax=highf), colour="darkgray", alpha=0.5) +
+  geom_ribbon(aes(ymin=lowf, ymax=highf), colour="gray", alpha=0.5) +
   geom_line() +
   # labs(title=myvar) +
   expand_limits(y=0) +
   scale_x_continuous(breaks=scales::pretty_breaks(n=3)) +
-  facet_wrap(~stock, scale="free_y")
+  facet_wrap(~stock, scale="free_y", ncol=3)
 
 ```
 
@@ -260,7 +314,7 @@ sag.df %>%
 
 ##### page break
 
-```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
 
 # Trends in Fishing mortality
 sag.df %>%
@@ -275,7 +329,7 @@ sag.df %>%
   expand_limits(y=0) +
   scale_x_continuous(breaks=scales::pretty_breaks(n=3)) +
   scale_y_continuous(labels = scales::scientific) +
-  facet_wrap(~stock, scale="free_y")
+  facet_wrap(~stock, scale="free_y", ncol=3)
 
 ```
 
