@@ -963,6 +963,8 @@ res <- fmsyAR_fun_no_transfer(stf,
                               f01,
                               f26)
 
+
+
 # set up the stf2 object  
 stf2  <- window(res[["stf"]],start=an(dms$year)[1],end=(4+rev(an(dms$year))[1]))
 FuY2  <- ac((an(CtY)+1):(an(CtY)+4))
@@ -1016,8 +1018,11 @@ stf2@stock[,] <- quantSums( stf2@stock.n[,,1] * stf2@stock.wt[,,1] *
 
 # convert to dataframe
 stf2.df <- as.data.frame(stf2) %>% 
-  bind_rows(., mutate(as.data.frame(fbar(stf2)[,,1]), slot="FA2-6")) %>% 
+#   bind_rows(., mutate(as.data.frame(fbar(stf2)[,,1]), slot="FA2-6")) %>% 
+  bind_rows(., mutate(as.data.frame(quantMeans(unitSums(stf2@harvest[f26,,1]))), slot="FA2-6")) %>% 
   bind_rows(., mutate(as.data.frame(rec(stf2)[,,1]), slot="rec", age=as.character(age)))
+
+# quantMeans(unitSums(res$stf@harvest[f26,FcY,]))
 
 # plot
 # windows()
@@ -1070,14 +1075,14 @@ stf2.df %>%
          unit=="A") %>%
   filter(year >=2019) %>% 
   dplyr::select(slot, year, data) %>% 
-  spread(key=year, value = data) %>% 
+  spread(key=slot, value = data) %>% 
   pandoc.table(., 
                style        = "simple",
                split.tables = 200, 
                justify      = "right",
                missing      =" ",
                big.mark     = '', 
-               round        = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+               round        = c(0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
 
 
 # Table of assumptions
