@@ -334,3 +334,44 @@ sag.df %>%
 ```
 
 **Figure x Trends in recruitment.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Weight at age North sea stock 
+
+data.df %>% 
+  filter(year >= 1980) %>% 
+  filter(stock == "her.27.3a47d") %>% 
+  filter(slot %in% c("catch.wt")) %>% 
+  filter(age >= 1) %>% 
+  mutate(age = paste0(age, " wr")) %>% 
+  
+  ggplot(aes(year,data, group=age)) +
+  theme_publication() +
+  theme(legend.position="none") +
+  geom_point(aes(colour=stock)) +
+  geom_smooth(aes(colour=stock, fill=stock), size=1, method="loess", se=TRUE, span=0.3) +
+  labs(x="", y="kg", colour="", fill="", title="her.27.3a47d catch weight at age") +
+  facet_wrap(~age, scales="free_y")
+
+
+```
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# F patterns North Sea herring
+t1 <- as.data.frame(getStockDownloadData(findAssessmentKey("herring", year = 2020))[2]) %>% lowcase()
+
+t1 %>% 
+  filter(year >= 1980) %>% 
+  dplyr::select(year, F01=custom4, F26=custom5, F78=custom6) %>% 
+  gather(key=F, value=data, F01:F78) %>% 
+
+  ggplot(aes(year,data, group=F)) +
+  theme_publication() +
+  geom_line(aes(colour=F), size=1) +
+  labs(x="", y="F", colour="", fill="", title="her.27.3a47d Fishing mortalities")
+
+```
