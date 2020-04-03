@@ -375,3 +375,26 @@ t1 %>%
   labs(x="", y="F", colour="", fill="", title="her.27.3a47d Fishing mortalities")
 
 ```
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# HERAS survey
+  
+NSH.tun.df %>% 
+  filter(year >= 1980) %>% 
+  filter(slot %in% c("index")) %>% 
+  filter(cname == "HERAS") %>% 
+  filter(data != -1) %>% 
+  mutate(yc = year - an(age) - 1) %>% 
+  mutate(age = paste0(age, " wr")) %>% 
+  
+  # ggplot(aes(year,data, group=age)) +
+  ggplot(aes(yc,data, group=age)) +
+  theme_publication() +
+  geom_point(aes(colour=factor(age))) +
+  geom_smooth(aes(colour=factor(age)), size=1, method="loess", se=FALSE, span=0.1) +
+  labs(colour="age") +
+  facet_wrap(~age, scales="free_y")
+
+
+```
