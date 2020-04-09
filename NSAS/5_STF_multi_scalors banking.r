@@ -469,6 +469,13 @@ res <- fmsyAR_fun_transfer( stf,
                             f01,
                             f26)
 
+# Propagate stock numbers to continuation year and calculate SSB
+for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
+for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
+for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
+for(i in dms$unit) stf@stock[,CtY,i]                        <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
+# quantMeans(unitMeans(stf@stock[,CtY,]))
+
 # update stf table
 stf.table[caseName,"Fbar 2-6 A",]                                  <- quantMeans(res$stf@harvest[f26,FcY,"A"])
 stf.table[caseName,grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(quantMeans(res$stf@harvest[f01,FcY,c("B","C","D")]),c(2:6,1))
@@ -511,6 +518,7 @@ stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- quantSums(
                                                                                   exp(-unitSums(stf_real@harvest[,FcY])*stf_real@harvest.spwn[,CtY,1]-stf_real@m[,CtY,1]*stf_real@m.spwn[,CtY,1]) *
                                                                                   stf_real@mat[,CtY,1])
 
+# write.csv(as.data.frame(quantMeans(unitSums(NSH@harvest[f26,,]))), "temp.csv")
 
 #-------------------------------------------------------------------------------
 # 8) Save outputs
