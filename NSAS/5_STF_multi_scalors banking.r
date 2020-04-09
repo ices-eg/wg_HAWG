@@ -508,7 +508,7 @@ stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[1],]     <- quantSums(
                                                                                   exp(-unitSums(stf_real@harvest[,FcY])*stf_real@harvest.spwn[,FcY,1]-stf_real@m[,FcY,1]*stf_real@m.spwn[,FcY,1]) *
                                                                                   stf_real@mat[,FcY,1])
 stf.table[caseName,grep("SSB",dimnames(stf.table)$values)[2],]     <- quantSums(stf_real@stock.n[,CtY,1] * stf_real@stock.wt[,CtY,1] *
-                                                                                  exp(-unitSums(stf_real@harvest[,CtY])*stf_real@harvest.spwn[,CtY,1]-stf_real@m[,CtY,1]*stf_real@m.spwn[,CtY,1]) *
+                                                                                  exp(-unitSums(stf_real@harvest[,FcY])*stf_real@harvest.spwn[,CtY,1]-stf_real@m[,CtY,1]*stf_real@m.spwn[,CtY,1]) *
                                                                                   stf_real@mat[,CtY,1])
 
 
