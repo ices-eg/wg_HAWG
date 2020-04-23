@@ -1,6 +1,6 @@
-Proportion mature at spawning time   (13/Mar/2018 17:31)
+Proportion mature at spawning time   (16/Mar/2020)
        1       6
-  1947    2018
+  1947    2019
        0   9
        1
        0       0       1           1        1       1       1       1       1     NA   #1947
@@ -75,3 +75,4 @@ Proportion mature at spawning time   (13/Mar/2018 17:31)
        0       0    0.71        0.89    0.95        1       1       1       1       1  #2016
        0       0    0.55        0.96    0.97        1       1       1       1       1  #2017
        0       0    0.37        0.91    0.98        1       1       1       1       1  #2018
+       0       0    0.59        0.97	0.99	    1	    1	    1	    1	    1  #2019

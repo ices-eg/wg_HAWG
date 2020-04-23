@@ -1,0 +1,259 @@
+---
+output: 
+  word_document:
+    reference_docx: ../_Common/report_template_v1.5.dotx
+---
+
+```{r setup, include=FALSE}
+# ==============================================================================
+# North Sea herring; quality control (and miscellaneous visualization)
+#
+# 22/03/2020 first coding
+# ==============================================================================
+
+require("knitr")
+knitr::opts_chunk$set(
+  echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE, fig.width=10) 
+
+rm(list=ls())
+
+#library(devtools)  ## install.packages("devtools")
+library(FLCore)
+library(FLSAM)
+library(tidyverse)
+library(RColorBrewer)
+
+# local path (not needed in RMarkdown)
+
+# source publication theme
+source("../_common/theme_publication.r")
+
+# Load crayola code
+source("../_common/crayola.r")
+
+# Create QC directory
+dir.create("qc",showWarnings = FALSE)
+
+# Other settings
+output.dir          <-  file.path(".","qc/")              # result directory\
+
+y1                  <- 2019
+dir1                <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2019 Meeting Docs/06. Data/NSAS"
+assessment_name1    <- 'NSH_HAWG2019_sf'
+
+y2                  <- 2020
+dir2                <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d"
+assessment_name2    <- 'NSH_HAWG2020_sf'
+
+# read in data objects of year1
+load(file.path(dir1, paste0(assessment_name1, ".RData"))) 
+s.y1      <- NSH
+s.ctrl.y1 <- NSH.ctrl
+s.sam.y1  <- NSH.sam
+s.tun.y1  <- NSH.tun
+ly.y1     <- an(range(s.y1)["maxyear"])
+
+stf.y1    <- get(load(file.path('stf',y1,paste0('NSAS_stf_',y1,'_FmsyAR.RData'))))[["stf"]]
+
+load(file.path(dir2, paste0(assessment_name2, ".RData"))) 
+s.y2      <- NSH
+s.ctrl.y2 <- NSH.ctrl
+s.sam.y2  <- NSH.sam
+s.tun.y2  <- NSH.tun
+ly.y2     <- an(range(s.y2)["maxyear"])
+
+stf.y2    <- get(load("D:/GIT/wg_HAWG/NSAS/stf/NSAS_stf_CD_TAC_sq_2020_FmsyAR.Rdata"))[["stf"]]
+
+
+rm(NSH, NSH.ctrl, NSH.sam, NSH.tun)
+
+```
+
+**Quality control of `r assessment_name2` assessment**
+
+**Martin Pastoors^1^**
+
+`r format(Sys.time(), '%d/%m/%Y %H:%M')`
+
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x1 Data check on biological input data 
+df.y1 <- as.data.frame(s.y1) %>% mutate(assessmentyear = ac(y1)) 
+df.y2 <- as.data.frame(s.y2) %>% mutate(assessmentyear = ac(y2)) 
+  
+bind_rows(df.y1, df.y2) %>%
+  filter(slot %in% c("catch", "catch.n","catch.wt", "harvest.spwn", "m.spwn","m","mat", "stock.wt")) %>% 
+  ggplot(aes(x=year, y=data)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  geom_line(aes(colour=assessmentyear)) +
+  # labs(title=myvar) +
+  facet_grid(slot~age, scale="free_y")
+
+```
+
+**Figure 2.2.4.x1. North Sea Herring. Data check on biological input data, comparing data of the `r y1` and `r y2` assessments.**
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x2 Data check on biological input data 
+# df.y1 <- as.data.frame(s.y1) %>% mutate(assessmentyear = ac(y1)) 
+# df.y2 <- as.data.frame(s.y2) %>% mutate(assessmentyear = ac(y2)) 
+  
+bind_rows(df.y1, df.y2) %>%
+  filter(slot %in% c("catch", "catch.n","catch.wt", "harvest.spwn", "m.spwn","m","mat", "stock.wt")) %>% 
+  filter(data != -1) %>% 
+  arrange(slot, age, year, unit, season, area, iter, assessmentyear) %>% 
+  group_by(slot, age, year, unit, season, area, iter) %>% 
+  mutate(data1 = lag(data, n=1)) %>% 
+  filter(data1 != -1, !is.na(data1)) %>% 
+  mutate(perc = 100*((data1/data)-1)) %>% 
+
+  ggplot(aes(x=year, y=perc)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept=0, colour="black", linetype="dashed") +
+  geom_line(colour="red", size=1) +
+  labs(y="perc diff") +
+  facet_grid(slot~age)
+
+```
+
+**Figure 2.2.4.x2. North Sea Herring. Data check on biological input data, relative difference between the `r y1` and `r y2` assessments.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x3 Data check on survey input data 
+df.tun.y1 <- as.data.frame(s.tun.y1) %>% mutate(assessmentyear = ac(y1)) 
+df.tun.y2 <- as.data.frame(s.tun.y2) %>% mutate(assessmentyear = ac(y2)) 
+
+bind_rows(df.tun.y1, df.tun.y2) %>%
+  filter(slot %in% c("index")) %>% 
+  ggplot(aes(x=year, y=data)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  geom_line(aes(colour=assessmentyear)) +
+  # labs(title=myvar) +
+  facet_grid(cname~age, scale="free_y")
+
+```
+
+**Figure 2.2.4.x4. North Sea Herring. Data check on survey input data, relative difference between the `r y1` and `r y2` assessments.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x4 Data check on relative difference in survey input data 
+df.tun.y1 <- as.data.frame(s.tun.y1) %>% mutate(assessmentyear = ac(y1)) 
+df.tun.y2 <- as.data.frame(s.tun.y2) %>% mutate(assessmentyear = ac(y2)) 
+
+bind_rows(df.tun.y1, df.tun.y2) %>%
+      filter(slot=="index") %>%
+      filter(data != -1) %>% 
+      arrange(slot, age, year, unit, season, area, iter, cname, assessmentyear) %>% 
+      group_by(slot, age, year, unit, season, area, iter, cname) %>% 
+      mutate(data1 = lag(data, n=1)) %>% 
+      filter(data1 != -1) %>% 
+      mutate(perc = 100*((data1/data)-1)) %>% 
+      
+      ggplot(aes(x=year, y=perc)) +
+      theme_bw() +
+      theme(legend.position="none") +
+      geom_hline(yintercept=0, colour="black", linetype="dashed") +
+      geom_line(colour="red", size=1) +
+      labs(x="",y="") +
+      facet_grid(cname~age)
+
+
+```
+
+**Figure 2.2.4.x4. North Sea Herring. Data check on survey input data, comparing data of the `r y1` and `r y2` assessments.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# Figure 2.6.1.2, Crayola catch
+
+trim(slot(s.y2,"catch.n"), year=(ly.y2-25):ly.y2, age=0:8) %>% 
+  as.data.frame() %>% 
+  dplyr::select(year, age, number = data) %>% 
+  filter(number != -1) %>% 
+  crayola(., t="North Sea herring catch at age")
+
+```
+
+**Figure 2.6.1.2. North Sea Herring. Time series of catch-at-age proportion at ages 0–8+ as used in the North Sea herring assessment. Colours indicate year-classes. All ages are scaled independently and therefore the size of the bars can only be compared within an age.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# Figure 2.6.1.4, Crayola heras
+
+trim(s.tun.y2[["HERAS"]]@index, year=(ly.y2-25):ly.y2, age=1:8) %>% 
+  as.data.frame() %>% 
+  dplyr::select(year, age, number = data) %>% 
+  filter(number != -1) %>% 
+  crayola(., t = "North Sea herring HERAS survey")
+
+
+```
+
+**Figure 2.6.1.4. North Sea Herring. Time series of the HERAS acoustic index by age 1–8+. Colours indicate year-classes. All ages are scaled independently and cannot be compared between ages.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# Figure 2.7.2.1. Predicted and projected catch (in weight) 
+# stf.y1    <- get(load(file.path('stf',y1,paste0('NSAS_stf_',y1,'_FmsyAR.RData'))))[["stf"]]
+# stf.y2    <- get(load(file.path('stf',y2,paste0('NSAS_stf_',y2,'_FmsyAR.RData'))))[["stf"]]
+
+catch.y1  <- as.data.frame(stf.y1@catch.n * stf.y1@catch.wt) %>% mutate(stf=ac(y1))
+catch.y2  <- as.data.frame(stf.y2@catch.n * stf.y2@catch.wt) %>% mutate(stf=ac(y2))
+
+bind_rows(catch.y1,catch.y2) %>% 
+  mutate(age = paste0(age," wr")) %>% 
+  filter(unit=="A") %>% 
+
+  ggplot(aes(x=year, y=data, group=stf)) +
+  theme_publication() +
+  geom_line(aes(colour=stf), size=1) +
+  labs(x="", y="catch (tonnes)", colour="HAWG") +
+  facet_wrap(~age)
+
+```
+
+**Figure 2.7.2.1. North Sea Herring. Predicted and projected catch (in weight) between `r y1` assessment (`r y1+1` as forecast year) and `r y2` assessment (`r y2+1` as forecast year).**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# Figure 2.7.2.2. Predicted and projected catch (in weight) 
+
+catch.y1  <- as.data.frame(stf.y1@catch.n * stf.y1@catch.wt) %>% mutate(stf=ac(y1))
+catch.y2  <- as.data.frame(stf.y2@catch.n * stf.y2@catch.wt) %>% mutate(stf=ac(y2))
+
+bind_rows(catch.y1,catch.y2) %>% 
+  mutate(age = paste0(age," wr")) %>% 
+  mutate(stf = paste0("HAWG ", stf)) %>% 
+  filter(unit=="A") %>% 
+
+  ggplot(aes(x=year, y=data, group=stf)) +
+  theme_bw() +
+  # geom_bar(aes(fill=as.character(age)), stat="identity", colour="white") +
+  geom_bar(aes(fill=as.character(age)), stat="identity", position="fill", colour="white") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "", y= "catch (tonnes)", fill="age (WR)") +
+  facet_wrap(~stf)
+
+```
+
+**Figure 2.7.2.2. North Sea Herring. Catch proportions for the different ages between the  `r y1` assessment (`r y1+1` as forecast year) and `r y2` assessment (`r y2+1` as forecast year).**
+
