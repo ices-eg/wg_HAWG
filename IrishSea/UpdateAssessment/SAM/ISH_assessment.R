@@ -25,10 +25,9 @@ ISH.ctrl@obs.vars["AC(VIIaN)",] <- c(4,rep(5,4),rep(6,3))
 #only need the run dir setup below if sam.exe name is longer than 4 characters
 ISH.ctrl@sam.binary <- file.path(my.path,"sam.exe")
 ISH.sam       <- FLSAM(ISH,ISH.tun,ISH.ctrl)
-#ISH.sam       <- SAM2FLR(ctrl=ISH.ctrl,admb.stem="sam")
-
 ISH.sam       <- SAM2FLR(ctrl=ISH.ctrl)
 
+ISH<-ISH+ISH.sam
 #save results
 name(ISH.sam) <- "ISH_assessment 2020"
 ISH@stock.n <- ISH.sam@stock.n
@@ -41,6 +40,8 @@ plot(ISH.sam)
 ISH.sam@nlogl
 fbar(ISH.sam)$value
 ssb(ISH.sam)$value
+
+catch(ISH)
 ##############
 ##############
 ##############
