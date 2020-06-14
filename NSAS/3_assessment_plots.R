@@ -8,6 +8,7 @@ library(ggplot2)
 library(FLSAM)
 library(FLEDA)
 path <- "C:/git/wg_HAWG/NSAS/"
+path <- "J:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
 dir.create("assessment",showWarnings = FALSE)
@@ -39,6 +40,9 @@ PNG <- ifelse(PDF,F,T)
 
 load(paste(resPath,"/NSH_HAWG2020_sf_retro.RData",sep=""))
 load(paste(resPath,"/NSH_HAWG2020_mf_retro.RData",sep=""))
+
+load(paste(resPath,"/NSH_HAWG2020_sf.RData",sep=""))
+load(paste(resPath,"/NSH_HAWG2020_mf.RData",sep=""))
 
 ### ============================================================================
 ### Model fit
