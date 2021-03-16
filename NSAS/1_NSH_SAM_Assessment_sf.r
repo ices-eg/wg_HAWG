@@ -34,6 +34,7 @@ assessment_name     <- 'NSH_HAWG2021_sf'
 ### imports
 ### ============================================================================
 library(FLSAM); library(FLEDA)
+addM <- 0.11
 source(file.path(script.dir,"setupAssessmentObjects_sf.r"))
 source(file.path(script.dir,"setupControlObject_sf.r"))
 

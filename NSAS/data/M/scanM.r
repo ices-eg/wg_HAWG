@@ -1,3 +1,65 @@
+### ============================================================================
+### ============================================================================
+### ============================================================================
+### NSAS single fleet assessment
+### ============================================================================
+### ============================================================================
+### ============================================================================
+
+rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
+options(stringsAsFactors=FALSE)
+log.msg     <-  function(string) {cat(string);}
+log.msg("\nNSH Final Assessment (single fleet)\n=====================\n")
+
+# local path
+path <- "J:/git/wg_HAWG/NSAS/"
+
+try(setwd(path),silent=TRUE)
+
+### ======================================================================================================
+### Define parameters and paths for use in the assessment code
+### ======================================================================================================
+dir.create("assessment",showWarnings = FALSE)
+
+data.dir            <-  file.path(".","data/")
+output.dir          <-  file.path(".","assessment/")              # result directory\
+script.dir          <-  file.path(".","side_scripts/")            # result directory
+assessment_name     <- 'NSH_HAWG2021_sf_scanM'
+
+### ============================================================================
+### imports
+### ============================================================================
+library(FLSAM); library(FLEDA)
+addM <- 0
+source(file.path(script.dir,"setupAssessmentObjects_sf.r"))
+source(file.path(script.dir,"setupControlObject_sf.r"))
+
+NSH.sam               <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+
+stk0.NSH.sam <- NSH.sam
+
+load(file.path(output.dir,paste0(assessment_name,'.Rdata')))
+
+#0.11
+mOrig <- NSH@m
+#NSH.sams <- new("FLSAMs")
+for(iM in seq(0.11,0.6,0.01)){
+  print(iM)
+  NSH@m <- mOrig + iM
+  NSH.sams[[ac(iM)]] <- FLSAM(NSH,NSH.tun,NSH.ctrl,starting.values = stk0.NSH.sam)#,starting.values = stk0.NSH.sam
+}
+
+save(NSH.sams,file=file.path(output.dir,paste0(assessment_name,'.Rdata')))
+
+
+
+
+### ============================================================================
+### Dump
+### ============================================================================
+
+
+
 rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {cat(string);}

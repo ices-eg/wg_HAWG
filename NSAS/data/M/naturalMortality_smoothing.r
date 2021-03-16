@@ -1,10 +1,10 @@
 rm(list=ls())
 
-library(lattice)
-library(latticeExtra)
 library(nlme)
+library(tidyr)
+library(ggplot2)
 
-path <- "D:/git/wg_HAWG/NSAS"
+path <- "J:/git/wg_HAWG/NSAS"
 
 
                                                   
@@ -13,101 +13,81 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 ### Define parameters and paths for use in the assessment code
 ### ======================================================================================================
-output.dir          <- file.path(path,"data/")                #data directory
-input.dir           <- file.path(path,"data/natural_mortality/")
-SMSRun              <- 'SMS2016'
+data.dir            <-  file.path(".","data/")              # result directory
+
+keyRuns <- c(2019)
 
 ### ============================================================================
-### imports
+### read files
 ### ============================================================================
-library(FLSAM); library(FLEDA); #library(FLBRP)
-source("vectorise.r")
-load(paste(input.dir,"/natMortDataFrame_",SMSRun,".RData",sep=""))
 
+M2M1_smooth_2016    <- read.csv(file.path(data.dir,"M","M_NSAS_smoothedSpan50_notExtrapolated_2016.csv"),header=TRUE,check.names = FALSE)
+M2M1_raw_2016       <- read.csv(file.path(data.dir,"M","M_NSAS_raw_notExtrapolated_2016.csv"),header=TRUE,check.names = FALSE)
+M2M1_raw_2019     <- read.csv(file.path(data.dir,"M","M_NSAS_raw_notExtrapolated_2019.csv"),header=TRUE,check.names = FALSE)
 
-#-----------------------------------------------------------------------------
-# 1b) create M matrix raw from 2016 data
-#-----------------------------------------------------------------------------
+# reformat. Important to note, the 2016 run is M2 only.
+M2M1_raw_2019 <- gather(M2M1_raw_2019,'year','M',-age)
+M2M1_raw_2019$year  <- as.numeric(M2M1_raw_2019$year)
+M2M1_raw_2019$run   <- '2019_raw'
 
-SMSher              <- (her2016)
-SMSher$M            <- SMSher$M1+SMSher$M2
-agesM <- unique(SMSher$Age)
+M2M1_raw_2016 <- gather(M2M1_raw_2016,'year','M',-age)
+M2M1_raw_2016$year <- as.numeric(M2M1_raw_2016$year)
+M2M1_raw_2016$run   <- '2016_raw'
 
-rawM                <- t(matrix(SMSher$M,ncol=length(sort(unique(SMSher$Age))),nrow=length(sort(unique(SMSher$Year))),
-                                dimnames=list(sort(unique(SMSher$Year)),sort(unique(SMSher$Age)))))
-years   <- 1960:2016
-extryrs <- 1960:1973
-ages    <- 0:9
-finalM  <- matrix(NA,nrow=length(ages),ncol=length(1960:max(years)),dimnames=list(ages=ages,years=years))
+M2M1_smooth_2016      <- gather(M2M1_smooth_2016,'year','M',-age)
+M2M1_smooth_2016$year <- as.numeric(M2M1_smooth_2016$year)
+M2M1_smooth_2016$run  <- '2016_smooth'
 
-#- Fill in values already known for finalM
-finalM[ac(0:9),ac(1974:2016)] <- rawM
-write.csv(finalM,file=paste(input.dir,"/Raw_NotExtrapolated_NSAS_",SMSRun,".csv",sep=""))
+M2M1_all <- rbind(M2M1_raw_2016,M2M1_raw_2019,M2M1_smooth_2016)
 
-#-----------------------------------------------------------------------------
-# 2) compare different SMS key-runs - to be added
-#-----------------------------------------------------------------------------
+### ============================================================================
+### process time series
+### ============================================================================
 
-#windows()
-#savePlot(paste(input.dir,"/SMS2016_TotalNaturalMortalityNSAS.png",sep=""),type="png")
-
-#-----------------------------------------------------------------------------
-# 3) Fit loess smoothers to each age and SMS year and predict new smoothed values
-#-----------------------------------------------------------------------------
-
-storeSmooth   <- array(NA,dim=c(length(sort(unique(SMSher$Age))),1,length(sort(unique(SMSher$Year))),3),
-                          dimnames=list(Age=sort(unique(SMSher$Age)),SMS=c(2016),Year=sort(unique(SMSher$Year)),Fit=c("5%","50%","95")))
-for(iAge in sort(unique(SMSher$Age))){
+storeSmooth   <- array(NA,dim=c(length(sort(unique(M2M1_raw_2019$age))),
+                                length(keyRuns),
+                                length(sort(unique(M2M1_raw_2019$year))),
+                                3),
+                          dimnames=list(age=sort(unique(M2M1_raw_2019$age)),
+                                        SMS=c(keyRuns),
+                                        year=sort(unique(M2M1_raw_2019$year)),
+                                        Fit=c("5%","50%","95")))
+for(iAge in sort(unique(M2M1_raw_2019$age))){
   #for(iSMS in sort(unique(SMSher$SMSyear))){
-  for(iSMS in 2016){
-    res         <- predict(loess((M)~Year,data=subset(SMSher, Age == iAge),span=0.5),
-                           newdata=expand.grid(Year=sort(unique(subset(SMSher,Age == iAge)$Year))),
+  for(iSMS in keyRuns){
+    res         <- predict(loess((M)~year,data=subset(M2M1_raw_2019, age == iAge),span=0.5),
+                           newdata=expand.grid(year=sort(unique(subset(M2M1_raw_2019,age == iAge)$year))),
                            se=T)                           
-    yrs         <- sort(unique(subset(SMSher, Age == iAge)$Year))
+    yrs         <- sort(unique(subset(M2M1_raw_2019, age == iAge)$year))
     storeSmooth[ac(iAge),ac(iSMS),ac(yrs),] <- matrix(c(res$fit-1.96*res$se.fit,res$fit,res$fit+1.96*res$se.fit),nrow=length(yrs),ncol=3)
   }
 }
 
-#-----------------------------------------------------------------------------
-# 4) Plot averaged new predicted smoothed values
-#-----------------------------------------------------------------------------
-dtfSmooth           <- vectorise(storeSmooth[,"2016",,"50%"])
-dtfRaw              <- SMSher[,c("M1","M2","Age","Year")]
-dtfRaw$M            <- dtfRaw$M1+dtfRaw$M2
-dtfRaw              <- dtfRaw[,c("M","Age","Year")]; colnames(dtfRaw) <- c("Value","Age","Year")
-colnames(dtfSmooth) <- c("Value","Age","Year")
-dtfSmooth$Age       <- as.factor(dtfSmooth$Age)
-dtfSmooth$Year      <- as.numeric(dtfSmooth$Year)
-dtftotal            <- rbind(cbind(dtfSmooth,type="Smooth"),cbind(dtfRaw,type="Raw"))
+# convert to df
+M2M1_smooth_2019      <- as.data.frame(storeSmooth[,"2019",,"50%"])
+M2M1_smooth_2019$age  <- rownames(M2M1_smooth_2019)
+M2M1_smooth_2019      <- gather(M2M1_smooth_2019,'year','M',-age)
+M2M1_smooth_2019$year <- as.numeric(M2M1_smooth_2019$year)
+M2M1_smooth_2019$run  <- '2019_smooth'
 
-windows()
-xyplot(Value~Year|Age,data=dtftotal,type="l",xlab="Years",ylab="Total Natural Mortality - Span = 0.5",
-       groups="type",
-       prepanel=function(...) {list(ylim=range(c(0,list(...)$y*1.05)))},
-       main="North Sea herring M - span = 0.5",
-       panel=function(...){
-        dat <- list(...)
-        idx1 <- 1:(length(dat$x)/2)
-        idx2 <- (rev(idx1)[1]+1):length(dat$x)
+M2M1_all <- rbind(M2M1_all,M2M1_smooth_2019)
 
-        panel.grid(h=-1, v= -1)
-        panel.xyplot(dat$x[idx1],dat$y[idx1],type="l",col=1)
-        panel.xyplot(dat$x[idx2],dat$y[idx2],type="l",col=2)
-       },
-       scales=list(alternating=1,y=list(relation="free",rot=0)))
-savePlot(paste(input.dir,"/Raw_NotExtrapolated_NSAS_",SMSRun,".png",sep=""),type="png")
+# save file
+write.csv(storeSmooth[,"2019",,"50%"],file=file.path(data.dir,"M_NSAS_smoothedSpan50_notExtrapolated_2019.csv"))
+write.csv(storeSmooth[,"2019",,"50%"],file=file.path(data.dir,'M',"M_NSAS_smoothedSpan50_notExtrapolated_2019.csv"))
 
-#-----------------------------------------------------------------------------
-# 6) Extrapolate the M-at-age
-#-----------------------------------------------------------------------------
+### ============================================================================
+### Plotting
+### ============================================================================
 
-years   <- 1974:2016
-extryrs <- years[which(!years %in% unique(subset(dtfSmooth,Year %in% 1963:2016)$Year))]
-ages    <- 0:9
-finalM  <- matrix(NA,nrow=length(ages),ncol=length(1974:max(years)),dimnames=list(ages=ages,years=years))
+scaling_factor <- 2
+png(file.path(file.path(data.dir,"M",'NSAS_M_comparison.png')), 
+    width = 12*scaling_factor, height = 8*scaling_factor, units = "cm", res = 300, pointsize = 10)
 
-  #- Fill in values already known for finalM
-finalM[ac(0:9),ac(1974:2016)] <- storeSmooth[,"2016",,"50%"]
-write.csv(finalM,file=paste(input.dir,"/Smoothed_span50_M_NotExtrapolated_NSAS",SMSRun,".csv",sep=""))
-write.csv(finalM,file=paste(output.dir,"/Smoothed_span50_M_NotExtrapolated_NSAS",SMSRun,".csv",sep=""))
+p <- ggplot(M2M1_all,aes(x=year,y=M,color=run))+
+      geom_line()+
+      expand_limits(y=0)+
+      facet_wrap(~age,scales='free')
 
+print(p)
+dev.off()
