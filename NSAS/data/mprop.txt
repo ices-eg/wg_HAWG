@@ -1,6 +1,6 @@
 Proportion of M before spawning  (16/Mar/2020)
        1       8
-  1947      2019
+  1947      2020
        0       9
        3
     0.67
