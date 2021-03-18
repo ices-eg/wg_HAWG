@@ -73,8 +73,8 @@ M2M1_smooth_2019$run  <- '2019_smooth'
 M2M1_all <- rbind(M2M1_all,M2M1_smooth_2019)
 
 # save file
-write.csv(storeSmooth[,"2019",,"50%"],file=file.path(data.dir,"M_NSAS_smoothedSpan50_notExtrapolated_2019.csv"))
-write.csv(storeSmooth[,"2019",,"50%"],file=file.path(data.dir,'M',"M_NSAS_smoothedSpan50_notExtrapolated_2019.csv"))
+#write.csv(storeSmooth[,"2019",,"50%"],file=file.path(data.dir,"M_NSAS_smoothedSpan50_notExtrapolated_2019.csv"))
+#write.csv(storeSmooth[,"2019",,"50%"],file=file.path(data.dir,'M',"M_NSAS_smoothedSpan50_notExtrapolated_2019.csv"))
 
 ### ============================================================================
 ### Plotting
@@ -84,7 +84,7 @@ scaling_factor <- 2
 png(file.path(file.path(data.dir,"M",'NSAS_M_comparison.png')), 
     width = 12*scaling_factor, height = 8*scaling_factor, units = "cm", res = 300, pointsize = 10)
 
-p <- ggplot(M2M1_all,aes(x=year,y=M,color=run))+
+p <- ggplot(M2M1_all,aes(x=year,y=M-0.1,color=run))+
       geom_line()+
       expand_limits(y=0)+
       facet_wrap(~age,scales='free')

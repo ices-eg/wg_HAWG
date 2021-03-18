@@ -26,7 +26,7 @@ require(reshape2)
 ### ============================================================================
 ### Misc
 ### ============================================================================
-data.source         <- file.path(".","data")    #Data source, not code or package source!!!
+data.source         <- file.path("..","..","data")    #Data source, not code or package source!!!
 
 ### ============================================================================
 ### Prepare stock object for assessment
@@ -119,7 +119,7 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 ### Prepare Natural Mortality estimates 
 ### ============================================================================
 #Read in estimates from external file
- M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS2016.csv"),
+ M2            <- read.csv(file.path(data.source,"Smoothed_span50_M_NotExtrapolated_NSAS2016.csv"),
 #                    header=TRUE)
 #M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS_2010.csv"),
                           header=TRUE)
@@ -203,7 +203,7 @@ type(NSH.tun[["SCAI"]]) <- "biomass"
 
 
 
-surveyLAI <- read.table("./data/lai.txt",stringsAsFactors=F,header=T)
+surveyLAI <- read.table(file.path(data.source,"lai.txt"),stringsAsFactors=F,header=T)
 ORSH <- subset(surveyLAI,Area == "Or/Sh")
 CNS  <- subset(surveyLAI,Area == "CNS")
 BUN  <- subset(surveyLAI,Area == "Buchan")

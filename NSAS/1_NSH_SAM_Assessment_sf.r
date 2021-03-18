@@ -28,7 +28,7 @@ dir.create("assessment",showWarnings = FALSE)
 output.dir          <-  file.path(".","assessment/")              # result directory\
 script.dir          <-  file.path(".","side_scripts/")            # result directory
 n.retro.years       <-  12                                        # Number of years for which to run the retrospective
-assessment_name     <- 'NSH_HAWG2021_sf'
+assessment_name     <- 'NSH_HAWG2021_sf_SMS2016_0.11'
 
 ### ============================================================================
 ### imports
