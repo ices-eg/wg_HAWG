@@ -1,4 +1,4 @@
-#R 3.0.0
+#R 3.0.3
 
 library(FLCore)
 library(FLAssess)
@@ -12,7 +12,7 @@ library(FLSAM)
 ### Input data
 ###=============================================================================
 setwd("C:\\Users\\Matt Lundy\\Documents\\GIT_HUB\\wg_HAWG\\IrishSea\\UpdateAssessment\\SAM\\Results")
-load("ISH_assessment 2020.Rdata")
+load("ISH_assessment 2021.Rdata")
 my.path<-file.path("C:","Users","Matt Lundy","Documents", "GIT_HUB", "wg_HAWG", "IrishSea","UpdateAssessment","SAM")
 output.dir              <- file.path(my.path,"results")
 data.source         <- file.path(my.path,"data")
@@ -65,12 +65,12 @@ survivors           <- survivors[ac(dmns$min:dmns$max),]
 ISH.proj@stock.n[,ac(ImY)]<-survivors
 ISH.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- gm.recs;
 
-#For 2017
-ImY.catch <- 8064;  
-#2017 real advice year
+#For 2021
+ImY.catch <- 7341;  
+#2021 real advice year
 numFmsy <- 0.266;
 numFlim <- 0.397;
-numFpa <- 0.286;
+numFpa <- 0.257;
 
 #Setup options
 

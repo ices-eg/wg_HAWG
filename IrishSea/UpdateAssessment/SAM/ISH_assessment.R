@@ -3,11 +3,10 @@
 library(FLCore)
 library(FLSAM)
 library(FLSAM)
-library(FLEDA)
+#library(doBy)
+#library(reshape)
 
 rm(list=ls())
-#C:\Users\Matt Lundy\Documents\GIT_HUB\wg_HAWG\IrishSea\UpdateAssessment\SAM
-#- Set paths
 my.path<-file.path("C:","Users","Matt Lundy","Documents", "GIT_HUB", "wg_HAWG", "IrishSea","UpdateAssessment","SAM")
 output.dir              <- file.path(my.path,"results")
 data.source         <- file.path(my.path,"data")    #Data source, not code or package source!!!
@@ -29,7 +28,7 @@ ISH.sam       <- SAM2FLR(ctrl=ISH.ctrl)
 
 ISH<-ISH+ISH.sam
 #save results
-name(ISH.sam) <- "ISH_assessment 2020"
+name(ISH.sam) <- "ISH_assessment 2021"
 ISH@stock.n <- ISH.sam@stock.n
 ISH@harvest <- ISH.sam@harvest
 
@@ -40,8 +39,8 @@ plot(ISH.sam)
 ISH.sam@nlogl
 fbar(ISH.sam)$value
 ssb(ISH.sam)$value
-
 catch(ISH)
+
 ##############
 ##############
 ##############
@@ -204,3 +203,16 @@ colnames(stockSummaryTable) <-
                        "Landings (tonnes)","Yield / SSB (ratio)","Mean F ages 4-6"),each=3),c("Mean","Low","High")),"SoP (%)")
 write.csv(stockSummaryTable,file=file.path(output.dir,"stockSummaryTable.csv"))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
+
+
+Ages<-9
+
+i<-2
+plot(as.numeric(seq(1980,2021,1)),c(stock.n(ISH[i,]),207843),type='l',main='Stock Numbers Age 2',xlab='year',ylab='StockNumbers')
+
+i<-3
+plot(as.numeric(seq(1980,2021,1)),c(stock.n(ISH[i,]),84195),type='l',main='Stock Numbers Age 3',xlab='year',ylab='StockNumbers')
+
+i<-4
+plot(as.numeric(seq(1980,2021,1)),c(stock.n(ISH[i,]),65619),type='l',main='Stock Numbers Age 4',xlab='year',ylab='StockNumbers')
+

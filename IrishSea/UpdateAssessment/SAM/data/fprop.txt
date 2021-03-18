@@ -1,6 +1,6 @@
 Proportion of F before Spawning
 1 7
-1961 2019
+1961 2020
 1 8
 3
    0.9
