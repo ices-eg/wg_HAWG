@@ -24,7 +24,9 @@ dir.create("assessment",showWarnings = FALSE)
 data.dir            <-  file.path(".","data/")
 output.dir          <-  file.path(".","assessment/")              # result directory
 script.dir          <-  file.path(".","side_scripts/")            # result directory
-assessment_name     <- 'NSH_HAWG2020_sf_scanM_SMS2019_0.01'
+#assessment_name     <- 'NSH_HAWG2020_sf_scanM_SMS2019_0.01'
+run_name            <- 'NSH_HAWG2021_sf_scanM0.01_SMS2016'
+assessment_name     <- paste0(run_name,'_sf')
 
 ### ============================================================================
 ### imports
@@ -45,7 +47,7 @@ source(file.path(script.dir,"setupAssessmentObjects_sf.r"))
 #NSH.tun$IBTS0     <- window(NSH.tun$IBTS0, end=2017)
 source(file.path(script.dir,"setupControlObject_sf.r"))
 NSH.ctrl@residuals <- FALSE
-NSH.ctrl@cor.F <- 2
+#NSH.ctrl@cor.F <- 2
 
 # pre-run assessment for initial values
 NSH.sam               <- FLSAM(NSH,NSH.tun,NSH.ctrl)
@@ -55,7 +57,7 @@ mOrig <- NSH@m
 NSH.sams  <- new("FLSAMs")
 NSHs      <- new("FLStocks")
 flagFirst <- TRUE
-inc <- 0.1
+inc <- 0.01
 
 for(iM in seq(-0.1,0.6,inc)){
   print(iM)
@@ -74,7 +76,8 @@ save(NSH.sams,
      file=file.path(output.dir,paste0(assessment_name,'.Rdata')))
 
 
-plot(seq(-0.1,0.6,0.1),unlist(lapply(NSH.sams,nlogl)))
+plot(seq(-0.1,0.37,0.01),unlist(lapply(NSH.sams,nlogl)))
+seq(-0.1,0.37,0.01)[which(min(unlist(lapply(NSH.sams,nlogl)))==unlist(lapply(NSH.sams,nlogl)))]
 
 #plot(seq(-0.1,0.6,0.01),unlist(lapply(NSH.sams,nlogl)))
 #plot(seq(-0.1,0.6,0.1),unlist(lapply(NSH.sams,nlogl)))

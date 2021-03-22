@@ -77,6 +77,8 @@ SSB_mr  <- mean(mohns.rho(NSH.retro,span=5,ref.year=2019,type="ssb")$rho)
 fbar_mr <- mean(mohns.rho(NSH.retro,span=5,ref.year=2019,type="fbar")$rho)
 rec_mr  <- mean(mohns.rho(NSH.retro,span=5,ref.year=2019,type="rec")$rho)
 
+mean(mohns.rho(NSH.retro,span=5,ref.year=2020,type="fbar")$rho)
+
 # output for cindy
 write.csv(components(NSH.sam),file = file.path(output.dir,'output','LAI_prop.csv'))
 write.csv(rec(NSH.sam),file = file.path(output.dir,'output','rec_sf.csv'),row.names = FALSE)

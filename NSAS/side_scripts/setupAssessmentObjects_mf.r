@@ -56,7 +56,8 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 ### Prepare Natural Mortality estimates 
 ### ============================================================================
 #Read in estimates from external file
-M2            <- read.csv(file.path(".","data","M_NSAS_smoothedSpan50_notExtrapolated_2019.csv"),header=TRUE)
+#M2            <- read.csv(file.path(".","data","M_NSAS_smoothedSpan50_notExtrapolated_2019.csv"),header=TRUE)
+M2            <- read.csv(file.path(".","data","M_NSAS_smoothedSpan50_notExtrapolated_2016.csv"),header=TRUE)
 
 colnames(M2)  <- sub("X","",colnames(M2))
 rownames(M2)  <- M2[,1]
@@ -91,7 +92,7 @@ if(length(extrags)>0){
     NSHM2@m[ac(iAge),]          <- NSHM2@m[ac(as.numeric(min(sort(extrags)))-1),]
 }
 #Write new M values into the original stock object
-addM      <- 0 #M profiling based on 2018 benchmark meeting
+addM      <- 0.11 #M profiling based on 2018 benchmark meeting
 NSH@m     <- NSHM2@m + addM
 
 
