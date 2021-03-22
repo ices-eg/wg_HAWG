@@ -19,6 +19,7 @@ require(msm)         # install.packages("msm")
 
 library(tidyverse)
 library(pander)
+library(ggthemes)
 
 # source publication theme
 source("../_common/theme_publication.r")
@@ -46,9 +47,41 @@ functionPath  <- file.path(".","functions")
 #load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
 #load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_mf.Rdata")
 #load(file=file.path(assessment.dir,"NSH_HAWG2021_sf.RData"))
+#load(file=file.path(assessment.dir,"NSH_HAWG2021_M0.11_mf.RData"))
+#load(file=file.path(assessment.dir,"NSH_HAWG2020_mf.RData"))
+
+#quantMeans(NSH3f.sam[,ac(2018:2020)]@harvest[ac(2:6),,,,'A',])
+
+#quantMeans(NSH3f.sam[,ac(2018:2020)]@harvest[ac(2:6),,,,,])
+
+#load(file=file.path(assessment.dir,"NSH_HAWG2021_M0.11_mf.RData"))
+
+#quantMeans(NSH3f.sam[,ac(2018:2020)]@harvest[ac(2:6),,,,'A',])
+
+#load(file=file.path(assessment.dir,"NSH_HAWG2021_M0.11_sf.RData"))
+
+#load(file=file.path(assessment.dir,"NSH_HAWG2021_M0.11_sf.RData"))
+
+#quantMeans(NSH.sam@harvest)
+
+#load(file=file.path(assessment.dir,"NSH_HAWG2020_sf.RData"))
+
+#quantMeans(NSH.sam@harvest)
+
 load(file=file.path(assessment.dir,"NSH_HAWG2021_M0.11_mf.RData"))
 load(file=file.path(assessment.dir,"NSH_HAWG2021_M0.11_sf.RData"))
+
+# use of retro obhect
 #load(file=file.path(assessment.dir,"NSH_HAWG2021_M0.11_sf_retro.RData"))
+#NSH@stock.n           <- NSH.sam@stock.n[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
+#NSH@harvest           <- NSH.sam@harvest[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
+
+#NSH <- NSH[,ac(1947:2019)]
+#NSH.sam               <- NSH.retro[[2]]
+#NSH@stock.n           <- NSH.sam@stock.n[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
+#NSH@harvest           <- NSH.sam@harvest[,ac(range(NSH)["minyear"]:range(NSH)["maxyear"])]
+
+#NSH <- ssb(NSH.retro[[2]])
 
 # ImY forecast functions
 source(file.path(functionPath,"fleet.harvest.r"))
