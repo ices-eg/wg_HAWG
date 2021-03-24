@@ -25,8 +25,9 @@ dataDir           <-  file.path(".","data/")
 resPath           <-  file.path(".","assessment/")
 output.dir.single <-  file.path(".","assessment/plots_singlefleet")
 output.dir.multi  <-  file.path(".","assessment/plots_multifleet")
-assessment_name_multifleet  <- "HAWG2020_multifleet"
-assessment_name_singlefleet <- "HAWG2020_singlefleet"
+run_name          <- 'NSH_HAWG2021_SMS2016'
+assessment_name_multifleet  <- paste0(run_name,'_mf')#"HAWG2020_multifleet"
+assessment_name_singlefleet <- paste0(run_name,'_sf')#"HAWG2020_singlefleet"
 
 source(file.path("../_Common/HAWG_Common_module.r")) # load general functions
 
@@ -38,11 +39,27 @@ PNG <- ifelse(PDF,F,T)
 ### single fleet
 ### ============================================================================
 
-load(paste(resPath,"/NSH_HAWG2020_sf_retro.RData",sep=""))
-load(paste(resPath,"/NSH_HAWG2020_mf_retro.RData",sep=""))
+#load(file.path(resPath,'NSH_HAWG2021_SMS2019_M0.11_sf.Rdata'))
+load(file.path(resPath,'NSH_HAWG2021_SMS2016_M0.11_sf.Rdata'))
+NSH_M0.11 <- NSH
+NSH.sam_M0.11 <- NSH.sam
 
-load(paste(resPath,"/NSH_HAWG2020_sf.RData",sep=""))
-load(paste(resPath,"/NSH_HAWG2020_mf.RData",sep=""))
+load(file.path(resPath,'NSH_HAWG2021_SMS2016_sf.Rdata'))
+NSH_SMS2016 <- NSH
+
+load(file.path(resPath,paste0(run_name,'_sf.RData')))
+load(file.path(resPath,paste0(run_name,'_mf.RData')))
+
+load(file.path(resPath,paste0(run_name,'_sf_retro.RData')))
+load(file.path(resPath,paste0(run_name,'_mf_retro.RData')))
+
+
+
+#load(paste(resPath,"/NSH_HAWG2021_sf_retro.RData",sep=""))
+#load(paste(resPath,"/NSH_HAWG2021_mf_retro.RData",sep=""))
+
+#load(paste(resPath,"/NSH_HAWG2021_sf.RData",sep=""))
+#load(paste(resPath,"/NSH_HAWG2021_mf.RData",sep=""))
 
 ### ============================================================================
 ### Model fit
@@ -185,14 +202,22 @@ print(timeseries(window(NSH,1947,range(NSH)["maxyear"]),slot="m"))
 savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_18_ts_M.png",sep = ""),type="png")
 
 ## figure - acoustic index at age
-print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[["HERAS"]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+#print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[["HERAS"]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+prop_HERAS <- as.data.frame(NSH.tun[["HERAS"]]@index)
+prop_HERAS$data[prop_HERAS$data == -1] <- NA
+
+p <- ggplot(subset(prop_HERAS,year>=2000),aes(x=year,y=data))+
+      geom_bar(aes(fill = as.factor(age)),stat="identity",position = "fill")+
+      ylab('Proportion of Acoustic index at age')
+
+print(p)
 
 savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_19_HERAS_prop.png",sep = ""),type="png")
 
 #figure - TACs and catches
 #TACs          <- read.csv(file.path(".","data","historic data","TAC-historic.csv"))
 start_year    <- 1987
-end_year      <- 2020
+end_year      <- 2021
 TACs          <- read.csv(file.path(".","data","TAC_var","NSAS_TAC.csv"))
 TACs          <- TACs[TACs$year <= end_year,]
 TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("A","B")],na.rm=T),each=2))
@@ -227,7 +252,7 @@ savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_21_weight_sto
 
 # figure - overlay survey time series for the different ages.
 start_year  <- 2000
-end_year    <- 2020
+end_year    <- 2021
 
 for(iAge in range(NSH)["min"]:range(NSH)["max"]){
   for(idxSurvey in 1:length(NSH.tun)){
@@ -268,7 +293,15 @@ for(iAge in range(NSH)["min"]:range(NSH)["max"]){
 }
 
 # figure - catch number at age
-print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.n)),groups="age",main="Proportion of Catch numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+#print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.n)),groups="age",main="Proportion of Catch numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+prop_catches <- as.data.frame(NSH@catch.n)
+prop_catches$data[prop_catches$data == -1] <- NA
+
+p <- ggplot(subset(prop_catches,year>=2000),aes(x=year,y=data))+
+      geom_bar(aes(fill = as.factor(age)),stat="identity",position = "fill")+
+      ylab('Proportion of Catch numbers at age')
+
+print(p)
 
 savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_23_catch_N.png",sep = ""),type="png")
 
@@ -337,9 +370,9 @@ text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
 text(0.9,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
 text(1.4,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
 
-points(y=fbar(NSH[,ac(2005:2018)]), x=(ssb(NSH[,ac(2005:2018)])/1e6),pch=19)
-lines(y=fbar(NSH[,ac(2005:2018)]),  x=(ssb(NSH[,ac(2005:2018)])/1e6))
-text(y=fbar(NSH[,ac(2005:2018)]),   x=(ssb(NSH[,ac(2005:2018)])/1e6),labels=ac(2005:2018),pos=3,cex=0.7)
+points(y=fbar(NSH[,ac(2005:2020)]), x=(ssb(NSH[,ac(2005:2020)])/1e6),pch=19)
+lines(y=fbar(NSH[,ac(2005:2020)]),  x=(ssb(NSH[,ac(2005:2020)])/1e6))
+text(y=fbar(NSH[,ac(2005:2020)]),   x=(ssb(NSH[,ac(2005:2020)])/1e6),labels=ac(2005:2020),pos=3,cex=0.7)
 
 savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_25_F_vs_SSB.png",sep = ""),type="png")
 
@@ -379,6 +412,163 @@ savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_31_LAI_prop.p
 otolith(NSH.sam,n=1000)
 
 savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_32_otolith.png",sep = ""),type="png")
+
+# figure - proportion numbers at age
+prop_N <- as.data.frame(NSH@stock.n)
+prop_N$data[prop_N$data == -1] <- NA
+
+p <- ggplot(subset(prop_N,year>=2000),aes(x=year,y=data))+
+  geom_bar(aes(fill = as.factor(age)),stat="identity",position = "fill")+
+  ylab('Proportion stock numbers at age')
+
+print(p)
+
+savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_33_stock_N.png",sep = ""),type="png")
+
+# figure - proportion biomass at age
+prop_bio <- as.data.frame(NSH@stock.n*NSH@stock.wt)
+prop_bio$data[prop_bio$data == -1] <- NA
+
+p <- ggplot(subset(prop_bio,year>=2000),aes(x=year,y=data))+
+  geom_bar(aes(fill = as.factor(age)),stat="identity",position = "fill")+
+  ylab('Proportion stock biomass at age')
+
+print(p)
+
+savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_34_stock_biomass.png",sep = ""),type="png")
+
+# figure - proportion F at age
+prop_F <- as.data.frame(NSH@harvest)
+
+p <- ggplot(subset(prop_F,year>=2000),aes(x=year,y=data))+
+      geom_bar(aes(fill = as.factor(age)),stat="identity",position = "fill")+
+      ylab('Proportion F at age')
+
+print(p)
+
+savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_36_F.png",sep = ""),type="png")
+
+# figure - HERAS SSB
+SSB_HERAS <- as.data.frame(quantSums(NSH.tun$HERAS@index*
+                                      NSH@stock.wt[ac(range(NSH.tun$HERAS)['min']:range(NSH.tun$HERAS)['max']),
+                                                   ac(range(NSH.tun$HERAS)['minyear']:range(NSH.tun$HERAS)['maxyear'])]*
+                                      NSH@mat[ac(range(NSH.tun$HERAS)['min']:range(NSH.tun$HERAS)['max']),
+                                                    ac(range(NSH.tun$HERAS)['minyear']:range(NSH.tun$HERAS)['maxyear'])]))
+SSB_HERAS$run <- 'HERAS'
+
+SSB_NSH       <- as.data.frame(quantSums(NSH@stock.n*NSH@stock.wt*exp(-NSH@harvest*0.56-NSH@m*0.56)*NSH@mat))
+SSB_NSH$run   <- 'assessment_addM=0'
+
+SSB_NSHM0.11       <- as.data.frame(as.data.frame(quantSums(NSH_M0.11@stock.n*NSH_M0.11@stock.wt*exp(-NSH_M0.11@harvest*0.56-NSH_M0.11@m*0.56)*NSH_M0.11@mat)))
+SSB_NSHM0.11$run   <- 'assessment_addM=0.11'
+
+SSB_all <- rbind(SSB_NSH,SSB_NSHM0.11,SSB_HERAS)
+
+
+p <- ggplot(subset(SSB_all,year>2000),aes(x=year,y=data,color=run))+
+      geom_line()+
+      ylab('SSB')
+
+print(p)
+
+savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_37_SSB.png",sep = ""),type="png")
+
+# figure - catchability comparison
+q_M0          <- catchabilities(NSH.sam)
+q_M0$run      <- 'assessment_addM=0'
+q_M0.11       <- catchabilities(NSH.sam_M0.11)
+q_M0.11$run   <- 'assessment_addM=0.11'
+
+q_all <- rbind(q_M0,q_M0.11)
+
+p <- ggplot(subset(q_all,fleet == 'HERAS'),aes(x=age,y=value,color=run))+
+      geom_line()+
+      geom_ribbon(aes(ymin=lbnd,ymax=ubnd,fill=run),alpha=0.2,linetype=0)
+
+print(p)
+
+savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_38_q_HERAS_M_scaling.png",sep = ""),type="png")
+
+# figure - M at age
+M_age_SMS2019 <- as.data.frame(yearMeans(NSH@m[,ac(1974:2019)]))
+M_age_SMS2019$run <- 'SMS2019'
+M_age_SMS2016 <- as.data.frame(yearMeans(NSH_SMS2016@m[,ac(1974:2016)]))
+M_age_SMS2016$run <- 'SMS2016'
+
+M_age_all <- rbind(M_age_SMS2016,M_age_SMS2019)
+
+p <- ggplot(M_age_all,aes(x=age,y=data,color=run))+
+      ylab('M1+M2')+
+      geom_line()
+
+print(p)
+
+savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_39_M_age.png",sep = ""),type="png")
+
+# figure - SSB comparison
+SSB_M0            <- ssb(NSH.sam)
+SSB_M0$run        <- 'M=0'
+SSB_M0$quant      <- 'SSB'
+SSB_M0.11         <- ssb(NSH.sam_M0.11)
+SSB_M0.11$run     <- 'M=0.11'
+SSB_M0.11$quant   <- 'SSB'
+
+fbar_M0 <- fbar(NSH.sam)
+fbar_M0$run        <- 'M=0'
+fbar_M0$quant      <- 'fbar'
+fbar_M0.11 <- fbar(NSH.sam_M0.11)
+fbar_M0.11$run     <- 'M=0.11'
+fbar_M0.11$quant   <- 'fbar'
+
+df_all <- rbind(SSB_M0,SSB_M0.11,fbar_M0,fbar_M0.11)
+
+p <- ggplot(df_all,aes(x=year,y=value,color=run))+
+      geom_line()+
+      geom_ribbon(aes(ymin=lbnd,ymax=ubnd,fill=run),linetype=0,alpha=0.2)+
+      facet_wrap(~quant,scales='free')
+
+print(p)
+
+savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_40_trajectory_comp.png",sep = ""),type="png")
+
+dev.off()
+
+
+
+################################################################################
+### ============================================================================
+### Single fleet profiling
+### ============================================================================
+################################################################################
+
+windows()
+
+load(file.path(resPath,'NSH_HAWG2021_sf_scanM0.01_SMS2019_sf.Rdata'))
+
+nlogl2019_HAWG2021 <- as.data.frame(unlist(lapply(NSH.sams,nlogl)))
+nlogl2019_HAWG2021$addM <- as.numeric(rownames(nlogl2019_HAWG2021))
+colnames(nlogl2019_HAWG2021) <- c('nlogl','addM')
+nlogl2019_HAWG2021$run <- 'SMS2019_HAWG2021'
+nlogl2019_HAWG2021$opt <- ''
+nlogl2019_HAWG2021$opt[which(min(unlist(lapply(NSH.sams,nlogl)))==unlist(lapply(NSH.sams,nlogl)))] <- 'min'
+
+load(file.path(resPath,'NSH_HAWG2021_sf_scanM0.01_SMS2016_sf.Rdata'))
+nlogl2016_HAWG2021 <- as.data.frame(unlist(lapply(NSH.sams,nlogl)))
+nlogl2016_HAWG2021$addM <- as.numeric(rownames(nlogl2016_HAWG2021))
+colnames(nlogl2016_HAWG2021) <- c('nlogl','addM')
+nlogl2016_HAWG2021$run <- 'SMS2016_HAWG2021'
+nlogl2016_HAWG2021$opt <- ''
+nlogl2016_HAWG2021$opt[which(min(unlist(lapply(NSH.sams,nlogl)))==unlist(lapply(NSH.sams,nlogl)))] <- 'min'
+
+nlogl_all <- rbind(nlogl2019_HAWG2021,nlogl2016_HAWG2021)
+
+p <- ggplot(nlogl_all,aes(x=addM,y=nlogl,size=opt,colour=run))+
+      xlim(-0.1,0.4)+
+      geom_point()
+
+print(p)
+
+savePlot(paste(output.dir.single,"/",assessment_name_singlefleet,"_40_assessment_profiling.png",sep = ""),type="png")
 
 dev.off()
 
@@ -507,7 +697,7 @@ savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_7_fishing_selec
 # figure - correlation matrix of model parameters
 cor.plot(NSH3f.sam)
 
-savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_8_corr_SAM_params.png",sep = ""),type="png")
+savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_9_corr_SAM_params.png",sep = ""),type="png")
 
 # figure - catch residuals fleet A per year per age
 dat <- subset(residuals(NSH3f.sam),fleet=="catch A")
@@ -573,6 +763,7 @@ savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_12_residuals_HE
 plot(NSH3f.retro)
 
 savePlot(paste(output.dir.multi,"/",assessment_name_multifleet,"_13_retro.png",sep = ""),type="png")
+
 
 # SSB comparison
 plotQuant <- ssb(NSH.sam)

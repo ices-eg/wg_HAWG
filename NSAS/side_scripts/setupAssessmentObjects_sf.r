@@ -56,7 +56,8 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 ### Prepare Natural Mortality estimates 
 ### ============================================================================
 #Read in estimates from external file
-M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSASSMS2016.csv"),header=TRUE)
+M2            <- read.csv(file.path(".","data","M_NSAS_smoothedSpan50_notExtrapolated_2016.csv"),header=TRUE)
+#M2            <- read.csv(file.path(".","data","M_NSAS_smoothedSpan50_notExtrapolated_2019.csv"),header=TRUE)
 
 colnames(M2)  <- sub("X","",colnames(M2))
 rownames(M2)  <- M2[,1]
@@ -69,7 +70,7 @@ NSHM2           <- NSH
 NSHM2@m[]       <- NA
 yrs             <- dimnames(NSHM2@m)$year
 yrs             <- yrs[which(yrs %in% colnames(M2))]
-NSHM2@m[,yrs][] <- as.matrix(M2)
+NSHM2@m[rownames(M2),yrs][] <- as.matrix(M2)
 
 #- M extension to previous and future years (relative to vector given by WGSAM). 
 # One uses a 5 year running average for that
@@ -82,7 +83,7 @@ extryrsfw       <- extryrs[which(extryrs > max(an(yrs)))]
 extryrsbw       <- extryrs[which(extryrs <= max(an(yrs)))]
 ages            <- dimnames(NSHM2@m)$age
 extrags         <- names(which(apply(M2,1,function(x){all(is.na(x))==T})==T))
-yrAver          <- 3
+yrAver          <- 5
 for(iYr in as.numeric(rev(extryrs))){
   for(iAge in ages[!ages%in%extrags]){
     if(iYr %in% extryrsbw){
@@ -98,7 +99,8 @@ if(length(extrags)>0){
     NSHM2@m[ac(iAge),]          <- NSHM2@m[ac(as.numeric(min(sort(extrags)))-1),]
 }
 #Write new M values into the original stock object
-addM      <- 0.11 #M profiling based on 2018 benchmark meeting
+#addM      <- 0.11 #M profiling based on 2018 benchmark meeting
+addM      <- 0.11
 NSH@m     <- NSHM2@m + addM
 
 

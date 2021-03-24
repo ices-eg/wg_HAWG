@@ -13,7 +13,7 @@ log.msg("\nNSH Final Assessment (multi fleet)\n=====================\n")
 
 # local path
 #path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
-path <- "C:/git/wg_HAWG/NSAS/"
+path <- "J:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -21,10 +21,11 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 dir.create("assessment",showWarnings = FALSE)
 
-output.dir          <-  file.path(".","assessment/")              # result directory\
-script.dir          <-  file.path(".","side_scripts/")            # result directory
-n.retro.years       <-  7                                       # Number of years for which to run the retrospective
-assessment_name     <- 'NSH_HAWG2020_mf'
+output.dir              <-  file.path(".","assessment/")              # result directory\
+script.dir              <-  file.path(".","side_scripts/")            # result directory
+n.retro.years           <-  7                                       # Number of years for which to run the retrospective
+run_name                <- 'NSH_HAWG2021_M0.11'
+assessment_name         <- paste0(run_name,'_mf')
 
 ### ============================================================================
 ### imports
@@ -33,13 +34,17 @@ library(FLSAM); library(FLEDA)
 source(file.path(script.dir,"setupAssessmentObjects_mf.r"))
 source(file.path(script.dir,"setupControlObject_mf.r"))
 
+load(file.path(output.dir,'NSH_HAWG2020_mf.Rdata'))
+
+NSH3f.sam.stk0 <- NSH3f.sam
+
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
 
 NSH3f.sam   <- FLSAM(NSHs3,
                      NSH.tun,
-                     NSH3.ctrl)
+                     NSH3.ctrl,starting.values = NSH3f.sam.stk0)
 
 save(NSHs3,
      NSH.tun,
