@@ -70,7 +70,9 @@ ImY.catch <- 7341;
 #2021 real advice year
 numFmsy <- 0.266;
 numFlim <- 0.397;
-numFpa <- 0.257;
+numFpa <- 0.309;
+
+numRetF<-0.209355943*1.16
 
 #Setup options
 
@@ -226,5 +228,5 @@ opt.sum.tbl <- function(stcks,fname) {
                                  sprintf("SSB (%i)",CtY))
   write.csv(options.sum.tbl,file=fname,row.names=FALSE)
 }
-opt.sum.tbl(stcks=ISH.options,fname=paste(output.base,"options - summary.csv",sep=""))
+opt.sum.tbl(stcks=ISH.options,fname=paste(output.base,"optionsb - summary.csv",sep=""))
 opt.sum.tbl(stcks=ISH.mult.opts,fname=paste(output.base,"multi-options - summary.csv",sep=""))
