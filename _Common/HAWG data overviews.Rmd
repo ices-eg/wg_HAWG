@@ -29,61 +29,234 @@ library(FLSAM)
 library(tidyverse)
 library(lubridate)
 library(RColorBrewer)
+library(ggrepel)
 # library(directlabels)
-library(ggmisc) # e.g. for crayola   3
+library(ggmisc) # e.g. for crayola # devtools::install_github("einarhjorleifsson/ggmisc")
 library(icesSAG)
+library(icesSD)  # devtools::install_github("ices-tools-prod/icesSD")
+
 
 # source publication theme
 source("../_common/theme_publication.r")
 source("../_common/lowcase.r")
+source("../_common/loadRDataObject.r")
 
 # use token
 options(icesSAG.use_token = TRUE)
 options(stringsAsFactors=FALSE)
 
+# WG folder
+wg_year   <- 2021
+wg_folder <- paste0("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/",
+                    as.character(wg_year),
+                    " Meeting Docs/06. Data")
+
 # ===================================================================================
 # Load datasets 
 # ===================================================================================
 
-# Load NSAS data
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.3a47d/NSH_HAWG2020_sf.Rdata")
-NSH.df     <- NSH %>% as.data.frame() %>% mutate(stock="her.27.3a47d")
-NSH.tun.df <- NSH.tun %>% as.data.frame() %>% mutate(stock="her.27.3a47d")
-NSH.sag.df <- as.data.frame(getSAG(stock = "her.27.3a47d", year = 2020)) %>% lowcase()
+filename <- file.path(wg_folder, "her.27.3a47d/NSH_HAWG2021_M0.11_sf.Rdata")
+
+# NSAS data
+NSH.df <- loadRDataObject(filename, object="NSH") %>% 
+  as.data.frame() %>% 
+  mutate(stock="her.27.3a47d")
+
+# NSH.df %>% filter(slot=="catch.n") %>% View()
+
+NSH.tun.df <- loadRDataObject(filename, object="NSH.tun") %>% 
+  as.data.frame() %>% 
+  mutate(stock="her.27.3a47d")
+
+NSH.sam <- loadRDataObject(filename, object="NSH.sam") 
+
+NSH.sag.df <- 
+  bind_rows(
+    as.data.frame(ssb(NSH.sam)) %>% mutate(slot="ssb"),
+    as.data.frame(fbar(NSH.sam)) %>% mutate(slot="fbar"),
+    as.data.frame(rec(NSH.sam)) %>% mutate(slot="rec"),
+    as.data.frame(catch(NSH.sam)) %>% mutate(slot="catch"),
+  ) %>% 
+  mutate(stock="her.27.3a47d") 
+
+# NSH.sag.df <- 
+#   as.data.frame(icesSAG::getSAG(stock = "her.27.3a47d", year = 2021)) %>% 
+#   lowcase() %>% 
+#   mutate_at(varnames, as.numeric)
+NSH.rp.df <- 
+  icesSAG::getFishStockReferencePoints(
+    icesSAG::findAssessmentKey(stock = "her.27.3a47d", year = an(wg_year)-1)) %>% 
+  as.data.frame()
+
 
 # Irish Sea herring ---------------------------------------------------
-load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.nirs/SAM/results/ISH_assessment 2020.RData")
-ISH.df     <- ISH %>% as.data.frame() %>% mutate(stock="her.27.nirs")
-ISH.tun.df <- ISH.tun %>% as.data.frame() %>% mutate(stock="her.27.nirs")
-ISH.sag.df <- as.data.frame(getSAG(stock = "her.27.nirs", year = 2020)) %>% lowcase()
 
+filename <- file.path(wg_folder, "her.27.nirs/SAM/results/ISH_assessment 2021.Rdata")
+
+ISH.df <- loadRDataObject(filename, object="ISH") %>% 
+  as.data.frame() %>% 
+  mutate(stock="her.27.nirs")
+
+ISH.sam <- loadRDataObject(filename, object="ISH.sam") 
+
+ISH.sam.df <- 
+  bind_rows(
+    as.data.frame(ssb(ISH.sam)) %>% mutate(slot="ssb"),
+    as.data.frame(fbar(ISH.sam)) %>% mutate(slot="fbar"),
+    # as.data.frame(rec(ISH.sam)) %>% mutate(slot="rec"),  # rec not working??
+    as.data.frame(catch(ISH.sam)) %>% mutate(slot="catch"),
+  ) %>% 
+  mutate(stock="her.27.nirs")
+
+ISH.tun.df <- loadRDataObject(filename, object="ISH.tun") %>% 
+  as.data.frame() %>% 
+  mutate(stock="her.27.nirs")
+
+ISH.sag.df <- 
+  as.data.frame(icesSAG::getSAG(stock = "her.27.nirs", year = an(wg_year))) %>% 
+  lowcase() %>% 
+  mutate_at(c("stocksizeunits","fishingpressureunits"), as.character)
+
+ISH.rp.df <- 
+  icesSAG::getFishStockReferencePoints(
+    icesSAG::findAssessmentKey(stock = "her.27.nirs", year = an(wg_year))) %>% 
+  as.data.frame()
 
 # Load Celtic Sea herring ------------------------------------
-CSH.dir    <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting docs/06. Data/her.27.irls/data/"
-CSH.df     <- readFLStock(file.path(CSH.dir, 'index.txt')) %>% as.data.frame() %>% mutate(stock="her.27.irls")
-CSH.tun.df <- readFLIndices(file.path(CSH.dir, "fleet.txt")) %>% as.data.frame() %>% mutate(stock="her.27.irls")
-CSH.sag.df <- as.data.frame(getSAG(stock = "her.27.irls", year = 2020)) %>% lowcase()
+
+CSH.dir  <- file.path(wg_folder, "her.27.irls")
+
+CSH.df     <- 
+  readFLStock(file.path(CSH.dir, 'index.txt')) %>% 
+  as.data.frame() %>% 
+  mutate(stock="her.27.irls")
+
+CSH.tun.df <- 
+  readFLIndices(file.path(CSH.dir, "fleet.txt")) %>% 
+  as.data.frame() %>% 
+  mutate(stock="her.27.irls")
+
+CSH.assess.df <- 
+  readxl::read_xlsx(
+    file.path(CSH.dir,"SAG","StandardGraphs_Template.xlsm"),
+    sheet = "FishData",
+    skip = 47,
+    .name_repair = "unique") %>% 
+  janitor::remove_empty(which="cols") %>% 
+  dplyr::select(-12) %>% 
+  setNames(c("year",
+             "rec_lbnd","rec_value","rec_ubnd",
+             "ssb_lbnd","ssb_value","ssb_ubnd",
+             "catch_value",
+             "fbar_lbnd","fbar_value","fbar_ubnd")) %>%
+  tidyr::pivot_longer(names_to = "var", values_to = "data", cols=c(rec_lbnd:fbar_ubnd)) %>% 
+  tidyr::separate(var, into=c("slot","metric"), sep="_") %>% 
+  tidyr::pivot_wider(names_from = metric, values_from=data) %>% 
+  mutate(stock="her.27.irls")
+
+CSH.sag.df <- 
+  as.data.frame(icesSAG::getSAG(stock = "her.27.irls", year = an(wg_year))) %>% 
+  lowcase() %>% 
+  mutate_at(c("lowssb","lowf"), as.numeric) %>% 
+  mutate_at(c("stocksizeunits","fishingpressureunits"), as.character)
+
+CSH.rp.df <- 
+  icesSAG::getFishStockReferencePoints(
+    icesSAG::findAssessmentKey(stock = "her.27.irls", year = an(wg_year))) %>% 
+  as.data.frame()
+
+# glimpse(CSH.sag.df)
 
 # Load WBSS data -------------------------------------------
-WBSS.dir    <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting docs/06. Data/her.27.20-24/SAM"
-WBSS.df     <- readFLStock(file.path(WBSS.dir, 'data/index.txt')) %>% as.data.frame() %>% mutate(stock="her.27.20-24")
-WBSS.tun.df <- readFLIndices(file.path(WBSS.dir, "data/survey.dat")) %>%
-  as.data.frame() %>% mutate(stock="her.27.20-24")
-WBSS.sag.df <- as.data.frame(getSAG(stock = "her.27.20-24", year = 2020)) %>% lowcase()
+
+filename <- file.path(wg_folder, "her.27.20-24/run/model.Rdata")
+WBSS.dir <- file.path(wg_folder, "her.27.20-24/data")
+
+# listDataObjects(filename)
+fit <- loadRDataObject(filename, object="fit")
+
+# how to get the data out !!
+# WBSS.df     <- readFLStock(file.path(WBSS.dir, 'index.txt')) %>% as.data.frame() %>% mutate(stock="her.27.20-24")
+
+WBSS.df <-
+  bind_rows(
+    as.data.frame(fit$data$stockMeanWeight) %>% 
+      rownames_to_column(var="year") %>% 
+      pivot_longer(names_to = "age", values_to = "data", cols=c(2:ncol(.))) %>% 
+      mutate(slot="stock.wt"),
+    as.data.frame(fit$data$catchMeanWeight) %>% 
+      rownames_to_column(var="year") %>%
+      pivot_longer(names_to = "age", values_to = "data", cols=c(2:ncol(.))) %>% 
+      filter(grepl(".Fleet w.o. effort 1",age)) %>% 
+      mutate(age = gsub("\\.Fleet w\\.o\\. effort 1","",age)) %>% 
+      mutate(slot="catch.wt"),
+  ) %>% 
+  mutate(year = as.numeric(year)) %>% 
+  mutate(stock="her.27.20-24")
+
+
+WBSS.tun.df <- readFLIndices(file.path(WBSS.dir, "survey.dat")) %>%
+  as.data.frame() %>% mutate(stock="her.27.20-24") 
+
+# WBSS.sag.df <- 
+#   bind_rows(
+#     ssbtable(fit) %>% as.data.frame() %>% rownames_to_column(var="year") %>% mutate(slot="ssb"),
+#     fbartable(fit) %>% as.data.frame() %>% rownames_to_column(var="year") %>% mutate(slot="fbar"),
+#     rectable(fit) %>% as.data.frame() %>% rownames_to_column(var="year") %>% mutate(slot="rec"),
+#     catchtable(fit) %>% as.data.frame() %>% rownames_to_column(var="year") %>% mutate(slot="catch"),
+#   ) %>% 
+#   setNames(c("year","value","lbnd","ubnd","slot")) %>% 
+#   mutate(stock="her.27.20-24")
+
+WBSS.sag.df <- 
+  as.data.frame(icesSAG::getSAG(stock = "her.27.20-24", year = an(wg_year))) %>% 
+  lowcase() %>% 
+  mutate_at(c("stocksizeunits","fishingpressureunits"), as.character)
+
+WBSS.rp.df <- 
+  icesSAG::getFishStockReferencePoints(
+    icesSAG::findAssessmentKey(stock = "her.27.20-24", year = an(wg_year))) %>% 
+  as.data.frame()
 
 # Load 6a-7bc data -----------------------------------------------------
-MSH.dir <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.6a7bc/data"
-MSH.df     <- readFLStock(file.path(MSH.dir, 'index.txt')) %>% as.data.frame() %>% mutate(stock="her.27.6a7bc")
-MSH.tun.df <- readFLIndices(file.path(MSH.dir, "fleet.txt")) %>% as.data.frame() %>% mutate(stock="her.27.6a7bc")
-MSH.sag.df <- as.data.frame(getSAG(stock = "her.27.6a7bc", year = 2020)) %>% lowcase()
+
+filename <- file.path(wg_folder, "her.27.6a7bc/data/data_mf.Rdata")
+MSH.dir  <- file.path(wg_folder, "her.27.6a7bc/data")
+
+MSH.df     <- 
+  readFLStock(file.path(MSH.dir, 'index.txt')) %>% 
+  as.data.frame() %>% 
+  mutate(stock="her.27.6a7bc")
+
+MSH.tun.df <- 
+  readFLIndices(file.path(MSH.dir, "fleet.txt")) %>% 
+  as.data.frame() %>% 
+  mutate(stock="her.27.6a7bc")
+
+# listDataObjects(filename)
+# MSH.sam <- loadRDataObject(filename, object="MSH") 
+
+MSH.sag.df <- 
+  as.data.frame(icesSAG::getSAG(stock = "her.27.6a7bc", year = an(wg_year))) %>% 
+  lowcase() %>% 
+  mutate_at(c("stocksizeunits","fishingpressureunits","stocksizedescription"), as.character)
+
+MSH.rp.df <- 
+  icesSAG::getFishStockReferencePoints(
+    icesSAG::findAssessmentKey(stock = "her.27.6a7bc", year = an(wg_year))) %>% 
+  as.data.frame()
 
 # Load North Sea sprat data -----------------------------------------------------
-NSSPR.dir    <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/spr.27.3a4"
+
+NSSPR.dir  <- file.path(wg_folder, "spr.27.3a4")
 startyear <- 1974
 
 NSSPR.canum <-
-  read.table(file=file.path(NSSPR.dir, "canum.in"),
-           header=FALSE, skip=1) %>%
+  read.table(file=file.path(NSSPR.dir, "canum - copy.in"),
+           header=FALSE,
+           fill=TRUE,
+           skip=1) %>%
+  janitor::remove_empty(which="rows") %>% 
   setNames(c("age0","age1","age2","age3")) %>%
   mutate(year   = startyear + floor((row_number()-1)/4),
          season = (row_number() %% 4),
@@ -114,19 +287,56 @@ NSSPR.weca <-
   mutate(slot = "catch.wt")
 
 NSSPR.df     <- bind_rows(NSSPR.canum, NSSPR.weca) %>% mutate(age = ac(age))
-NSSPR.sag.df <- as.data.frame(getSAG(stock = "spr.27.3a4", year = 2020)) %>% lowcase()
+
+NSSPR.sag.df <- 
+  as.data.frame(icesSAG::getSAG(stock = "spr.27.3a4", year = an(wg_year))) %>% 
+  lowcase() %>% 
+  mutate_at(c("stocksizeunits","fishingpressureunits"), as.character)
+
+NSSPR.rp.df <- 
+  icesSAG::getFishStockReferencePoints(
+    icesSAG::findAssessmentKey(stock = "spr.27.3a4", year = an(wg_year))) %>% 
+  as.data.frame()
+
+# glimpse(NSSPR.sag.df)
 
 # Load 3a4 sprat data -----------------------------------------------------
 # spr.path  <- "D:/HAWG/2019/06. Data/SPR-3a4"
 
 # Load 7de sprat data
-SPR7.sag.df <- as.data.frame(getSAG(stock = "spr.27.7de", year = 2020)) %>% lowcase()
+SPR7.sag.df <- as.data.frame(getSAG(stock = "spr.27.7de", year = an(wg_year))) %>% lowcase()
+SPR7.rp.df <- 
+  icesSAG::getFishStockReferencePoints(
+    icesSAG::findAssessmentKey(stock = "her.27.7de", year = an(wg_year))) %>% 
+  as.data.frame()
 
 # Load sandeel data -----------------------------------------------------
-SAN1.sag.df <- as.data.frame(getSAG(stock = "san.sa.1r", year = 2020)) %>% lowcase()
-SAN2.sag.df <- as.data.frame(getSAG(stock = "san.sa.2r", year = 2020)) %>% lowcase()
-SAN3.sag.df <- as.data.frame(getSAG(stock = "san.sa.3r", year = 2020)) %>% lowcase()
-SAN4.sag.df <- as.data.frame(getSAG(stock = "san.sa.4", year = 2020)) %>% lowcase()
+SAN.sag.df <-
+  bind_rows(
+    as.data.frame(getSAG(stock = "san.sa.1r", year = an(wg_year))) %>% lowcase(),
+    as.data.frame(getSAG(stock = "san.sa.2r", year = an(wg_year))) %>% lowcase(),
+    as.data.frame(getSAG(stock = "san.sa.3r", year = an(wg_year))) %>% lowcase(),
+    as.data.frame(getSAG(stock = "san.sa.4", year = an(wg_year))) %>% lowcase()
+  ) %>% 
+  mutate_at(c("stocksizeunits","fishingpressureunits"), as.character)
+
+SAN.rp.df <- 
+  bind_rows(
+    icesSAG::getFishStockReferencePoints(
+      icesSAG::findAssessmentKey(stock = "san.sa.1r", 
+                                 year = an(wg_year))) %>% as.data.frame() ,
+    icesSAG::getFishStockReferencePoints(
+      icesSAG::findAssessmentKey(stock = "san.sa.2r", 
+                                 year = an(wg_year))) %>% as.data.frame() ,
+    icesSAG::getFishStockReferencePoints(
+      icesSAG::findAssessmentKey(stock = "san.sa.3r", 
+                                 year = an(wg_year))) %>% as.data.frame() ,
+    icesSAG::getFishStockReferencePoints(
+      icesSAG::findAssessmentKey(stock = "san.sa.4", 
+                                 year = an(wg_year))) %>% as.data.frame() ,
+  )
+
+# ===========================================================================
 
 # Combine data
 data.df <-
@@ -137,33 +347,58 @@ data.df <-
   mutate (age = as.numeric(age)) %>% 
   mutate_at(c("unit","season","area","iter"), as.character)
 
-# Add sprat
-data2.df <-
-  data.df %>% 
-  mutate (age = as.character(age)) %>% 
-  bind_rows(NSSPR.df) %>% 
-  mutate(stock = factor(stock,
-                        levels=c("her.27.3a47d","her.27.6a7bc","her.27.nirs","her.27.irls",
-                                 "her.27.20-24", "spr.27.3a4"))) %>%
-  mutate (age = as.numeric(age))
-
-# tun.df <-
-#   bind_rows(NSH.tun.df, MSH.tun.df, WBSS.tun.df, CSH.tun.df, ISH.tun.df) %>%
-#   mutate(stock = factor(stock, levels=c("her.27.3a47d","her.27.6a7bc","her.27.nirs","her.27.irls","her.27.20-24")))
-
 sag.df <-
-  bind_rows(NSH.sag.df, MSH.sag.df, WBSS.sag.df, CSH.sag.df, ISH.sag.df, NSSPR.sag.df,
-            SPR7.sag.df, SAN1.sag.df, SAN2.sag.df, SAN3.sag.df, SAN4.sag.df) %>%
-  rename(stock = fishstock) %>%
-  mutate(stock = factor(stock,
-                        levels=c("her.27.3a47d","her.27.6a7bc","her.27.nirs","her.27.irls",
-                                 "her.27.20-24","spr.27.3a4","spr.27.7de",
-                                 "san.sa.1r","san.sa.2r","san.sa.3r","san.sa.4")))
+  bind_rows(MSH.sag.df, WBSS.sag.df) %>% 
+  bind_rows(ISH.sag.df) %>% 
+  bind_rows(CSH.sag.df) %>% 
+  bind_rows(NSSPR.sag.df) %>%
+  bind_rows(SAN.sag.df) %>% 
+  dplyr::select(fishstock, year, recruitment, lowrecruitment, highrecruitment,
+                ssb, lowssb, highssb,
+                f, lowf, highf,
+                catches, landings) %>% 
+  tidyr::pivot_longer(names_to = "var", values_to = "data", recruitment:landings) %>% 
+  mutate(
+    var = gsub("low","low_", var),
+    var = gsub("high","high_", var)) %>% 
+  tidyr::separate(var, into=c("metric","slot")) %>% 
+  mutate(
+    slot   = ifelse(is.na(slot), metric, slot),
+    metric = ifelse(metric == slot, "value", metric),
+    metric = ifelse(metric == "low", "lbnd", metric),
+    metric = ifelse(metric == "high", "ubnd", metric),
+    slot   = ifelse(slot=="f", "fbar",slot),
+    slot   = ifelse(slot=="recruitment", "rec",slot),
+  ) %>% 
+  rename(stock = fishstock) %>% 
+  tidyr::pivot_wider(names_from = metric, values_from = data) %>% 
+  
+  bind_rows(NSH.sag.df) %>% 
+  mutate(stock = factor(stock)) %>% 
+  mutate(stock = factor(stock, levels=sort(levels(stock))))
+
+rp.df <-
+  bind_rows(MSH.rp.df, WBSS.rp.df) %>% 
+  bind_rows(NSH.rp.df) %>% 
+  bind_rows(ISH.rp.df) %>% 
+  bind_rows(CSH.rp.df) %>% 
+  bind_rows(NSSPR.rp.df) %>%
+  bind_rows(SAN.rp.df) %>% 
+  lowcase() %>% 
+  dplyr::select(stock=stockkeylabel, assessmentyear, assessmentkey, stockkey,
+                flim, fpa, fmsy, fmanagement,
+                blim, bpa, msybtrigger, bmanagement) %>% 
+  tidyr::pivot_longer(names_to = "var", values_to = "data", flim:bmanagement) %>% 
+  filter(!is.na(data)) %>% 
+  mutate(slot = ifelse(grepl("^f",var), "fbar", "ssb")) %>% 
+  mutate(stock = factor(stock)) %>% 
+  mutate(stock = factor(stock, levels=sort(levels(stock))))
+
 
 
 ```
 
-**HAWG 2020 overviews**
+**HAWG 2021 overviews**
 
 **Martin Pastoors^1^**
 
@@ -172,6 +407,9 @@ sag.df <-
 
 ```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
 # glimpse(data.df)
+
+printlist <- c()
+p         <- 0
 
 # Figure 2.2.4.x1 Data check on biological input data 
 for (i in 1:(length(levels(data.df$stock)))) {
@@ -190,29 +428,33 @@ for (i in 1:(length(levels(data.df$stock)))) {
     mutate(value = value/mean(value, na.rm=TRUE)) %>% 
     mutate(yc = year - age) %>% 
     data.frame()
-    
-  assign(
-    paste("p",levels(data.df$stock)[i],sep=""),
-    ggplot(t) +
-      theme_bw() +
-      theme(legend.position = "none") +
-      theme(axis.text.y     = element_blank()) +
-      theme(panel.border    = element_rect(colour="black" , size=0.1)) +
-      theme(axis.ticks.y    = element_blank() ) +
-      theme(axis.text.x     = element_text(angle = 90, vjust = 0.5, hjust=1, size=10)) +
-      theme(panel.spacing   = unit(0.2, "lines")) +
-      {if (i != 1) theme(strip.background.y = element_blank()) } +
-      {if (i != 1) theme(strip.text.y       = element_blank()) } +
-      theme(plot.margin=unit(c(0,0,0,0),"mm")) +
-      geom_col(aes(year, value, fill = factor(yc))) + 
-      scale_fill_crayola() +
-      labs(x = NULL, y = NULL, title=NULL) +
-      facet_grid(age ~ stock, scale = "free_y", switch = "y")
-  ) # end of assign  
+  
+  if(nrow(t) > 0) {
+    p <- p + 1    
+    assign(
+      paste("p",levels(data.df$stock)[i],sep=""),
+      ggplot(t) +
+        theme_bw() +
+        theme(legend.position = "none") +
+        theme(axis.text.y     = element_blank()) +
+        theme(panel.border    = element_rect(colour="black" , size=0.1)) +
+        theme(axis.ticks.y    = element_blank() ) +
+        theme(axis.text.x     = element_text(angle = 90, vjust = 0.5, hjust=1, size=10)) +
+        theme(panel.spacing   = unit(0.2, "lines")) +
+        {if (p != 1) theme(strip.background.y = element_blank()) } +
+        {if (p != 1) theme(strip.text.y       = element_blank()) } +
+        theme(plot.margin=unit(c(0,0,0,0),"mm")) +
+        geom_col(aes(year, value, fill = factor(yc))) + 
+        scale_fill_crayola() +
+        labs(x = NULL, y = NULL, title=NULL) +
+        facet_grid(age ~ stock, scale = "free_y", switch = "y")
+    ) # end of assign  
+    printlist <- c(printlist, paste("p",levels(data.df$stock)[i],sep=""))    
+  }  
 }
 
-cowplot::plot_grid(plotlist=mget(paste("p", levels(data.df$stock), sep="")),
-                   ncol=length(unique(data.df$stock)), scale=0.99, align="hv", 
+cowplot::plot_grid(plotlist=mget(printlist),
+                   ncol=length(printlist), scale=0.99, align="hv", 
                    rel_widths = c(1.0, rep(1.0,length(levels(data.df$stock)))) )  
 
 
@@ -246,12 +488,13 @@ data.df %>%
 
 ##### page break
 
-```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
 
 # Trends in catch
 sag.df %>%
+  filter(slot %in% c("catch", "catches", "landings")) %>% 
   filter(year >= 1980) %>% 
-  ggplot(aes(x=year, y=catches)) +
+  ggplot(aes(x=year, y=value)) +
   theme_publication() +
   theme(legend.position="bottom") +
   
@@ -269,21 +512,30 @@ sag.df %>%
 
 ##### page break
 
-```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+myslot  <- "ssb"
+minyear <- 1980
 
 # Trends in SSB
 sag.df %>%
-  filter(year >= 1980) %>% 
-  ggplot(aes(x=year, y=ssb)) +
+  filter(slot %in% c(myslot)) %>% 
+  filter(year >= minyear) %>% 
+  ggplot(aes(x=year, y=value)) +
   theme_publication() +
-  theme(legend.position="bottom") +
+  theme(legend.position="none") +
   
-  geom_ribbon(aes(ymin=lowssb, ymax=highssb), colour="gray", alpha=0.5) +
+  geom_ribbon(aes(ymin=lbnd, ymax=ubnd), colour="gray", alpha=0.5) +
   geom_line() +
   # labs(title=myvar) +
+  geom_hline(data=filter(rp.df, slot == myslot) , 
+             aes(yintercept=data, linetype=var), inherit.aes=FALSE) +
+  ggrepel::geom_text_repel(data=filter(rp.df, slot == myslot) , 
+             aes(y=data, label=var), x=(minyear), hjust=0,  inherit.aes=FALSE) +
   expand_limits(y=0) +
   scale_x_continuous(breaks=scales::pretty_breaks(n=3)) +
   scale_y_continuous(labels = scales::scientific) +
+  labs(y=myslot, x="") +
   facet_wrap(~stock, scale="free_y", ncol=3)
 
 ```
@@ -292,21 +544,32 @@ sag.df %>%
 
 ##### page break
 
-```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
 
-# Trends in Fishing mortality
+myslot  <- "fbar"
+minyear <- 1980
+
+# Trends in SSB
 sag.df %>%
-  filter(year >= 1980) %>% 
-  ggplot(aes(x=year, y=f)) +
+  filter(slot %in% c(myslot)) %>% 
+  filter(year >= minyear) %>% 
+  ggplot(aes(x=year, y=value)) +
   theme_publication() +
-  theme(legend.position="bottom") +
+  theme(legend.position="none") +
   
-  geom_ribbon(aes(ymin=lowf, ymax=highf), colour="gray", alpha=0.5) +
+  geom_ribbon(aes(ymin=lbnd, ymax=ubnd), colour="gray", alpha=0.5) +
   geom_line() +
   # labs(title=myvar) +
+  geom_hline(data=filter(rp.df, slot == myslot) , 
+             aes(yintercept=data, linetype=var), inherit.aes=FALSE) +
+  ggrepel::geom_text_repel(data=filter(rp.df, slot == myslot) , 
+             aes(y=data, label=var), x=(minyear), hjust=0,  inherit.aes=FALSE) +
   expand_limits(y=0) +
   scale_x_continuous(breaks=scales::pretty_breaks(n=3)) +
+  scale_y_continuous(labels = scales::scientific) +
+  labs(y=myslot, x="") +
   facet_wrap(~stock, scale="free_y", ncol=3)
+
 
 ```
 
@@ -314,22 +577,54 @@ sag.df %>%
 
 ##### page break
 
-```{r echo=FALSE, fig.align="center", fig.asp=1.2, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
 
-# Trends in Fishing mortality
+myslot  <- "rec"
+minyear <- 1980
+
+gm <-
+  sag.df %>% 
+  filter(slot == myslot) %>% 
+  filter(year >= minyear) %>% 
+  group_by(stock) %>% 
+  summarise(gm = exp(mean(log(value), na.rm=TRUE)))
+
+# Trends in recruitment
 sag.df %>%
-  filter(year >= 1980) %>% 
-  ggplot(aes(x=year, y=recruitment)) +
+  filter(slot %in% c(myslot)) %>% 
+  filter(year >= minyear) %>% 
+  ggplot(aes(x=year, y=value)) +
   theme_publication() +
-  theme(legend.position="bottom") +
+  theme(legend.position="none") +
   
-  geom_ribbon(aes(ymin=lowrecruitment, ymax=highrecruitment), colour="darkgray", alpha=0.5) +
+  geom_ribbon(aes(ymin=lbnd, ymax=ubnd), colour="gray", alpha=0.5) +
   geom_line() +
   # labs(title=myvar) +
+  geom_hline(data=gm, aes(yintercept=gm), inherit.aes=FALSE, linetype="dashed") +
+  ggrepel::geom_text_repel(data=gm ,
+             aes(y=gm), label="gm", x=(minyear), hjust=0,  inherit.aes=FALSE) +
   expand_limits(y=0) +
   scale_x_continuous(breaks=scales::pretty_breaks(n=3)) +
   scale_y_continuous(labels = scales::scientific) +
+  labs(y=myslot, x="") +
   facet_wrap(~stock, scale="free_y", ncol=3)
+
+
+# Trends in recruitment
+# sag.df %>%
+#   filter(slot %in% c("rec")) %>% 
+#   filter(year >= 1980) %>% 
+#   ggplot(aes(x=year, y=value)) +
+#   theme_publication() +
+#   theme(legend.position="bottom") +
+#   
+#   geom_ribbon(aes(ymin=lbnd, ymax=ubnd), colour="darkgray", alpha=0.5) +
+#   geom_line() +
+#   # labs(title=myvar) +
+#   expand_limits(y=0) +
+#   scale_x_continuous(breaks=scales::pretty_breaks(n=3)) +
+#   scale_y_continuous(labels = scales::scientific) +
+#   facet_wrap(~stock, scale="free_y", ncol=3)
 
 ```
 
@@ -361,20 +656,52 @@ data.df %>%
 
 ```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
 
-# F patterns North Sea herring
-t1 <- as.data.frame(getStockDownloadData(findAssessmentKey("herring", year = 2020))[2]) %>% lowcase()
+# Weight at age at age 3
 
-t1 %>% 
+t <-
+  data.df %>% 
   filter(year >= 1980) %>% 
-  dplyr::select(year, F01=custom4, F26=custom5, F78=custom6) %>% 
-  gather(key=F, value=data, F01:F78) %>% 
+  filter(slot %in% c("catch.wt", "landings.wt")) %>% 
+  filter(age %in% c(3, 5, 7)) %>% 
+  filter(!is.na(data), data != 0) %>% 
+  mutate(age = paste0(age, " wr")) 
 
-  ggplot(aes(year,data, group=F)) +
+r <-
+  t %>% 
+  summarise(
+    minweight = min(data, na.rm=TRUE),
+    maxweight = max(data, na.rm=TRUE)
+  )
+
+t %>%  
+  ggplot(aes(year,data, group=age)) +
   theme_publication() +
-  geom_line(aes(colour=F), size=1) +
-  labs(x="", y="F", colour="", fill="", title="her.27.3a47d Fishing mortalities")
+  theme(legend.position="none") +
+  geom_point(aes(colour=stock)) +
+  geom_smooth(aes(colour=stock, fill=stock), size=1, method="loess", se=TRUE, span=0.3) +
+  labs(x="", y="kg", colour="", fill="", title="catch weight at age 7") +
+  # scale_y_continuous(limits=c(r$minweight, r$maxweight)) +
+  facet_grid(age~stock, scales="free_y")
+
 
 ```
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# F patterns North Sea herring
+# t1 <- as.data.frame(getStockDownloadData(findAssessmentKey("herring", year = 2020))[2]) %>% lowcase()
+# 
+# t1 %>% 
+#   filter(year >= 1980) %>% 
+#   dplyr::select(year, F01=custom4, F26=custom5, F78=custom6) %>% 
+#   gather(key=F, value=data, F01:F78) %>% 
+# 
+#   ggplot(aes(year,data, group=F)) +
+#   theme_publication() +
+#   geom_line(aes(colour=F), size=1) +
+#   labs(x="", y="F", colour="", fill="", title="her.27.3a47d Fishing mortalities")
+
+```
+HERAS Survey abundance at age (by year class)
 
 ```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
 
@@ -385,15 +712,17 @@ NSH.tun.df %>%
   filter(slot %in% c("index")) %>% 
   filter(cname == "HERAS") %>% 
   filter(data != -1) %>% 
-  mutate(yc = year - an(age) - 1) %>% 
+  # mutate(yc = year - an(age) - 1) %>% 
+  mutate(yc = year - an(age)) %>% 
   mutate(age = paste0(age, " wr")) %>% 
   
   # ggplot(aes(year,data, group=age)) +
   ggplot(aes(yc,data, group=age)) +
   theme_publication() +
+  theme(legend.position = "none") +
   geom_point(aes(colour=factor(age))) +
   geom_smooth(aes(colour=factor(age)), size=1, method="loess", se=FALSE, span=0.1) +
-  labs(colour="age") +
+  labs(colour="age", x="year class") +
   facet_wrap(~age, scales="free_y")
 
 
