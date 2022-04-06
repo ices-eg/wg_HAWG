@@ -66,11 +66,13 @@ ISH.proj@stock.n[,ac(ImY)]<-survivors
 ISH.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- gm.recs;
 
 #For 2021
-ImY.catch <- 8455;  
+ImY.catch <- 7341;  
 #2021 real advice year
 numFmsy <- 0.266;
 numFlim <- 0.397;
 numFpa <- 0.309;
+
+numRetF<-0.209355943*1.16
 
 #Setup options
 
@@ -151,7 +153,7 @@ mult.opts.l <- lapply(as.list(fmult.targs),function(fmult) {
   fwdControl(data.frame(year=c(ImY,AdY,CtY),
                         quantity=c("catch","f","f"),
                         rel=c(NA,ImY,AdY),
-                        val=c(ImY.catch,fmult,NA)))
+                        val=c(ImY.catch,fmult,fmult)))
 })
 names(mult.opts.l) <- sprintf("Fmult(2013) = %4.3f",fmult.targs)
 
