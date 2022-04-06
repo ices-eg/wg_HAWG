@@ -1,12 +1,13 @@
 setwd("C:\\Users\\Matt Lundy\\Documents\\GIT_HUB\\wg_HAWG\\IrishSea\\UpdateAssessment\\SAM\\results")
 
 cat("# Standard Graphs personal access token",
-    "SG_PAT=7ee313c5-7318-4a2e-8808-2a4e67787228",
+    "SG_PAT=79fbde5f-9872-4542-bf71-b6bb3a489d86",
     sep = "\n",
     file = "~/.Renviron_SG")
 
-SSBint<-27504
-GMrec<-284959
+SSBint<-24716
+GMrec<-294667
+
 
 # ---------------------------------------------------------------------------- 
 # Add assessment output to SAG database 
@@ -28,7 +29,7 @@ library(icesSAG)
 
 # make use of the token 
 options(icesSAG.use_token = TRUE) 
-info     <- stockInfo(StockCode="her.27.nirs", AssessmentYear = 2021, ContactPerson = "mathieu.lundy@afbini.gov.uk") 
+info     <- stockInfo(StockCode="her.27.nirs", AssessmentYear = 2022, ContactPerson = "mathieu.lundy@afbini.gov.uk") 
  
 FiY       <- min(nirs_sum$Year)  
 DtY       <- max(nirs_sum$Year) 
