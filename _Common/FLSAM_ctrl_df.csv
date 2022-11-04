@@ -1,0 +1,528 @@
+"parameter","parameter2","value","fleet","age","fleetid","check"
+"minAge","range[min]","0",NA,NA,NA,NA
+"maxAge","range[max]","8",NA,NA,NA,NA
+"maxAgePlusGroup","plus.group","1",NA,NA,NA,NA
+"fbarRangeMin","range[minfbar]","2",NA,NA,NA,NA
+"fbarRangeMax","range[maxfbar]","6",NA,NA,NA,NA
+"corFlag","cor.F","0",NA,NA,NA,NA
+"stockRecruitmentModelCOde","srr","0",NA,NA,NA,NA
+"obsLikelihoodFlag","likFlag","LN",NA,NA,NA,NA
+"obsLikelihoodFlag","likFlag","LN",NA,NA,NA,NA
+"obsLikelihoodFlag","likFlag","LN",NA,NA,NA,NA
+"obsLikelihoodFlag","likFlag","LN",NA,NA,NA,NA
+"obsLikelihoodFlag","likFlag","LN",NA,NA,NA,NA
+"obsLikelihoodFlag","likFlag","LN",NA,NA,NA,NA
+"obsLikelihoodFlag","likFlag","LN",NA,NA,NA,NA
+"obsLikelihoodFlag","likFlag","LN",NA,NA,NA,NA
+"obsLikelihoodFlag","likFlag","LN",NA,NA,NA,NA
+"conf$fixVarToWeight",NA,"0",NA,NA,NA,NA
+"keyLogFsta","states","0","catch unique","0",1,NA
+"keyLogFsta","states","-1","HERAS","0",2,NA
+"keyLogFsta","states","-1","IBTS-Q1","0",3,NA
+"keyLogFsta","states","-1","IBTS0","0",4,NA
+"keyLogFsta","states","-1","IBTS-Q3","0",5,NA
+"keyLogFsta","states","-1","LAI-ORSH","0",6,NA
+"keyLogFsta","states","-1","LAI-BUN","0",7,NA
+"keyLogFsta","states","-1","LAI-CNS","0",8,NA
+"keyLogFsta","states","-1","LAI-SNS","0",9,NA
+"keyLogFsta","states","1","catch unique","1",1,NA
+"keyLogFsta","states","-1","HERAS","1",2,NA
+"keyLogFsta","states","-1","IBTS-Q1","1",3,NA
+"keyLogFsta","states","-1","IBTS0","1",4,NA
+"keyLogFsta","states","-1","IBTS-Q3","1",5,NA
+"keyLogFsta","states","-1","LAI-ORSH","1",6,NA
+"keyLogFsta","states","-1","LAI-BUN","1",7,NA
+"keyLogFsta","states","-1","LAI-CNS","1",8,NA
+"keyLogFsta","states","-1","LAI-SNS","1",9,NA
+"keyLogFsta","states","2","catch unique","2",1,NA
+"keyLogFsta","states","-1","HERAS","2",2,NA
+"keyLogFsta","states","-1","IBTS-Q1","2",3,NA
+"keyLogFsta","states","-1","IBTS0","2",4,NA
+"keyLogFsta","states","-1","IBTS-Q3","2",5,NA
+"keyLogFsta","states","-1","LAI-ORSH","2",6,NA
+"keyLogFsta","states","-1","LAI-BUN","2",7,NA
+"keyLogFsta","states","-1","LAI-CNS","2",8,NA
+"keyLogFsta","states","-1","LAI-SNS","2",9,NA
+"keyLogFsta","states","3","catch unique","3",1,NA
+"keyLogFsta","states","-1","HERAS","3",2,NA
+"keyLogFsta","states","-1","IBTS-Q1","3",3,NA
+"keyLogFsta","states","-1","IBTS0","3",4,NA
+"keyLogFsta","states","-1","IBTS-Q3","3",5,NA
+"keyLogFsta","states","-1","LAI-ORSH","3",6,NA
+"keyLogFsta","states","-1","LAI-BUN","3",7,NA
+"keyLogFsta","states","-1","LAI-CNS","3",8,NA
+"keyLogFsta","states","-1","LAI-SNS","3",9,NA
+"keyLogFsta","states","4","catch unique","4",1,NA
+"keyLogFsta","states","-1","HERAS","4",2,NA
+"keyLogFsta","states","-1","IBTS-Q1","4",3,NA
+"keyLogFsta","states","-1","IBTS0","4",4,NA
+"keyLogFsta","states","-1","IBTS-Q3","4",5,NA
+"keyLogFsta","states","-1","LAI-ORSH","4",6,NA
+"keyLogFsta","states","-1","LAI-BUN","4",7,NA
+"keyLogFsta","states","-1","LAI-CNS","4",8,NA
+"keyLogFsta","states","-1","LAI-SNS","4",9,NA
+"keyLogFsta","states","5","catch unique","5",1,NA
+"keyLogFsta","states","-1","HERAS","5",2,NA
+"keyLogFsta","states","-1","IBTS-Q1","5",3,NA
+"keyLogFsta","states","-1","IBTS0","5",4,NA
+"keyLogFsta","states","-1","IBTS-Q3","5",5,NA
+"keyLogFsta","states","-1","LAI-ORSH","5",6,NA
+"keyLogFsta","states","-1","LAI-BUN","5",7,NA
+"keyLogFsta","states","-1","LAI-CNS","5",8,NA
+"keyLogFsta","states","-1","LAI-SNS","5",9,NA
+"keyLogFsta","states","6","catch unique","6",1,NA
+"keyLogFsta","states","-1","HERAS","6",2,NA
+"keyLogFsta","states","-1","IBTS-Q1","6",3,NA
+"keyLogFsta","states","-1","IBTS0","6",4,NA
+"keyLogFsta","states","-1","IBTS-Q3","6",5,NA
+"keyLogFsta","states","-1","LAI-ORSH","6",6,NA
+"keyLogFsta","states","-1","LAI-BUN","6",7,NA
+"keyLogFsta","states","-1","LAI-CNS","6",8,NA
+"keyLogFsta","states","-1","LAI-SNS","6",9,NA
+"keyLogFsta","states","7","catch unique","7",1,NA
+"keyLogFsta","states","-1","HERAS","7",2,NA
+"keyLogFsta","states","-1","IBTS-Q1","7",3,NA
+"keyLogFsta","states","-1","IBTS0","7",4,NA
+"keyLogFsta","states","-1","IBTS-Q3","7",5,NA
+"keyLogFsta","states","-1","LAI-ORSH","7",6,NA
+"keyLogFsta","states","-1","LAI-BUN","7",7,NA
+"keyLogFsta","states","-1","LAI-CNS","7",8,NA
+"keyLogFsta","states","-1","LAI-SNS","7",9,NA
+"keyLogFsta","states","7","catch unique","8",1,NA
+"keyLogFsta","states","-1","HERAS","8",2,NA
+"keyLogFsta","states","-1","IBTS-Q1","8",3,NA
+"keyLogFsta","states","-1","IBTS0","8",4,NA
+"keyLogFsta","states","-1","IBTS-Q3","8",5,NA
+"keyLogFsta","states","-1","LAI-ORSH","8",6,NA
+"keyLogFsta","states","-1","LAI-BUN","8",7,NA
+"keyLogFsta","states","-1","LAI-CNS","8",8,NA
+"keyLogFsta","states","-1","LAI-SNS","8",9,NA
+"keyLogFpar","catchabilities","-1","catch unique","0",1,NA
+"keyLogFpar","catchabilities","-1","HERAS","0",2,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q1","0",3,NA
+"keyLogFpar","catchabilities","0","IBTS0","0",4,NA
+"keyLogFpar","catchabilities","5","IBTS-Q3","0",5,NA
+"keyLogFpar","catchabilities","11","LAI-ORSH","0",6,NA
+"keyLogFpar","catchabilities","11","LAI-BUN","0",7,NA
+"keyLogFpar","catchabilities","11","LAI-CNS","0",8,NA
+"keyLogFpar","catchabilities","11","LAI-SNS","0",9,NA
+"keyLogFpar","catchabilities","-1","catch unique","1",1,NA
+"keyLogFpar","catchabilities","1","HERAS","1",2,NA
+"keyLogFpar","catchabilities","4","IBTS-Q1","1",3,NA
+"keyLogFpar","catchabilities","-1","IBTS0","1",4,NA
+"keyLogFpar","catchabilities","6","IBTS-Q3","1",5,NA
+"keyLogFpar","catchabilities","-1","LAI-ORSH","1",6,NA
+"keyLogFpar","catchabilities","-1","LAI-BUN","1",7,NA
+"keyLogFpar","catchabilities","-1","LAI-CNS","1",8,NA
+"keyLogFpar","catchabilities","-1","LAI-SNS","1",9,NA
+"keyLogFpar","catchabilities","-1","catch unique","2",1,NA
+"keyLogFpar","catchabilities","2","HERAS","2",2,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q1","2",3,NA
+"keyLogFpar","catchabilities","-1","IBTS0","2",4,NA
+"keyLogFpar","catchabilities","7","IBTS-Q3","2",5,NA
+"keyLogFpar","catchabilities","-1","LAI-ORSH","2",6,NA
+"keyLogFpar","catchabilities","-1","LAI-BUN","2",7,NA
+"keyLogFpar","catchabilities","-1","LAI-CNS","2",8,NA
+"keyLogFpar","catchabilities","-1","LAI-SNS","2",9,NA
+"keyLogFpar","catchabilities","-1","catch unique","3",1,NA
+"keyLogFpar","catchabilities","3","HERAS","3",2,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q1","3",3,NA
+"keyLogFpar","catchabilities","-1","IBTS0","3",4,NA
+"keyLogFpar","catchabilities","8","IBTS-Q3","3",5,NA
+"keyLogFpar","catchabilities","-1","LAI-ORSH","3",6,NA
+"keyLogFpar","catchabilities","-1","LAI-BUN","3",7,NA
+"keyLogFpar","catchabilities","-1","LAI-CNS","3",8,NA
+"keyLogFpar","catchabilities","-1","LAI-SNS","3",9,NA
+"keyLogFpar","catchabilities","-1","catch unique","4",1,NA
+"keyLogFpar","catchabilities","3","HERAS","4",2,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q1","4",3,NA
+"keyLogFpar","catchabilities","-1","IBTS0","4",4,NA
+"keyLogFpar","catchabilities","9","IBTS-Q3","4",5,NA
+"keyLogFpar","catchabilities","-1","LAI-ORSH","4",6,NA
+"keyLogFpar","catchabilities","-1","LAI-BUN","4",7,NA
+"keyLogFpar","catchabilities","-1","LAI-CNS","4",8,NA
+"keyLogFpar","catchabilities","-1","LAI-SNS","4",9,NA
+"keyLogFpar","catchabilities","-1","catch unique","5",1,NA
+"keyLogFpar","catchabilities","3","HERAS","5",2,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q1","5",3,NA
+"keyLogFpar","catchabilities","-1","IBTS0","5",4,NA
+"keyLogFpar","catchabilities","10","IBTS-Q3","5",5,NA
+"keyLogFpar","catchabilities","-1","LAI-ORSH","5",6,NA
+"keyLogFpar","catchabilities","-1","LAI-BUN","5",7,NA
+"keyLogFpar","catchabilities","-1","LAI-CNS","5",8,NA
+"keyLogFpar","catchabilities","-1","LAI-SNS","5",9,NA
+"keyLogFpar","catchabilities","-1","catch unique","6",1,NA
+"keyLogFpar","catchabilities","3","HERAS","6",2,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q1","6",3,NA
+"keyLogFpar","catchabilities","-1","IBTS0","6",4,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q3","6",5,NA
+"keyLogFpar","catchabilities","-1","LAI-ORSH","6",6,NA
+"keyLogFpar","catchabilities","-1","LAI-BUN","6",7,NA
+"keyLogFpar","catchabilities","-1","LAI-CNS","6",8,NA
+"keyLogFpar","catchabilities","-1","LAI-SNS","6",9,NA
+"keyLogFpar","catchabilities","-1","catch unique","7",1,NA
+"keyLogFpar","catchabilities","3","HERAS","7",2,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q1","7",3,NA
+"keyLogFpar","catchabilities","-1","IBTS0","7",4,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q3","7",5,NA
+"keyLogFpar","catchabilities","-1","LAI-ORSH","7",6,NA
+"keyLogFpar","catchabilities","-1","LAI-BUN","7",7,NA
+"keyLogFpar","catchabilities","-1","LAI-CNS","7",8,NA
+"keyLogFpar","catchabilities","-1","LAI-SNS","7",9,NA
+"keyLogFpar","catchabilities","-1","catch unique","8",1,NA
+"keyLogFpar","catchabilities","3","HERAS","8",2,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q1","8",3,NA
+"keyLogFpar","catchabilities","-1","IBTS0","8",4,NA
+"keyLogFpar","catchabilities","-1","IBTS-Q3","8",5,NA
+"keyLogFpar","catchabilities","-1","LAI-ORSH","8",6,NA
+"keyLogFpar","catchabilities","-1","LAI-BUN","8",7,NA
+"keyLogFpar","catchabilities","-1","LAI-CNS","8",8,NA
+"keyLogFpar","catchabilities","-1","LAI-SNS","8",9,NA
+"keyQpow","power.law.exps","-1","catch unique","0",1,NA
+"keyQpow","power.law.exps","-1","HERAS","0",2,NA
+"keyQpow","power.law.exps","-1","IBTS-Q1","0",3,NA
+"keyQpow","power.law.exps","-1","IBTS0","0",4,NA
+"keyQpow","power.law.exps","-1","IBTS-Q3","0",5,NA
+"keyQpow","power.law.exps","-1","LAI-ORSH","0",6,NA
+"keyQpow","power.law.exps","-1","LAI-BUN","0",7,NA
+"keyQpow","power.law.exps","-1","LAI-CNS","0",8,NA
+"keyQpow","power.law.exps","-1","LAI-SNS","0",9,NA
+"keyQpow","power.law.exps","-1","catch unique","1",1,NA
+"keyQpow","power.law.exps","-1","HERAS","1",2,NA
+"keyQpow","power.law.exps","-1","IBTS-Q1","1",3,NA
+"keyQpow","power.law.exps","-1","IBTS0","1",4,NA
+"keyQpow","power.law.exps","-1","IBTS-Q3","1",5,NA
+"keyQpow","power.law.exps","-1","LAI-ORSH","1",6,NA
+"keyQpow","power.law.exps","-1","LAI-BUN","1",7,NA
+"keyQpow","power.law.exps","-1","LAI-CNS","1",8,NA
+"keyQpow","power.law.exps","-1","LAI-SNS","1",9,NA
+"keyQpow","power.law.exps","-1","catch unique","2",1,NA
+"keyQpow","power.law.exps","-1","HERAS","2",2,NA
+"keyQpow","power.law.exps","-1","IBTS-Q1","2",3,NA
+"keyQpow","power.law.exps","-1","IBTS0","2",4,NA
+"keyQpow","power.law.exps","-1","IBTS-Q3","2",5,NA
+"keyQpow","power.law.exps","-1","LAI-ORSH","2",6,NA
+"keyQpow","power.law.exps","-1","LAI-BUN","2",7,NA
+"keyQpow","power.law.exps","-1","LAI-CNS","2",8,NA
+"keyQpow","power.law.exps","-1","LAI-SNS","2",9,NA
+"keyQpow","power.law.exps","-1","catch unique","3",1,NA
+"keyQpow","power.law.exps","-1","HERAS","3",2,NA
+"keyQpow","power.law.exps","-1","IBTS-Q1","3",3,NA
+"keyQpow","power.law.exps","-1","IBTS0","3",4,NA
+"keyQpow","power.law.exps","-1","IBTS-Q3","3",5,NA
+"keyQpow","power.law.exps","-1","LAI-ORSH","3",6,NA
+"keyQpow","power.law.exps","-1","LAI-BUN","3",7,NA
+"keyQpow","power.law.exps","-1","LAI-CNS","3",8,NA
+"keyQpow","power.law.exps","-1","LAI-SNS","3",9,NA
+"keyQpow","power.law.exps","-1","catch unique","4",1,NA
+"keyQpow","power.law.exps","-1","HERAS","4",2,NA
+"keyQpow","power.law.exps","-1","IBTS-Q1","4",3,NA
+"keyQpow","power.law.exps","-1","IBTS0","4",4,NA
+"keyQpow","power.law.exps","-1","IBTS-Q3","4",5,NA
+"keyQpow","power.law.exps","-1","LAI-ORSH","4",6,NA
+"keyQpow","power.law.exps","-1","LAI-BUN","4",7,NA
+"keyQpow","power.law.exps","-1","LAI-CNS","4",8,NA
+"keyQpow","power.law.exps","-1","LAI-SNS","4",9,NA
+"keyQpow","power.law.exps","-1","catch unique","5",1,NA
+"keyQpow","power.law.exps","-1","HERAS","5",2,NA
+"keyQpow","power.law.exps","-1","IBTS-Q1","5",3,NA
+"keyQpow","power.law.exps","-1","IBTS0","5",4,NA
+"keyQpow","power.law.exps","-1","IBTS-Q3","5",5,NA
+"keyQpow","power.law.exps","-1","LAI-ORSH","5",6,NA
+"keyQpow","power.law.exps","-1","LAI-BUN","5",7,NA
+"keyQpow","power.law.exps","-1","LAI-CNS","5",8,NA
+"keyQpow","power.law.exps","-1","LAI-SNS","5",9,NA
+"keyQpow","power.law.exps","-1","catch unique","6",1,NA
+"keyQpow","power.law.exps","-1","HERAS","6",2,NA
+"keyQpow","power.law.exps","-1","IBTS-Q1","6",3,NA
+"keyQpow","power.law.exps","-1","IBTS0","6",4,NA
+"keyQpow","power.law.exps","-1","IBTS-Q3","6",5,NA
+"keyQpow","power.law.exps","-1","LAI-ORSH","6",6,NA
+"keyQpow","power.law.exps","-1","LAI-BUN","6",7,NA
+"keyQpow","power.law.exps","-1","LAI-CNS","6",8,NA
+"keyQpow","power.law.exps","-1","LAI-SNS","6",9,NA
+"keyQpow","power.law.exps","-1","catch unique","7",1,NA
+"keyQpow","power.law.exps","-1","HERAS","7",2,NA
+"keyQpow","power.law.exps","-1","IBTS-Q1","7",3,NA
+"keyQpow","power.law.exps","-1","IBTS0","7",4,NA
+"keyQpow","power.law.exps","-1","IBTS-Q3","7",5,NA
+"keyQpow","power.law.exps","-1","LAI-ORSH","7",6,NA
+"keyQpow","power.law.exps","-1","LAI-BUN","7",7,NA
+"keyQpow","power.law.exps","-1","LAI-CNS","7",8,NA
+"keyQpow","power.law.exps","-1","LAI-SNS","7",9,NA
+"keyQpow","power.law.exps","-1","catch unique","8",1,NA
+"keyQpow","power.law.exps","-1","HERAS","8",2,NA
+"keyQpow","power.law.exps","-1","IBTS-Q1","8",3,NA
+"keyQpow","power.law.exps","-1","IBTS0","8",4,NA
+"keyQpow","power.law.exps","-1","IBTS-Q3","8",5,NA
+"keyQpow","power.law.exps","-1","LAI-ORSH","8",6,NA
+"keyQpow","power.law.exps","-1","LAI-BUN","8",7,NA
+"keyQpow","power.law.exps","-1","LAI-CNS","8",8,NA
+"keyQpow","power.law.exps","-1","LAI-SNS","8",9,NA
+"keyVarF","f.vars","0","catch unique","0",1,NA
+"keyVarF","f.vars","-1","HERAS","0",2,NA
+"keyVarF","f.vars","-1","IBTS-Q1","0",3,NA
+"keyVarF","f.vars","-1","IBTS0","0",4,NA
+"keyVarF","f.vars","-1","IBTS-Q3","0",5,NA
+"keyVarF","f.vars","-1","LAI-ORSH","0",6,NA
+"keyVarF","f.vars","-1","LAI-BUN","0",7,NA
+"keyVarF","f.vars","-1","LAI-CNS","0",8,NA
+"keyVarF","f.vars","-1","LAI-SNS","0",9,NA
+"keyVarF","f.vars","0","catch unique","1",1,NA
+"keyVarF","f.vars","-1","HERAS","1",2,NA
+"keyVarF","f.vars","-1","IBTS-Q1","1",3,NA
+"keyVarF","f.vars","-1","IBTS0","1",4,NA
+"keyVarF","f.vars","-1","IBTS-Q3","1",5,NA
+"keyVarF","f.vars","-1","LAI-ORSH","1",6,NA
+"keyVarF","f.vars","-1","LAI-BUN","1",7,NA
+"keyVarF","f.vars","-1","LAI-CNS","1",8,NA
+"keyVarF","f.vars","-1","LAI-SNS","1",9,NA
+"keyVarF","f.vars","1","catch unique","2",1,NA
+"keyVarF","f.vars","-1","HERAS","2",2,NA
+"keyVarF","f.vars","-1","IBTS-Q1","2",3,NA
+"keyVarF","f.vars","-1","IBTS0","2",4,NA
+"keyVarF","f.vars","-1","IBTS-Q3","2",5,NA
+"keyVarF","f.vars","-1","LAI-ORSH","2",6,NA
+"keyVarF","f.vars","-1","LAI-BUN","2",7,NA
+"keyVarF","f.vars","-1","LAI-CNS","2",8,NA
+"keyVarF","f.vars","-1","LAI-SNS","2",9,NA
+"keyVarF","f.vars","1","catch unique","3",1,NA
+"keyVarF","f.vars","-1","HERAS","3",2,NA
+"keyVarF","f.vars","-1","IBTS-Q1","3",3,NA
+"keyVarF","f.vars","-1","IBTS0","3",4,NA
+"keyVarF","f.vars","-1","IBTS-Q3","3",5,NA
+"keyVarF","f.vars","-1","LAI-ORSH","3",6,NA
+"keyVarF","f.vars","-1","LAI-BUN","3",7,NA
+"keyVarF","f.vars","-1","LAI-CNS","3",8,NA
+"keyVarF","f.vars","-1","LAI-SNS","3",9,NA
+"keyVarF","f.vars","1","catch unique","4",1,NA
+"keyVarF","f.vars","-1","HERAS","4",2,NA
+"keyVarF","f.vars","-1","IBTS-Q1","4",3,NA
+"keyVarF","f.vars","-1","IBTS0","4",4,NA
+"keyVarF","f.vars","-1","IBTS-Q3","4",5,NA
+"keyVarF","f.vars","-1","LAI-ORSH","4",6,NA
+"keyVarF","f.vars","-1","LAI-BUN","4",7,NA
+"keyVarF","f.vars","-1","LAI-CNS","4",8,NA
+"keyVarF","f.vars","-1","LAI-SNS","4",9,NA
+"keyVarF","f.vars","1","catch unique","5",1,NA
+"keyVarF","f.vars","-1","HERAS","5",2,NA
+"keyVarF","f.vars","-1","IBTS-Q1","5",3,NA
+"keyVarF","f.vars","-1","IBTS0","5",4,NA
+"keyVarF","f.vars","-1","IBTS-Q3","5",5,NA
+"keyVarF","f.vars","-1","LAI-ORSH","5",6,NA
+"keyVarF","f.vars","-1","LAI-BUN","5",7,NA
+"keyVarF","f.vars","-1","LAI-CNS","5",8,NA
+"keyVarF","f.vars","-1","LAI-SNS","5",9,NA
+"keyVarF","f.vars","2","catch unique","6",1,NA
+"keyVarF","f.vars","-1","HERAS","6",2,NA
+"keyVarF","f.vars","-1","IBTS-Q1","6",3,NA
+"keyVarF","f.vars","-1","IBTS0","6",4,NA
+"keyVarF","f.vars","-1","IBTS-Q3","6",5,NA
+"keyVarF","f.vars","-1","LAI-ORSH","6",6,NA
+"keyVarF","f.vars","-1","LAI-BUN","6",7,NA
+"keyVarF","f.vars","-1","LAI-CNS","6",8,NA
+"keyVarF","f.vars","-1","LAI-SNS","6",9,NA
+"keyVarF","f.vars","2","catch unique","7",1,NA
+"keyVarF","f.vars","-1","HERAS","7",2,NA
+"keyVarF","f.vars","-1","IBTS-Q1","7",3,NA
+"keyVarF","f.vars","-1","IBTS0","7",4,NA
+"keyVarF","f.vars","-1","IBTS-Q3","7",5,NA
+"keyVarF","f.vars","-1","LAI-ORSH","7",6,NA
+"keyVarF","f.vars","-1","LAI-BUN","7",7,NA
+"keyVarF","f.vars","-1","LAI-CNS","7",8,NA
+"keyVarF","f.vars","-1","LAI-SNS","7",9,NA
+"keyVarF","f.vars","2","catch unique","8",1,NA
+"keyVarF","f.vars","-1","HERAS","8",2,NA
+"keyVarF","f.vars","-1","IBTS-Q1","8",3,NA
+"keyVarF","f.vars","-1","IBTS0","8",4,NA
+"keyVarF","f.vars","-1","IBTS-Q3","8",5,NA
+"keyVarF","f.vars","-1","LAI-ORSH","8",6,NA
+"keyVarF","f.vars","-1","LAI-BUN","8",7,NA
+"keyVarF","f.vars","-1","LAI-CNS","8",8,NA
+"keyVarF","f.vars","-1","LAI-SNS","8",9,NA
+"keyVarObs","obs.vars","0","catch unique","0",1,NA
+"keyVarObs","obs.vars","-1","HERAS","0",2,NA
+"keyVarObs","obs.vars","-1","IBTS-Q1","0",3,NA
+"keyVarObs","obs.vars","7","IBTS0","0",4,NA
+"keyVarObs","obs.vars","8","IBTS-Q3","0",5,NA
+"keyVarObs","obs.vars","11","LAI-ORSH","0",6,NA
+"keyVarObs","obs.vars","11","LAI-BUN","0",7,NA
+"keyVarObs","obs.vars","11","LAI-CNS","0",8,NA
+"keyVarObs","obs.vars","11","LAI-SNS","0",9,NA
+"keyVarObs","obs.vars","0","catch unique","1",1,NA
+"keyVarObs","obs.vars","3","HERAS","1",2,NA
+"keyVarObs","obs.vars","6","IBTS-Q1","1",3,NA
+"keyVarObs","obs.vars","-1","IBTS0","1",4,NA
+"keyVarObs","obs.vars","9","IBTS-Q3","1",5,NA
+"keyVarObs","obs.vars","-1","LAI-ORSH","1",6,NA
+"keyVarObs","obs.vars","-1","LAI-BUN","1",7,NA
+"keyVarObs","obs.vars","-1","LAI-CNS","1",8,NA
+"keyVarObs","obs.vars","-1","LAI-SNS","1",9,NA
+"keyVarObs","obs.vars","1","catch unique","2",1,NA
+"keyVarObs","obs.vars","4","HERAS","2",2,NA
+"keyVarObs","obs.vars","-1","IBTS-Q1","2",3,NA
+"keyVarObs","obs.vars","-1","IBTS0","2",4,NA
+"keyVarObs","obs.vars","10","IBTS-Q3","2",5,NA
+"keyVarObs","obs.vars","-1","LAI-ORSH","2",6,NA
+"keyVarObs","obs.vars","-1","LAI-BUN","2",7,NA
+"keyVarObs","obs.vars","-1","LAI-CNS","2",8,NA
+"keyVarObs","obs.vars","-1","LAI-SNS","2",9,NA
+"keyVarObs","obs.vars","1","catch unique","3",1,NA
+"keyVarObs","obs.vars","4","HERAS","3",2,NA
+"keyVarObs","obs.vars","-1","IBTS-Q1","3",3,NA
+"keyVarObs","obs.vars","-1","IBTS0","3",4,NA
+"keyVarObs","obs.vars","10","IBTS-Q3","3",5,NA
+"keyVarObs","obs.vars","-1","LAI-ORSH","3",6,NA
+"keyVarObs","obs.vars","-1","LAI-BUN","3",7,NA
+"keyVarObs","obs.vars","-1","LAI-CNS","3",8,NA
+"keyVarObs","obs.vars","-1","LAI-SNS","3",9,NA
+"keyVarObs","obs.vars","1","catch unique","4",1,NA
+"keyVarObs","obs.vars","4","HERAS","4",2,NA
+"keyVarObs","obs.vars","-1","IBTS-Q1","4",3,NA
+"keyVarObs","obs.vars","-1","IBTS0","4",4,NA
+"keyVarObs","obs.vars","10","IBTS-Q3","4",5,NA
+"keyVarObs","obs.vars","-1","LAI-ORSH","4",6,NA
+"keyVarObs","obs.vars","-1","LAI-BUN","4",7,NA
+"keyVarObs","obs.vars","-1","LAI-CNS","4",8,NA
+"keyVarObs","obs.vars","-1","LAI-SNS","4",9,NA
+"keyVarObs","obs.vars","1","catch unique","5",1,NA
+"keyVarObs","obs.vars","4","HERAS","5",2,NA
+"keyVarObs","obs.vars","-1","IBTS-Q1","5",3,NA
+"keyVarObs","obs.vars","-1","IBTS0","5",4,NA
+"keyVarObs","obs.vars","10","IBTS-Q3","5",5,NA
+"keyVarObs","obs.vars","-1","LAI-ORSH","5",6,NA
+"keyVarObs","obs.vars","-1","LAI-BUN","5",7,NA
+"keyVarObs","obs.vars","-1","LAI-CNS","5",8,NA
+"keyVarObs","obs.vars","-1","LAI-SNS","5",9,NA
+"keyVarObs","obs.vars","2","catch unique","6",1,NA
+"keyVarObs","obs.vars","4","HERAS","6",2,NA
+"keyVarObs","obs.vars","-1","IBTS-Q1","6",3,NA
+"keyVarObs","obs.vars","-1","IBTS0","6",4,NA
+"keyVarObs","obs.vars","-1","IBTS-Q3","6",5,NA
+"keyVarObs","obs.vars","-1","LAI-ORSH","6",6,NA
+"keyVarObs","obs.vars","-1","LAI-BUN","6",7,NA
+"keyVarObs","obs.vars","-1","LAI-CNS","6",8,NA
+"keyVarObs","obs.vars","-1","LAI-SNS","6",9,NA
+"keyVarObs","obs.vars","2","catch unique","7",1,NA
+"keyVarObs","obs.vars","5","HERAS","7",2,NA
+"keyVarObs","obs.vars","-1","IBTS-Q1","7",3,NA
+"keyVarObs","obs.vars","-1","IBTS0","7",4,NA
+"keyVarObs","obs.vars","-1","IBTS-Q3","7",5,NA
+"keyVarObs","obs.vars","-1","LAI-ORSH","7",6,NA
+"keyVarObs","obs.vars","-1","LAI-BUN","7",7,NA
+"keyVarObs","obs.vars","-1","LAI-CNS","7",8,NA
+"keyVarObs","obs.vars","-1","LAI-SNS","7",9,NA
+"keyVarObs","obs.vars","2","catch unique","8",1,NA
+"keyVarObs","obs.vars","5","HERAS","8",2,NA
+"keyVarObs","obs.vars","-1","IBTS-Q1","8",3,NA
+"keyVarObs","obs.vars","-1","IBTS0","8",4,NA
+"keyVarObs","obs.vars","-1","IBTS-Q3","8",5,NA
+"keyVarObs","obs.vars","-1","LAI-ORSH","8",6,NA
+"keyVarObs","obs.vars","-1","LAI-BUN","8",7,NA
+"keyVarObs","obs.vars","-1","LAI-CNS","8",8,NA
+"keyVarObs","obs.vars","-1","LAI-SNS","8",9,NA
+"keyCorObs","cor.obs",NA,"catch unique","0-1",1,NA
+"keyCorObs","cor.obs","-1","HERAS","0-1",2,NA
+"keyCorObs","cor.obs","-1","IBTS-Q1","0-1",3,NA
+"keyCorObs","cor.obs","-1","IBTS0","0-1",4,NA
+"keyCorObs","cor.obs","0","IBTS-Q3","0-1",5,NA
+"keyCorObs","cor.obs","-1","LAI-ORSH","0-1",6,NA
+"keyCorObs","cor.obs","-1","LAI-BUN","0-1",7,NA
+"keyCorObs","cor.obs","-1","LAI-CNS","0-1",8,NA
+"keyCorObs","cor.obs","-1","LAI-SNS","0-1",9,NA
+"keyCorObs","cor.obs",NA,"catch unique","1-2",1,NA
+"keyCorObs","cor.obs",NA,"HERAS","1-2",2,NA
+"keyCorObs","cor.obs","-1","IBTS-Q1","1-2",3,NA
+"keyCorObs","cor.obs","-1","IBTS0","1-2",4,NA
+"keyCorObs","cor.obs","0","IBTS-Q3","1-2",5,NA
+"keyCorObs","cor.obs","-1","LAI-ORSH","1-2",6,NA
+"keyCorObs","cor.obs","-1","LAI-BUN","1-2",7,NA
+"keyCorObs","cor.obs","-1","LAI-CNS","1-2",8,NA
+"keyCorObs","cor.obs","-1","LAI-SNS","1-2",9,NA
+"keyCorObs","cor.obs",NA,"catch unique","2-3",1,NA
+"keyCorObs","cor.obs",NA,"HERAS","2-3",2,NA
+"keyCorObs","cor.obs","-1","IBTS-Q1","2-3",3,NA
+"keyCorObs","cor.obs","-1","IBTS0","2-3",4,NA
+"keyCorObs","cor.obs","0","IBTS-Q3","2-3",5,NA
+"keyCorObs","cor.obs","-1","LAI-ORSH","2-3",6,NA
+"keyCorObs","cor.obs","-1","LAI-BUN","2-3",7,NA
+"keyCorObs","cor.obs","-1","LAI-CNS","2-3",8,NA
+"keyCorObs","cor.obs","-1","LAI-SNS","2-3",9,NA
+"keyCorObs","cor.obs",NA,"catch unique","3-4",1,NA
+"keyCorObs","cor.obs",NA,"HERAS","3-4",2,NA
+"keyCorObs","cor.obs","-1","IBTS-Q1","3-4",3,NA
+"keyCorObs","cor.obs","-1","IBTS0","3-4",4,NA
+"keyCorObs","cor.obs","0","IBTS-Q3","3-4",5,NA
+"keyCorObs","cor.obs","-1","LAI-ORSH","3-4",6,NA
+"keyCorObs","cor.obs","-1","LAI-BUN","3-4",7,NA
+"keyCorObs","cor.obs","-1","LAI-CNS","3-4",8,NA
+"keyCorObs","cor.obs","-1","LAI-SNS","3-4",9,NA
+"keyCorObs","cor.obs",NA,"catch unique","4-5",1,NA
+"keyCorObs","cor.obs",NA,"HERAS","4-5",2,NA
+"keyCorObs","cor.obs","-1","IBTS-Q1","4-5",3,NA
+"keyCorObs","cor.obs","-1","IBTS0","4-5",4,NA
+"keyCorObs","cor.obs","0","IBTS-Q3","4-5",5,NA
+"keyCorObs","cor.obs","-1","LAI-ORSH","4-5",6,NA
+"keyCorObs","cor.obs","-1","LAI-BUN","4-5",7,NA
+"keyCorObs","cor.obs","-1","LAI-CNS","4-5",8,NA
+"keyCorObs","cor.obs","-1","LAI-SNS","4-5",9,NA
+"keyCorObs","cor.obs",NA,"catch unique","5-6",1,NA
+"keyCorObs","cor.obs",NA,"HERAS","5-6",2,NA
+"keyCorObs","cor.obs","-1","IBTS-Q1","5-6",3,NA
+"keyCorObs","cor.obs","-1","IBTS0","5-6",4,NA
+"keyCorObs","cor.obs","-1","IBTS-Q3","5-6",5,NA
+"keyCorObs","cor.obs","-1","LAI-ORSH","5-6",6,NA
+"keyCorObs","cor.obs","-1","LAI-BUN","5-6",7,NA
+"keyCorObs","cor.obs","-1","LAI-CNS","5-6",8,NA
+"keyCorObs","cor.obs","-1","LAI-SNS","5-6",9,NA
+"keyCorObs","cor.obs",NA,"catch unique","6-7",1,NA
+"keyCorObs","cor.obs",NA,"HERAS","6-7",2,NA
+"keyCorObs","cor.obs","-1","IBTS-Q1","6-7",3,NA
+"keyCorObs","cor.obs","-1","IBTS0","6-7",4,NA
+"keyCorObs","cor.obs","-1","IBTS-Q3","6-7",5,NA
+"keyCorObs","cor.obs","-1","LAI-ORSH","6-7",6,NA
+"keyCorObs","cor.obs","-1","LAI-BUN","6-7",7,NA
+"keyCorObs","cor.obs","-1","LAI-CNS","6-7",8,NA
+"keyCorObs","cor.obs","-1","LAI-SNS","6-7",9,NA
+"keyCorObs","cor.obs",NA,"catch unique","7-8",1,NA
+"keyCorObs","cor.obs",NA,"HERAS","7-8",2,NA
+"keyCorObs","cor.obs","-1","IBTS-Q1","7-8",3,NA
+"keyCorObs","cor.obs","-1","IBTS0","7-8",4,NA
+"keyCorObs","cor.obs","-1","IBTS-Q3","7-8",5,NA
+"keyCorObs","cor.obs","-1","LAI-ORSH","7-8",6,NA
+"keyCorObs","cor.obs","-1","LAI-BUN","7-8",7,NA
+"keyCorObs","cor.obs","-1","LAI-CNS","7-8",8,NA
+"keyCorObs","cor.obs","-1","LAI-SNS","7-8",9,NA
+"obsCorStruct","cor.obs.Flag","ID","catch unique",NA,1,NA
+"obsCorStruct","cor.obs.Flag","ID","HERAS",NA,2,NA
+"obsCorStruct","cor.obs.Flag","ID","IBTS-Q1",NA,3,NA
+"obsCorStruct","cor.obs.Flag","ID","IBTS0",NA,4,NA
+"obsCorStruct","cor.obs.Flag","AR","IBTS-Q3",NA,5,NA
+"obsCorStruct","cor.obs.Flag","ID","LAI-ORSH",NA,6,NA
+"obsCorStruct","cor.obs.Flag","ID","LAI-BUN",NA,7,NA
+"obsCorStruct","cor.obs.Flag","ID","LAI-CNS",NA,8,NA
+"obsCorStruct","cor.obs.Flag","ID","LAI-SNS",NA,9,NA
+"keyBiomassTreat","biomassTreat","-1","catch unique",NA,1,NA
+"keyBiomassTreat","biomassTreat","-1","HERAS",NA,2,NA
+"keyBiomassTreat","biomassTreat","-1","IBTS-Q1",NA,3,NA
+"keyBiomassTreat","biomassTreat","-1","IBTS0",NA,4,NA
+"keyBiomassTreat","biomassTreat","-1","IBTS-Q3",NA,5,NA
+"keyBiomassTreat","biomassTreat","-1","LAI-ORSH",NA,6,NA
+"keyBiomassTreat","biomassTreat","-1","LAI-BUN",NA,7,NA
+"keyBiomassTreat","biomassTreat","-1","LAI-CNS",NA,8,NA
+"keyBiomassTreat","biomassTreat","-1","LAI-SNS",NA,9,NA
+"keyVarLogN","logN.vars","0",NA,"0",NA,NA
+"keyVarLogN","logN.vars","1",NA,"1",NA,NA
+"keyVarLogN","logN.vars","1",NA,"2",NA,NA
+"keyVarLogN","logN.vars","1",NA,"3",NA,NA
+"keyVarLogN","logN.vars","1",NA,"4",NA,NA
+"keyVarLogN","logN.vars","1",NA,"5",NA,NA
+"keyVarLogN","logN.vars","1",NA,"6",NA,NA
+"keyVarLogN","logN.vars","1",NA,"7",NA,NA
+"keyVarLogN","logN.vars","1",NA,"8",NA,NA
+"noScaledYears","scaleNoYear","0",NA,NA,NA,NA
+"keyScaledYears","scaleYears","numeric()",NA,NA,NA,NA
+"keyParScaledYA","scalePars","0 x 0 matrix",NA,NA,NA,NA
+"keyVarLogP","logP.vars","0",NA,NA,NA,"1"
+"keyVarLogP","logP.vars","1",NA,NA,NA,"2"
+"keyVarLogP","logP.vars","2",NA,NA,NA,"3"
