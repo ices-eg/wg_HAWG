@@ -12,27 +12,52 @@
 # 18/05/2019 Adapted for the new msy package (replaces eqsr_fit_shift)
 # ==============================================================================
 
+# devtools::session_info()
+
+# sessionInfo()
+
 # install package devtools first
 rm(list=ls())
 
 # ***follow the order of loading (1) FLCore and (2) msy
 # as SR fuctions have same name but different formulation
 
+# devtools::install_github('flr/FLCore@v2.6.5')
+# devtools::install_github('fishfollower/SAM/stockassessment', ref='components')
+# install.packages("FLSAM", repos="http://flr-project.org/R")
+# devtools::install_github("ices-tools-prod/msy@v0.1.18")
+
 #library(devtools)  ## install.packages("devtools")
 library(FLCore)
 library(FLSAM)
-library(msy)       ## install_github("ices-tools-prod/msy")
+library(msy)       ## devtools::install_github("ices-tools-prod/msy@v0.1.18")
 library(tidyverse)
 
+# FIT <- eqsr_fit(icesStocks$saiNS,
+#                 nsamp = 1000,
+#                 models = c("Ricker", "Segreg")
+# )
+# SIM <- eqsim_run(FIT,
+#                  bio.years = c(2004, 2013),
+#                  sel.years = c(2004, 2013),
+#                  Fcv = 0.24,
+#                  Fphi = 0.42,
+#                  Blim = 106000,
+#                  Bpa = 200000,
+#                  Fscan = seq(0, 1.2, len = 40),
+#                  verbose = FALSE
+# )
+
+
 # setwd("D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/")
-try(setwd("NSAS/refpts"),silent=FALSE)
+try(setwd("NSAS/benchmark/2018/refpts"),silent=FALSE)
 
 # source("../refpts/Refpoints functions.R")
 # source("../../_Common/eqsr_fit_shift.R")
 # load("./results/7_finalModel/NSH_final.RData")
 
-source("Refpoints functions.R")
-# source("../../_Common/eqsr_fit_shift.R")
+# source("Refpoints functions.R")
+source("../../../../_Common/eqsr_fit_shift.R")
 
 #load("D:/WKPELA/06. Data/NSAS/SAM/NSH_final.RData")
 # NEED TO OPEN THE SHAREPOINT FOLDER IN EXPLORER FIRST!!
@@ -40,8 +65,8 @@ load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2018/wkherring/
 
 # 1. Get estimate of Blim using the whole time series and calculate Bpa
 
-# FIT_segregBlim <- eqsr_fit_shift(NSH,nsamp=2000, models = "Segreg", rshift=1)
-FIT_segregBlim <- eqsr_fit(NSH,nsamp=2000, models = "Segreg", rshift=1)
+FIT_segregBlim <- eqsr_fit_shift(NSH,nsamp=2000, models = "Segreg", rshift=1)
+# FIT_segregBlim <- eqsr_fit(NSH,nsamp=2000, models = "Segreg", rshift=1)
 
 blim <- round(FIT_segregBlim$sr.det$b/1e5)*1e5  # 796 kT = 800 kT
 
@@ -63,18 +88,23 @@ SegregBlim  <- function(ab, ssb) log(ifelse(ssb >= blim,
 NSHtrunc <- trim(NSH, year=2002:2016)
 
 # 4. fit the stock recruitment model(s)
-# FIT <- eqsr_fit_shift(NSHtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"), rshift=1)
+FIT <- eqsr_fit_shift(NSHtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"), rshift=1)
+save(FIT, file="fit2.RData")
+FIT2 <- eqsr_fit_shift(NSHtrunc, nsamp = 2000, models = c("SegregBlim", "Ricker"), rshift=1)
 # FIT <- eqsr_fit_shift(NSH, nsamp = 2000, models = c("Ricker", "SegregBlim", "Bevholt"), rshift=1)
-FIT <- eqsr_fit(NSHtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"), rshift=1)
+# FIT <- eqsr_fit(NSHtrunc, nsamp = 2000, models = c("Ricker", "SegregBlim"), rshift=1)
+# FIT2 <- eqsr_fit(NSHtrunc, nsamp = 2000, models = c("SegregBlim", "Ricker"), rshift=1)
+load("fit.RData")
 
 # eqsr_plot(FIT,n=2e4, ggPlot=TRUE)
-eqsr_plot(FIT,n=2e4, ggPlot=FALSE)
+eqsr_plot(FIT,n=2e4, ggPlot=TRUE)
+eqsr_plot(FIT2,n=2e4, ggPlot=TRUE)
 
 # 5. Get Flim and thereby Fpa. Run EqSim with no MSY Btrigger (i.e. run EqSim with Btrigger=0), and Fcv=Fphi=0
 SIM <- eqsim_run(FIT,
-                 bio.years = c(2007:2016),
+                 bio.years = c(2007,2016),
                  bio.const = FALSE,
-                 sel.years = c(2007:2016),
+                 sel.years = c(2007,2016),
                  sel.const = FALSE,
                  recruitment.trim = c(3, -3),
                  Fcv       = 0,
