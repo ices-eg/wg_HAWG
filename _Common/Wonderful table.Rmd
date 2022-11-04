@@ -1,0 +1,518 @@
+---
+output: 
+  word_document:
+    reference_docx: report_template_v1.5.dotx
+---
+
+```{r setup, include=FALSE}
+
+
+# =======================================================================================
+# Wonderful table.Rmd
+# 
+# 02/06/2021 First coding 
+# 23/06/2021 Added catch by age/quarter of WBSS in transfer areas
+# =======================================================================================
+
+require("knitr")
+knitr::opts_chunk$set(echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE )
+knitr::opts_chunk$set(fig.width=10) 
+
+rm(list=ls())
+
+options(dplyr.summarise.inform = FALSE)
+
+library(tidyverse)    # tidying packages
+library(readxl)       # read excel
+library(lubridate)
+library(scales)
+library(RColorBrewer)
+library(pander)
+library(viridis)
+
+# source my utils
+source("../../prf/R/my utils.r")
+
+# Data path
+datapath <- "C:/DATA/Onedrive - PFA/Documents/iHAWG/2021/06. Data"
+
+# iadvice path
+# iadvicepath <- paste(get_dropbox(), "/iAdvice", sep="")
+
+
+# load wonderful table data
+wt <- 
+  readxl::read_excel(
+    file.path(datapath, "Wonderful table since 1980.xlsx"),
+    sheet="condensed",
+    range =  "B65:AQ95",
+    col_names = TRUE
+  ) %>%
+   lowcase() %>% 
+  pivot_longer(names_to="year", values_to="data","1980":"2020") %>% 
+  mutate(year = as.numeric(year)) %>% 
+  drop_na(data)  %>% 
+  ungroup() 
+
+cn <-
+  readxl::read_excel(
+    file.path(datapath, "canum.xlsx"),
+    sheet="data",
+    col_names = TRUE
+  ) %>% 
+  tidyr::pivot_longer(names_to="temp", values_to="value", "3a_NSAS":"7d_NSAS") %>% 
+  separate(temp, into=c("area","stock"), sep="_") %>% 
+  filter(stock != "all")
+
+ct <-
+  readxl::read_excel(
+    file.path(datapath, "Catch.xlsx"),
+    sheet="data",
+    col_names = TRUE
+  ) %>% 
+  tidyr::pivot_longer(names_to="temp", values_to="value", "3a_NSAS":"7d_NSAS") %>% 
+  separate(temp, into=c("area","stock"), sep="_") %>% 
+  filter(stock != "all")
+
+
+# load transfer area data
+my.files <- list.files(path=file.path(datapath, "transfer"), 
+                       pattern="tr NS",
+                       full.names = TRUE)
+
+tr <- data.frame(stringsAsFactors = FALSE)
+
+for (i in 1:length(my.files)) {
+  
+  tr1 <-
+    readxl::read_excel(my.files[[i]], range="A2:K6") %>% 
+    pivot_longer(names_to="age", values_to="canum", "0":"9") %>% 
+    mutate(year = stringr::str_extract(basename(my.files[[i]]), "[[:digit:]]+"))
+  
+  tr2 <-
+    readxl::read_excel(my.files[[i]], range="A9:K13") %>% 
+    pivot_longer(names_to="age", values_to="perc", "0":"9") %>% 
+    mutate(year = stringr::str_extract(basename(my.files[[i]]), "[[:digit:]]+"))
+  
+  tr3 <-
+    readxl::read_excel(my.files[[i]], range="A16:K20") %>% 
+    pivot_longer(names_to="age", values_to="weca", "0":"9") %>% 
+    mutate(year = stringr::str_extract(basename(my.files[[i]]), "[[:digit:]]+"))
+    
+  tr <- 
+    tr %>% 
+    bind_rows(
+      tr1 %>% 
+      left_join(tr2) %>% 
+      left_join(tr3) %>% 
+      setNames(c("quarter","age","canum","year", "perc","weca")) %>% 
+      mutate(sop = (canum * weca) / 1000)
+    )
+}
+
+
+
+```
+
+Working document 01, Trilateral herring group 2021
+
+**Wonderful table for herring and sprat**
+
+Martin Pastoors and Norbert Rohlff
+
+`r format(Sys.time(), '%d/%m/%Y')`
+
+**Introduction**
+
+The so-called "Wonderful table" was first generated in the early 2000s within the ICES herring assessment working group. It contained a tabulation by years of TAC and catches of herring in subarea 4 and divisions 3.a and 7.d. It also contacted a separation of the catches into the different stocks of herring, notably North Sea Autumn Spawning herring (NSAS) and Western Baltic Spring Spawning herring (WBSS). 
+
+For the purpose of the Trilateral herring group 2021, the wonderful table has been extended to include the herring catches in areas 20-24 and the sprat catches in the North Sea and division 3.a.
+
+**Results**
+
+Herring and sprat catch by area
+
+```{r, echo=FALSE, fig.asp=1.0, fig.align="center", message=FALSE, warning=FALSE}
+
+t <-
+  wt %>% 
+  filter(grepl("^Total herring Catch \\(|Total sprat Catch \\(", variable)) %>% 
+  filter(year >= 1992) %>% 
+  mutate(species = ifelse(grepl("herring", variable), "herring","sprat")) 
+
+plist <- list()
+
+plist[[1]] <-
+  t %>% 
+    ggplot(aes(x=year, y=data)) +
+    theme_publication() + 
+    theme(legend.position="none") +
+    theme(axis.text.x = element_blank())  +
+    theme(plot.margin=unit(c(0.1,0.1,0.1,0.1), "cm")) +
+    geom_bar(aes(fill=species), stat="identity", alpha=1.0) + 
+    labs(x="",y="000 tonnes") 
+
+plist[[2]] <-
+  t %>% 
+    ggplot(aes(x=year, y=data)) +
+    theme_publication() + 
+    # theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=1))  +
+    theme(plot.margin=unit(c(0.1,0.1,0.1,0.1), "cm")) +
+    geom_bar(aes(fill=species), stat="identity", position="fill", alpha=1.0) + 
+    # scale_fill_manual(values=myPlotColors) +
+    labs(x="",y="prop.") 
+  
+print(patchwork::wrap_plots(plist) + 
+  patchwork::plot_layout(ncol = 1, heights = c(0.5, 0.5)) +
+  patchwork::plot_annotation() & theme(plot.tag = element_text(size = 8)) 
+)
+  
+
+```
+
+_Figure 1: Catch of herring and sprat in subareas 27.3, 27.4 and herring in division 27.7.d and 20-24. Top: tonnes, Bottom: proportions._
+
+\newpage
+
+**Herring catch by area**
+
+```{r, echo=FALSE, fig.asp=1.0, fig.align="center", message=FALSE, warning=FALSE}
+
+t <-
+  wt %>% 
+  filter(grepl("^Total herring Catch in", variable)) %>% 
+  filter(year >= 1990) %>% 
+  mutate(area = gsub("Total herring Catch in","",variable)) 
+
+plist <- list()
+
+plist[[1]] <-
+  t %>% 
+    ggplot(aes(x=year, y=data)) +
+    theme_publication() + 
+    theme(legend.position="none") +
+    theme(axis.text.x = element_blank())  +
+    theme(plot.margin=unit(c(0.1,0.1,0.1,0.1), "cm")) +
+    geom_bar(aes(fill=area), stat="identity", alpha=1.0) + 
+    labs(x="",y="000 tonnes") 
+
+plist[[2]] <-
+  t %>% 
+    ggplot(aes(x=year, y=data)) +
+    theme_publication() + 
+    # theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=1))  +
+    theme(plot.margin=unit(c(0.1,0.1,0.1,0.1), "cm")) +
+    geom_bar(aes(fill=area), stat="identity", position="fill", alpha=1.0) + 
+    # scale_fill_manual(values=myPlotColors) +
+    labs(x="",y="prop.") 
+  
+print(patchwork::wrap_plots(plist) + 
+  patchwork::plot_layout(ncol = 1, heights = c(0.5, 0.5)) +
+  patchwork::plot_annotation() & theme(plot.tag = element_text(size = 8)) 
+)
+  
+
+```
+
+_Figure 2: Catch of herring by area. Top: tonnes, Bottom: proportions._
+
+\newpage
+
+**Herring TAC uptake by area**
+
+```{r, echo=FALSE, fig.asp=1.2, fig.align="center", message=FALSE, warning=FALSE}
+
+# distinct(wt,variable) %>% View()
+
+wt %>% 
+  filter(grepl("TAC uptake", variable)) %>% 
+  
+  ggplot(aes(x=year, y=data)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  geom_point() +
+  geom_line() +
+  geom_hline(yintercept=1, linetype="dashed") +
+  
+  expand_limits(y=0) +
+  facet_wrap( ~ variable, ncol=1)
+
+
+
+```
+_Figure 3: Proportion herring TAC uptake by area and combined._
+
+\newpage
+
+
+**Proportion NSAS, OTHER and WBSS relative to total herring catch in IV and VIId**
+
+```{r, echo=FALSE, fig.asp=1.2, fig.align="center", message=FALSE, warning=FALSE}
+
+# distinct(wt,variable) %>% View()
+
+wt %>% 
+  filter(grepl("of herring catches in the North Sea", variable)) %>% 
+  ggplot(aes(x=year, y=data)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  geom_point() +
+  geom_line() +
+  expand_limits(y=0) +
+  geom_hline(yintercept=c(0,1), linetype="dashed") +
+  facet_wrap( ~ variable, ncol=1)
+
+
+
+```
+_Figure 4: Proportion NSAS, OTHER and WBSS herring relative to herring catch in IV and VIId._
+
+\newpage
+
+**Proportion NSAS, OTHER and WBSS relative to total herring catch in IIIa and 20-24**
+
+```{r, echo=FALSE, fig.asp=0.8, fig.align="center", message=FALSE, warning=FALSE}
+
+# distinct(wt,variable) %>% View()
+
+wt %>% 
+  filter(grepl("of herring catches in IIIa", variable)) %>% 
+  ggplot(aes(x=year, y=data)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  geom_point() +
+  geom_line() +
+  expand_limits(y=0) +
+  geom_hline(yintercept=c(0,1), linetype="dashed") +
+  facet_wrap( ~ variable, ncol=1)
+
+
+
+```
+_Figure 5: Proportion NSAS and WBSS relative to total herring catch in IIIa and 20-24._
+
+\newpage
+
+**Proportion North Sea autumn spawner catch in IIIa (by fleet)**
+
+```{r, echo=FALSE, fig.asp=1.2, fig.align="center", message=FALSE, warning=FALSE}
+
+# distinct(wt,variable) %>% View()
+
+wt %>% 
+  filter(grepl("Prop\\. NSAS catch in IIIa", variable)) %>% 
+  ggplot(aes(x=year, y=data)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  geom_point() +
+  geom_line() +
+  expand_limits(y=0) +
+  facet_wrap( ~ variable, ncol=1)
+
+
+
+```
+_Figure 6: North Sea autumn spawner catch in IIIa (by fleet)._
+
+\newpage
+
+**SoP of WBSS herring in transfer area**
+
+```{r, echo=FALSE, fig.asp=1.2, fig.align="center", message=FALSE, warning=FALSE}
+
+# distinct(wt,variable) %>% View()
+
+tr %>% 
+  ungroup() %>% 
+  filter(sop > 0) %>% 
+  
+  ggplot(aes(x=year, y=sop, group=1)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  # geom_point() +
+  # geom_line() +
+  geom_bar(stat="identity") +
+  expand_limits(y=0) +
+  facet_grid(age ~ quarter)
+
+```
+
+_Figure 8:SoP of WBSS herring in the transfer area by year, quarter and age ._
+
+\newpage
+
+**SoP of WBSS herring in transfer area compared to overall catch of all herring**
+
+```{r, echo=FALSE, fig.asp=1.2, fig.align="center", message=FALSE, warning=FALSE}
+
+t1 <-
+  tr %>% 
+  filter(sop > 0) %>% 
+  mutate(year=as.integer(year)) %>% 
+  group_by(year) %>% 
+  summarise(sop = sum(sop)) %>% 
+  mutate(area="4aE")
+
+t2 <-
+  ct %>% 
+  mutate(year=as.integer(year)) %>% 
+  group_by(year, area) %>% 
+  summarise(value = sum(value, na.rm=TRUE)) 
+
+t <-
+  t2 %>% 
+  left_join(t1, by=c("year", "area")) %>% 
+  filter(year >= 2012) %>% 
+  mutate(value = ifelse(!is.na(sop) , value - sop, value)) %>% 
+  pivot_longer(names_to = "subarea", values_to = "data", value:sop) %>% 
+  drop_na(data) %>% 
+  mutate(subarea = ifelse(subarea=="sop","transfer","other"))
+
+
+t %>% 
+  group_by(year, subarea) %>% 
+  summarise(value = sum(data, na.rm=TRUE)) %>% 
+  group_by(year) %>% 
+  mutate(perc = value / sum(value, na.rm=TRUE)) %>% 
+  filter(subarea=="transfer") %>% 
+  ggplot(aes(x=year, y=perc, group=1)) + 
+  theme_publication() +
+  geom_bar(aes(fill=subarea), stat="identity") +
+  scale_y_continuous(labels = scales::percent) +
+  expand_limits(y=0) 
+
+
+
+```
+
+\newpage
+
+**SoP of WBSS herring in transfer area compared to overall catch of WBSS herring**
+
+```{r, echo=FALSE, fig.asp=1.2, fig.align="center", message=FALSE, warning=FALSE}
+
+# t1 <-
+#   tr %>% 
+#   filter(sop > 0) %>% 
+#   mutate(year=as.integer(year)) %>% 
+#   group_by(year) %>% 
+#   summarise(sop = sum(sop)) %>% 
+#   mutate(area="4aE")
+# 
+# t2 <-
+#   ct %>% 
+#   filter(stock=="WBSS") %>% 
+#   mutate(year=as.integer(year)) %>% 
+#   group_by(year, area) %>% 
+#   summarise(value = sum(value, na.rm=TRUE)) 
+# 
+# t <-
+#   t2 %>% 
+#   left_join(t1, by=c("year", "area")) %>% 
+#   filter(year >= 2012) %>% 
+#   mutate(value = ifelse(!is.na(sop) , value - sop, value)) %>% 
+#   pivot_longer(names_to = "subarea", values_to = "data", value:sop) %>% 
+#   drop_na(data) %>% 
+#   mutate(subarea = ifelse(subarea=="sop","transfer","other"))
+# 
+# 
+# t %>% 
+#   group_by(year, subarea) %>% 
+#   summarise(value = sum(data, na.rm=TRUE)) %>% 
+#   group_by(year) %>% 
+#   mutate(perc = value / sum(value, na.rm=TRUE)) %>% 
+#   filter(subarea=="transfer") %>% 
+#   ggplot(aes(x=year, y=perc, group=1)) + 
+#   theme_publication() +
+#   geom_bar(aes(fill=subarea), stat="identity") +
+#   scale_y_continuous(labels = scales::percent) +
+#   expand_limits(y=0) 
+# 
+
+
+```
+
+\newpage
+
+**SoP of herring in 4aE relative to North Sea herring**
+
+```{r, echo=FALSE, fig.asp=1.2, fig.align="center", message=FALSE, warning=FALSE}
+
+# ct %>% 
+#   group_by(year, area) %>% 
+#   summarise(value = sum(value, na.rm=TRUE)) %>% 
+#   group_by(year) %>% 
+#   mutate(perc = value / sum(value, na.rm=TRUE)) %>% 
+#   
+#   ggplot(aes(x=year, y=perc, group=1)) + 
+#   theme_publication() +
+#   geom_bar(aes(fill=area), stat="identity", colour="black") +
+#   expand_limits(y=0) 
+# 
+# 
+# ct %>% 
+#   ungroup() %>% 
+#   mutate(area2 = ifelse(area=="4aE", "4aE","rest")) %>% 
+#   group_by(year, age, area2) %>% 
+#   summarise(value = sum(value, na.rm=TRUE)) %>% 
+#   group_by(year, age) %>% 
+#   mutate(perc = value / sum(value, na.rm=TRUE)) %>% 
+#   
+#   ggplot(aes(x=year, y=perc, group=1)) + 
+#   theme_publication() +
+#   geom_bar(aes(fill=area2), stat="identity") +
+#   expand_limits(y=0) +
+#   facet_grid(age ~ .)
+
+
+```
+
+
+**Discussion**
+
+[ to be done ]
+
+
+
+
+
