@@ -1,0 +1,68 @@
+---
+output: 
+  word_document:
+    reference_docx: report_template_v1.5.dotx
+---
+
+```{r setup, include=FALSE}
+
+
+# =======================================================================================
+# ACFM 2003 her-347d herring forecast.Rmd
+# 
+# 02/06/2021 First coding 
+# 23/06/2021 Added catch by age/quarter of WBSS in transfer areas
+# 15/09/2021 Combined Wonderful table code with catch by rectangle code
+# 23/09/2021 Updated with 3a catch by rectangle data
+# =======================================================================================
+
+require("knitr")
+knitr::opts_chunk$set(echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE )
+knitr::opts_chunk$set(fig.width=10) 
+
+rm(list=ls())
+
+options(dplyr.summarise.inform = FALSE)
+
+library(tidyverse)    # tidying packages
+library(readxl)       # read excel
+library(lubridate)
+library(scales)
+library(RColorBrewer)
+library(pander)
+library(viridis)
+
+# source my utils
+source("../../../prf/R/my utils.r")
+source("../../../gisland/r/geo_inside.R")
+
+# load wonderful table data
+df <- 
+  readxl::read_excel(
+    file.path("H:/ICES/_MY ARCHIVE/ACFM 2003 MAY personal-Martin-her-347d-herring forecast.xls"),
+    skip=1,
+    col_names = TRUE
+  ) %>%
+  lowcase() %>% 
+  rename(f0_1 = 'f0-1', f2_6 = 'f2-6') 
+
+
+
+```
+
+**ACFM 2003 herring forecast options**
+
+Martin Pastoors
+
+`r format(Sys.time(), '%d/%m/%Y')`
+
+
+```{r, echo=FALSE, fig.asp=1.0, fig.align="center", message=FALSE, warning=FALSE}
+
+df %>% 
+  ggplot(aes(x=f2_6, y=f0_1, size=ctot)) +
+  geom_point()
+
+
+```
+
