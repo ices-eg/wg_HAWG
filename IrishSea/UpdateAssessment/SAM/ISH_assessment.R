@@ -208,11 +208,11 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 Ages<-9
 
 i<-2
-plot(as.numeric(seq(1980,2021,1)),c(stock.n(ISH[i,]),207843),type='l',main='Stock Numbers Age 2',xlab='year',ylab='StockNumbers')
+plot(as.numeric(seq(1980,2022,1)),c(stock.n(ISH[i,]),207843),type='l',main='Stock Numbers Age 2',xlab='year',ylab='StockNumbers')
 
 i<-3
-plot(as.numeric(seq(1980,2021,1)),c(stock.n(ISH[i,]),84195),type='l',main='Stock Numbers Age 3',xlab='year',ylab='StockNumbers')
+plot(as.numeric(seq(1980,2022,1)),c(stock.n(ISH[i,]),84195),type='l',main='Stock Numbers Age 3',xlab='year',ylab='StockNumbers')
 
 i<-4
-plot(as.numeric(seq(1980,2021,1)),c(stock.n(ISH[i,]),65619),type='l',main='Stock Numbers Age 4',xlab='year',ylab='StockNumbers')
+plot(as.numeric(seq(1980,2022,1)),c(stock.n(ISH[i,]),65619),type='l',main='Stock Numbers Age 4',xlab='year',ylab='StockNumbers')
 

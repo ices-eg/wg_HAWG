@@ -66,13 +66,11 @@ ISH.proj@stock.n[,ac(ImY)]<-survivors
 ISH.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- gm.recs;
 
 #For 2021
-ImY.catch <- 7341;  
+ImY.catch <- 8455;  
 #2021 real advice year
 numFmsy <- 0.266;
 numFlim <- 0.397;
 numFpa <- 0.309;
-
-numRetF<-0.209355943*1.16
 
 #Setup options
 
