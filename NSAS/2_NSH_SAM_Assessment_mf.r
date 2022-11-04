@@ -13,7 +13,8 @@ log.msg("\nNSH Final Assessment (multi fleet)\n=====================\n")
 
 # local path
 #path <- "D:/Repository/ICES_HAWG/wg_HAWG/NSAS/"
-path <- "J:/git/wg_HAWG/NSAS/"
+#path <- "J:/git/wg_HAWG/NSAS/"
+path <- "D:/git/wg_HAWG/NSAS/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -35,7 +36,6 @@ source(file.path(script.dir,"setupAssessmentObjects_mf.r"))
 source(file.path(script.dir,"setupControlObject_mf.r"))
 
 load(file.path(output.dir,'NSH_HAWG2020_mf.Rdata'))
-
 NSH3f.sam.stk0 <- NSH3f.sam
 
 ### ============================================================================
@@ -45,6 +45,8 @@ NSH3f.sam.stk0 <- NSH3f.sam
 NSH3f.sam   <- FLSAM(NSHs3,
                      NSH.tun,
                      NSH3.ctrl,starting.values = NSH3f.sam.stk0)
+
+ssb(NSH3f.sam)
 
 save(NSHs3,
      NSH.tun,
