@@ -6,9 +6,10 @@ output:
 
 ```{r setup, include=FALSE}
 # ==============================================================================
-# North Sea herring; quality control (and miscellaneous visualization)
+# Herring assessment working group; quality control (and miscellaneous visualization)
 #
 # 22/03/2020 first coding
+# 01/04/2021 adapted for HAWG 2021; Irish sea herring
 # ==============================================================================
 
 require("knitr")

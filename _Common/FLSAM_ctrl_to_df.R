@@ -163,8 +163,8 @@ FLSAM_ctrl2df <- function(ctrl) {
 }
 
 
-df <- FLSAM_ctrl2df(ctrl)
-
-write.csv(df, "FLSAM_ctrl_df.csv", row.names = FALSE)
+# df <- FLSAM_ctrl2df(ctrl)
+# 
+# write.csv(df, "FLSAM_ctrl_df.csv", row.names = FALSE)
 
 

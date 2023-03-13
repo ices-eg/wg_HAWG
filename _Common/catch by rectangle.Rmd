@@ -1,0 +1,824 @@
+---
+output: 
+  word_document:
+    reference_docx: report_template_v1.5.dotx
+---
+
+```{r setup, include=FALSE}
+
+
+# =======================================================================================
+# HAWG catch by rectangle.Rmd
+# 
+# 16/03/2021 Converted from WGWIDE code 
+# 17/06/2021 Update for new dataset with country included
+# =======================================================================================
+
+require("knitr")
+knitr::opts_chunk$set(echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE )
+knitr::opts_chunk$set(fig.width=10) 
+
+rm(list=ls())
+
+options(dplyr.summarise.inform = FALSE)
+
+# library(devtools)
+# library(icesDatras)   # install.packages("icesDatras")
+# library(tidyices)     # devtools::install_github("fishvice/tidyices", dependencies = TRUE)
+library(tidyverse)    # tidying packages
+library(readxl)       # read excel
+library(lubridate)
+# library(sf)
+# library(sp)
+# library(data.table)
+library(scales)
+library(RColorBrewer)
+library(pander)
+
+# library(gisland)      # devtools::install_github("einarhjorleifsson/gisland", dependencies = TRUE)
+
+library(maps)
+# library(mapdata)
+# library(mapproj)
+library(viridis)
+
+# library(animation)
+# library(gganimate)
+
+# source my utils
+source("../../prf/R/my utils.r")
+source("../../gisland/r/geo_inside.R")
+# source("theme_publication.r")
+
+# Data path
+datapath <- "C:/DATA/Onedrive - PFA/Documents/iHAWG/2021/06. Data"
+
+# iadvice path
+# iadvicepath <- paste(get_dropbox(), "/iAdvice", sep="")
+
+
+# set onedrive directory
+onedrive <- get_onedrive() 
+
+# load spatial datasets
+load(file.path(onedrive, "rdata/world.df.RData"))
+load(file.path(onedrive, "rdata/eez.df.RData"))
+load(file.path(onedrive, "rdata/fao.df.RData"))
+
+load(file.path(onedrive, "rdata/depth0.df.RData"))
+load(file.path(onedrive, "rdata/depth200.df.RData"))
+load(file.path(onedrive, "rdata/depth1000.df.RData"))
+load(file.path(onedrive, "rdata/depth2000.df.RData"))
+load(file.path(onedrive, "rdata/depth5000.df.RData"))
+
+load(file.path(onedrive, "rdata/icesrectangles.df.RData"))
+load(file.path(onedrive, "rdata/ices.df.RData"))
+load(file.path(onedrive, "rdata/transfer.df.RData"))
+
+load(file.path(onedrive, "rdata/eez.RData"))
+load(file.path(onedrive, "rdata/fao.RData"))
+load(file.path(onedrive, "rdata/afsis.RData"))
+load(file.path(onedrive, "rdata/transfer.RData"))
+
+# load catch by rectangle data
+catch <- 
+  readxl::read_excel(file.path(datapath, "HAWG CatchbyRect 20210617.xlsx")) %>%
+  lowcase() %>% 
+  filter(totalcatch > 0) %>% 
+  dplyr::select(-totalcatch) %>% 
+  filter(lon > -17) %>% # removed an outlier (-17.25 longitude)
+  # mutate(division2   = geo_inside(lon=lon, lat=lat, map=fao[fao@data$F_LEVEL=="DIVISION",], variable="F_DIVISION")) %>%
+  
+  mutate(lon         = lon - 0.75) %>% 
+  mutate(lat         = lat - 0.25) %>% 
+  mutate(eez         = geo_inside(lon=lon, lat=lat, map=eez, variable="Territory1")) %>% 
+  mutate(fleet       = ifelse(grepl("B$", country), "B", "A")) %>% 
+  mutate(country     = gsub(" B$","", country)) %>% 
+  
+  # Convert to long format
+  pivot_longer(names_to="quarter", values_to="catch", q1:q4) %>%  
+  filter(catch > 0) %>% 
+  ungroup() 
+
+
+```
+
+Working document 01, Trilateral herring group 2021
+
+**Analyzing the time-series of herring catch by rectangle**
+
+Martin Pastoors and Norbert Rohlff
+
+`r format(Sys.time(), '%d/%m/%Y')`
+
+**Introduction**
+
+The ICES herring working group has been publishing catch per rectangle plots in the working group reports for many years already. Catch by rectangle has been compiled by WG members and generally provide a WG estimate of catch per rectangle. So far, the catch by rectangle has only been presented for one single year in the WG reports. Here, we collated all the catch by rectangle data for herring catches by country and by quarter. 
+
+**Results**
+
+An overview of the summed catches by division and year is shown in the text tables below.  
+
+```{r, echo=FALSE, fig.asp=1.4, fig.align="center", message=FALSE, warning=FALSE}
+
+t <-
+  catch %>% 
+  filter(!grepl("2|8|3C|3D",division)) %>% 
+  # mutate(division = substr(division, 1, 2)) %>% 
+  group_by(division, year) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) 
+
+tt <-
+  t %>% 
+  group_by(division) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  reshape2::dcast(division ~ ., value.var="catch", sum, margins=TRUE) %>% 
+  setNames(c("division","TOTAL"))
+
+t %>% 
+  filter(year %in% 2004:2011) %>% 
+  reshape2::dcast(division ~ year, value.var="catch", sum, margins=TRUE) %>% 
+  pandoc.table(., 
+             style        = "simple",
+             split.tables = 200, 
+             split.cells  = c(rep(7,10)),
+             justify      = "right",
+             missing      =" ",
+             big.mark     = ',', 
+             round        = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+
+t %>% 
+  filter(year > 2011) %>% 
+  reshape2::dcast(division ~ year, value.var="catch", sum, margins=TRUE) %>% 
+  left_join(tt, by="division") %>% 
+  pandoc.table(., 
+             style        = "simple",
+             split.tables = 200, 
+             split.cells  = c(rep(7,10)),
+             justify      = "right",
+             missing      =" ",
+             big.mark     = ',', 
+             round        = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+
+
+```
+##### page break
+
+**Herring catch by rectangle in the whole area**
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.4, message=FALSE, warning=FALSE}
+
+t <-
+  catch %>% 
+  
+  group_by(year, division, rect, lat, lon) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  ungroup() %>% 
+  
+  filter(!grepl("2|8", division)) %>% 
+
+  # linear scale
+  # mutate(catch_interval = cut(catch, breaks=seq(0, 70000, by=10000), dig.lab=10 )) %>% 
+  
+  # log scale
+  # mutate(catch_interval = cut(catch, breaks=c(1 %o% 10^(0:12)), dig.lab=10 )) %>% 
+  
+  # sqrt scale
+  mutate(catch_interval = cut(catch, 
+                         breaks=scales::trans_breaks("sqrt", function(x) x ^ 2)(c(1, max(catch, na.rm=TRUE))), dig.lab=10 ) ) %>% 
+  
+  filter(!is.na(catch_interval)) %>% 
+  filter(grepl("\\,", catch_interval)) %>%   
+  group_by(year, division, rect, lat, lon, catch_interval) %>% 
+  summarize(catch = sum(catch, na.rm=TRUE))
+
+tt <-
+  t %>% 
+  group_by(year) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  mutate(catch = paste0(as.integer(catch),"t"))
+
+xlim <- range(t$lon, na.rm=TRUE)
+ylim <- range(t$lat, na.rm=TRUE)
+
+t %>% 
+  ggplot(aes(lon, lat)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  coord_quickmap(xlim=xlim, ylim=ylim) +
+
+  geom_polygon(data=depth0.df, aes(long, lat, group=group), fill = "blue1",
+               size=0.1, color=NA) +
+  geom_polygon(data=depth200.df, aes(long, lat, group=group), fill = "blue2",
+               size=0.1, color="blue4") +
+  geom_polygon(data=depth1000.df, aes(long, lat, group=group), fill = "blue3",
+               size=0.1, color=NA) +
+  geom_polygon(data=depth2000.df, aes(long, lat, group=group), fill = "blue4",
+               size=0.1, color=NA) +
+  
+  geom_polygon(data=fao.df, aes(long, lat, group=group), fill = NA, size=0.2,
+               color="gray80", alpha=0.3) +
+
+  geom_polygon(data=world.df, aes(long, lat, group=group), fill = "cornsilk", 
+               size=0.1, color="black") +
+  
+  # geom_tile(aes(fill = catch_interval, height=0.5, width=1), colour="gray", alpha=0.8, size=0.01) +
+  # scale_fill_viridis(option = "plasma", direction = -1, discrete=TRUE) +
+  
+  geom_label(data=tt, aes(label=catch), x=-Inf, y=Inf, hjust=0, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+
+  guides(fill = guide_legend(nrow = 1, title="catch (tonnes)")) +
+  labs(x="",y="") +
+  facet_wrap( ~ year, ncol=4)
+
+```
+
+_Figure 1: Catch of herring (tonnes) by year and rectangle_
+
+##### page break
+
+**Herring catch by rectangle in the North Sea, Skagerrak and Eastern Channel**
+
+```{r, echo=FALSE, fig.asp=1.4, fig.align="center", message=FALSE, warning=FALSE}
+
+t <-
+  catch %>% 
+
+  group_by(year, division, rect, lat, lon) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  ungroup() %>% 
+  
+  filter(grepl("3|4|7D", division)) %>% 
+  
+  # linear scale
+  # mutate(catch_interval = cut(catch, breaks=seq(0, 70000, by=10000), dig.lab=10 )) %>% 
+  
+  # log scale
+  # mutate(catch_interval = cut(catch, breaks=c(1 %o% 10^(0:12)), dig.lab=10 )) %>% 
+  
+  # sqrt scale
+  mutate(catch_interval = cut(catch, 
+                         breaks=scales::trans_breaks("sqrt", function(x) x ^ 2)(c(1, max(catch, na.rm=TRUE))), dig.lab=10 ) ) %>% 
+  
+  filter(!is.na(catch_interval)) %>% 
+  filter(grepl("\\,", catch_interval)) %>%   
+  group_by(year, division, rect, lat, lon, catch_interval) %>% 
+  summarize(catch = sum(catch, na.rm=TRUE))
+
+tt <-
+  t %>% 
+  group_by(year) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  mutate(catch = paste0(as.integer(catch),"t"))
+
+  
+xlim <- range(t$lon, na.rm=TRUE)
+ylim <- range(t$lat, na.rm=TRUE)
+
+t %>% 
+  ggplot(aes(lon, lat)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  coord_quickmap(xlim=xlim, ylim=ylim) +
+
+
+  geom_polygon(data=world.df, aes(long, lat, group=group), fill = "cornsilk", 
+               size=0.1, color="black") +
+  
+  geom_rect(aes(fill = catch_interval, xmin = lon, xmax=lon + 1, ymin = lat, ymax=lat+0.5), colour="gray", alpha=0.8, size=0.05) +
+  scale_fill_viridis(option = "plasma", direction = -1, discrete=TRUE) +
+
+  geom_polygon(data=fao.df, aes(long, lat, group=group), fill = NA, size=0.5,
+             color="black") +
+
+  geom_label(data=tt, aes(label=catch), x=-Inf, y=Inf, hjust=0, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+
+  guides(fill = guide_legend(nrow = 1, title="catch (tonnes)")) +
+  labs(x="",y="") +
+  facet_wrap( ~ year, ncol=4)
+
+```
+
+_Figure 2a: Catch of herring (tonnes) in subareas 27.3, 27.4 and division 27.7.d_
+
+##### page break
+
+**Herring catch by rectangle and quarter in the North Sea, Skagerrak and Eastern Channel (selected years)**
+
+```{r, echo=FALSE, fig.asp=1.4, fig.align="center", message=FALSE, warning=FALSE}
+
+t <-
+  catch %>% 
+
+  filter(grepl("3|4|7D", division)) %>% 
+  
+  mutate(year_interval = cut(year, breaks=seq(2003, 2021, 3), dig.lab=10 ) ) %>% 
+  group_by(year_interval, quarter, division, rect, lat, lon) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  ungroup() %>% 
+  
+  # sqrt scale
+  mutate(catch_interval = cut(catch, 
+                         breaks=scales::trans_breaks("sqrt", function(x) x ^ 2)(c(1, max(catch, na.rm=TRUE))), dig.lab=10 ) ) %>% 
+  
+  filter(!is.na(catch_interval)) %>% 
+  filter(grepl("\\,", catch_interval)) %>%   
+  group_by(year_interval, quarter, division, rect, lat, lon, catch_interval) %>% 
+  summarize(catch = sum(catch, na.rm=TRUE))
+
+tt <-
+  t %>% 
+  group_by(year_interval, quarter) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  mutate(catch = paste0(as.integer(catch),"t"))
+
+  
+xlim <- range(t$lon, na.rm=TRUE)
+ylim <- range(t$lat, na.rm=TRUE)
+
+t %>% 
+  ggplot(aes(lon, lat)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  coord_quickmap(xlim=xlim, ylim=ylim) +
+
+  geom_polygon(data=fao.df, aes(long, lat, group=group), fill = NA, size=0.2,
+               color="gray80", alpha=0.3) +
+
+  geom_polygon(data=world.df, aes(long, lat, group=group), fill = "cornsilk", 
+               size=0.1, color="black") +
+  
+  geom_tile(aes(fill = catch_interval, height=0.5, width=1), colour="gray", alpha=0.8, size=0.05) +
+  scale_fill_viridis(option = "plasma", direction = -1, discrete=TRUE) +
+
+  geom_label(data=tt, aes(label=catch), x=Inf, y=Inf, hjust=1, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+
+  guides(fill = guide_legend(nrow = 1, title="catch (tonnes)")) +
+  labs(x="",y="") +
+  facet_grid(quarter ~ year_interval)
+
+```
+
+_Figure 2b: Catch of herring (tonnes) by quarter and group of years in subareas 27.3, 27.4 and division 27.7.d. In three year periods._
+
+##### page break
+
+**Herring catch by rectangle and quarter in the North Sea, Skagerrak and Eastern Channel (selected countries)**
+
+```{r, echo=FALSE, fig.asp=1.4, fig.align="center", message=FALSE, warning=FALSE}
+
+t <-
+  catch %>% 
+
+  filter(grepl("3|4|7D", division)) %>% 
+  filter(year >= 2006) %>% 
+  mutate(country = ifelse(grepl("Neth|Denmark|Germany|Norway|Scotland", country), country, "Other")) %>% 
+  
+  mutate(year_interval = cut(year, breaks=seq(2003, 2021, 3), dig.lab=10 ) ) %>% 
+  group_by(year_interval, division, country, rect, lat, lon) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  ungroup() %>% 
+  
+  # sqrt scale
+  mutate(catch_interval = cut(catch, 
+                         breaks=scales::trans_breaks("sqrt", function(x) x ^ 2)(c(1, max(catch, na.rm=TRUE))), dig.lab=10 ) ) %>% 
+  
+  filter(!is.na(catch_interval)) %>% 
+  filter(grepl("\\,", catch_interval)) %>%   
+  group_by(year_interval, division, country, rect, lat, lon, catch_interval) %>% 
+  summarize(catch = sum(catch, na.rm=TRUE))
+
+tt <-
+  t %>% 
+  group_by(year_interval, country) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  mutate(catch = paste0(as.integer(catch),"t"))
+
+  
+xlim <- range(t$lon, na.rm=TRUE)
+ylim <- range(t$lat, na.rm=TRUE)
+
+t %>% 
+  ggplot(aes(lon, lat)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  coord_quickmap(xlim=xlim, ylim=ylim) +
+
+  geom_polygon(data=fao.df, aes(long, lat, group=group), fill = NA, size=0.2,
+               color="gray80", alpha=0.3) +
+
+  geom_polygon(data=world.df, aes(long, lat, group=group), fill = "cornsilk", 
+               size=0.1, color="black") +
+  
+  geom_tile(aes(fill = catch_interval, height=0.5, width=1), colour="gray", alpha=0.8, size=0.05) +
+  scale_fill_viridis(option = "plasma", direction = -1, discrete=TRUE) +
+
+  geom_label(data=tt, aes(label=catch), x=Inf, y=Inf, hjust=1, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+
+  guides(fill = guide_legend(nrow = 1, title="catch (tonnes)")) +
+  labs(x="",y="") +
+  facet_grid(country ~ year_interval)
+
+```
+
+_Figure 2c: Catch of herring (tonnes) by country and group of years in subareas 27.3, 27.4 and division 27.7.d. In three year periods_
+
+##### page break
+
+**Herring catch by rectangle in the North Sea (27.4.a.east) and transfer area by year and quarter (in three year periods)**
+
+```{r, echo=FALSE, fig.asp=1.4, fig.align="center", message=FALSE, warning=FALSE}
+
+t <-
+  catch %>% 
+  # filter(grepl("4A", toupper(division))) %>% 
+  filter(lat >= 56, lat <= 62) %>% 
+  filter(lon >= 2, lon <= 12) %>% 
+  mutate(transfer   = geo_inside(lon=lon, lat=lat, map=transfer[transfer@data$F_LEVEL=="SUBUNIT",], variable="F_CODE")) %>%
+  mutate(transfer  = ifelse(is.na(transfer), "not transfer", transfer)) %>% 
+  
+  mutate(year_interval = cut(year, breaks=seq(2003, 2021, 3), dig.lab=10 ) ) %>% 
+  group_by(year_interval, quarter, division, transfer, rect, lat, lon) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  ungroup() %>% 
+  
+  # sqrt scale
+  mutate(catch_interval = cut(catch, 
+                         breaks=scales::trans_breaks("sqrt", function(x) x ^ 2)(c(1, max(catch, na.rm=TRUE))), dig.lab=10 ) ) %>% 
+  
+  filter(!is.na(catch_interval)) %>% 
+  filter(grepl("\\,", catch_interval)) %>%   
+  group_by(year_interval, quarter, division, transfer, rect, lat, lon, catch_interval) %>% 
+  summarize(catch = sum(catch, na.rm=TRUE))
+
+tt <-
+  t %>% 
+  group_by(year_interval, quarter, transfer) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>%
+  group_by(year_interval, quarter) %>% 
+  summarise(str = paste(paste(transfer, as.integer(catch/1000), sep=" "), collapse="\n")) %>% 
+  mutate(str = paste(str, "kt", sep=" "))
+
+
+  
+xlim <- range(t$lon, na.rm=TRUE)
+ylim <- range(t$lat, na.rm=TRUE)
+
+t %>% 
+  ggplot(aes(lon, lat)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  coord_quickmap(xlim=xlim, ylim=ylim) +
+
+
+  geom_polygon(data=world.df, aes(long, lat, group=group), fill = "cornsilk", 
+               size=0.1, color="black") +
+  
+  geom_rect(aes(fill = catch_interval, xmin = lon, xmax=lon + 1, ymin = lat, ymax=lat+0.5), colour="gray", alpha=0.8, size=0.05) +
+  scale_fill_viridis(option = "plasma", direction = -1, discrete=TRUE) +
+  scale_x_continuous(breaks=scales::pretty_breaks()) +
+  
+  geom_polygon(data=ices.df, aes(long, lat, group=group), fill = NA, size=0.5,
+             color="black") +
+  geom_polygon(data=transfer.df, aes(long, lat, group=group), fill = NA, size=1.0,
+             color="red") +
+
+  geom_label(data=tt, aes(label=str), x=Inf, y=Inf, hjust=1, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+
+  guides(fill = guide_legend(nrow = 1, title="catch (tonnes)")) +
+  labs(x="",y="") +
+  facet_grid(quarter ~ year_interval)
+
+```
+
+_Figure 2d: Catch of herring (tonnes) in subdivision 27.4.a.east_
+
+##### page break
+
+**Herring catch by rectangle in the western area**
+
+```{r eval=FALSE, fig.align="center", fig.asp=1.4, message=FALSE, warning=FALSE, include=FALSE}
+
+t <-
+  catch %>% 
+
+  # filter(!grepl("2|3|4|5|7D|8", division)) %>%
+  # filter(grepl("6|7B|7C", division)) %>% 
+  filter(grepl("4.a|4.b|4.c|6", division2)) %>%
+  
+  # linear scale
+  # mutate(catch_interval = cut(catch, breaks=seq(0, 70000, by=10000), dig.lab=10 )) %>% 
+  
+  # log scale
+  # mutate(catch_interval = cut(catch, breaks=c(1 %o% 10^(0:12)), dig.lab=10 )) %>%
+  
+  # sqrt scale
+  mutate(catch_interval = cut(catch,
+                         breaks=scales::trans_breaks("sqrt", function(x) x ^ 2)(c(1, max(catch, na.rm=TRUE))), dig.lab=10 ) ) %>%
+  
+  filter(!is.na(catch_interval)) %>% 
+  filter(grepl("\\,", catch_interval)) %>%   
+  group_by(year, division, division2, rect, lat, lon, catch_interval) %>% 
+  summarize(catch = sum(catch, na.rm=TRUE))
+
+
+tt <-
+  t %>% 
+  group_by(year) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  mutate(catch = paste0(as.integer(catch),"t"))
+
+  
+xlim <- range(t$lon, na.rm=TRUE)
+ylim <- range(t$lat, na.rm=TRUE)
+
+t %>% 
+  ggplot(aes(lon, lat)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  coord_quickmap(xlim=xlim, ylim=ylim) +
+
+  geom_polygon(data=fao.df, aes(long, lat, group=group), fill = NA, size=0.2,
+               color="gray80", alpha=0.3) +
+
+  geom_polygon(data=world.df, aes(long, lat, group=group), fill = "cornsilk", 
+               size=0.1, color="black") +
+  
+  geom_tile(aes(fill = catch_interval, height=0.5, width=1), colour="gray", alpha=0.8, size=0.05) +
+  scale_fill_viridis(option = "plasma", direction = -1, discrete=TRUE) +
+
+  geom_label(data=tt, aes(label=catch), x=-Inf, y=Inf, hjust=0, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+  # geom_text(data=tt, aes(label=catch), x=-Inf, y=Inf, hjust=0, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+  
+  # geom_segment(x=-4, xend=-4, y=58.5, yend=62, size=0.8) +
+  
+  guides(fill = guide_legend(nrow = 1, title="catch (tonnes)")) +
+  labs(x="",y="") +
+  facet_wrap( ~ year, ncol=6)
+
+```
+
+_Figure 3: Catch of herring (tonnes) in subareas 27.6 and 27.7 (excluding 27.7.d)_
+
+
+##### page break
+
+**Herring catch by rectangle and quarter in the western area**
+
+```{r eval=FALSE, fig.align="center", fig.asp=1.4, message=FALSE, warning=FALSE, include=FALSE}
+
+t <-
+  catchq %>% 
+
+  filter(grepl("6|7B|7C", division)) %>%
+
+
+  # sqrt scale
+  mutate(catch_interval = cut(catch, 
+                         breaks=scales::trans_breaks("sqrt", function(x) x ^ 2)(c(1, max(catch, na.rm=TRUE))), dig.lab=10 ) ) %>% 
+  
+  filter(!is.na(catch_interval)) %>% 
+  filter(grepl("\\,", catch_interval)) %>%   
+  group_by(year, quarter, division, rect, lat, lon, catch_interval) %>% 
+  summarize(catch = sum(catch, na.rm=TRUE))
+
+tt <-
+  t %>% 
+  group_by(year, quarter) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  mutate(catch = paste0(as.integer(catch),"t"))
+
+  
+xlim <- range(t$lon, na.rm=TRUE)
+ylim <- range(t$lat, na.rm=TRUE)
+
+t %>% 
+  ggplot(aes(lon, lat)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  coord_quickmap(xlim=xlim, ylim=ylim) +
+
+  geom_polygon(data=fao.df, aes(long, lat, group=group), fill = NA, size=0.2,
+               color="gray80", alpha=0.3) +
+
+  geom_polygon(data=world.df, aes(long, lat, group=group), fill = "cornsilk", 
+               size=0.1, color="black") +
+  
+  geom_tile(aes(fill = catch_interval, height=0.5, width=1), colour="gray", alpha=0.8, size=0.05) +
+  scale_fill_viridis(option = "plasma", direction = -1, discrete=TRUE) +
+
+  geom_label(data=tt, aes(label=catch), x=-Inf, y=Inf, hjust=0, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+  # geom_text(data=tt, aes(label=catch), x=-Inf, y=Inf, hjust=0, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+  
+  # geom_segment(x=-4, xend=-4, y=58.5, yend=62, size=0.8) +
+  
+  guides(fill = guide_legend(nrow = 1, title="catch (tonnes)")) +
+  labs(x="",y="") +
+  facet_grid(quarter ~ year)
+
+```
+
+##### page break
+
+**Norwegian catch by rectangle**
+
+```{r eval=FALSE, fig.align="center", fig.asp=1.4, message=FALSE, warning=FALSE, include=FALSE}
+
+t <-
+  nor %>% 
+  
+  filter(!grepl("2|8", division)) %>% 
+
+  # linear scale
+  # mutate(catch_interval = cut(catch, breaks=seq(0, 70000, by=10000), dig.lab=10 )) %>% 
+  
+  # log scale
+  # mutate(catch_interval = cut(catch, breaks=c(1 %o% 10^(0:12)), dig.lab=10 )) %>% 
+  
+  # sqrt scale
+  mutate(catch_interval = cut(catch, 
+                         breaks=scales::trans_breaks("sqrt", function(x) x ^ 2)(c(1, max(catch, na.rm=TRUE))), dig.lab=10 ) ) %>% 
+  
+  filter(!is.na(catch_interval)) %>% 
+  filter(grepl("\\,", catch_interval)) %>%   
+  group_by(year, division, rect, lat, lon, catch_interval) %>% 
+  summarize(catch = sum(catch, na.rm=TRUE))
+
+tt <-
+  t %>% 
+  group_by(year) %>% 
+  summarise(catch = sum(catch, na.rm=TRUE)) %>% 
+  mutate(catch = paste0(as.integer(catch),"t"))
+
+xlim <- range(t$lon, na.rm=TRUE)
+ylim <- range(t$lat, na.rm=TRUE)
+
+t %>% 
+  ggplot(aes(lon, lat)) + 
+  theme_publication() +
+  theme(panel.border     = element_rect(colour="black" , size=0.2),
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="black", size =0.2),
+        plot.margin      = unit(c(0,0,0,0),"cm"),
+        plot.title       = element_text(hjust=0, vjust=0, size=10),
+        axis.text        = element_text(size=6),
+        legend.key.width = unit(0.4, "cm"), 
+        axis.title       = element_blank()) +
+  
+  coord_quickmap(xlim=xlim, ylim=ylim) +
+
+  geom_polygon(data=fao.df, aes(long, lat, group=group), fill = NA, size=0.2,
+               color="gray80", alpha=0.3) +
+
+  geom_polygon(data=world.df, aes(long, lat, group=group), fill = "cornsilk", 
+               size=0.1, color="black") +
+  
+  geom_tile(aes(fill = catch_interval, height=0.5, width=1), colour="gray", alpha=0.8, size=0.01) +
+  scale_fill_viridis(option = "plasma", direction = -1, discrete=TRUE) +
+
+  geom_polygon(data=eez.df, aes(long, lat, group=group), fill = NA, size=0.2,
+               color="gray20", alpha=0.3) +
+  
+  geom_label(data=tt, aes(label=catch), x=-Inf, y=Inf, hjust=0, vjust=1, inherit.aes=FALSE, alpha=0.5) +
+
+  guides(fill = guide_legend(nrow = 1, title="catch (tonnes)")) +
+  labs(x="",y="") +
+  facet_wrap( ~ year)
+
+```
+_Figure 4: Norwegian Catch of herring (tonnes) by year and rectangle_
+
+##### page break
+
+Norwegian catches by EEZ
+
+```{r eval=FALSE, fig.align="center", fig.asp=1.4, message=FALSE, warning=FALSE, include=FALSE}
+
+nor_eez %>%  
+  filter(year >= 2015) %>% 
+  reshape2::dcast(eez ~ year, value.var="catch", sum, margins=TRUE) %>% 
+  pandoc.table(., 
+             style        = "simple",
+             split.tables = 200, 
+             split.cells  = c(rep(7,10)),
+             justify      = "right",
+             missing      =" ",
+             big.mark     = ',', 
+             round        = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+
+nor_eez %>%  
+  filter(year >= 2015) %>% 
+  group_by(year) %>% 
+  mutate(perc = 100 * (catch / sum(catch, na.rm=TRUE))) %>% 
+  reshape2::dcast(eez ~ year, value.var="perc", sum, margins="eez") %>% 
+  pandoc.table(., 
+             style        = "simple",
+             split.tables = 200, 
+             split.cells  = c(rep(7,10)),
+             justify      = "right",
+             missing      =" ",
+             big.mark     = ',', 
+             round        = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+
+
+```
+
+Proportion of wintercatch in 7d compared to all year catch in 4 and 7d
+
+```{r eval=FALSE, fig.align="center", fig.asp=1.4, message=FALSE, warning=FALSE, include=FALSE}
+
+t1 <-
+  catchq %>% 
+  filter(division2 %in% c("27.4.a","27.4.b","27.4.c","27.7.d")) %>% 
+  group_by(year) %>% 
+  summarise(total = sum(catch, na.rm=TRUE)) 
+
+t2 <-
+  catchq %>% 
+  filter(division2 %in% c("27.7.d")) %>%
+  filter(quarter == 4) %>% 
+  group_by(year) %>% 
+  summarise(roe = sum(catch, na.rm=TRUE)) 
+
+t3 <-
+  t1 %>% 
+  left_join(t2, by="year") %>% 
+  mutate(prop = roe/total)
+
+t3 %>% 
+  ggplot(aes(x=year, y=prop)) +
+  theme_publication() +
+  geom_point() + geom_line() +
+  expand_limits(y=0) +
+  scale_y_continuous(labels=scales::percent_format(accuracy=1)) +
+  labs(y="percentage winterfishery in 7d")
+
+
+
+
+```
+##### page break
+
+**Discussion**
+
+While the aggregation and presentation of the catch per rectangle data does not constitute rocket-science, it does provide us with meaningful insights into the changes of catching areas over time. This could be relevant in understanding the fluctuations of stock and impacts of climate change on fisheries. As such, these graphical representations of catching areas provide a useful addition to the WG report. 
+
+One important check that still needs to be carried out is the check on data availability by country and year that may not be consistent over the time series. Making the time-series complete would improve the useability of the information. 
+
+

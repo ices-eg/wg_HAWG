@@ -1,0 +1,271 @@
+---
+output: 
+  word_document:
+    reference_docx: ../_Common/report_template_v1.5.dotx
+---
+
+```{r setup, include=FALSE}
+# ==============================================================================
+# Herring assessment working group; quality control (and miscellaneous visualization)
+#
+# 22/03/2020 first coding
+# 01/04/2021 adapted for HAWG 2021; Irish sea herring
+# ==============================================================================
+
+require("knitr")
+knitr::opts_chunk$set(
+  echo = FALSE,	message = FALSE,	warning = FALSE,	comment = "",	crop = TRUE, fig.width=10) 
+
+rm(list=ls())
+
+#library(devtools)  ## install.packages("devtools")
+library(FLCore)
+library(FLSAM)
+library(tidyverse)
+library(RColorBrewer)
+
+# local path (not needed in RMarkdown)
+
+# source some utility codes publication theme
+source("theme_publication.r")
+source("crayola.r")
+source("loadRDataObject.r")
+
+# Create QC directory
+dir.create("qc",showWarnings = FALSE)
+
+# Other settings
+output.dir          <-  file.path(".","qc/")              # result directory\
+
+y1                  <- 2020
+dir1                <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2020 Meeting Docs/06. Data/her.27.nirs"
+assessmentname1    <- 'ISH_assessment 2020'
+
+y2                  <- 2021
+dir2                <- "//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/HAWG/2021 Meeting Docs/06. Data/her.27.nirs"
+assessmentname2    <- 'ISH_assessment 2021'
+
+# read in data objects of year1
+
+# listDataObjects(fileName = file.path(dir1, paste0(assessmentname1, ".RData")))
+
+s.y1      <- loadRDataObject(fileName = file.path(dir1, paste0("SAM/results/", assessmentname1, ".RData")),
+                             object   = "ISH")
+s.ctrl.y1 <- loadRDataObject(fileName = file.path(dir1, paste0("SAM/results/", assessmentname1, ".RData")),
+                             object   = "ISH.ctrl")
+s.sam.y1  <- loadRDataObject(fileName = file.path(dir1, paste0("SAM/results/", assessmentname1, ".RData")),
+                             object   = "ISH.sam")
+s.tun.y1  <- loadRDataObject(fileName = file.path(dir1, paste0("SAM/results/", assessmentname1, ".RData")),
+                             object   = "ISH.tun")
+ly.y1     <- an(range(s.y1)["maxyear"])
+
+stf.y1    <- 
+  read.csv(file.path(dir1, "SAM.options - input - df.csv")) %>% 
+  setNames(c("year","age","stock.n","m", "mat","harvest.spwn","m.spwn","stock.wt","harvest","catch.wt")) %>% 
+  mutate(stock.n = as.numeric(stock.n )) %>% 
+  pivot_longer(names_to="slot", values_to = "data", c("stock.n", "m","mat","harvest.spwn","m.spwn",
+                                                      "stock.wt","harvest","catch.wt")) %>% 
+  mutate(assessmentyear = y1) 
+
+# read in data objects of year2
+
+# listDataObjects(fileName = file.path(dir2, paste0(assessmentname2, ".RData")))
+
+s.y2      <- loadRDataObject(fileName = file.path(dir2, paste0("SAM/results/", assessmentname2, ".RData")),
+                             object   = "ISH")
+s.ctrl.y2 <- loadRDataObject(fileName = file.path(dir2, paste0("SAM/results/", assessmentname2, ".RData")),
+                             object   = "ISH.ctrl")
+s.sam.y2  <- loadRDataObject(fileName = file.path(dir2, paste0("SAM/results/", assessmentname2, ".RData")),
+                             object   = "ISH.sam")
+s.tun.y2  <- loadRDataObject(fileName = file.path(dir2, paste0("SAM/results/", assessmentname2, ".RData")),
+                             object   = "ISH.tun")
+ly.y2     <- an(range(s.y2)["maxyear"])
+
+stf.y2    <- 
+  read.csv(file.path(dir2, "STF/SAM.options - input - df.csv")) %>%  
+  setNames(c("year","age","stock.n","m", "mat","harvest.spwn","m.spwn","stock.wt","harvest","catch.wt")) %>% 
+  mutate(stock.n = as.numeric(stock.n )) %>% 
+  pivot_longer(names_to="slot", values_to = "data", c("stock.n", "m","mat","harvest.spwn","m.spwn",
+                                                      "stock.wt","harvest","catch.wt")) %>% 
+  mutate(assessmentyear = y2) 
+
+
+df.y1 <- as.data.frame(s.y1) %>% mutate(assessmentyear = ac(y1)) 
+df.y2 <- as.data.frame(s.y2) %>% mutate(assessmentyear = ac(y2)) 
+df    <- bind_rows(df.y1, df.y2) %>% 
+  mutate(assessmentyear = factor(assessmentyear, levels=sort(unique(.$assessmentyear), decreasing=TRUE)))
+
+df.tun.y1 <- as.data.frame(s.tun.y1) %>% mutate(assessmentyear = ac(y1)) 
+df.tun.y2 <- as.data.frame(s.tun.y2) %>% mutate(assessmentyear = ac(y2)) 
+df.tun    <- bind_rows(df.tun.y1, df.tun.y2) %>% 
+  mutate(assessmentyear = factor(assessmentyear, levels=sort(unique(.$assessmentyear), decreasing=TRUE)))
+
+df.stf <-
+  bind_rows(stf.y1, stf.y2) %>% 
+  mutate(source="stf") %>% 
+  mutate(age = as.character(age)) %>% 
+  mutate(assessmentyear = factor(assessmentyear, levels=sort(unique(.$assessmentyear), decreasing=TRUE))) %>% 
+  bind_rows(df %>% mutate(source="assessment")) 
+
+
+```
+
+**Quality control of `r assessmentname2` assessment**
+
+**Martin Pastoors^1^**
+
+`r format(Sys.time(), '%d/%m/%Y %H:%M')`
+
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x1 Data check on biological input data 
+
+df %>%
+  filter(slot %in% c("catch", "catch.n","catch.wt", "harvest.spwn", "m.spwn","m","mat", "stock.wt")) %>% 
+  ggplot(aes(x=year, y=data)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  geom_line(aes(colour=assessmentyear)) +
+  # labs(title=myvar) +
+  facet_grid(slot~age, scale="free_y")
+
+```
+
+**Figure 2.2.4.x1. `r assessmentname2`. Data check on biological input data, comparing data of the `r y1` and `r y2` assessments.**
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x2 Data check on biological input data 
+# df.y1 <- as.data.frame(s.y1) %>% mutate(assessmentyear = ac(y1)) 
+# df.y2 <- as.data.frame(s.y2) %>% mutate(assessmentyear = ac(y2)) 
+  
+df %>%
+  filter(slot %in% c("catch", "catch.n","catch.wt", "harvest.spwn", "m.spwn","m","mat", "stock.wt")) %>% 
+  filter(data != -1) %>% 
+  arrange(slot, age, year, unit, season, area, iter, assessmentyear) %>% 
+  group_by(slot, age, year, unit, season, area, iter) %>% 
+  mutate(data1 = lag(data, n=1)) %>% 
+  filter(data1 != -1, !is.na(data1)) %>% 
+  mutate(perc = 100*((data1/data)-1)) %>% 
+
+  ggplot(aes(x=year, y=perc)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept=0, colour="black", linetype="dashed") +
+  geom_line(colour="red", size=1) +
+  labs(y="perc diff") +
+  facet_grid(slot~age)
+
+```
+
+**Figure 2.2.4.x2. `r assessmentname2`. Data check on biological input data, relative difference between the `r y1` and `r y2` assessments.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x3 Data check on survey input data 
+
+df.tun %>%
+  filter(slot %in% c("index")) %>% 
+  ggplot(aes(x=year, y=data)) +
+  theme_publication() +
+  theme(legend.position="bottom") +
+  geom_line(aes(colour=assessmentyear)) +
+  # labs(title=myvar) +
+  facet_grid(cname~age, scale="free_y")
+
+```
+
+**Figure 2.2.4.x4. `r assessmentname2`. Data check on survey input data, relative difference between the `r y1` and `r y2` assessments.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=1.0, message=FALSE, warning=FALSE}
+
+# Figure 2.2.4.x4 Data check on relative difference in survey input data 
+df.tun %>%
+      filter(slot=="index") %>%
+      filter(data != -1) %>% 
+      arrange(slot, age, year, unit, season, area, iter, cname, assessmentyear) %>% 
+      group_by(slot, age, year, unit, season, area, iter, cname) %>% 
+      mutate(data1 = lag(data, n=1)) %>% 
+      filter(data1 != -1) %>% 
+      mutate(perc = 100*((data1/data)-1)) %>% 
+      
+      ggplot(aes(x=year, y=perc)) +
+      theme_bw() +
+      theme(legend.position="none") +
+      geom_hline(yintercept=0, colour="black", linetype="dashed") +
+      geom_line(colour="red", size=1) +
+      labs(x="",y="") +
+      facet_grid(cname~age)
+
+
+```
+
+**Figure 2.2.4.x4. `r assessmentname2`. Data check on survey input data, comparing data of the `r y1` and `r y2` assessments.**
+
+##### page break
+
+```{r echo=FALSE, fig.align="center", fig.asp=0.6, message=FALSE, warning=FALSE}
+
+# Figure 2.7.2.1. Predicted and projected catch (in weight) 
+# stf.y1    <- get(load(file.path('stf',y1,paste0('NSAS_stf_',y1,'_FmsyAR.RData'))))[["stf"]]
+# stf.y2    <- get(load(file.path('stf',y2,paste0('NSAS_stf_',y2,'_FmsyAR.RData'))))[["stf"]]
+
+
+
+# plot stock numbers
+# df.stf %>% 
+#   mutate(ayear = as.numeric(as.character(assessmentyear))) %>% 
+#   group_by(assessmentyear) %>% 
+#   filter(year >= ayear-2, year <= max(ayear)) %>% 
+#   filter(slot == "stock.n") %>%  
+#   # filter(source=="assessment") %>% 
+#   group_by(source, slot, assessmentyear, year) %>% 
+#   mutate(cum = cumsum(data)) %>% 
+#   
+#   ggplot(aes(x=age, y=cum, group=as.character(year))) +
+#   theme_publication() +
+#   geom_line(aes(colour=source), size=1) +
+#   # labs(x="", y="catch (tonnes)", colour="HAWG") +
+#   facet_grid(year~assessmentyear)
+
+df.stf %>% 
+  mutate(ayear = as.numeric(as.character(assessmentyear))) %>% 
+  group_by(assessmentyear) %>% 
+  filter(year >= 2019) %>% 
+  # filter(year >= ayear-2, year <= max(ayear)) %>% 
+  filter(slot == "stock.n") %>%  
+  # filter(source=="assessment") %>% 
+  group_by(source, slot, assessmentyear, year) %>% 
+  mutate(cum = cumsum(data)) %>% 
+  mutate(yearsource = paste(year, source)) %>% 
+  
+  ggplot(aes(x=yearsource, y=data)) +
+  theme_publication() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  geom_bar(aes(fill=age), stat="identity", size=1, position = position_stack(reverse = TRUE)) +
+  # labs(x="", y="catch (tonnes)", colour="HAWG") +
+  facet_grid(.~assessmentyear)
+
+
+# catch.y1  <- as.data.frame(stf.y1@catch.n * stf.y1@catch.wt) %>% mutate(stf=ac(y1))
+# catch.y2  <- as.data.frame(stf.y2@catch.n * stf.y2@catch.wt) %>% mutate(stf=ac(y2))
+# 
+# bind_rows(catch.y1,catch.y2) %>% 
+#   mutate(age = paste0(age," wr")) %>% 
+# 
+#   ggplot(aes(x=year, y=data, group=stf)) +
+#   theme_publication() +
+#   geom_line(aes(colour=stf), size=1) +
+#   labs(x="", y="catch (tonnes)", colour="HAWG") +
+#   facet_wrap(~age)
+
+```
+
+**Figure 2.7.2.1. `r assessmentname2`. Predicted and projected catch (in weight) between `r y1` assessment (`r y1+1` as forecast year) and `r y2` assessment (`r y2+1` as forecast year).**
+

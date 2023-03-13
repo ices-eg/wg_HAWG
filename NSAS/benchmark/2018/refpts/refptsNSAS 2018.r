@@ -24,14 +24,14 @@ library(msy)       ## install_github("ices-tools-prod/msy")
 library(tidyverse)
 
 # setwd("D:/Repository/ICES_HAWG/wg_HAWG/NSAS/benchmark/")
-try(setwd("NSAS/refpts"),silent=FALSE)
+try(setwd("NSAS/benchmark/2018/refpts"),silent=FALSE)
 
 # source("../refpts/Refpoints functions.R")
 # source("../../_Common/eqsr_fit_shift.R")
 # load("./results/7_finalModel/NSH_final.RData")
 
 source("Refpoints functions.R")
-source("../../_Common/eqsr_fit_shift.R")
+source("../../../../_Common/eqsr_fit_shift.R")
 
 #load("D:/WKPELA/06. Data/NSAS/SAM/NSH_final.RData")
 # NEED TO OPEN THE SHAREPOINT FOLDER IN EXPLORER FIRST!!
@@ -39,8 +39,7 @@ load("//community.ices.dk@SSL/DavWWWRoot/ExpertGroups/benchmarks/2018/wkherring/
 
 # 1. Get estimate of Blim using the whole time series and calculate Bpa
 
-FIT_segregBlim <- 
-  eqsr_fit_shift(NSH,nsamp=2000, models = "Segreg", rshift=1)
+FIT_segregBlim <- eqsr_fit_shift(NSH,nsamp=2000, models = "Segreg", rshift=1)
 
 blim <- round(FIT_segregBlim$sr.det$b/1e5)*1e5  # 796 kT = 800 kT
 
