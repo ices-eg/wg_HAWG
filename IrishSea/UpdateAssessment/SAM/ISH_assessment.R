@@ -28,7 +28,7 @@ ISH.sam       <- SAM2FLR(ctrl=ISH.ctrl)
 
 ISH<-ISH+ISH.sam
 #save results
-name(ISH.sam) <- "ISH_assessment 2021"
+name(ISH.sam) <- "ISH_assessment 2022"
 ISH@stock.n <- ISH.sam@stock.n
 ISH@harvest <- ISH.sam@harvest
 

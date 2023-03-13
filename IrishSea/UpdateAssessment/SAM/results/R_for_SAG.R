@@ -1,7 +1,7 @@
 setwd("C:\\Users\\Matt Lundy\\Documents\\GIT_HUB\\wg_HAWG\\IrishSea\\UpdateAssessment\\SAM\\results")
 
 cat("# Standard Graphs personal access token",
-    "SG_PAT=79fbde5f-9872-4542-bf71-b6bb3a489d86",
+    "SG_PAT=1073dfb6-266c-4f03-b678-f2aca20b00d7",
     sep = "\n",
     file = "~/.Renviron_SG")
 
@@ -51,7 +51,7 @@ info$RecruitmentAge            <- 1
 info$RecruitmentDescription    <- "WR" 
 info$RecruitmentUnits          <- "NE3" 
 info$FishingPressureDescription<- "F" 
-info$ConfidenceIntervalDefinition<-"CV"
+info$ConfidenceIntervalDefinition<-"95%"
 info$FishingPressureUnits      <- NA 
 info$StockSizeDescription      <- "SSB" 
 info$StockSizeUnits            <- "t" 

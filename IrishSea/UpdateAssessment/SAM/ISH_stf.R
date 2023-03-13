@@ -12,7 +12,7 @@ library(FLSAM)
 ### Input data
 ###=============================================================================
 setwd("C:\\Users\\Matt Lundy\\Documents\\GIT_HUB\\wg_HAWG\\IrishSea\\UpdateAssessment\\SAM\\Results")
-load("ISH_assessment 2021.Rdata")
+load("ISH_assessment 2022.Rdata")
 my.path<-file.path("C:","Users","Matt Lundy","Documents", "GIT_HUB", "wg_HAWG", "IrishSea","UpdateAssessment","SAM")
 output.dir              <- file.path(my.path,"results")
 data.source         <- file.path(my.path,"data")
@@ -20,6 +20,7 @@ data.source         <- file.path(my.path,"data")
 #survivors
 dmns <- dims(ISH@stock.n)
 gm.recruitmentEstimate <- exp(mean(log(ISH@stock.n[1,as.character((ISH@range['maxyear']-11):(ISH@range['maxyear']-2)),,,,])))
+ISH@stock.n[1,as.character((ISH@range['maxyear']))]<-exp(mean(log(ISH@stock.n[1,as.character((ISH@range['maxyear']-11):(ISH@range['maxyear']-2)),,,,])))
 survivors <- FLQuant(c(gm.recruitmentEstimate,stock.n(ISH)[,ac(ISH@range['maxyear'])] * exp(-harvest(ISH[,ac(ISH@range['maxyear'])])-m(ISH[,ac(2015)]))),
                                dimnames=list(ages=dmns$min:(dmns$max+1),year=ISH@range['maxyear']+1,unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter))
 
@@ -65,8 +66,8 @@ survivors           <- survivors[ac(dmns$min:dmns$max),]
 ISH.proj@stock.n[,ac(ImY)]<-survivors
 ISH.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- gm.recs;
 
-#For 2021
-ImY.catch <- 8455;  
+#For 2023
+ImY.catch <- 7309;  
 #2021 real advice year
 numFmsy <- 0.266;
 numFlim <- 0.397;
