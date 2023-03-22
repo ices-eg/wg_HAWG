@@ -1,4 +1,4 @@
-#R 3.0.3
+#Rversion 3.0.3
 
 library(FLCore)
 library(FLAssess)
@@ -125,15 +125,15 @@ options.l <- list("Catch = Fmsy"=
                   
                   "SSB = Bpa"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
-                                          quantity=c("catch","ssb","f"),
+                                          quantity=c("catch","ssb","SSB"),
                                           rel=c(NA,NA,NA),
-                                          val=c(ImY.catch,11831,NA))),
+                                          val=c(ImY.catch,11831,11831))),
 
                   "SSB = Blim"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
-                                          quantity=c("catch","ssb","f"),
+                                          quantity=c("catch","ssb","ssb"),
                                           rel=c(NA,NA,NA),
-                                          val=c(ImY.catch,8500,NA))),
+                                          val=c(ImY.catch,8500,8500))),
 
 
               #TAC +15%

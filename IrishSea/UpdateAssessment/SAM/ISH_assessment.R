@@ -208,11 +208,26 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 Ages<-9
 
 i<-2
-plot(as.numeric(seq(1980,2022,1)),c(stock.n(ISH[i,]),207843),type='l',main='Stock Numbers Age 2',xlab='year',ylab='StockNumbers')
+plot(as.numeric(seq(1980,2022,1)),c(harvest(ISH[i,])),type='l',main='F at Age 2',xlab='year',ylab='StockNumbers')
 
 i<-3
-plot(as.numeric(seq(1980,2022,1)),c(stock.n(ISH[i,]),84195),type='l',main='Stock Numbers Age 3',xlab='year',ylab='StockNumbers')
+plot(as.numeric(seq(1980,2022,1)),c(harvest(ISH[6,])),type='p',main='F at Age', pch = "6", ylim = c(.1,.35))
+lines(as.numeric(seq(1980,2022,1)),c(harvest(ISH[3,])), type = "b", pch = "3")
+lines(as.numeric(seq(1980,2022,1)),c(harvest(ISH[4,])), type = "b", pch = "4")
+lines(as.numeric(seq(1980,2022,1)),c(harvest(ISH[5,])), type = "b", pch = "5")
+lines(as.numeric(seq(1980,2022,1)),c(harvest(ISH[2,])), type = "b", pch = "2")
 
-i<-4
-plot(as.numeric(seq(1980,2022,1)),c(stock.n(ISH[i,]),65619),type='l',main='Stock Numbers Age 4',xlab='year',ylab='StockNumbers')
+fb<-read.csv("Fbar.csv")
+plot(as.numeric(seq(1980,2022,1)),(fb$F2_6),type='p',main='F at Age', pch = 16, ylim = c(.1,.35))
+lines(as.numeric(seq(1980,2022,1)),(fb$F2_4), type = "b", pch = 12)
+lines(as.numeric(seq(1980,2022,1)),(fb$F4_6), type = "b", pch = 8)
 
+points(1980, 0.12, pch = 16)
+text(1980, 0.13, "F2-6")
+
+
+points(1985, 0.12, pch = 12)
+text(1985, 0.13, "F2-4")
+
+points(1990, 0.12, pch = 8)
+text(1990, 0.13, "F4-6")

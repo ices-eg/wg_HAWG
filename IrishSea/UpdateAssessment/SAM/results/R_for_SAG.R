@@ -1,11 +1,11 @@
 setwd("C:\\Users\\Matt Lundy\\Documents\\GIT_HUB\\wg_HAWG\\IrishSea\\UpdateAssessment\\SAM\\results")
 
 cat("# Standard Graphs personal access token",
-    "SG_PAT=1073dfb6-266c-4f03-b678-f2aca20b00d7",
+    "SG_PAT=89099a46-29a1-4f13-8764-650cce097f15",
     sep = "\n",
     file = "~/.Renviron_SG")
 
-SSBint<-24716
+SSBint<-25569
 GMrec<-294667
 
 
@@ -29,7 +29,7 @@ library(icesSAG)
 
 # make use of the token 
 options(icesSAG.use_token = TRUE) 
-info     <- stockInfo(StockCode="her.27.nirs", AssessmentYear = 2022, ContactPerson = "mathieu.lundy@afbini.gov.uk") 
+info     <- stockInfo(StockCode="her.27.nirs", AssessmentYear = 2023, ContactPerson = "mathieu.lundy@afbini.gov.uk") 
  
 FiY       <- min(nirs_sum$Year)  
 DtY       <- max(nirs_sum$Year) 
@@ -37,7 +37,7 @@ LaY       <- max(nirs_sum$Year)
 nyrs      <- ((LaY)-(FiY))+1
  
 
-fishdata <- stockFishdata((FiY):((LaY)+1)) 
+fishdata <- stockFishdata(Year = (FiY):((LaY)+1)) 
 
 info$StockCategory             <- "1" 
 info$MSYBtrigger               <- 11831
@@ -68,7 +68,7 @@ fishdata$High_Recruitment[1:nyrs]     <- nirs_sum$RecruitsHigh[1:nyrs]
 
 fishdata$TBiomass[1:nyrs]             <- nirs_sum$TSB[1:nyrs] 
 
-fishdata$StockSize                  <- c(nirs_sum$SSB[1:nyrs],27504) 
+fishdata$StockSize                  <- c(nirs_sum$SSB[1:nyrs],SSBint) 
 fishdata$Low_StockSize[1:nyrs]        <- nirs_sum$SSBL[1:nyrs] 
 fishdata$High_StockSize[1:nyrs]       <- nirs_sum$SSBH[1:nyrs] 
 
